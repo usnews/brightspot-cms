@@ -439,11 +439,11 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          * Trigger an rteChange event.
          * This can happen when user types changes into the editor, or if some kind of mark is modified.
          */
-        triggerChange: function() {
+        triggerChange: $.throttle(200, function() {
             var self;
             self = this;
             self.$el.trigger('rteChange', [self]);
-        },
+        }),
 
         
         //==================================================
@@ -899,17 +899,27 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                     position = mark.find();
                     if (position) {
                         editor.replaceRange('', position.from, position.to, '+brightspotFormatRemoveClass');
+
+                        // Trigger a change event for the editor
+                        if (options.triggerChange !== false) {
+                            self.triggerChange();
+                        }
                     }
                 }
                 if (mark.shouldRemove) {
+                    
                     mark.clear();
+                    
+                    // Trigger a change event for the editor
+                    if (options.triggerChange !== false) {
+                        self.triggerChange();
+                    }
                 }
             });
 
             // Trigger a cursor activity event so the toolbar can update
             CodeMirror.signal(editor, "cursorActivity");
-            
-            self.triggerChange();
+
         },
 
 
@@ -1400,7 +1410,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                     to = pos.to;
 
                     // Clear other styles
-                    self.inlineRemoveStyle('', {from:from, to:to}, {includeTrack:true, except:mark.className});
+                    self.inlineRemoveStyle('', {from:from, to:to}, {includeTrack:true, except:mark.className, triggerChange:false});
                 }
                 
             });
