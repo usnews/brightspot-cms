@@ -3380,7 +3380,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             map = self.getElementMap();
 
             // Convert HTML into a DOM element so we can parse it using the browser node functions
-            el = $("<div/>").append(html)[0];
+            el = new DOMParser().parseFromString(html, "text/html").body;
 
             // Text for the editor
             val = '';
