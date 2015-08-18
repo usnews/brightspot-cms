@@ -135,8 +135,26 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 // It does not create an element for output.
                 className: 'rte2-style-track-display',
                 internal:true
+            },
+
+            linebreak: {
+                line:true
             }
         }, // styles
+
+        
+        /**
+         * Rules for cleaning up the clipboard data when content is pasted
+         * from outside the RTE.
+         *
+         * This is an object of key/value pairs, where the key is a jQuery selector,
+         * and value is a style name from the styles object.
+         *
+         * @example
+         * {'span[style*="font-style:italic"]': 'italic',
+         *  'span[style*="font-weight:700"]': 'bold'}
+         */
+        clipboardSanitizeRules: {},
 
         
         /**
@@ -2572,12 +2590,20 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 // data that was copied from the RTE, or HTML or text data from elsewhere
                 valueRTE = e.clipboardData.getData('text/brightspot-rte2');
                 valueHTML = e.clipboardData.getData('text/html') || e.clipboardData.getData('text/plain');
-                value = valueRTE || valueHTML;
 
-                // If we got data from an RTE, then allow raw html to be imported.
-                // If we got data from outside the RTE, then don't allow raw HTML,
-                // instead strip out any HTML elements we don't understand.
-                allowRaw = Boolean(valueRTE);
+                if (valueRTE) {
+                    
+                    value = valueRTE;
+                    
+                } else if (valueHTML) {
+
+                    // For HTML copied from outside sources, clean it up first
+                    value = self.clipboardSanitize(valueHTML);
+                    
+                    // If we got data from outside the RTE, then don't allow raw HTML,
+                    // instead strip out any HTML elements we don't understand
+                    allowRaw = false;
+                }
 
                 if (value) {
                     self.fromHTML(value, self.getRange(), allowRaw);
@@ -2590,25 +2616,25 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
 
         /**
-         * Rules for cleaning up the clipboard data when content is pasted
-         * from outside the RTE.
-         *
-         * This is an object of key/value pairs, where the key is a jQuery selector,
-         * and value is one of the following:
-         * {String} a style name that defines how element should be styled (refer to the "styles" parameter)
-         * {null} remove the element and the text within the element
-         */
-        clipboardSanitizeRules: {
-            'style': null
-        },
-
-        
-        /**
          * @returns {DOM}
          * Returns a DOM structure for the new HTML.
          */
         clipboardSanitize: function(html) {
             
+            var dom, $el, self;
+            
+            self = this;
+            dom = self.htmlParse(html);
+            $el = $(dom);
+
+            if (self.clipboardSanitizeRules) {
+                
+                $.each(self.clipboardSanitizeRules, function(selector, style) {
+                    $el.find(selector).wrapInner( $('<span>', {'data-rte2-sanitize': style}) );
+                });
+            }
+            
+            return dom;
         },
 
         
@@ -3418,7 +3444,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             map = self.getElementMap();
 
             // Convert HTML into a DOM element so we can parse it using the browser node functions
-            el = new DOMParser().parseFromString(html, "text/html").body;
+            el = self.htmlParse(html);
 
             // Text for the editor
             val = '';
@@ -3444,32 +3470,38 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         // Remove "zero width space" character that the previous editor sometimes used
                         text = text.replace(/\u200b|\u8203/g, '');
 
-                        // Convert newlines to a carriage return character and annotate it
-                        text = text.replace(/[\n\r]/g, function(match, offset, string){
+                        if (allowRaw) {
+                            
+                            // Convert newlines to a carriage return character and annotate it
+                            text = text.replace(/[\n\r]/g, function(match, offset, string){
 
-                            var from, split, to;
-                            
-                            // Create an annotation to mark the newline so we can distinguish it
-                            // from any other user of the carriage return character
-                            
-                            split = val.split("\n");
-                            from =  {
-                                line: split.length - 1,
-                                ch: split[split.length - 1].length + offset
-                            };
-                            to = {
-                                line: from.line,
-                                ch: from.ch + 1
-                            };
-                            annotations.push({
-                                styleObj: self.styles.newline,
-                                from:from,
-                                to:to
+                                var from, split, to;
+                                
+                                // Create an annotation to mark the newline so we can distinguish it
+                                // from any other user of the carriage return character
+                                
+                                split = val.split("\n");
+                                from =  {
+                                    line: split.length - 1,
+                                    ch: split[split.length - 1].length + offset
+                                };
+                                to = {
+                                    line: from.line,
+                                    ch: from.ch + 1
+                                };
+                                annotations.push({
+                                    styleObj: self.styles.newline,
+                                    from:from,
+                                    to:to
+                                });
+                                
+                                return '\u21b5';
                             });
-                             
-                            return '\u21b5';
-                        });
-
+                            
+                        } else {
+                            text = text.replace(/[\n\r]/g, '').replace(/\s+/g, ' ');
+                        }
+                        
                         val += text;
 
                     } else if (next.nodeType === 1) {
@@ -3504,10 +3536,15 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                             // Determine if the element maps to one of our defined styles
                             matchStyleObj = false;
 
+                            // If a data-rte2-sanitize attribute is found on the element, then we are getting this
+                            // html as pasted data from another source. Our sanitzie rules have marked this element
+                            // as being a particular style, so we should force that style to be used.
+                            matchStyleObj = self.styles[ $(next).attr('data-rte2-sanitize') ];
+                            
                             // Multiple styles might map to a particular element name (like <b> vs <b class=foo>)
                             // so first we get a list of styles that map just to this element name
                             matchArray = map[elementName];
-                            if (matchArray) {
+                            if (matchArray && !matchStyleObj) {
 
                                 $.each(matchArray, function(i, styleObj) {
 
@@ -3872,7 +3909,28 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 .replace(/>/g, '&gt;');
         },
 
+        
+        /**
+         * Parse an HTML string and return a DOM structure.
+         *
+         * @param {String|DOM} html
+         * An HTML string or a DOM structure.
+         *
+         * @returns {DOM}
+         */
+        htmlParse: function(html) {
+            var dom, self;
+            self = this;
 
+            if ($.type(html) === 'string') {
+                dom = new DOMParser().parseFromString(html, "text/html").body;     
+            } else {
+                dom = html;
+            }
+            return dom;
+        },
+
+        
         /**
          * Get all the attributes for an element.
          *
