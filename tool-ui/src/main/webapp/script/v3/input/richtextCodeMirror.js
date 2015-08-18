@@ -2552,13 +2552,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             });
 
             $wrapper.on('paste', function(e){
-                var value;
-                value = self.clipboardGet(e.originalEvent);
-                if (value !== undefined) {
-                    self.fromHTML(value, self.getRange());
-                }
+                self.clipboardGet(e.originalEvent);
             });
-            
         },
 
 
@@ -2568,17 +2563,52 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          *
          */
         clipboardGet: function(e) {
-            var self, value;
+            var allowRaw, self, valueHTML, valueRTE;
             self = this;
             
             if (e && e.clipboardData && e.clipboardData.getData) {
-                value = e.clipboardData.getData('text/brightspot-rte2') || e.clipboardData.getData('text/html') || e.clipboardData.getData('text/plain');
+
+                // See what type of data is on the clipboard:
+                // data that was copied from the RTE, or HTML or text data from elsewhere
+                valueRTE = e.clipboardData.getData('text/brightspot-rte2');
+                valueHTML = e.clipboardData.getData('text/html') || e.clipboardData.getData('text/plain');
+                value = valueRTE || valueHTML;
+
+                // If we got data from an RTE, then allow raw html to be imported.
+                // If we got data from outside the RTE, then don't allow raw HTML,
+                // instead strip out any HTML elements we don't understand.
+                allowRaw = Boolean(valueRTE);
+
                 if (value) {
+                    self.fromHTML(value, self.getRange(), allowRaw);
                     e.stopPropagation();
                     e.preventDefault();
                     return value;
                 }
             }
+        },
+
+
+        /**
+         * Rules for cleaning up the clipboard data when content is pasted
+         * from outside the RTE.
+         *
+         * This is an object of key/value pairs, where the key is a jQuery selector,
+         * and value is one of the following:
+         * {String} a style name that defines how element should be styled (refer to the "styles" parameter)
+         * {null} remove the element and the text within the element
+         */
+        clipboardSanitizeRules: {
+            'style': null
+        },
+
+        
+        /**
+         * @returns {DOM}
+         * Returns a DOM structure for the new HTML.
+         */
+        clipboardSanitize: function(html) {
+            
         },
 
         
@@ -3359,20 +3389,28 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
         /**
          * Import HTML content into the editor.
          *
-         * @param {String} html
+         * @param {String|jQuery} html
+         * An html string or a jquery object that contains the HTML content.
          *
          * @param {Object} [range=complete document]
          * A selected range where the HTML should be inserted.
+         *
+         * @param {Boolean} [allowRaw=true]
+         * If this is set explicitly to false, then any elements
+         * that are not recognized will be ommited.
+         * By default (or if this is set to true), elements that
+         * are not recognized are output and marked as raw HTML.
          */
-        fromHTML: function(html, range) {
+        fromHTML: function(html, range, allowRaw) {
 
             var annotations, editor, enhancements, el, map, self, val;
 
             self = this;
-
             
             editor = self.codeMirror;
 
+            allowRaw = (allowRaw === false ? false : true);
+            
             // Convert the styles object to an object that is indexed by element,
             // so we can quickly map an element to a style.
             // Note there might be more than one style for an element, in which
@@ -3411,7 +3449,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
                             var from, split, to;
                             
-                            // Create an annotation to mark the newline as "raw html" so we can distinguish it
+                            // Create an annotation to mark the newline so we can distinguish it
                             // from any other user of the carriage return character
                             
                             split = val.split("\n");
@@ -3588,7 +3626,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                             raw = false;
                         }
                         
-                        if (raw) {
+                        if (raw && allowRaw) {
                             
                             matchStyleObj = self.styles.html;
                             
