@@ -21,30 +21,17 @@ import java.util.UUID;
 public interface RtcAction {
 
     /**
-     * Initializes this action with the given {@code currentUserId}.
-     *
-     * <p>This method will only be called once per client connection.</p>
-     *
-     * @param currentUserId
-     *        Can't be {@code null}.
-     */
-    void initialize(UUID currentUserId);
-
-    /**
-     * Executes this action with the given {@code data}.
-     *
-     * <p>This method will be called as many times as client requests per
-     * connection.</p>
+     * Executes this action with the given {@code data} on behalf of a user
+     * in a session.
      *
      * @param data
      *        Can't be {@code null}.
-     */
-    void execute(Map<String, Object> data);
-
-    /**
-     * Destroys this action.
      *
-     * <p>This method will only be called once per client connection.</p>
+     * @param userId
+     *        Can't be {@code null}.
+     *
+     * @param sessionId
+     *        Can't be {@code null}.
      */
-    void destroy();
+    void execute(Map<String, Object> data, UUID userId, UUID sessionId);
 }

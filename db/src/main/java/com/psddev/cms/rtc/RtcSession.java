@@ -1,31 +1,21 @@
 package com.psddev.cms.rtc;
 
-import com.psddev.dari.util.CompactMap;
+import com.psddev.dari.db.Record;
 
-import java.util.Map;
 import java.util.UUID;
 
-class RtcSession {
+/**
+ * @since 3.1
+ */
+public class RtcSession extends Record {
 
-    private UUID currentUserId;
-    private Map<String, RtcAction> actions;
+    private UUID userId;
 
-    public UUID getCurrentUserId() {
-        return currentUserId;
+    public UUID getUserId() {
+        return userId;
     }
 
-    public void setCurrentUserId(UUID currentUserId) {
-        this.currentUserId = currentUserId;
-    }
-
-    public Map<String, RtcAction> getActions() {
-        if (actions == null) {
-            actions = new CompactMap<>();
-        }
-        return actions;
-    }
-
-    public void setActions(Map<String, RtcAction> actions) {
-        this.actions = actions;
+    public void setUserId(UUID userId) {
+        this.userId = userId;
     }
 }
