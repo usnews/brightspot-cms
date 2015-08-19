@@ -21,9 +21,7 @@ define([ 'jquery', 'bsp-utils', 'atmosphere' ], function($, bsp_utils, atmospher
   var offlineMessages = [ ];
   var onlineMessages = {
     push: function(message) {
-      socket.push(JSON.stringify($.extend(message, {
-        resource: socket.getUUID()
-      })));
+      socket.push(JSON.stringify(message));
     }
   };
 
@@ -75,7 +73,8 @@ define([ 'jquery', 'bsp-utils', 'atmosphere' ], function($, bsp_utils, atmospher
       restores.push({
         callback: callback,
         message: {
-          state: state,
+          type: 'state',
+          className: state,
           data: data
         }
       });
@@ -87,7 +86,8 @@ define([ 'jquery', 'bsp-utils', 'atmosphere' ], function($, bsp_utils, atmospher
 
     execute: function(action, data) {
       (isOnline ? onlineMessages : offlineMessages).push({
-        action: action,
+        type: 'action',
+        className: action,
         data: data
       });
     }

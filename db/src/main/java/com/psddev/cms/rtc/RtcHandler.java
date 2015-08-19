@@ -1,132 +1,147 @@
 package com.psddev.cms.rtc;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.AuthenticationFilter;
 import com.psddev.dari.db.Query;
+import com.psddev.dari.util.IoUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.TypeDefinition;
 import com.psddev.dari.util.UuidUtils;
+import org.atmosphere.cpr.AtmosphereRequest;
 import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.cpr.AtmosphereResourceEvent;
 import org.atmosphere.cpr.AtmosphereResourceEventListener;
 import org.atmosphere.cpr.AtmosphereResourceEventListenerAdapter;
-import org.atmosphere.cpr.AtmosphereResponse;
-import org.atmosphere.handler.OnMessage;
+import org.atmosphere.handler.AbstractReflectorAtmosphereHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
-class RtcHandler extends OnMessage<Object> {
+class RtcHandler extends AbstractReflectorAtmosphereHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RtcHandler.class);
 
-    private static final ConcurrentMap<UUID, UUID> USER_IDS = new ConcurrentHashMap<>();
-    private static final AtmosphereResourceEventListener DISCONNECT_LISTENER = new AtmosphereResourceEventListenerAdapter.OnDisconnect() {
+    private final LoadingCache<UUID, Optional<UUID>> userIds = CacheBuilder
+            .newBuilder()
+            .maximumSize(1000L)
+            .build(new CacheLoader<UUID, Optional<UUID>>() {
+
+                @Override
+                @ParametersAreNonnullByDefault
+                public Optional<UUID> load(UUID sessionId) throws Exception {
+                    RtcSession session = Query
+                            .from(RtcSession.class)
+                            .where("_id = ?", sessionId)
+                            .first();
+
+                    return session != null
+                            ? Optional.of(session.getUserId())
+                            : Optional.empty();
+                }
+            });
+
+    private final AtmosphereResourceEventListener disconnectListener = new AtmosphereResourceEventListenerAdapter.OnDisconnect() {
 
         @Override
         @SuppressWarnings("unchecked")
         public void onDisconnect(AtmosphereResourceEvent event) {
-            UUID sessionId = resourceToSessionId(event.getResource());
+            UUID sessionId = createSessionId(event.getResource());
 
-            Query.from(RtcSession.class)
+            userIds.invalidate(sessionId);
+
+            RtcSession session = Query
+                    .from(RtcSession.class)
                     .where("_id = ?", sessionId)
-                    .deleteAll();
+                    .first();
 
-            Query.from(RtcEvent.class)
-                    .where("cms.rtc.event.sessionId = ?", sessionId)
-                    .selectAll()
-                    .forEach(RtcEvent::onDisconnect);
+            if (session != null) {
+                session.delete();
+
+                Query.from(RtcEvent.class)
+                        .where("cms.rtc.event.sessionId = ?", sessionId)
+                        .selectAll()
+                        .forEach(RtcEvent::onDisconnect);
+            }
         }
     };
 
-    private static UUID resourceToSessionId(AtmosphereResource resource) {
+    private UUID createSessionId(AtmosphereResource resource) {
         String resourceUuid = resource.uuid();
-        UUID resourceUuidUuid = ObjectUtils.to(UUID.class, resourceUuid);
+        UUID sessionId = ObjectUtils.to(UUID.class, resourceUuid);
 
-        if (resourceUuidUuid == null) {
-            resourceUuidUuid = UuidUtils.createVersion3Uuid(resourceUuid);
+        if (sessionId == null) {
+            sessionId = UuidUtils.createVersion3Uuid(resourceUuid);
         }
 
-        return resourceUuidUuid;
-    }
-
-    @Override
-    public void onOpen(AtmosphereResource resource) throws IOException {
-        resource.addEventListener(DISCONNECT_LISTENER);
-
-        ToolUser user = AuthenticationFilter.Static.getUser(resource.getRequest().wrappedRequest());
-
-        if (user != null) {
-            UUID sessionId = resourceToSessionId(resource);
-            RtcSession session = new RtcSession();
-
-            session.getState().setId(sessionId);
-            session.setUserId(user.getId());
-            session.save();
-        }
+        return sessionId;
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public void onMessage(AtmosphereResponse response, Object message) throws IOException {
+    public void onRequest(AtmosphereResource resource) throws IOException {
         try {
-            AtmosphereResource resource = response.resource();
-            UUID sessionId = resourceToSessionId(resource);
-            UUID userId = USER_IDS.computeIfAbsent(sessionId, sid -> {
-                RtcSession session = Query
-                        .from(RtcSession.class)
-                        .where("_id = ?", sid)
-                        .first();
+            AtmosphereRequest request = resource.getRequest();
+            String method = request.getMethod();
 
-                return session != null ? session.getUserId() : null;
-            });
+            if ("get".equalsIgnoreCase(method)) {
+                ToolUser user = AuthenticationFilter.Static.getUser(resource.getRequest().wrappedRequest());
 
-            if (userId == null) {
-                return;
-            }
-
-            if (message instanceof RtcBroadcastMessage) {
-                RtcBroadcastMessage broadcastMessage = (RtcBroadcastMessage) message;
-
-                writeBroadcast(
-                        broadcastMessage.getBroadcast(),
-                        broadcastMessage.getData(),
-                        userId,
-                        resource);
-
-                return;
-            }
-
-            Map<String, Object> messageJson = (Map<String, Object>) ObjectUtils.fromJson((String) message);
-
-            if (!resource.uuid().equals(ObjectUtils.to(String.class, messageJson.get("resource")))) {
-                return;
-            }
-
-            String stateClassName = ObjectUtils.to(String.class, messageJson.get("state"));
-
-            if (!ObjectUtils.isBlank(stateClassName)) {
-                RtcState state = createInstance(RtcState.class, stateClassName);
-
-                for (Object object : state.create((Map<String, Object>) messageJson.get("data"))) {
-                    RtcBroadcast.forEachBroadcast(object, (broadcast, data) ->
-                            writeBroadcast(broadcast, data, userId, resource));
+                if (user == null) {
+                    throw new IllegalStateException();
                 }
 
-                return;
-            }
+                RtcSession session = new RtcSession();
 
-            String actionClassName = ObjectUtils.to(String.class, messageJson.get("action"));
+                session.getState().setId(createSessionId(resource));
+                session.setUserId(user.getId());
+                session.save();
+                resource.addEventListener(disconnectListener);
 
-            if (!ObjectUtils.isBlank(actionClassName)) {
-                createInstance(RtcAction.class, actionClassName)
-                        .execute((Map<String, Object>) messageJson.get("data"), userId, sessionId);
+            } else if ("post".equalsIgnoreCase(method)) {
+                try (InputStream requestInput = request.getInputStream()) {
+                    String message = IoUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
+                    Map<String, Object> messageJson = (Map<String, Object>) ObjectUtils.fromJson(message);
+                    String className = (String) messageJson.get("className");
+                    Map<String, Object> data = (Map<String, Object>) messageJson.get("data");
+                    UUID sessionId = createSessionId(resource);
+                    UUID userId = userIds.getUnchecked(sessionId).orElse(null);
+
+                    if (userId == null) {
+                        return;
+                    }
+
+                    switch ((String) messageJson.get("type")) {
+                        case "action" :
+                            createInstance(RtcAction.class, className)
+                                    .execute(data, userId, sessionId);
+
+                            break;
+
+                        case "state" :
+                            RtcState state = createInstance(RtcState.class, className);
+
+                            for (Object object : state.create(data)) {
+                                RtcBroadcast.forEachBroadcast(object, (broadcast, broadcastData) ->
+                                        writeBroadcast(broadcast, broadcastData, userId, resource));
+                            }
+
+                            break;
+
+                        default :
+                            throw new UnsupportedOperationException();
+                    }
+                }
             }
 
         } catch (Exception error) {
@@ -134,11 +149,33 @@ class RtcHandler extends OnMessage<Object> {
         }
     }
 
-    private void writeBroadcast(RtcBroadcast<Object> broadcast, Map<String, Object> data, UUID currentUserId, AtmosphereResource resource) {
-        if (broadcast.shouldBroadcast(data, currentUserId)) {
-            resource.write(ObjectUtils.toJson(ImmutableMap.of(
-                    "broadcast", broadcast.getClass().getName(),
-                    "data", data)));
+    @Override
+    public void onStateChange(AtmosphereResourceEvent event) throws IOException {
+        try {
+            if (event.isSuspended()) {
+                Object message = event.getMessage();
+
+                if (message instanceof RtcBroadcastMessage) {
+                    RtcBroadcastMessage broadcastMessage = (RtcBroadcastMessage) message;
+                    AtmosphereResource resource = event.getResource();
+                    UUID userId = userIds.getUnchecked(createSessionId(resource)).orElse(null);
+
+                    if (userId == null) {
+                        return;
+                    }
+
+                    writeBroadcast(
+                            broadcastMessage.getBroadcast(),
+                            broadcastMessage.getData(),
+                            userId,
+                            resource);
+                }
+            }
+
+            postStateChange(event);
+
+        } catch (Exception error) {
+            error.printStackTrace();
         }
     }
 
@@ -159,5 +196,18 @@ class RtcHandler extends OnMessage<Object> {
         }
 
         return (T) TypeDefinition.getInstance(c).newInstance();
+    }
+
+    private void writeBroadcast(
+            RtcBroadcast<Object> broadcast,
+            Map<String,Object> data,
+            UUID currentUserId,
+            AtmosphereResource resource) {
+
+        if (broadcast.shouldBroadcast(data, currentUserId)) {
+            resource.write(ObjectUtils.toJson(ImmutableMap.of(
+                    "broadcast", broadcast.getClass().getName(),
+                    "data", data)));
+        }
     }
 }
