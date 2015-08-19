@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  * the keys and values within the map. This Map uses the bean spec to map the
  * getter methods of the backing view to the keys within the map.
  */
-public class ViewMap implements Map<String, Object> {
+class ViewMap implements Map<String, Object> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ViewMap.class);
 
@@ -172,11 +172,8 @@ public class ViewMap implements Map<String, Object> {
                 .collect(Collectors.toList()), ", ") + "}";
     }
 
-    /*
-    Types not currently handled...
-    REFERENTIAL_TEXT_TYPE = "referentialText";
-    REGION_TYPE = "region";
-     */
+    // Converts a value to a Json Map friendly value.
+    // Types not currently handled... ReferentialText and Region
     private Object convertValue(Object value) {
 
         if (value instanceof CharSequence) {

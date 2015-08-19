@@ -29,7 +29,7 @@ class ServletViewRequest implements ViewRequest {
     @Override
     public <V> V createView(Class<V> viewClass, Object model) {
 
-        ViewCreator<Object, V> vc = ViewCreator.findCreator(model, viewClass);
+        ViewCreator<Object, V> vc = ViewCreator.createCreator(model, viewClass);
 
         if (vc != null) {
             return vc.createView(model, this);

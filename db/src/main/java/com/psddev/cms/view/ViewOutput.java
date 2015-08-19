@@ -1,10 +1,10 @@
 package com.psddev.cms.view;
 
 /**
- * The result of {@link com.psddev.cms.view.ViewRenderer#render(ViewMap)
+ * The result of {@link com.psddev.cms.view.ViewRenderer#render(Object)
  * rendering} a view.
  */
-public interface ViewResult {
+public interface ViewOutput {
 
     /**
      * Fetches the rendered view's output.

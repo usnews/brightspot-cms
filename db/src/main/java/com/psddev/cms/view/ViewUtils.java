@@ -24,14 +24,8 @@ final class ViewUtils {
 
     static final Logger LOGGER = LoggerFactory.getLogger(ViewUtils.class);
 
-    /**
-     * Returns classes in order of input class, followed by its super
-     * classes, followed by its interfaces, followed by its modification
-     * classes.
-     *
-     * @param klass the class to traverse.
-     * @return the list of classes that should be checked for annotations.
-     */
+    // Returns classes in order of input class, followed by its super classes,
+    // followed by its interfaces, followed by its modification classes.
     static List<Class<?>> getAnnotatableClasses(Class<?> klass) {
 
         List<Class<?>> classesToCheck = new ArrayList<>();
@@ -68,42 +62,18 @@ final class ViewUtils {
         return classesToCheck;
     }
 
-    /**
-     * TODO: Once https://github.com/perfectsense/dari/pull/105 is merged,
-     *       remove in favor of TypeDefinition#getInferredGenericTypeArgumentClass
-     *
-     * Finds the actual view class generic of the ViewCreator interface in
-     * context of the specified view creator class.
-     *
-     * @param viewCreatorClass the view creator class to inspect.
-     * @return the view class generic for the given view creator class.
-     */
+    // TODO: Once https://github.com/perfectsense/dari/pull/105 is merged,
+    // remove in favor of TypeDefinition#getInferredGenericTypeArgumentClass
     static Class<?> getGenericModelTypeArgument(Class<? extends ViewCreator> viewCreatorClass) {
         return getGenericTypeArgumentClass(viewCreatorClass, ViewCreator.class, 0);
     }
 
-    /**
-     * TODO: Once https://github.com/perfectsense/dari/pull/105 is merged,
-     *       remove in favor of TypeDefinition#getInferredGenericTypeArgumentClass
-     *
-     * Finds the actual model class generic of the ViewCreator interface in
-     * context of the specified view creator class.
-     *
-     * @param viewCreatorClass the view creator class to inspect.
-     * @return the model class generic for the given view creator class.
-     */
+    // TODO: Once https://github.com/perfectsense/dari/pull/105 is merged,
+    // remove in favor of TypeDefinition#getInferredGenericTypeArgumentClass
     static Class<?> getGenericViewTypeArgument(Class<? extends ViewCreator> viewCreatorClass) {
         return getGenericTypeArgumentClass(viewCreatorClass, ViewCreator.class, 1);
     }
 
-    /**
-     *
-     * @param clazz the class that extends/implements {@code baseClass} whose
-     *              actual generic type argument class should be fetched.
-     * @param baseClass the class defining the generics.
-     * @param baseClassGenericTypeArgumentIndex the index of the generic to fetch.
-     * @return the generic type argument class for the given {@code clazz}.
-     */
     private static Class<?> getGenericTypeArgumentClass(Class<?> clazz, Class<?> baseClass, int baseClassGenericTypeArgumentIndex) {
 
         List<ClassInfo> hierarchy = getClassInfoHierarchy(clazz, baseClass);
@@ -145,16 +115,6 @@ final class ViewUtils {
         return null;
     }
 
-    /**
-     * Returns the list of ClassInfo objects in the class hierarchy from
-     * {@code clazz} class to {@code baseClass} class, where the first
-     * element in the list is {@code clazz}. If the two classes are not in
-     * the same hierarchy, an empty list returned
-     *
-     * @param clazz the bottom starting class in the hierarchy.
-     * @param baseClass the top most parent class or interface in the hierarchy.
-     * @return the ClassInfo hierarchy list between the two class arguments.
-     */
     private static List<ClassInfo> getClassInfoHierarchy(Class<?> clazz, Class<?> baseClass) {
 
         List<Class<?>> classes = getClassHierarchy(clazz, baseClass);
@@ -184,16 +144,6 @@ final class ViewUtils {
         return hierarchy;
     }
 
-    /**
-     * Returns the list of classes in the class hierarchy from {@code clazz}
-     * class to {@code baseClass} class, where the first element in the
-     * list is {@code clazz}. If the two classes are not in the same
-     * hierarchy, {@code null} is returned.
-     *
-     * @param clazz the bottom starting class in the hierarchy.
-     * @param baseClass the top most parent class or interface in the hierarchy.
-     * @return the class hierarchy list between the two class arguments.
-     */
     private static List<Class<?>> getClassHierarchy(Class<?> clazz, Class<?> baseClass) {
 
         if (Object.class.equals(clazz)) {
@@ -231,14 +181,6 @@ final class ViewUtils {
         return null;
     }
 
-    /**
-     * Returns the generic super type of the for the given {@code clazz}
-     * matching the specified {@code superType}.
-     *
-     * @param clazz the class containing a generic super type.
-     * @param superType the non-generic superType of {@code clazz}.
-     * @return the generic super type of {@code clazz}.
-     */
     private static Type getGenericSuperType(Class<?> clazz, Class<?> superType) {
 
         if (superType.isInterface()) {
@@ -265,9 +207,6 @@ final class ViewUtils {
         return null;
     }
 
-    /**
-     * Represents a class and one if its generic super classes or interfaces.
-     */
     private static final class ClassInfo {
 
         private Class<?> clazz;

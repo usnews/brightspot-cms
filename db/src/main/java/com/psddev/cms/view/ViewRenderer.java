@@ -6,11 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,10 +19,10 @@ public interface ViewRenderer {
     /**
      * Renders a view, storing the result.
      *
-     * @param viewMap a Map implementation that wraps the view to be rendered.
+     * @param view the view to render.
      * @return the result of rendering a view.
      */
-    ViewResult render(ViewMap viewMap);
+    ViewOutput render(Object view);
 
     /**
      * Creates an appropriate ViewRenderer based on the specified view.
@@ -46,7 +41,7 @@ public interface ViewRenderer {
 
         for (Class<?> viewClass : ViewUtils.getAnnotatableClasses(view.getClass())) {
 
-            SetClass rendererAnnotation = viewClass.getAnnotation(SetClass.class);
+            ViewRendererClass rendererAnnotation = viewClass.getAnnotation(ViewRendererClass.class);
             if (rendererAnnotation != null) {
                 Class<? extends ViewRenderer> rendererClass = rendererAnnotation.value();
 
@@ -71,18 +66,18 @@ public interface ViewRenderer {
 
                 Class<?> annotationClass = viewAnnotation.annotationType();
 
-                ViewRenderer.AnnotationProcessorClass annotation = annotationClass.getAnnotation(
-                        ViewRenderer.AnnotationProcessorClass.class);
+                ViewRendererAnnotationProcessorClass annotation = annotationClass.getAnnotation(
+                        ViewRendererAnnotationProcessorClass.class);
 
                 if (annotation != null) {
 
-                    Class<? extends ViewRenderer.AnnotationProcessor<? extends Annotation>> annotationProcessorClass = annotation.value();
+                    Class<? extends ViewRendererAnnotationProcessor<? extends Annotation>> annotationProcessorClass = annotation.value();
 
                     if (annotationProcessorClass != null) {
 
                         @SuppressWarnings("unchecked")
-                        ViewRenderer.AnnotationProcessor<Annotation> annotationProcessor
-                                = (ViewRenderer.AnnotationProcessor<Annotation>) TypeDefinition.getInstance(annotationProcessorClass).newInstance();
+                        ViewRendererAnnotationProcessor<Annotation> annotationProcessor
+                                = (ViewRendererAnnotationProcessor<Annotation>) TypeDefinition.getInstance(annotationProcessorClass).newInstance();
 
                         ViewRenderer renderer = annotationProcessor.createRenderer(viewAnnotation);
 
@@ -97,7 +92,16 @@ public interface ViewRenderer {
         if (!renderers.isEmpty()) {
 
             if (renderers.size() == 1) {
-                return renderers.get(0);
+                ViewRenderer renderer = renderers.get(0);
+
+                // wrap the view renderer so that it always converts the view to a ViewMap
+                // before delegating to the actual renderer.
+                return new ViewRenderer() {
+                    @Override
+                    public ViewOutput render(Object view) {
+                        return view instanceof ViewMap ? renderer.render(view) : renderer.render(new ViewMap(view));
+                    }
+                };
 
             } else {
                 LOGGER.warn("Found multiple renderers for view of type [" + view.getClass().getName() + "]!");
@@ -107,51 +111,5 @@ public interface ViewRenderer {
         } else {
             return null;
         }
-    }
-
-    /**
-     * Annotation for view types that specifies the ViewRenderer type that
-     * should be used to render the view.
-     */
-    @Documented
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.TYPE)
-    public @interface SetClass {
-        Class<? extends ViewRenderer> value();
-    }
-
-    /**
-     * An annotation that is placed on the annotations of views. Specifies the
-     * class that that will read the view annotation and create a ViewRenderer
-     * that will be used to render the view. This is a hook to create custom
-     * annotations that define ViewRenderers as opposed to the more direct
-     * {@link com.psddev.cms.view.ViewRenderer.SetClass} annotation.
-     */
-    @Documented
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.ANNOTATION_TYPE)
-    static @interface AnnotationProcessorClass {
-
-        /**
-         * @return the class that will process annotation on which this
-         * annotation lives.
-         */
-        Class<? extends AnnotationProcessor<? extends Annotation>> value();
-    }
-
-    /**
-     * Processes an annotation in order to create a ViewRenderer.
-     *
-     * @param <A> the annotation type to process.
-     */
-    static interface AnnotationProcessor<A extends Annotation> {
-
-        /**
-         * Creates a ViewRenderer based on the specified annotation.
-         *
-         * @param annotation the annotation to process.
-         * @return the ViewRenderer created based on the annotation.
-         */
-        ViewRenderer createRenderer(A annotation);
     }
 }

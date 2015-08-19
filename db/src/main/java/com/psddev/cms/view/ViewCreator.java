@@ -32,7 +32,7 @@ public interface ViewCreator<M, V> {
     V createView(M model, ViewRequest request);
 
     /**
-     * Finds the view creator that should be used to create views of the
+     * Creates the view creator that should be used to create views of the
      * specified {@code viewClass} type based on the specified {@code model}.
      *
      * @param model the model from which the view should be created.
@@ -41,7 +41,7 @@ public interface ViewCreator<M, V> {
      * @param <V> the view type the view creator creates.
      * @return the view creator of model to view.
      */
-    static <M, V> ViewCreator<M, V> findCreator(M model, Class<V> viewClass) {
+    static <M, V> ViewCreator<M, V> createCreator(M model, Class<V> viewClass) {
 
         if (model == null) {
             return null;
