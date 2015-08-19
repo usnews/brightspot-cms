@@ -32,6 +32,10 @@ public interface ViewRenderer {
      */
     static ViewRenderer createRenderer(Object view) {
 
+        if (view == null) {
+            return null;
+        }
+
         if (view instanceof ViewMap) {
             view = ((ViewMap) view).getView();
         }

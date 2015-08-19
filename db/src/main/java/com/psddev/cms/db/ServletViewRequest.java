@@ -36,7 +36,7 @@ class ServletViewRequest implements ViewRequest {
 
         } else {
             LOGGER.warn("Could not find view creator of [" + viewClass
-                    + "] for object of type [" + model.getClass() + "]!");
+                    + "] for object of type [" + (model != null ? model.getClass() : "null") + "]!");
             return null;
         }
     }
