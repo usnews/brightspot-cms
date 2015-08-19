@@ -232,6 +232,46 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
         },
 
+        
+        /**
+         * Rules for cleaning up the clipboard data when content is pasted
+         * from outside the RTE.
+         *
+         * This is an object of key/value pairs, where the key is a jQuery selector,
+         * and value is one of the following:
+         * {String} a style name that defines how element should be styled (refer to the "styles" parameter)
+         */
+        clipboardSanitizeRules: {
+
+            // Any <b> element should be treated as bold even if it has extra attributes
+            // Example MSWord:  <b style="mso-bidi-font-weight:normal">
+            // Note: Google docs encloses the entire document in a 'b' element so we must exclude that one
+            'b:not([id^=docs-internal-guid])': 'bold',
+
+            // Any 'i' element should be treated as italic even if it has extra attributes
+            // Example: <i style="mso-bidi-font-style:normal">
+            'i': 'italic',
+
+            // Google docs styles
+            'span[style*="font-style:italic"]': 'italic',
+            'span[style*="font-weight:700"]': 'bold',
+            'span[style*="text-decoration:underline"]': 'underline',
+            'span[style*="vertical-align:super"]': 'superscript',
+            'span[style*="vertical-align:sub"]': 'subscript',
+            'li[style*="list-style-type:disc"] > p': 'ul',
+            'li[style*="list-style-type:decimal"] > p': 'ol',
+
+            'p[style*="text-align: right"]': 'alignRight',
+            'p[style*="text-align: center"]': 'alignCenter',
+            
+            'p[style*="text-align:right"]': 'alignRight',
+            'p[style*="text-align:center"]': 'alignCenter',
+            
+            // Any 'p' element should be treated as a new line
+            'p': 'linebreak'
+            
+        },
+
 
         /**
          * Which buttons are in the toolbar?
@@ -572,7 +612,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self.rte = Object.create(CodeMirrorRte);
 
             // Add our styles to the styles that are already built into the rich text editor
-            self.rte.styles = $.extend(true, self.rte.styles, self.styles);
+            self.rte.styles = $.extend(true, {}, self.rte.styles, self.styles);
+
+            // Add our clipboard sanitize rules
+            self.rte.clipboardSanitizeRules = $.extend(true, {}, self.rte.clipboardSanitizeRules, self.clipboardSanitizeRules);
 
             // Create a div under the text area to display the toolbar and the editor
             self.$container = $('<div/>', {
