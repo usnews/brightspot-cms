@@ -98,7 +98,7 @@ class RtcHandler extends AbstractReflectorAtmosphereHandler {
                 ToolUser user = AuthenticationFilter.Static.getUser(resource.getRequest().wrappedRequest());
 
                 if (user == null) {
-                    throw new IllegalStateException();
+                    return;
                 }
 
                 RtcSession session = new RtcSession();
