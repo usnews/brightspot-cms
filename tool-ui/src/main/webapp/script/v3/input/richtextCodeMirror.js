@@ -739,7 +739,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                     }
 
                     markerOpts = mark.marker;
-                    markerOpts.addToHistory = true;
+                    markerOpts.addToHistory = false;
 
                     markerOptsNotInclusive = $.extend(true, {}, markerOpts);
                     markerOptsNotInclusive.inclusiveLeft = markerOptsNotInclusive.inclusiveRight = false;
@@ -2586,9 +2586,11 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
 
         /**
+         * Paste the contents of the clipboard into the currently selected region.
+         * This can only be performed during a user-generated paste event!
+         *
          * @param {Event} e
          * The paste event. This is required because you can only access the clipboardData from one of these events.
-         *
          */
         clipboardGet: function(e) {
             var allowRaw, self, valueHTML, valueRTE;
@@ -2683,8 +2685,6 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 // Don't let the actual cut/copy event occur
                 // (or it will overwrite the clipboard)
                 e.preventDefault();
-
-
             }
         },
 
@@ -3439,7 +3439,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          */
         fromHTML: function(html, range, allowRaw) {
 
-            var annotations, editor, enhancements, el, map, self, val;
+            var annotations, editor, enhancements, el, history, map, self, val;
 
             self = this;
             
@@ -3798,21 +3798,31 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
                 // Remove the styles from the range so for example we don't paste content
                 // into a bold region and make all the pasted content bold.
+                
                 // There seems to be a problem if the range is a single cursor position
                 // and we can't remove the styles for that.
-                // So instead we'll replace the selected range with a single space
-                // or insert a space, then remove the styles from that space character,
-                // then replace that space with our new content.
-                editor.replaceRange(' ', range.from, range.to);
-                
-                // Make the new range one character long
-                range = {
-                    from: { line:range.from.line, ch:range.from.ch },
-                    to: { line:range.from.line, ch:range.from.ch + 1 }
-                };
+                // So instead we'll insert a space, then remove the styles from that space character,
+                // then call an undo() to remove the space from the document (and the undo history).
 
-                // Remove styles from the character
-                self.removeStyles(range);
+                if (range.from.line === range.to.line && range.from.ch === range.to.ch) {
+
+                    editor.replaceRange(' ', range.from, range.to);
+                
+                    // Remove styles from the single character
+                    self.removeStyles({
+                        from: { line:range.from.line, ch:range.from.ch },
+                        to: { line:range.from.line, ch:range.from.ch + 1}
+                    });
+
+                    // Undo the insertion of the single character so it doesn't appear in the undo history
+                    editor.undo();
+
+                } else {
+
+                    // Remove styles from the range
+                    self.removeStyles(range);
+
+                }
                 
             } else {
                 
@@ -3829,6 +3839,12 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             // Add the plain text into the selected range
             editor.replaceRange(val, range.from, range.to);
 
+            // Before we start adding styles, save the current history.
+            // After we add the styles we will restore the history.
+            // This will prevent lots of undo history being added,
+            // so user can undo this new content all in one shot.
+            history = editor.getHistory();
+            
             // Set up all the annotations
             $.each(annotations, function(i, annotation) {
 
@@ -3866,7 +3882,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 if (styleObj.line) {
                     self.blockSetStyle(styleObj, annotation);
                 } else {
-                    self.inlineSetStyle(styleObj, annotation);
+                    self.inlineSetStyle(styleObj, annotation, {addToHistory:false});
                 }
             });
 
@@ -3877,8 +3893,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 
             });
 
-            // Clear the undo history
-            editor.clearHistory();
+            editor.setHistory(history);
             
         }, // fromHTML()
 
@@ -3938,6 +3953,17 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 dom = html;
             }
             return dom;
+        },
+
+
+        /**
+         * Clear the undo history for the editor.
+         * For example, you can call this after setting the initial content in the editor.
+         */
+        historyClear: function(){
+            var self;
+            self = this;
+            self.codeMirror.clearHistory();
         },
 
         
