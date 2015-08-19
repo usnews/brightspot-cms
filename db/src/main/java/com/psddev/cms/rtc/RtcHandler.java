@@ -200,7 +200,7 @@ class RtcHandler extends AbstractReflectorAtmosphereHandler {
 
     private void writeBroadcast(
             RtcBroadcast<Object> broadcast,
-            Map<String,Object> data,
+            Map<String, Object> data,
             UUID currentUserId,
             AtmosphereResource resource) {
 
