@@ -652,6 +652,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Set the content into the editor
             self.rte.fromHTML(content);
 
+            // Adding HTML to the editor tends to create multiple undo history events,
+            // so clear the history to start.
+            self.rte.historyClear();
+            
             // Set up periodic update of the textarea
             self.previewInit();
         },
