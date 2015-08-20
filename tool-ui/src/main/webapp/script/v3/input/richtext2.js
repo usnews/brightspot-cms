@@ -243,14 +243,16 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          */
         clipboardSanitizeRules: {
 
-            // Any <b> element should be treated as bold even if it has extra attributes
+            // Any <b> or '<strong>' element should be treated as bold even if it has extra attributes
             // Example MSWord:  <b style="mso-bidi-font-weight:normal">
             // Note: Google docs encloses the entire document in a 'b' element so we must exclude that one
             'b:not([id^=docs-internal-guid])': 'bold',
+            'strong': 'bold',
 
-            // Any 'i' element should be treated as italic even if it has extra attributes
+            // Any '<i>' or '<em>' element should be treated as italic even if it has extra attributes
             // Example: <i style="mso-bidi-font-style:normal">
             'i': 'italic',
+            'em': 'italic',
 
             // Google docs styles
             'span[style*="font-style:italic"]': 'italic',
@@ -268,6 +270,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             'p[style*="text-align:center"]': 'alignCenter',
             
             // Any 'p' element should be treated as a new line
+            // Note: we also add an extra <br> element after the <p> elements.
             'p': 'linebreak'
             
         },
