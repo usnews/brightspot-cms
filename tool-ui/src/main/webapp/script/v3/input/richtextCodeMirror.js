@@ -2640,7 +2640,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             $el = $(dom);
 
             if (self.clipboardSanitizeRules) {
-                
+                $el.find('p').after('<br/>');
                 $.each(self.clipboardSanitizeRules, function(selector, style) {
                     $el.find(selector).wrapInner( $('<span>', {'data-rte2-sanitize': style}) );
                 });
