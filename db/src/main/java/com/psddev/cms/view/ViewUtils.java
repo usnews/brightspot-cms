@@ -4,9 +4,6 @@ import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.util.ObjectUtils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,8 +12,6 @@ final class ViewUtils {
 
     private ViewUtils() {
     }
-
-    static final Logger LOGGER = LoggerFactory.getLogger(ViewUtils.class);
 
     // Returns classes in order of input class, followed by its super classes,
     // followed by its interfaces, followed by its modification classes.
