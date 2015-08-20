@@ -631,7 +631,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // This is useful for when the external code doesn't know the self.$el (textarea)
             self.$container.data('rte2', self);
 
-            self.$editor = $('<div/>').appendTo(self.$container);
+            self.$editor = $('<div/>', {'class':'rte2-codemirror'}).appendTo(self.$container);
                 
             // Hide the textarea
             self.$el.hide();
@@ -2566,12 +2566,12 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
                 // Add a placeholder attribute to the container.
                 // CSS rules will overlay the text on top of the editor.
-                self.$container.attr(attrName, placeholder);
+                self.$editor.attr(attrName, placeholder);
                 
             } else {
 
                 // Remove the attribute so the text will not be overlayed
-                self.$container.removeAttr(attrName);
+                self.$editor.removeAttr(attrName);
             }
         },
 
