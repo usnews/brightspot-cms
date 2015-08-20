@@ -2,7 +2,6 @@ package com.psddev.cms.view;
 
 import com.psddev.dari.util.TypeDefinition;
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
@@ -13,8 +12,6 @@ import java.util.List;
  * A renderer of views.
  */
 public interface ViewRenderer {
-
-    static final Logger LOGGER = LoggerFactory.getLogger(ViewRenderer.class);
 
     /**
      * Renders a view, storing the result.
@@ -59,8 +56,9 @@ public interface ViewRenderer {
                         }
 
                     } catch (Exception e) {
-                        LOGGER.warn("Unable to create instance of renderer of type ["
-                                + rendererClass.getName() + "]");
+                        LoggerFactory.getLogger(ViewRenderer.class)
+                                .warn("Unable to create instance of renderer of type ["
+                                        + rendererClass.getName() + "]");
                     }
                 }
             }
@@ -108,7 +106,8 @@ public interface ViewRenderer {
                 };
 
             } else {
-                LOGGER.warn("Found multiple renderers for view of type [" + view.getClass().getName() + "]!");
+                LoggerFactory.getLogger(ViewRenderer.class)
+                        .warn("Found multiple renderers for view of type [" + view.getClass().getName() + "]!");
                 return null;
             }
 

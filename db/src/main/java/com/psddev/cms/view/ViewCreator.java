@@ -2,7 +2,6 @@ package com.psddev.cms.view;
 
 import com.psddev.dari.util.TypeDefinition;
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
@@ -19,8 +18,6 @@ import java.util.stream.Collectors;
  * @param <V> the view type to create.
  */
 public interface ViewCreator<M, V> {
-
-    static final Logger LOGGER = LoggerFactory.getLogger(ViewCreator.class);
 
     /**
      * Creates a view based on the specified model in the current view request.
@@ -87,11 +84,13 @@ public interface ViewCreator<M, V> {
 
                     return creator;
                 } catch (Exception e) {
-                    LOGGER.warn("Unable to create view creator of type [" + creatorClass.getName() + "]");
+                    LoggerFactory.getLogger(ViewCreator.class)
+                            .warn("Unable to create view creator of type [" + creatorClass.getName() + "]");
                 }
 
             } else {
-                LOGGER.warn("Found multiple conflicting view creator mappings... " + creatorClasses);
+                LoggerFactory.getLogger(ViewCreator.class)
+                        .warn("Found multiple conflicting view creator mappings... " + creatorClasses);
             }
         }
 
