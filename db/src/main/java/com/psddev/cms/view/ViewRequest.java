@@ -1,6 +1,6 @@
 package com.psddev.cms.view;
 
-import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * The context in which views are created while serving an HTTP request.
@@ -19,38 +19,24 @@ public interface ViewRequest {
     <V> V createView(Class<V> viewClass, Object model);
 
     /**
-     * Gets the value of the HTTP request parameter for the given {@code name}.
+     * Gets a stream of the HTTP request parameter values for the given {@code name}.
      *
+     * @param returnType the stream type.
      * @param name the parameter name.
-     * @return the value of the request parameter.
+     * @param <T> the stream type.
+     * @return a stream of the parameter values.
      */
-    String getParameter(String name);
+    <T> Stream<T> getParameter(Class<T> returnType, String name);
 
     /**
-     * Gets the list of values of the HTTP request parameter for the given
-     * {@code name}.
+     * Gets a stream of the HTTP request header values for the given {@code name}.
      *
+     * @param returnType the stream type.
      * @param name the parameter name.
-     * @return the list of request parameter values.
+     * @param <T> the stream type.
+     * @return a stream of the header values.
      */
-    List<String> getParameters(String name);
-
-    /**
-     * Gets the value of the HTTP request header for the given {@code name}.
-     *
-     * @param name the header name.
-     * @return the value of the request header.
-     */
-    String getHeader(String name);
-
-    /**
-     * Gets the list of values of the HTTP request header for the given
-     * {@code name}.
-     *
-     * @param name the header name.
-     * @return the list of request header values.
-     */
-    List<String> getHeaders(String name);
+    <T> Stream<T> getHeader(Class<T> returnType, String name);
 
     /**
      * Gets the layout view class for the given {@code model} based on the
