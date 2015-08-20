@@ -42,11 +42,6 @@ class ServletViewRequest implements ViewRequest {
     }
 
     @Override
-    public PageStage getPageStage() {
-        return (PageStage) request.getAttribute("stage");
-    }
-
-    @Override
     public String getParameter(String name) {
         return request.getParameter(name);
     }

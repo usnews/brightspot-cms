@@ -1,7 +1,5 @@
 package com.psddev.cms.view;
 
-import com.psddev.cms.db.PageStage;
-
 import java.util.List;
 
 /**
@@ -19,13 +17,6 @@ public interface ViewRequest {
      * @return the created view.
      */
     <V> V createView(Class<V> viewClass, Object model);
-
-    /**
-     * Gets the PageStage object in context of the current HTTP request.
-     *
-     * @return the page stage of the current HTTP request.
-     */
-    PageStage getPageStage();
 
     /**
      * Gets the value of the HTTP request parameter for the given {@code name}.
