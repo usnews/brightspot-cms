@@ -228,6 +228,9 @@ class ViewMap implements Map<String, Object> {
         } else if (value instanceof Map) {
             return value;
 
+        } else if (value instanceof Class) {
+            return ((Class) value).getName();
+
         } else if (value != null) {
             value = new ViewMap(value);
         }
