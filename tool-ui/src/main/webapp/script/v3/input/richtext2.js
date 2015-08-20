@@ -257,6 +257,8 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Google docs styles
             'span[style*="font-style:italic"]': 'italic',
             'span[style*="font-weight:700"]': 'bold',
+            'span[style*="font-weight:bold"]': 'bold',
+            'span[style*="font-weight: bold"]': 'bold',
             'span[style*="text-decoration:underline"]': 'underline',
             'span[style*="vertical-align:super"]': 'superscript',
             'span[style*="vertical-align:sub"]': 'subscript',
