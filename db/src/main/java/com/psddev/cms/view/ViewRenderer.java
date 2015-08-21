@@ -81,7 +81,7 @@ public interface ViewRenderer {
                         ViewRendererAnnotationProcessor<Annotation> annotationProcessor
                                 = (ViewRendererAnnotationProcessor<Annotation>) TypeDefinition.getInstance(annotationProcessorClass).newInstance();
 
-                        ViewRenderer renderer = annotationProcessor.createRenderer(viewAnnotation);
+                        ViewRenderer renderer = annotationProcessor.createRenderer(view.getClass(), viewAnnotation);
 
                         if (renderer != null) {
                             renderers.add(renderer);
