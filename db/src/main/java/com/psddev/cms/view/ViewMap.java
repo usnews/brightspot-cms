@@ -231,6 +231,9 @@ class ViewMap implements Map<String, Object> {
         } else if (value instanceof Class) {
             return ((Class) value).getName();
 
+        } else if (value instanceof Enum) {
+            return value.toString();
+
         } else if (value != null) {
             value = new ViewMap(value);
         }
