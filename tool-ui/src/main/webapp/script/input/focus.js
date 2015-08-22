@@ -9,10 +9,20 @@ function($, bsp_utils) {
     // Automatically focus on certain elements.
     bsp_utils.onDomInsert(document, '[autofocus], .autoFocus', {
         'insert': function(input) {
+            var $input = $(input);
+
+            if ($input.closest('.dashboard-widget').length > 0) {
+                return;
+            }
+
+            if ($input.closest('.popup').length > 0) {
+                $input.focus();
+            }
+
             var focus = document.activeElement;
 
             if (!focus || focus === document || focus === document.body) {
-                $(input).focus();
+                $input.focus();
             }
         }
     });

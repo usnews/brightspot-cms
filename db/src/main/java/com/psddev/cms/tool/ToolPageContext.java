@@ -2331,19 +2331,6 @@ public class ToolPageContext extends WebPageContext {
                     "data-object-id", state.getId(),
                     "data-layout-placeholders", layoutPlaceholdersJson);
 
-                Object original = Query.fromAll().where("_id = ?", state.getId()).master().noCache().first();
-
-                if (original != null) {
-                    Date updateDate = State.getInstance(original).as(Content.ObjectModification.class).getUpdateDate();
-
-                    if (updateDate != null) {
-                        writeElement("input",
-                                "type", "hidden",
-                                "name", state.getId() + "/_updateDate",
-                                "value", updateDate.getTime());
-                    }
-                }
-
                 if (type != null) {
                     String noteHtml = type.as(ToolUi.class).getEffectiveNoteHtml(object);
 
@@ -2833,10 +2820,11 @@ public class ToolPageContext extends WebPageContext {
             }
 
             publish(draft);
-            redirectOnSave("",
+            getResponse().sendRedirect(url("",
+                    "editAnyway", null,
                     "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
                     ToolPageContext.DRAFT_ID_PARAMETER, draft.getId(),
-                    ToolPageContext.HISTORY_ID_PARAMETER, null);
+                    ToolPageContext.HISTORY_ID_PARAMETER, null));
             return true;
 
         } catch (Exception error) {
@@ -2873,15 +2861,28 @@ public class ToolPageContext extends WebPageContext {
                 state.as(Variation.Data.class).setInitialVariation(site.getDefaultVariation());
             }
 
-            Draft draft = new Draft();
+            if (state.isNew()) {
+                state.as(Content.ObjectModification.class).setDraft(true);
+                publish(state);
+                redirectOnSave("",
+                        "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
+                        "id", state.getId(),
+                        "copyId", null);
 
-            draft.setOwner(getUser());
-            draft.setObject(object);
-            publish(draft);
-            redirectOnSave("",
-                    "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
-                    ToolPageContext.DRAFT_ID_PARAMETER, draft.getId(),
-                    ToolPageContext.HISTORY_ID_PARAMETER, null);
+            } else {
+                Draft draft = new Draft();
+
+                draft.setOwner(getUser());
+                draft.setObject(object);
+                publish(draft);
+
+                getResponse().sendRedirect(url("",
+                        "editAnyway", null,
+                        "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
+                        ToolPageContext.DRAFT_ID_PARAMETER, draft.getId(),
+                        ToolPageContext.HISTORY_ID_PARAMETER, null));
+            }
+
             return true;
 
         } catch (Exception error) {
@@ -3045,7 +3046,21 @@ public class ToolPageContext extends WebPageContext {
                     contentData.setPublishUser(null);
                 }
 
-                publish(object);
+                @SuppressWarnings("unchecked")
+                Map<String, Object> oldValues = (Map<String, Object>) ObjectUtils.fromJson(param(String.class, state.getId() + "/oldValues"));
+                Map<String, Object> newValues = state.getSimpleValues();
+                Map<String, Object> changedValues = new CompactMap<>();
+
+                Stream.concat(oldValues.keySet().stream(), newValues.keySet().stream()).forEach(key -> {
+                    Object oldValue = oldValues.get(key);
+                    Object newValue = newValues.get(key);
+
+                    if (!ObjectUtils.equals(oldValue, newValue)) {
+                        changedValues.put(key, newValue);
+                    }
+                });
+
+                publishChanges(object, changedValues);
                 state.commitWrites();
                 redirectOnSave("",
                         "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
@@ -3241,6 +3256,15 @@ public class ToolPageContext extends WebPageContext {
                     if (draft == null) {
                         publish(object);
 
+                    } else if (!State.getInstance(Query.fromAll()
+                            .where("_id = ?", state.getId())
+                            .noCache()
+                            .first())
+                            .isVisible()) {
+
+                        draft.delete();
+                        publish(object);
+
                     } else {
                         draft.as(Workflow.Data.class).changeState(transition, getUser(), log);
                         draft.setObject(object);
@@ -3392,10 +3416,7 @@ public class ToolPageContext extends WebPageContext {
         return Content.Static.deleteSoftly(object, getSite(), getUser());
     }
 
-    /** @see Content.Static#publish */
-    public History publish(Object object) {
-        History history = Content.Static.publish(object, getSite(), getUser());
-
+    private History updateLockIgnored(History history) {
         if (history != null
                 && param(boolean.class, "editAnyway")) {
             history.setLockIgnored(true);
@@ -3403,6 +3424,20 @@ public class ToolPageContext extends WebPageContext {
         }
 
         return history;
+    }
+
+    /**
+     * @see Content.Static#publish(Object, Site, ToolUser)
+     */
+    public History publish(Object object) {
+        return updateLockIgnored(Content.Static.publish(object, getSite(), getUser()));
+    }
+
+    /**
+     * @see Content.Static#publishChanges(Object, Map, Site, ToolUser)
+     */
+    public History publishChanges(Object object, Map<String, Object> changedValues) {
+        return updateLockIgnored(Content.Static.publishChanges(object, changedValues, getSite(), getUser()));
     }
 
     /**

@@ -19,6 +19,10 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
+/**
+ * @deprecated Use {@link Query} instead.
+ */
+@Deprecated
 public class ToolSearch extends Record {
 
     public static final String FIELD_PREFIX = "q.";

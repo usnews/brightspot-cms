@@ -1,24 +1,30 @@
 .rte2-toolbar {
-
   background-color: fade(white, 93%);
-  border-bottom: 1px solid @color-separator;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
-  margin:0;
-  margin-bottom: 5px;
-  padding-top:5px;
+  margin: 0;
   position: relative;
   vertical-align: top;
-  
-  z-index:3; // Give a higher z-index than the rich text editor
-  
+
+  // Give a higher z-index than the rich text editor.
+  z-index: 3;
+
+  // When hovering the toolbar, give it a higher z-index than other toolbars
+  // below so that the submenu will be on top of other toolbars.
+  &:hover {
+    z-index: 4;
+  }
+
+  &.rte2-toolbar-fixed {
+    padding-top: 5px;
+  }
+
   .state-disabled & {
     display: none;
   }
 
   li {
-    list-style-type:none;
     display: inline-block;
+    list-style-type: none;
+    height: 25px;
 
     > ul {  // Submenu
       display:none;
@@ -52,16 +58,12 @@
     font-size: 80%;
     height: 20px;
     line-height: 20px;
-    margin: 0 0.5em 0 0;
+    margin: 0 5px 0 0;
     overflow: hidden;
     width: 20px;
 
-    &:before {
-      padding: 0 20px 1px 3px;
-    }
-
     &.active {
-      background-color: @color-link-light;
+      .background-flat(@color-focus);
     }
   }
 
@@ -76,11 +78,13 @@
   }
   
   a {
+    border-radius: 2px;
+
     .link {
       color: @color-text;
     }
 
-    &:hover {
+    &:not(.active):hover {
       box-shadow: 0 1px 2px fade(black, 20%);
       color: @color-text;
     }
@@ -100,7 +104,7 @@
   .rte2-toolbar-outdent { .icon; .icon-indent-right; }
   .rte2-toolbar-indent { .icon; .icon-indent-left; }
   .rte2-toolbar-link { .icon; .icon-link; }
-  .rte2-toolbar-html { width:auto; padding-left:0.5em; padding-right:0.5em; }
+  .rte2-toolbar-html { .icon; .icon-code; }
   .rte2-toolbar-comment { .icon; .icon-comment-alt; }
   .rte2-toolbar-comment-collapse { .icon; .icon-ellipsis-horizontal; }
   .rte2-toolbar-comment-remove { .icon; .icon-remove; }
@@ -138,11 +142,9 @@
   }
 
   .rte2-toolbar-separator {
-    width:1px;
-    margin-left:0.25em;
-    margin-right:0.5em;
-    border-left:1px solid @color-separator;
+    border-left: 1px solid @color-separator;
     cursor: none;
+    width: 0;
   }
 }
 
@@ -172,9 +174,11 @@
 }
 
 .rte2-style-html {
-  font-weight:bold;
   font-family: @fontFamily-code;
   background-color:fade(black, 10%);
+}
+.rte2-style-newline {
+  color: @color-placeholder;
 }
 .rte2-style-bold {
   font-weight:bold;
@@ -252,14 +256,69 @@
 }
 
 .rte2-wrapper {
+
+  position:relative;
+  
+  &::after {
+    content: attr(rte2-placeholder);
+    position:absolute;
+    left:0.5em;
+    top:0.5em;
+    color: @color-placeholder;
+    font-style: italic;
+  }
+
+  &.rte-fullscreen {
+    background: @color-border;
+    border-style: none;
+    height: 100%;
+    left: 0;
+    overflow: auto;
+    overflow-x: hidden;
+    padding: 0 40px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 49;
+
+    .rte2-toolbar {
+      background: white;
+      border-bottom: 1px solid @color-separator;
+      left: 0 !important;
+      padding-left: 5px;
+      padding-right: 5px;
+      right: 0 !important;
+      width: auto !important;
+    }
+
+    .CodeMirror {
+      background: white;
+      border: 0;
+      box-shadow: 0 0 20px fade(black, 50%);
+      display: block;
+      font-size: 16px;
+      line-height: 24px;
+      margin: 0 auto;
+      width: 60em;
+
+      .CodeMirror-lines {
+        padding: 30px;
+      }
+    }
+  }
   
   .CodeMirror {
-    
+
     font-family:inherit;
+
+    .CodeMirror-lines {
+      padding: 5px 6px;
+    }
 
     pre {
       font-family:inherit;
       counter-reset: brightspot_ol_counter;
+      padding: 0;
     }
     .rte2-style-ul {
       padding-left: 2em;
@@ -359,3 +418,4 @@
   color: @color-remove;
   float: right;
 }
+
