@@ -62,8 +62,8 @@ public interface ViewCreator<M, V> {
         allCreatorClasses.forEach(creatorClass -> {
 
             TypeDefinition<? extends ViewCreator> typeDef = TypeDefinition.getInstance(creatorClass);
-            Class<?> declaredViewClass = typeDef.getInferredGenericTypeArgumentClass(ViewCreator.class, 0);
-            Class<?> declaredModelClass = typeDef.getInferredGenericTypeArgumentClass(ViewCreator.class, 1);
+            Class<?> declaredModelClass = typeDef.getInferredGenericTypeArgumentClass(ViewCreator.class, 0);
+            Class<?> declaredViewClass = typeDef.getInferredGenericTypeArgumentClass(ViewCreator.class, 1);
 
             if (((declaredViewClass != null && viewClass.isAssignableFrom(declaredViewClass)) || viewClass.isAssignableFrom(creatorClass))
                     && declaredModelClass != null && declaredModelClass.isAssignableFrom(modelClass)) {
