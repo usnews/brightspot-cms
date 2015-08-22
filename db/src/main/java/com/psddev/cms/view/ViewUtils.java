@@ -5,6 +5,7 @@ import com.psddev.dari.db.Recordable;
 import com.psddev.dari.util.ObjectUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -51,6 +52,42 @@ final class ViewUtils {
         }
 
         return new ArrayList<>(classesToCheck);
+    }
+
+    // returns the classes nearest to the provided {@code sourceClass} based on
+    // the number of levels up in the class hierarchy tree.
+    static Set<Class<?>> getNearestSuperClassesInSet(Class<?> sourceClass, Set<Class<?>> superTypes) {
+
+        Set<Class<?>> superClasses = new HashSet<>();
+        Set<Class<?>> interfaces = new HashSet<>();
+
+        superTypes.forEach((superType) -> {
+            if (superType.isAssignableFrom(sourceClass)) {
+                if (superType.isInterface()) {
+                    interfaces.add(superType);
+                } else {
+                    superClasses.add(superType);
+                }
+            }
+        });
+
+        if (!superClasses.isEmpty()) {
+
+            Class<?> superClass = sourceClass;
+            while (superClass != null) {
+                if (superClasses.contains(superClass)) {
+                    return Collections.singleton(superClass);
+                } else {
+                    superClass = superClass.getSuperclass();
+                }
+            }
+
+            return Collections.emptySet();
+
+        } else {
+            // TODO: Still need to determine how we will handle interfaces.
+            return interfaces;
+        }
     }
 
     // fetches the interfaces for the given class including including any super

@@ -6,8 +6,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -46,8 +48,7 @@ public interface ViewCreator<M, V> {
 
         Class<?> modelClass = model.getClass();
 
-        // we only expect to find one.
-        List<Class<? extends ViewCreator>> creatorClasses = new ArrayList<>();
+        Map<Class<?>, List<Class<? extends ViewCreator>>> modelToCreatorClassMap = new HashMap<>();
 
         Set<Class<? extends ViewCreator>> allCreatorClasses = new LinkedHashSet<>();
 
@@ -68,32 +69,56 @@ public interface ViewCreator<M, V> {
             if (((declaredViewClass != null && viewClass.isAssignableFrom(declaredViewClass)) || viewClass.isAssignableFrom(creatorClass))
                     && declaredModelClass != null && declaredModelClass.isAssignableFrom(modelClass)) {
 
+                List<Class<? extends ViewCreator>> creatorClasses = modelToCreatorClassMap.get(declaredModelClass);
+                if (creatorClasses == null) {
+                    creatorClasses = new ArrayList<>();
+                    modelToCreatorClassMap.put(declaredModelClass, creatorClasses);
+                }
                 creatorClasses.add(creatorClass);
             }
         });
 
-        if (!creatorClasses.isEmpty()) {
+        if (!modelToCreatorClassMap.isEmpty()) {
 
-            if (creatorClasses.size() == 1) {
+            Set<Class<?>> nearestModelClasses = ViewUtils.getNearestSuperClassesInSet(model.getClass(), modelToCreatorClassMap.keySet());
+            if (nearestModelClasses.size() == 1) {
 
-                Class<? extends ViewCreator> creatorClass = creatorClasses.get(0);
+                List<Class<? extends ViewCreator>> creatorClasses = modelToCreatorClassMap.get(nearestModelClasses.iterator().next());
+                if (creatorClasses.size() == 1) {
 
-                try {
-                    @SuppressWarnings("unchecked")
-                    ViewCreator<M, V> creator = (ViewCreator<M, V>) TypeDefinition.getInstance(creatorClass).newInstance();
+                    Class<? extends ViewCreator> creatorClass = creatorClasses.get(0);
+                    try {
+                        @SuppressWarnings("unchecked")
+                        ViewCreator<M, V> creator = (ViewCreator<M, V>) TypeDefinition.getInstance(creatorClass).newInstance();
 
-                    return creator;
-                } catch (Exception e) {
+                        return creator;
+                    } catch (Exception e) {
+                        LoggerFactory.getLogger(ViewCreator.class)
+                                .warn("Unable to create view creator of type [" + creatorClass.getName() + "]");
+                    }
+                } else {
                     LoggerFactory.getLogger(ViewCreator.class)
-                            .warn("Unable to create view creator of type [" + creatorClass.getName() + "]");
+                            .warn("Found " + creatorClasses.size()
+                                    + " conflicting view creator mappings for model type ["
+                                    + model.getClass() + "] and view type [" + viewClass + "]: "
+                                    + creatorClasses);
                 }
-
             } else {
+                Set<Class<? extends ViewCreator>> conflictingCreatorClasses = new LinkedHashSet<>();
+                for (Class<?> nearestModelClass : nearestModelClasses) {
+                    conflictingCreatorClasses.addAll(modelToCreatorClassMap.get(nearestModelClass));
+                }
                 LoggerFactory.getLogger(ViewCreator.class)
-                        .warn("Found multiple conflicting view creator mappings... " + creatorClasses);
+                        .warn("Found " + conflictingCreatorClasses.size()
+                                + " conflicting view creator mappings for model type ["
+                                + model.getClass() + "] and view type [" + viewClass + "]: "
+                                + conflictingCreatorClasses);
             }
+        } else {
+            LoggerFactory.getLogger(ViewCreator.class)
+                    .warn("No view creator mappings found for model type ["
+                            + model.getClass() + "] and view type [" + viewClass + "]");
         }
-
         return null;
     }
 }
