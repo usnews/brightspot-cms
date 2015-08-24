@@ -695,30 +695,7 @@ public class ToolPageContext extends WebPageContext {
             object = Query.fromAll().where("_id = ?", objectId).resolveInvisible().first();
         }
 
-        if (object != null) {
-            if (workStream == null) {
-                ObjectType objectType = State.getInstance(object).getType();
-
-                if (!ObjectUtils.isBlank(validTypes)
-                        && !validTypes.contains(objectType)) {
-                    StringBuilder tb = new StringBuilder();
-
-                    for (ObjectType type : validTypes) {
-                        tb.append(type.getLabel());
-                        tb.append(", ");
-                    }
-
-                    tb.setLength(tb.length() - 2);
-
-                    throw new IllegalArgumentException(String.format(
-                            "Expected one of [%s] types for [%s] object but it is of [%s] type",
-                            tb,
-                            objectId,
-                            objectType != null ? objectType.getLabel() : "unknown"));
-                }
-            }
-
-        } else if (!ObjectUtils.isBlank(validTypes)) {
+        if (object == null && !ObjectUtils.isBlank(validTypes)) {
             ObjectType selectedType = ObjectType.getInstance(param(UUID.class, TYPE_ID_PARAMETER));
 
             if (selectedType == null) {
