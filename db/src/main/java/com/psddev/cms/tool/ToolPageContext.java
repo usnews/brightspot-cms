@@ -3267,6 +3267,8 @@ public class ToolPageContext extends WebPageContext {
         Draft draft = getOverlaidDraft(object);
         Workflow.Data workflowData = state.as(Workflow.Data.class);
         String oldWorkflowState = workflowData.getCurrentState();
+        Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
+        boolean oldContentDraft = contentData.isDraft();
 
         try {
             state.beginWrites();
@@ -3286,7 +3288,7 @@ public class ToolPageContext extends WebPageContext {
 
                     updateUsingParameters(object);
                     updateUsingAllWidgets(object);
-                    state.as(Content.ObjectModification.class).setDraft(false);
+                    contentData.setDraft(false);
                     log.getState().setId(param(UUID.class, "workflowLogId"));
                     updateUsingParameters(log);
                     workflowData.changeState(transition, getUser(), log);
@@ -3322,6 +3324,7 @@ public class ToolPageContext extends WebPageContext {
             }
 
             workflowData.revertState(oldWorkflowState);
+            contentData.setDraft(oldContentDraft);
             getErrors().add(error);
             return false;
 
