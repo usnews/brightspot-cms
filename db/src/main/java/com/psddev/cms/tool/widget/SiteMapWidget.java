@@ -2,7 +2,6 @@ package com.psddev.cms.tool.widget;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -13,6 +12,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 
+import com.google.common.collect.ImmutableSet;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.tool.Dashboard;
@@ -148,7 +148,7 @@ public class SiteMapWidget extends DashboardWidget {
                     page.writeTypeSelect(
                             com.psddev.cms.db.Template.Static.findUsedTypes(page.getSite())
                                     .stream()
-                                    .filter(page.getTypeDisplayPredicate(Arrays.asList("read")))
+                                    .filter(page.createTypeDisplayPredicate(ImmutableSet.of("read")))
                                     .collect(Collectors.toList()),
                             itemType,
                             "Any Types",

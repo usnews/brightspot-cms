@@ -1784,7 +1784,7 @@ public class ToolPageContext extends WebPageContext {
      *                   type permission will not be checked.
      * @return a new {@code Predicate<ObjectType>}
      */
-    public java.util.function.Predicate<ObjectType> getTypeDisplayPredicate(List<String> permissions) {
+    public java.util.function.Predicate<ObjectType> createTypeDisplayPredicate(Collection<String> permissions) {
 
         return (ObjectType type) ->
             type.isConcrete()
