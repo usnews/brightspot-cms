@@ -964,33 +964,30 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
 
                     if (editingType != null) {
                         Renderer.TypeModification rendererData = editingType.as(Renderer.TypeModification.class);
+                        List<Object> refs = Query.
+                                fromAll().
+                                and("_any matches ?", editingState.getId()).
+                                and("_id != ?", editingState.getId()).
+                                and("_type != ?", Draft.class).
+                                select(0, 10).
+                                getItems();
 
-                        if (!ObjectUtils.isBlank(rendererData.getEmbedPath())) {
-                            List<Object> refs = Query.
-                                    fromAll().
-                                    and("_any matches ?", editingState.getId()).
-                                    and("_id != ?", editingState.getId()).
-                                    and("_type != ?", Draft.class).
-                                    select(0, 10).
-                                    getItems();
-
-                            if (!refs.isEmpty()) {
-                                wp.writeHtml(" ");
-                                wp.writeStart("select",
-                                        "name", "_mainObjectId",
-                                        "onchange", "$(this).closest('form').submit();",
-                                        "style", "width:200px;");
-                                    wp.writeStart("option", "value", "");
-                                        wp.writeTypeObjectLabel(editing);
-                                    wp.writeEnd();
-
-                                    for (Object ref : refs) {
-                                        wp.writeStart("option", "value", State.getInstance(ref).getId());
-                                            wp.writeTypeObjectLabel(ref);
-                                        wp.writeEnd();
-                                    }
+                        if (!refs.isEmpty()) {
+                            wp.writeHtml(" ");
+                            wp.writeStart("select",
+                                    "name", "_mainObjectId",
+                                    "onchange", "$(this).closest('form').submit();",
+                                    "style", "width:200px;");
+                                wp.writeStart("option", "value", "");
+                                    wp.writeTypeObjectLabel(editing);
                                 wp.writeEnd();
-                            }
+
+                                for (Object ref : refs) {
+                                    wp.writeStart("option", "value", State.getInstance(ref).getId());
+                                        wp.writeTypeObjectLabel(ref);
+                                    wp.writeEnd();
+                                }
+                            wp.writeEnd();
                         }
 
                         List<Context> contexts = new ArrayList<Context>();

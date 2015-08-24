@@ -38,7 +38,7 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
               rtc.execute('com.psddev.cms.tool.page.content.EditFieldUpdateAction', {
                 contentId: $container.closest('form').attr('data-o-id'),
                 unlockObjectId: $container.closest('.objectInputs').attr('data-id'),
-                unlockFieldName: $container.attr('data-field')
+                unlockFieldName: $container.attr('data-field-name')
               });
             }
 
@@ -64,10 +64,22 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
       var $inputs = $('.objectInputs[data-id="' + objectId + '"]');
 
       $.each(fieldNames, function (i, fieldName) {
-        updateStatus(
-            $inputs.find('> .inputContainer[data-field="' + fieldName + '"]'),
-            userId,
-            'Pending edit from ' + userName);
+        var $container = $inputs.find('> .inputContainer[data-field-name="' + fieldName + '"]');
+        var nested = false;
+
+        $container.find('.objectInputs').each(function() {
+          if (fieldNamesByObjectId[$(this).attr('data-id')]) {
+            nested = true;
+            return false;
+          }
+        });
+
+        if (!nested) {
+          updateStatus(
+              $container,
+              userId,
+              'Pending edit from ' + userName);
+        }
       });
     });
   });
@@ -83,14 +95,27 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
 
       removeStatuses(userId);
 
-      $.each($.parseJSON(oldValues), function(fieldName, oldValue) {
-        if (JSON.stringify(oldValue) !== JSON.stringify(newValues[fieldName])) {
-          var $container = $('.objectInputs[data-id="' + contentId + '"] > .inputContainer[data-field="' + fieldName + '"]');
+      function compare(objectId, oldValues, newValues) {
+        $.each(oldValues, function(fieldName, oldValue) {
+          var oldValueId = oldValue ? oldValue._id : null;
+          var newValue = newValues[fieldName];
 
-          updateStatus($container, userId, 'Updated by ' + userName + ' at ' + new Date(data.date));
-          $container.addClass('inputContainer-updated');
-        }
-      });
+          if (oldValueId) {
+            compare(oldValueId, oldValue, newValue);
+
+          } else if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
+            var $container = $('.objectInputs[data-id="' + objectId + '"] > .inputContainer[data-field-name="' + fieldName + '"]');
+            var $form = $container.closest('form');
+
+            if ($form.length > 0 && !$.data($form[0], 'content-edit-submit')) {
+              updateStatus($container, userId, 'Updated by ' + userName + ' at ' + new Date(data.date));
+              $container.addClass('inputContainer-updated');
+            }
+          }
+        });
+      }
+
+      compare(contentId, $.parseJSON(oldValues), newValues);
     }
   });
 
@@ -105,7 +130,7 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
         var $container = $(this);
         var objectId = $container.closest('.objectInputs').attr('data-id');
 
-        (fieldNamesByObjectId[objectId] = fieldNamesByObjectId[objectId] || [ ]).push($container.attr('data-field'));
+        (fieldNamesByObjectId[objectId] = fieldNamesByObjectId[objectId] || [ ]).push($container.attr('data-field-name'));
       });
 
       if (fieldNamesByObjectId) {
@@ -132,5 +157,9 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
         update();
       }, 50);
     });
+
+    $form.on('submit', function() {
+      $.data($form[0], 'content-edit-submit', true);
+    })
   });
 });

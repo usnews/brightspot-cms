@@ -197,6 +197,7 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
 
   // Keep the publishing widget in view at all times.
   (function() {
+    var FIXED_DATA_KEY = 'cp-fixed';
     var OFFSET_DATA_KEY = 'cp-offset';
     var HEIGHT_DATA_KEY = 'cp-height';
     var WIDTH_DATA_KEY = 'cp-width';
@@ -210,6 +211,10 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
       $('.contentForm-aside').each(function() {
         var aside = this;
         var $aside = $(aside);
+        var $publishing = $aside.find('> .widget-publishing');
+
+        $.data($publishing[0], FIXED_DATA_KEY, $publishing.outerHeight() < $window.height() * 0.4);
+
         var asideTop = $aside.css('top');
 
         $aside.css('top', '');
@@ -240,7 +245,9 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
         var $publishing = $aside.find('> .widget-publishing');
         var publishing = $publishing[0];
 
-        if (asideOffset.top - windowScrollTop <= toolHeaderHeight) {
+        if ($.data(publishing, FIXED_DATA_KEY)
+            && asideOffset.top - windowScrollTop <= toolHeaderHeight) {
+
           $widgets.css({
             'padding-top': $.data(publishing, HEIGHT_DATA_KEY)
           });

@@ -254,7 +254,7 @@ public class ContentTools extends PageServlet {
                                                 "type", "text",
                                                 "class", "date",
                                                 "name", "publishDate",
-                                                "value", page.formatUserDateTime(publishDate));
+                                                "value", page.formatUserDateTimeWith(publishDate, "yyyy-MM-dd HH:mm:ss"));
                                     page.writeEnd();
                                 page.writeEnd();
 
