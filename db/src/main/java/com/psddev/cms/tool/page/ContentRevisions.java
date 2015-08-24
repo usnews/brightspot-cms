@@ -125,7 +125,7 @@ public class ContentRevisions extends Widget {
             page.writeStart("ul", "class", "links");
                 page.writeStart("li", "class", object.equals(selected) ? "selected" : null);
                     page.writeStart("a", "href", page.originalUrl(null, object));
-                        page.writeHtml("Current");
+                        page.writeHtml("Live");
                     page.writeEnd();
                 page.writeEnd();
             page.writeEnd();
@@ -157,7 +157,10 @@ public class ContentRevisions extends Widget {
             }
 
             if (!drafts.isEmpty()) {
-                page.writeStart("h2").writeHtml("Drafts").writeEnd();
+                page.writeStart("h2");
+                    page.writeObjectLabel(ObjectType.getInstance(Draft.class));
+                    page.writeHtml(" Items");
+                page.writeEnd();
 
                 page.writeStart("ul", "class", "links pageThumbnails");
                     for (Draft d : drafts) {

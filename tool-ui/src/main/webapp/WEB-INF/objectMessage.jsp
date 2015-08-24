@@ -9,6 +9,7 @@ com.psddev.cms.db.Trash,
 com.psddev.cms.db.Workflow,
 com.psddev.cms.tool.ToolPageContext,
 
+com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
 com.psddev.dari.db.State,
 com.psddev.dari.util.ObjectUtils,
@@ -93,7 +94,9 @@ if (wp.getOverlaidDraft(object) == null) {
     if (!userDrafts.isEmpty()) {
         wp.writeStart("div", "class", "message message-info");
             wp.writeStart("p");
-                wp.writeHtml("Your drafts:");
+                wp.writeHtml("Your ");
+                wp.writeObjectLabel(ObjectType.getInstance(Draft.class));
+                wp.writeHtml(" Items");
             wp.writeEnd();
 
             wp.writeStart("ul");

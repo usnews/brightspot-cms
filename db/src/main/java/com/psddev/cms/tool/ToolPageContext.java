@@ -990,7 +990,10 @@ public class ToolPageContext extends WebPageContext {
 
         } else {
             State state = State.getInstance(object);
-            String visibilityLabel = object instanceof Draft ? "Update" : state.getVisibilityLabel();
+            String visibilityLabel = object instanceof Draft
+                    ? ObjectType.getInstance(Draft.class).getDisplayName()
+                    : state.getVisibilityLabel();
+
             String label = state.getLabel();
 
             if (!ObjectUtils.isBlank(visibilityLabel)) {

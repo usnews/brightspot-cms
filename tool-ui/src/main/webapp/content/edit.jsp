@@ -185,6 +185,8 @@ if (!wp.getCmsTool().isDisableContentLocking()) {
 
 // --- Presentation ---
 
+Content.ObjectModification contentData = State.getInstance(editing).as(Content.ObjectModification.class);
+
 %>
 <%
 wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel() : null);
@@ -355,7 +357,9 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                         wp.writeStart("div", "class", "contentDiff");
                             if (history != null) {
                                 wp.writeStart("div", "class", "contentDiffOld contentDiffLeft");
-                                    wp.writeStart("h2").writeHtml("History").writeEnd();
+                                    wp.writeStart("h2");
+                                        wp.writeObjectLabel(ObjectType.getInstance(History.class));
+                                    wp.writeEnd();
                                     wp.writeSomeFormFields(editing, true, null, null);
                                 wp.writeEnd();
                             }
@@ -364,7 +368,9 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                 wp.disableFormFields();
 
                                 wp.writeStart("div", "class", "contentDiffCurrent " + (history != null ? "contentDiffRight" : "contentDiffLeft"));
-                                    wp.writeStart("h2").writeHtml("Current").writeEnd();
+                                    wp.writeStart("h2");
+                                        wp.writeHtml(contentData.isDraft() ? "Draft" : "Live");
+                                    wp.writeEnd();
                                     wp.writeSomeFormFields(original.getOriginalObject(), true, null, null);
                                 wp.writeEnd();
 
@@ -374,7 +380,9 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
 
                             if (draft != null) {
                                 wp.writeStart("div", "class", "contentDiffNew contentDiffRight");
-                                    wp.writeStart("h2").writeHtml("Draft").writeEnd();
+                                    wp.writeStart("h2");
+                                        wp.writeObjectLabel(ObjectType.getInstance(Draft.class));
+                                    wp.writeEnd();
                                     wp.writeSomeFormFields(editing, true, null, null);
                                 wp.writeEnd();
                             }
@@ -510,7 +518,6 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                 }
 
                 boolean isWritable = wp.hasPermission("type/" + editingState.getTypeId() + "/write");
-                Content.ObjectModification contentData = State.getInstance(editing).as(Content.ObjectModification.class);
                 boolean isDraft = !editingState.isNew() && (contentData.isDraft() || draft != null);
                 boolean isHistory = history != null;
                 boolean isTrash = contentData.isTrash();
@@ -526,7 +533,14 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
 
                         wp.writeStart("div", "class", "message message-warning");
                             wp.writeStart("p");
-                                wp.writeHtml("Draft last saved ");
+                                if (draft != null) {
+                                    wp.writeObjectLabel(ObjectType.getInstance(Draft.class));
+
+                                } else {
+                                    wp.writeHtml("Draft");
+                                }
+
+                                wp.writeHtml(" last saved ");
                                 wp.writeHtml(wp.formatUserDateTime(draftContentData.getUpdateDate()));
                                 wp.writeHtml(" by ");
                                 wp.writeObjectLabel(draftContentData.getUpdateUser());
@@ -559,7 +573,8 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                     wp.writeStart("a",
                                             "class", "icon icon-action-edit",
                                             "href", wp.url("", "draftId", null));
-                                        wp.writeHtml("Current");
+                                        wp.writeHtml("Back to ");
+                                        wp.writeHtml(contentData.isDraft() ? "Draft" : "Live");
                                     wp.writeEnd();
                                 }
 
@@ -889,7 +904,15 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                     "class", "link icon icon-object-draft",
                                     "name", "action-newDraft",
                                     "value", "true");
-                                wp.writeHtml(editingState.isNew() ? "Save Draft" : "New Draft");
+
+                                if (editingState.isNew()) {
+                                    wp.writeHtml("Save Draft");
+
+                                } else {
+                                    wp.writeHtml("New ");
+                                    wp.writeObjectLabel(ObjectType.getInstance(Draft.class));
+                                }
+
                             wp.writeEnd();
                         wp.writeEnd();
                     }
