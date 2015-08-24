@@ -785,14 +785,16 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                                     wp.writeEnd();
                                                 }
 
-                                                wp.writeStart("div", "class", "actions");
-                                                    wp.writeStart("button",
-                                                            "class", "link icon icon-action-save",
-                                                            "name", "action-draft",
-                                                            "value", "true");
-                                                        wp.writeHtml("Save");
+                                                if (draft == null) {
+                                                    wp.writeStart("div", "class", "actions");
+                                                        wp.writeStart("button",
+                                                                "class", "link icon icon-action-save",
+                                                                "name", "action-draft",
+                                                                "value", "true");
+                                                            wp.writeHtml("Save");
+                                                        wp.writeEnd();
                                                     wp.writeEnd();
-                                                wp.writeEnd();
+                                                }
                                                 wp.writeEnd();
                                             wp.writeEnd();
                                         }
