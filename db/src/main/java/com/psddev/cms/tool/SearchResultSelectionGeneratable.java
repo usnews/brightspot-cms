@@ -66,7 +66,7 @@ public interface SearchResultSelectionGeneratable extends Recordable {
      * {@link com.psddev.dari.db.ValidationException ValidationException} from being
      * thrown on draft creation by the {@link CreateDraft} servlet.
      */
-    public static class ValidationBehaviorModification extends Modification<SearchResultSelectionGeneratable> {
+    public static class Data extends Modification<SearchResultSelectionGeneratable> {
 
         @Override
         protected void onValidate() {
