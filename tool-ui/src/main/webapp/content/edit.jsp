@@ -139,6 +139,7 @@ if (wp.tryDelete(editing) ||
         wp.tryPublish(editing) ||
         wp.tryRestore(editing) ||
         wp.tryTrash(editing) ||
+        wp.tryMerge(editing) ||
         wp.tryWorkflow(editing)) {
     return;
 }
@@ -724,7 +725,8 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                             }
 
                             if (workflow != null) {
-                                Workflow.Data workflowData = editingState.as(Workflow.Data.class);
+                                State workflowParentState = draft != null ? draft.getState() : editingState;
+                                Workflow.Data workflowData = workflowParentState.as(Workflow.Data.class);
                                 String currentState = workflowData.getCurrentState();
                                 Map<String, String> transitionNames = new LinkedHashMap<String, String>();
 
@@ -737,10 +739,9 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                 }
 
                                 if (currentState != null || !transitionNames.isEmpty()) {
-                                    UUID workflowLogObjectId = draft != null ? draft.getId() : editingState.getId();
                                     WorkflowLog log = Query.
                                             from(WorkflowLog.class).
-                                            where("objectId = ?", workflowLogObjectId).
+                                            where("objectId = ?", workflowParentState.getId()).
                                             sortDescending("date").
                                             first();
 
@@ -767,7 +768,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                                     wp.writeHtml(" ");
                                                     wp.writeStart("a",
                                                             "target", "workflowLogs",
-                                                            "href", wp.cmsUrl("/workflowLogs", "objectId", workflowLogObjectId));
+                                                            "href", wp.cmsUrl("/workflowLogs", "objectId", workflowParentState.getId()));
                                                         if (ObjectUtils.isBlank(comment)) {
                                                             wp.writeHtml("by ");
 
@@ -817,6 +818,14 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
 
                                                 wp.writeFormFields(newLog);
                                             wp.writeEnd();
+
+                                            if (!visible && draft != null) {
+                                                wp.writeStart("button",
+                                                        "name", "action-merge",
+                                                        "value", "true");
+                                                    wp.writeHtml("Merge with Draft");
+                                                wp.writeEnd();
+                                            }
 
                                             for (Map.Entry<String, String> entry : transitionNames.entrySet()) {
                                                 wp.writeStart("button",

@@ -3243,6 +3243,58 @@ public class ToolPageContext extends WebPageContext {
         }
     }
 
+    public boolean tryMerge(Object object) {
+        if (!isFormPost()) {
+            return false;
+        }
+
+        String action = param(String.class, "action-merge");
+
+        if (ObjectUtils.isBlank(action)) {
+            return false;
+        }
+
+        setContentFormScheduleDate(object);
+
+        State state = State.getInstance(object);
+        Draft draft = getOverlaidDraft(object);
+
+        if (draft == null) {
+            return false;
+        }
+
+        try {
+            state.beginWrites();
+
+            updateUsingParameters(object);
+            updateUsingAllWidgets(object);
+
+            State oldState = State.getInstance(Query
+                    .fromAll()
+                    .where("_id = ?", state.getId())
+                    .noCache()
+                    .first());
+
+            if (oldState != null) {
+                state.as(Workflow.Data.class).getState().put("cms.workflow.currentState", oldState.as(Workflow.Data.class).getCurrentState());
+            }
+
+            publish(object);
+            draft.delete();
+            state.commitWrites();
+
+            redirectOnSave("", "id", state.getId());
+            return true;
+
+        } catch (Exception error) {
+            getErrors().add(error);
+            return false;
+
+        } finally {
+            state.endWrites();
+        }
+    }
+
     /**
      * Tries to apply a workflow action to the given {@code object} if the
      * user has asked for it in the current request.
@@ -3294,15 +3346,6 @@ public class ToolPageContext extends WebPageContext {
                     workflowData.changeState(transition, getUser(), log);
 
                     if (draft == null) {
-                        publish(object);
-
-                    } else if (!State.getInstance(Query.fromAll()
-                            .where("_id = ?", state.getId())
-                            .noCache()
-                            .first())
-                            .isVisible()) {
-
-                        draft.delete();
                         publish(object);
 
                     } else {
