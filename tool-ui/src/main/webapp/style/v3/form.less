@@ -251,12 +251,14 @@
   margin-left: 145px;
 }
 
+.contentDiff-sideBySide .objectInputs,
 .inputContainer-pending,
 .inputContainer-readOnly,
 .inputContainer-updated {
   opacity: 0.6;
   pointer-events: none;
 
+  .inputStatus a,
   .objectId-edit,
   .repeatableLabel,
   .tabs,
@@ -270,10 +272,15 @@
 
   .repeatableForm,
   .repeatableObjectId {
-    > .addButtonContainer {
+    > .addButtonContainer,
+    .removeButton {
       display: none !important;
     }
   }
+}
+
+.contentDiff-sideBySide .objectInputs {
+  opacity: 1;
 }
 
 .inputContentEditBulkOperation {

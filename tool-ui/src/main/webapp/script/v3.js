@@ -72,7 +72,7 @@ require([
 
   'v3/dashboard',
   'v3/constrainedscroll',
-  'content/diff',
+  'v3/content/diff',
   'v3/content/edit',
   'content/lock',
   'v3/content/publish',

@@ -469,13 +469,7 @@
   overflow: hidden;
 
   [name='action-workflow'] {
-    clear: left;
-    float: left;
-    margin-bottom: 5px;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
+    margin: 5px 5px 0 0;
   }
 }
 
@@ -484,13 +478,14 @@
 }
 
 .widget-publishingWorkflowLog {
+  margin-bottom: -5px;
+
   h2 {
     display: none;
   }
 
   .inputContainer {
-    margin-bottom: 0;
-
+    &:before,
     .inputLabel {
       display: none;
     }
@@ -526,10 +521,12 @@
 
   input[name='publishDate'],
   .calendarButton {
-    margin-right: 10px;
+    margin: 0 5px 5px 0;
   }
 
   [name='action-publish'] {
+    margin-bottom: 5px;
+
     & {
       .button-color(@color-publish);
 
@@ -550,9 +547,7 @@
 .widget-publishingExtra {
   .piped;
 
-  margin-bottom: 0;
-  margin-top: 15px;
-  padding-top: 5px;
+  margin: 15px 0 0 0;
 }
 
 .inputContainer .permissions select {
