@@ -257,6 +257,8 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Google docs styles
             'span[style*="font-style:italic"]': 'italic',
             'span[style*="font-weight:700"]': 'bold',
+            'span[style*="font-weight:bold"]': 'bold',
+            'span[style*="font-weight: bold"]': 'bold',
             'span[style*="text-decoration:underline"]': 'underline',
             'span[style*="vertical-align:super"]': 'superscript',
             'span[style*="vertical-align:sub"]': 'subscript',
@@ -629,7 +631,22 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // This is useful for when the external code doesn't know the self.$el (textarea)
             self.$container.data('rte2', self);
 
-            self.$editor = $('<div/>').appendTo(self.$container);
+            // Since the rte will trigger special events on the container,
+            // we should catch them and pass them to the textarea
+            self.$container.on('rteFocus', function(){
+                self.$el.trigger('rteFocus', [self]);
+                return false;
+            });
+            self.$container.on('rteBlur', function(){
+                self.$el.trigger('rteBlur', [self]);
+                return false;
+            });
+            self.$container.on('rteChange', function(){
+                self.$el.trigger('rteChange', [self]);
+                return false;
+            });
+
+            self.$editor = $('<div/>', {'class':'rte2-codemirror'}).appendTo(self.$container);
                 
             // Hide the textarea
             self.$el.hide();
@@ -2564,12 +2581,12 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
                 // Add a placeholder attribute to the container.
                 // CSS rules will overlay the text on top of the editor.
-                self.$container.attr(attrName, placeholder);
+                self.$editor.attr(attrName, placeholder);
                 
             } else {
 
                 // Remove the attribute so the text will not be overlayed
-                self.$container.removeAttr(attrName);
+                self.$editor.removeAttr(attrName);
             }
         },
 
@@ -2635,6 +2652,13 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self = this;
             html = self.rte.toHTML();
             return html;
+        },
+
+        toText: function() {
+            var self, text;
+            self = this;
+            text = self.rte.toText();
+            return text;
         },
 
         focus: function() {

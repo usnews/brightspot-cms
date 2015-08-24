@@ -3791,8 +3791,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
             processNode(el);
 
-            // Set the text in the editor
-            val = val.replace(/[\n\r]+$/, '');
+            // Replace multiple newlines at the end with single newline
+            val = val.replace(/[\n\r]+$/, '\n');
 
             if (range) {
 
