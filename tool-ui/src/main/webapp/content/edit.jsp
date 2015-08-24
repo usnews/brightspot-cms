@@ -244,6 +244,10 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                 wp.writeObjectLabel(ObjectType.getInstance(Draft.class));
                                 wp.writeHtml(" for");
 
+                                if (!visible) {
+                                    wp.writeHtml(" Draft");
+                                }
+
                             } else if (!visible) {
                                 wp.writeHtml("Draft");
 
