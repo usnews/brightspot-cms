@@ -7,8 +7,10 @@ com.psddev.cms.db.Schedule,
 com.psddev.cms.db.Template,
 com.psddev.cms.db.Trash,
 com.psddev.cms.db.Workflow,
+com.psddev.cms.db.WorkflowLog,
 com.psddev.cms.tool.ToolPageContext,
 
+com.psddev.dari.db.Database,
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
 com.psddev.dari.db.State,
@@ -80,17 +82,22 @@ Content.ObjectModification contentData = draft != null
         : state.as(Content.ObjectModification.class);
 
 if (wp.getUser().equals(contentData.getUpdateUser())) {
+    Date tenSecondsAgo = new DateTime(Database.Static.getDefault().now()).minusSeconds(10).toDate();
     Date updateDate = contentData.getUpdateDate();
 
-    if (updateDate != null && updateDate.after(new DateTime().minusSeconds(10).toDate())) {
-        String workflowState = state.as(Workflow.Data.class).getCurrentState();
+    if (updateDate != null && updateDate.after(tenSecondsAgo)) {
+        WorkflowLog log = Query.from(WorkflowLog.class)
+                .and("objectId = ?", draft != null ? draft.getId() : state.getId())
+                .and("date > ?", tenSecondsAgo.getTime())
+                .sortDescending("date")
+                .first();
 
         wp.write("<div class=\"message message-success\"><p>");
-            if (!ObjectUtils.isBlank(workflowState)) {
+            if (log != null && !ObjectUtils.isBlank(log.getNewWorkflowState())) {
                 wp.write("Transitioned to ");
-                wp.writeHtml(workflowState);
+                wp.writeHtml(log.getNewWorkflowState());
                 wp.writeHtml(" at ");
-                wp.writeHtml(wp.formatUserDateTime(updateDate));
+                wp.writeHtml(wp.formatUserDateTime(log.getDate()));
 
             } else {
                 if (draft != null || !state.isVisible()) {
