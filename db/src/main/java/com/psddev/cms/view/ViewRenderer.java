@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A renderer of views.
@@ -97,11 +98,11 @@ public interface ViewRenderer {
                 ViewRenderer renderer = renderers.get(0);
 
                 // wrap the view renderer so that it always converts the view to a ViewMap
-                // before delegating to the actual renderer.
+                // before delegating to the actual renderer if it's not already a map.
                 return new ViewRenderer() {
                     @Override
                     public ViewOutput render(Object view) {
-                        return view instanceof ViewMap ? renderer.render(view) : renderer.render(new ViewMap(view));
+                        return view instanceof Map ? renderer.render(view) : renderer.render(new ViewMap(view));
                     }
                 };
 
