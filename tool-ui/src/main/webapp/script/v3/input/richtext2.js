@@ -631,6 +631,21 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // This is useful for when the external code doesn't know the self.$el (textarea)
             self.$container.data('rte2', self);
 
+            // Since the rte will trigger special events on the container,
+            // we should catch them and pass them to the textarea
+            self.$container.on('rteFocus', function(){
+                self.$el.trigger('rteFocus', [self]);
+                return false;
+            });
+            self.$container.on('rteBlur', function(){
+                self.$el.trigger('rteBlur', [self]);
+                return false;
+            });
+            self.$container.on('rteChange', function(){
+                self.$el.trigger('rteChange', [self]);
+                return false;
+            });
+
             self.$editor = $('<div/>', {'class':'rte2-codemirror'}).appendTo(self.$container);
                 
             // Hide the textarea
@@ -2637,6 +2652,13 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self = this;
             html = self.rte.toHTML();
             return html;
+        },
+
+        toText: function() {
+            var self, text;
+            self = this;
+            text = self.rte.toText();
+            return text;
         },
 
         focus: function() {
