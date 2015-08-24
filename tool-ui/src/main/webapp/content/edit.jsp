@@ -700,9 +700,10 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                 }
 
                                 if (currentState != null || !transitionNames.isEmpty()) {
+                                    UUID workflowLogObjectId = draft != null ? draft.getId() : editingState.getId();
                                     WorkflowLog log = Query.
                                             from(WorkflowLog.class).
-                                            where("objectId = ?", editingState.getId()).
+                                            where("objectId = ?", workflowLogObjectId).
                                             sortDescending("date").
                                             first();
 
@@ -729,7 +730,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                                     wp.writeHtml(" ");
                                                     wp.writeStart("a",
                                                             "target", "workflowLogs",
-                                                            "href", wp.cmsUrl("/workflowLogs", "objectId", editingState.getId()));
+                                                            "href", wp.cmsUrl("/workflowLogs", "objectId", workflowLogObjectId));
                                                         if (ObjectUtils.isBlank(comment)) {
                                                             wp.writeHtml("by ");
 
