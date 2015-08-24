@@ -955,7 +955,19 @@ public class ToolUser extends Record implements ToolEntity {
         UUID compareId = getCompareId();
 
         if (compareId != null) {
-            return Query.fromAll().where("_id = ?", compareId).first();
+            Object compareObject = Query.fromAll().where("_id = ?", compareId).first();
+
+            if (compareObject != null) {
+                if (compareObject instanceof Draft) {
+                    return ((Draft) compareObject).getObject();
+
+                } else if (compareObject instanceof History) {
+                    return ((History) compareObject).getObject();
+
+                } else {
+                    return compareObject;
+                }
+            }
         }
 
         return null;

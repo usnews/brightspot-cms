@@ -3,7 +3,7 @@ package com.psddev.cms.tool.page.content;
 import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.ToolUser;
-import com.psddev.cms.tool.page.RtcBroadcast;
+import com.psddev.cms.rtc.RtcBroadcast;
 import com.psddev.dari.db.State;
 
 import java.util.Date;

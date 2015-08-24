@@ -78,8 +78,8 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             }
 
             wp.updateUsingParameters(item);
-            itemState.putValue(Content.PUBLISH_DATE_FIELD, publishDates[i] != null ? publishDates[i] : new Date());
-            itemState.putValue(Content.UPDATE_DATE_FIELD, new Date());
+            itemState.remove(Content.PUBLISH_DATE_FIELD);
+            itemState.remove(Content.UPDATE_DATE_FIELD);
             fieldValue.add(item);
 
             if (field.isEmbedded() && !itemState.isNew()) {
