@@ -245,11 +245,11 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                 wp.writeHtml(" for");
 
                                 if (!visible) {
-                                    wp.writeHtml(" Draft");
+                                    wp.writeHtml(" Initial Draft of");
                                 }
 
                             } else if (!visible) {
-                                wp.writeHtml("Draft");
+                                wp.writeHtml("Initial Draft of");
 
                             } else {
                                 wp.writeHtml("Edit");
@@ -601,7 +601,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                             "class", "icon icon-action-edit",
                                             "href", wp.url("", "draftId", null));
                                         wp.writeHtml("Back to ");
-                                        wp.writeHtml(!visible ? "Draft" : "Live");
+                                        wp.writeHtml(!visible ? "Initial Draft" : "Live");
                                     wp.writeEnd();
                                 }
 
@@ -829,7 +829,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                                 wp.writeStart("button",
                                                         "name", "action-merge",
                                                         "value", "true");
-                                                    wp.writeHtml("Merge with Draft");
+                                                    wp.writeHtml("Merge with Initial Draft");
                                                 wp.writeEnd();
                                             }
 
