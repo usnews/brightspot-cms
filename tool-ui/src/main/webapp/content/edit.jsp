@@ -185,7 +185,13 @@ if (!wp.getCmsTool().isDisableContentLocking()) {
 
 // --- Presentation ---
 
-Content.ObjectModification contentData = State.getInstance(editing).as(Content.ObjectModification.class);
+Content.ObjectModification contentData = editingState.as(Content.ObjectModification.class);
+Object oldObject = Query.fromAll().where("_id = ?", editingState.getId()).noCache().first();
+boolean visible = false;
+
+if (oldObject != null) {
+    visible = State.getInstance(oldObject).isVisible();
+}
 
 %>
 <%
@@ -229,7 +235,23 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                 <h1 class="breadcrumbs"><%
 
                     wp.writeStart("span", "class", "breadcrumbItem icon icon-object");
-                        wp.writeHtml(state.as(Content.ObjectModification.class).isDraft() ? "Draft " : (state.isNew() ? "New " : "Edit "));
+                        if (state.isNew()) {
+                            wp.writeHtml("New");
+
+                        } else {
+                            if (draft != null) {
+                                wp.writeObjectLabel(ObjectType.getInstance(Draft.class));
+                                wp.writeHtml(" for");
+
+                            } else if (!visible) {
+                                wp.writeHtml("Draft");
+
+                            } else {
+                                wp.writeHtml("Edit");
+                            }
+                        }
+
+                        wp.writeHtml(" ");
 
                         if (compatibleTypes.size() < 2) {
                             wp.write(wp.objectLabel(state.getType()));
@@ -369,7 +391,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
 
                                 wp.writeStart("div", "class", "contentDiffCurrent " + (history != null ? "contentDiffRight" : "contentDiffLeft"));
                                     wp.writeStart("h2");
-                                        wp.writeHtml(contentData.isDraft() ? "Draft" : "Live");
+                                        wp.writeHtml(!visible ? "Draft" : "Live");
                                     wp.writeEnd();
                                     wp.writeSomeFormFields(original.getOriginalObject(), true, null, null);
                                 wp.writeEnd();
@@ -574,7 +596,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                             "class", "icon icon-action-edit",
                                             "href", wp.url("", "draftId", null));
                                         wp.writeHtml("Back to ");
-                                        wp.writeHtml(contentData.isDraft() ? "Draft" : "Live");
+                                        wp.writeHtml(!visible ? "Draft" : "Live");
                                     wp.writeEnd();
                                 }
 
@@ -617,7 +639,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                 wp.writeStart("a",
                                         "class", "icon icon-action-edit",
                                         "href", wp.url("", "historyId", null));
-                                    wp.writeHtml("Current");
+                                    wp.writeHtml("Live");
                                 wp.writeEnd();
 
                                 wp.writeHtml(" ");
