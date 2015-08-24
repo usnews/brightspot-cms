@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
 
+import com.psddev.dari.db.DatabaseEnvironment;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -3046,21 +3047,55 @@ public class ToolPageContext extends WebPageContext {
                     contentData.setPublishUser(null);
                 }
 
-                @SuppressWarnings("unchecked")
-                Map<String, Object> oldValues = (Map<String, Object>) ObjectUtils.fromJson(param(String.class, state.getId() + "/oldValues"));
-                Map<String, Object> newValues = state.getSimpleValues();
-                Map<String, Object> changedValues = new CompactMap<>();
+                Map<UUID, Map<String, Object>> oldValuesById = Content.Static.findEmbeddedObjects(ObjectUtils.fromJson(param(String.class, state.getId() + "/oldValues")));
+                Map<UUID, Map<String, Object>> newValuesById = Content.Static.findEmbeddedObjects(state.getSimpleValues());
+                Map<UUID, Map<String, Object>> changedValuesById = new CompactMap<>();
+                DatabaseEnvironment environment = state.getDatabase().getEnvironment();
 
-                Stream.concat(oldValues.keySet().stream(), newValues.keySet().stream()).forEach(key -> {
-                    Object oldValue = oldValues.get(key);
-                    Object newValue = newValues.get(key);
+                oldValuesById.keySet().stream().filter(newValuesById::containsKey).forEach(id -> {
+                    Map<String, Object> oldValues = oldValuesById.get(id);
+                    Map<String, Object> newValues = newValuesById.get(id);
+                    Map<String, Object> changedValues = new CompactMap<>();
+                    ObjectType type = environment.getTypeById(ObjectUtils.to(UUID.class, newValues.get(State.TYPE_KEY)));
 
-                    if (!ObjectUtils.equals(oldValue, newValue)) {
+                    Stream.concat(oldValues.keySet().stream(), newValues.keySet().stream()).forEach(key -> {
+                        Object oldValue = oldValues.get(key);
+                        Object newValue = newValues.get(key);
+
+                        if (ObjectUtils.equals(oldValue, newValue)) {
+                            return;
+                        }
+
+                        if (ObjectUtils.isBlank(oldValue)
+                                && ObjectUtils.isBlank(newValue)) {
+
+                            return;
+                        }
+
+                        if (type != null) {
+                            ObjectField field = type.getField(key);
+
+                            if (field == null) {
+                                field = environment.getField(key);
+                            }
+
+                            if (field != null
+                                    && field.getInternalType().startsWith(ObjectField.SET_TYPE + "/")
+                                    && ObjectUtils.equals(ObjectUtils.to(Set.class, oldValue), ObjectUtils.to(Set.class, newValue))) {
+
+                                return;
+                            }
+                        }
+
                         changedValues.put(key, newValue);
+                    });
+
+                    if (!changedValues.isEmpty()) {
+                        changedValuesById.put(id, changedValues);
                     }
                 });
 
-                publishChanges(object, changedValues);
+                publishChanges(object, changedValuesById);
                 state.commitWrites();
                 redirectOnSave("",
                         "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
@@ -3436,8 +3471,8 @@ public class ToolPageContext extends WebPageContext {
     /**
      * @see Content.Static#publishChanges(Object, Map, Site, ToolUser)
      */
-    public History publishChanges(Object object, Map<String, Object> changedValues) {
-        return updateLockIgnored(Content.Static.publishChanges(object, changedValues, getSite(), getUser()));
+    public History publishChanges(Object object, Map<UUID, Map<String, Object>> changedValuesById) {
+        return updateLockIgnored(Content.Static.publishChanges(object, changedValuesById, getSite(), getUser()));
     }
 
     /**
