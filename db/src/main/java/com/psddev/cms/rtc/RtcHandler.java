@@ -133,7 +133,7 @@ class RtcHandler extends AbstractReflectorAtmosphereHandler {
 
                             for (Object object : state.create(data)) {
                                 RtcBroadcast.forEachBroadcast(object, (broadcast, broadcastData) ->
-                                        writeBroadcast(broadcast, broadcastData, userId, resource));
+                                        resource.getBroadcaster().broadcast(new RtcBroadcastMessage(broadcast, broadcastData)));
                             }
 
                             break;
