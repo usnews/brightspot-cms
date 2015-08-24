@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
 
+import com.psddev.dari.db.DatabaseEnvironment;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -989,7 +990,10 @@ public class ToolPageContext extends WebPageContext {
 
         } else {
             State state = State.getInstance(object);
-            String visibilityLabel = object instanceof Draft ? "Update" : state.getVisibilityLabel();
+            String visibilityLabel = object instanceof Draft
+                    ? ObjectType.getInstance(Draft.class).getDisplayName()
+                    : state.getVisibilityLabel();
+
             String label = state.getLabel();
 
             if (!ObjectUtils.isBlank(visibilityLabel)) {
@@ -3046,21 +3050,55 @@ public class ToolPageContext extends WebPageContext {
                     contentData.setPublishUser(null);
                 }
 
-                @SuppressWarnings("unchecked")
-                Map<String, Object> oldValues = (Map<String, Object>) ObjectUtils.fromJson(param(String.class, state.getId() + "/oldValues"));
-                Map<String, Object> newValues = state.getSimpleValues();
-                Map<String, Object> changedValues = new CompactMap<>();
+                Map<UUID, Map<String, Object>> oldValuesById = Content.Static.findEmbeddedObjects(ObjectUtils.fromJson(param(String.class, state.getId() + "/oldValues")));
+                Map<UUID, Map<String, Object>> newValuesById = Content.Static.findEmbeddedObjects(state.getSimpleValues());
+                Map<UUID, Map<String, Object>> changedValuesById = new CompactMap<>();
+                DatabaseEnvironment environment = state.getDatabase().getEnvironment();
 
-                Stream.concat(oldValues.keySet().stream(), newValues.keySet().stream()).forEach(key -> {
-                    Object oldValue = oldValues.get(key);
-                    Object newValue = newValues.get(key);
+                oldValuesById.keySet().stream().filter(newValuesById::containsKey).forEach(id -> {
+                    Map<String, Object> oldValues = oldValuesById.get(id);
+                    Map<String, Object> newValues = newValuesById.get(id);
+                    Map<String, Object> changedValues = new CompactMap<>();
+                    ObjectType type = environment.getTypeById(ObjectUtils.to(UUID.class, newValues.get(State.TYPE_KEY)));
 
-                    if (!ObjectUtils.equals(oldValue, newValue)) {
+                    Stream.concat(oldValues.keySet().stream(), newValues.keySet().stream()).forEach(key -> {
+                        Object oldValue = oldValues.get(key);
+                        Object newValue = newValues.get(key);
+
+                        if (ObjectUtils.equals(oldValue, newValue)) {
+                            return;
+                        }
+
+                        if (ObjectUtils.isBlank(oldValue)
+                                && ObjectUtils.isBlank(newValue)) {
+
+                            return;
+                        }
+
+                        if (type != null) {
+                            ObjectField field = type.getField(key);
+
+                            if (field == null) {
+                                field = environment.getField(key);
+                            }
+
+                            if (field != null
+                                    && field.getInternalType().startsWith(ObjectField.SET_TYPE + "/")
+                                    && ObjectUtils.equals(ObjectUtils.to(Set.class, oldValue), ObjectUtils.to(Set.class, newValue))) {
+
+                                return;
+                            }
+                        }
+
                         changedValues.put(key, newValue);
+                    });
+
+                    if (!changedValues.isEmpty()) {
+                        changedValuesById.put(id, changedValues);
                     }
                 });
 
-                publishChanges(object, changedValues);
+                publishChanges(object, changedValuesById);
                 state.commitWrites();
                 redirectOnSave("",
                         "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
@@ -3205,6 +3243,58 @@ public class ToolPageContext extends WebPageContext {
         }
     }
 
+    public boolean tryMerge(Object object) {
+        if (!isFormPost()) {
+            return false;
+        }
+
+        String action = param(String.class, "action-merge");
+
+        if (ObjectUtils.isBlank(action)) {
+            return false;
+        }
+
+        setContentFormScheduleDate(object);
+
+        State state = State.getInstance(object);
+        Draft draft = getOverlaidDraft(object);
+
+        if (draft == null) {
+            return false;
+        }
+
+        try {
+            state.beginWrites();
+
+            updateUsingParameters(object);
+            updateUsingAllWidgets(object);
+
+            State oldState = State.getInstance(Query
+                    .fromAll()
+                    .where("_id = ?", state.getId())
+                    .noCache()
+                    .first());
+
+            if (oldState != null) {
+                state.as(Workflow.Data.class).getState().put("cms.workflow.currentState", oldState.as(Workflow.Data.class).getCurrentState());
+            }
+
+            publish(object);
+            draft.delete();
+            state.commitWrites();
+
+            redirectOnSave("", "id", state.getId());
+            return true;
+
+        } catch (Exception error) {
+            getErrors().add(error);
+            return false;
+
+        } finally {
+            state.endWrites();
+        }
+    }
+
     /**
      * Tries to apply a workflow action to the given {@code object} if the
      * user has asked for it in the current request.
@@ -3229,6 +3319,8 @@ public class ToolPageContext extends WebPageContext {
         Draft draft = getOverlaidDraft(object);
         Workflow.Data workflowData = state.as(Workflow.Data.class);
         String oldWorkflowState = workflowData.getCurrentState();
+        Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
+        boolean oldContentDraft = contentData.isDraft();
 
         try {
             state.beginWrites();
@@ -3248,21 +3340,12 @@ public class ToolPageContext extends WebPageContext {
 
                     updateUsingParameters(object);
                     updateUsingAllWidgets(object);
-                    state.as(Content.ObjectModification.class).setDraft(false);
+                    contentData.setDraft(false);
                     log.getState().setId(param(UUID.class, "workflowLogId"));
                     updateUsingParameters(log);
                     workflowData.changeState(transition, getUser(), log);
 
                     if (draft == null) {
-                        publish(object);
-
-                    } else if (!State.getInstance(Query.fromAll()
-                            .where("_id = ?", state.getId())
-                            .noCache()
-                            .first())
-                            .isVisible()) {
-
-                        draft.delete();
                         publish(object);
 
                     } else {
@@ -3284,6 +3367,7 @@ public class ToolPageContext extends WebPageContext {
             }
 
             workflowData.revertState(oldWorkflowState);
+            contentData.setDraft(oldContentDraft);
             getErrors().add(error);
             return false;
 
@@ -3436,8 +3520,8 @@ public class ToolPageContext extends WebPageContext {
     /**
      * @see Content.Static#publishChanges(Object, Map, Site, ToolUser)
      */
-    public History publishChanges(Object object, Map<String, Object> changedValues) {
-        return updateLockIgnored(Content.Static.publishChanges(object, changedValues, getSite(), getUser()));
+    public History publishChanges(Object object, Map<UUID, Map<String, Object>> changedValuesById) {
+        return updateLockIgnored(Content.Static.publishChanges(object, changedValuesById, getSite(), getUser()));
     }
 
     /**
