@@ -344,8 +344,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                         }
                     wp.writeEnd();
 
-                } else if (!editingState.as(Content.ObjectModification.class).isDraft() &&
-                        (history != null || draft != null)) {
+                } else if (history != null || draft != null) {
                     State original = State.getInstance(Query.
                             from(Object.class).
                             where("_id = ?", editing).
