@@ -26,8 +26,6 @@ public class CreateDraft extends PageServlet {
 
     private static final long serialVersionUID = 1L;
 
-    public static final String ORIGIN_EXTRA_FLAG = "origin.createDraft";
-
     @Override
     protected String getPermissionId() {
         return null;
@@ -64,7 +62,7 @@ public class CreateDraft extends PageServlet {
 
         state.as(Content.ObjectModification.class).setDraft(true);
 
-        state.getExtras().put(ORIGIN_EXTRA_FLAG, true);
+        state.getExtras().put(SearchResultSelectionGeneratable.Data.IGNORE_VALIDATION_EXTRA, true);
 
         Content.Static.publish(state, page.getUser().getCurrentSite(), page.getUser());
 
