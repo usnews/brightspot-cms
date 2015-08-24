@@ -21,6 +21,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -33,9 +34,10 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
- * A Map implementation that uses a view (java bean) as the backing object for
- * the keys and values within the map. This Map uses the bean spec to map the
- * getter methods of the backing view to the keys within the map.
+ * Am unmodifiable Map implementation that uses a view (java bean) as the
+ * backing object for the keys and values within the map. This Map uses the
+ * bean spec to map the getter methods of the backing view to the keys within
+ * the map.
  */
 class ViewMap implements Map<String, Object> {
 
@@ -148,19 +150,19 @@ class ViewMap implements Map<String, Object> {
 
     @Override
     public Set<String> keySet() {
-        return unresolved.keySet();
+        return Collections.unmodifiableSet(unresolved.keySet());
     }
 
     @Override
     public Collection<Object> values() {
         resolver.ensure();
-        return resolved.values();
+        return Collections.unmodifiableCollection(resolved.values());
     }
 
     @Override
     public Set<Entry<String, Object>> entrySet() {
         resolver.ensure();
-        return resolved.entrySet();
+        return Collections.unmodifiableSet(resolved.entrySet());
     }
 
     @Override
