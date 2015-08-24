@@ -396,7 +396,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
 
                                 wp.writeStart("div", "class", "contentDiffCurrent " + (history != null ? "contentDiffRight" : "contentDiffLeft"));
                                     wp.writeStart("h2");
-                                        wp.writeHtml(!visible ? "Draft" : "Live");
+                                        wp.writeHtml(!visible ? "Initial Draft" : "Live");
                                     wp.writeEnd();
                                     wp.writeSomeFormFields(original.getOriginalObject(), true, null, null);
                                 wp.writeEnd();
@@ -564,7 +564,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                     wp.writeObjectLabel(ObjectType.getInstance(Draft.class));
 
                                 } else {
-                                    wp.writeHtml("Draft");
+                                    wp.writeHtml("Initial Draft");
                                 }
 
                                 wp.writeHtml(" last saved ");

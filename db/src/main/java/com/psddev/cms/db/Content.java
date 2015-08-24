@@ -87,6 +87,7 @@ public abstract class Content extends Record {
         private ObjectModification() {
         }
 
+        @DisplayName("Initial Draft")
         @Indexed(visibility = true)
         @InternalName("cms.content.draft")
         private Boolean draft;
@@ -217,7 +218,7 @@ public abstract class Content extends Record {
         @Override
         public String createVisibilityLabel(ObjectField field) {
             if (field.getInternalName().equals("cms.content.draft")) {
-                return isDraft() ? "Draft" : null;
+                return isDraft() ? "Initial Draft" : null;
             } else {
                 return isTrash() ? "Archived" : null;
             }

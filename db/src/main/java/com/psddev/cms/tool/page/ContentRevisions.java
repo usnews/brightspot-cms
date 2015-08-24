@@ -228,7 +228,7 @@ public class ContentRevisions extends Widget {
                             page.writeStart("a", "href", page.objectUrl(null, h));
                                 if (ObjectUtils.to(boolean.class, originals.get("cms.content.draft"))) {
                                     page.writeStart("span", "class", "visibilityLabel");
-                                        page.writeHtml("Draft");
+                                        page.writeHtml("Initial Draft");
                                     page.writeEnd();
                                     page.writeHtml(" ");
 

@@ -44,7 +44,7 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
         Query<Workflow> workflowQuery = Query.from(Workflow.class);
         Map<String, String> workflowStateLabels = new TreeMap<>();
 
-        workflowStateLabels.put("draft", "Draft");
+        workflowStateLabels.put("draft", "Initial Draft");
 
         for (Workflow w : workflowQuery.iterable(0)) {
             for (WorkflowState s : w.getStates()) {
@@ -296,12 +296,6 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
 
                                 page.writeStart("tr", "data-preview-url", "/_preview?_cms.db.previewId=" + draftId);
                                     page.writeStart("td");
-                                        page.writeStart("span", "class", "visibilityLabel");
-                                            page.writeHtml("Update");
-                                        page.writeEnd();
-                                    page.writeEnd();
-
-                                    page.writeStart("td");
                                         page.writeHtml(page.getTypeLabel(item));
                                     page.writeEnd();
 
@@ -311,6 +305,12 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                                                 "href", page.url("/content/edit.jsp",
                                                         "id", itemState.getId(),
                                                         "draftId", draftId));
+                                            page.writeStart("span", "class", "visibilityLabel");
+                                                page.writeHtml("Content Update");
+                                            page.writeEnd();
+
+                                            page.writeHtml(" ");
+
                                             page.writeObjectLabel(itemState);
                                         page.writeEnd();
                                     page.writeEnd();
@@ -325,12 +325,6 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                                 UUID itemId = itemState.getId();
 
                                 page.writeStart("tr", "data-preview-url", "/_preview?_cms.db.previewId=" + itemId);
-                                    page.writeStart("td");
-                                        page.writeStart("span", "class", "visibilityLabel");
-                                            page.writeHtml(itemState.getVisibilityLabel());
-                                        page.writeEnd();
-                                    page.writeEnd();
-
                                     page.writeStart("td");
                                         page.writeHtml(page.getTypeLabel(item));
                                     page.writeEnd();
