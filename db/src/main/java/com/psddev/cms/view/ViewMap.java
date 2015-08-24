@@ -247,7 +247,7 @@ class ViewMap implements Map<String, Object> {
             return method.invoke(view);
 
         } catch (IllegalAccessException | InvocationTargetException e) {
-            LOGGER.warn("Failed to invoke method: " + method);
+            LOGGER.warn("Failed to invoke method: " + method, e);
             return null;
         }
     }
