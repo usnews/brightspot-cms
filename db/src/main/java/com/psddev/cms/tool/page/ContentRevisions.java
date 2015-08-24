@@ -225,36 +225,38 @@ public class ContentRevisions extends Widget {
                                 "class", h.equals(selected) ? "selected" : null,
                                 "data-preview-url", "/_preview?_cms.db.previewId=" + h.getId());
 
-                            if (ObjectUtils.to(boolean.class, originals.get("cms.content.draft"))) {
-                                page.writeStart("span", "class", "visibilityLabel");
-                                    page.writeHtml("Draft");
-                                page.writeEnd();
+                            page.writeStart("a", "href", page.objectUrl(null, h));
+                                if (ObjectUtils.to(boolean.class, originals.get("cms.content.draft"))) {
+                                    page.writeStart("span", "class", "visibilityLabel");
+                                        page.writeHtml("Draft");
+                                    page.writeEnd();
+                                    page.writeHtml(" ");
 
-                            } else {
-                                String workflowState = ObjectUtils.to(String.class, originals.get("cms.workflow.currentState"));
+                                } else {
+                                    String workflowState = ObjectUtils.to(String.class, originals.get("cms.workflow.currentState"));
 
-                                if (workflowState != null) {
-                                    Workflow workflow = Query
-                                            .from(Workflow.class)
-                                            .where("contentTypes = ?", h.getState().get("objectType"))
-                                            .first();
+                                    if (workflowState != null) {
+                                        Workflow workflow = Query
+                                                .from(Workflow.class)
+                                                .where("contentTypes = ?", h.getState().get("objectType"))
+                                                .first();
 
-                                    if (workflow != null) {
-                                        for (WorkflowState s : workflow.getStates()) {
-                                            if (workflowState.equals(s.getName())) {
-                                                workflowState = s.getDisplayName();
-                                                break;
+                                        if (workflow != null) {
+                                            for (WorkflowState s : workflow.getStates()) {
+                                                if (workflowState.equals(s.getName())) {
+                                                    workflowState = s.getDisplayName();
+                                                    break;
+                                                }
                                             }
                                         }
+
+                                        page.writeStart("span", "class", "visibilityLabel");
+                                            page.writeHtml(workflowState);
+                                        page.writeEnd();
+                                        page.writeHtml(" ");
                                     }
-
-                                    page.writeStart("span", "class", "visibilityLabel");
-                                        page.writeHtml(workflowState);
-                                    page.writeEnd();
                                 }
-                            }
 
-                            page.writeStart("a", "href", page.objectUrl(null, h));
                                 page.writeHtml(page.formatUserDateTime(h.getUpdateDate()));
                                 page.writeHtml(" by ");
                                 page.writeObjectLabel(h.getUpdateUser());
