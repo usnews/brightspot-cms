@@ -5,9 +5,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 
+import com.google.common.collect.ImmutableSet;
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.ToolRole;
@@ -151,7 +153,10 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                     }
 
                     page.writeTypeSelect(
-                            ObjectType.getInstance(Content.class).as(ToolUi.class).findDisplayTypes(),
+                            ObjectType.getInstance(Content.class).as(ToolUi.class).findDisplayTypes()
+                                    .stream()
+                                    .filter(page.createTypeDisplayPredicate(ImmutableSet.of("read")))
+                                    .collect(Collectors.toList()),
                             type,
                             "Any Types",
                             "name", "typeId",

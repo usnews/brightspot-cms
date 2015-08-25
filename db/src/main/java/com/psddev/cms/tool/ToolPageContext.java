@@ -1757,6 +1757,24 @@ public class ToolPageContext extends WebPageContext {
                 attributes);
     }
 
+    /**
+     * Generates a {@code Predicate<ObjectType>} to filter {@link ObjectType}s against CMS display criteria
+     * and optionally check the specified type-level permission against the current
+     * {@link ToolUser}'s permissions.
+     * @param permissions A List of the type-level permissions to be checked.  If {@code null},
+     *                   type permission will not be checked.
+     * @return a new {@code Predicate<ObjectType>}
+     */
+    public java.util.function.Predicate<ObjectType> createTypeDisplayPredicate(Collection<String> permissions) {
+
+        return (ObjectType type) ->
+            type.isConcrete()
+                && (ObjectUtils.isBlank(permissions) || permissions.stream().allMatch((String permission) -> hasPermission("type/" + type.getId() + "/" + permission)))
+                && (getCmsTool().isDisplayTypesNotAssociatedWithJavaClasses() || type.getObjectClass() != null)
+                && !(Draft.class.equals(type.getObjectClass()))
+                && (!type.isDeprecated() || Query.fromType(type).hasMoreThan(0));
+    }
+
     private void writeTypeSelectReally(
             boolean multiple,
             Iterable<ObjectType> types,
@@ -1769,20 +1787,6 @@ public class ToolPageContext extends WebPageContext {
         }
 
         List<ObjectType> typesList = ObjectUtils.to(new TypeReference<List<ObjectType>>() { }, types);
-
-        for (Iterator<ObjectType> i = typesList.iterator(); i.hasNext();) {
-            ObjectType type = i.next();
-
-            if (!type.isConcrete()
-                    || !hasPermission("type/" + type.getId() + "/write")
-                    || (!getCmsTool().isDisplayTypesNotAssociatedWithJavaClasses()
-                    && type.getObjectClass() == null)
-                    || Draft.class.equals(type.getObjectClass())
-                    || (type.isDeprecated()
-                    && !Query.fromType(type).hasMoreThan(0))) {
-                i.remove();
-            }
-        }
 
         for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypes()) {
             if (Boolean.FALSE.equals(type.as(ToolUi.class).getHidden()) && !type.isConcrete()) {
