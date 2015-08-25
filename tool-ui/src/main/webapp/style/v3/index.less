@@ -468,8 +468,9 @@
 .widget-publishingWorkflow {
   overflow: hidden;
 
+  [name='action-merge'],
   [name='action-workflow'] {
-    margin: 5px 5px 0 0;
+    margin: 0 5px 5px 0;
   }
 }
 
@@ -545,9 +546,14 @@
 }
 
 .widget-publishingExtra {
-  .piped;
+  list-style-type: none;
+  margin: 15px 70px 0 0;
+  overflow: hidden;
 
-  margin: 15px 0 0 0;
+  li {
+    float: left;
+    margin-right: 20px;
+  }
 }
 
 .inputContainer .permissions select {

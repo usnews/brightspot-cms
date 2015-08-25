@@ -158,6 +158,28 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
         
         /**
+         * Function for cleaning up the clipboard data when content is pasted
+         * from outside the RTE.
+         *
+         * @param {jQuery} $content
+         * The content that was pasted.
+         *
+         * @returns {jQuery}
+         * The modified content.
+         *
+         * @example
+         * function($content) {
+         *     // Remove anything with class "badclass"
+         *     $content.find('.badclass').remove();
+         *     return $content;
+         * }
+         */
+        clipboardSanitizeFunction: function($content) {
+            return $content;
+        },
+
+        
+        /**
          * Should we track changes?
          * Note: do not set this directly, use trackSet() or trackToggle()
          */
@@ -2639,14 +2661,20 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             dom = self.htmlParse(html);
             $el = $(dom);
 
+            // Apply the clipboard sanitize rules (if any)
             if (self.clipboardSanitizeRules) {
                 $el.find('p').after('<br/>');
                 $.each(self.clipboardSanitizeRules, function(selector, style) {
                     $el.find(selector).wrapInner( $('<span>', {'data-rte2-sanitize': style}) );
                 });
             }
-            
-            return dom;
+
+            // Run it through the clipboard sanitize function (if it exists)
+            if (self.clipboardSanitizeFunction) {
+                $el = self.clipboardSanitizeFunction($el);
+            }
+
+            return $el[0];
         },
 
         
@@ -3791,8 +3819,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
             processNode(el);
 
-            // Set the text in the editor
-            val = val.replace(/[\n\r]+$/, '');
+            // Replace multiple newlines at the end with single newline
+            val = val.replace(/[\n\r]+$/, '\n');
 
             if (range) {
 

@@ -697,30 +697,7 @@ public class ToolPageContext extends WebPageContext {
             object = Query.fromAll().where("_id = ?", objectId).resolveInvisible().first();
         }
 
-        if (object != null) {
-            if (workStream == null) {
-                ObjectType objectType = State.getInstance(object).getType();
-
-                if (!ObjectUtils.isBlank(validTypes)
-                        && !validTypes.contains(objectType)) {
-                    StringBuilder tb = new StringBuilder();
-
-                    for (ObjectType type : validTypes) {
-                        tb.append(type.getLabel());
-                        tb.append(", ");
-                    }
-
-                    tb.setLength(tb.length() - 2);
-
-                    throw new IllegalArgumentException(String.format(
-                            "Expected one of [%s] types for [%s] object but it is of [%s] type",
-                            tb,
-                            objectId,
-                            objectType != null ? objectType.getLabel() : "unknown"));
-                }
-            }
-
-        } else if (!ObjectUtils.isBlank(validTypes)) {
+        if (object == null && !ObjectUtils.isBlank(validTypes)) {
             ObjectType selectedType = ObjectType.getInstance(param(UUID.class, TYPE_ID_PARAMETER));
 
             if (selectedType == null) {
@@ -992,7 +969,9 @@ public class ToolPageContext extends WebPageContext {
 
         } else {
             State state = State.getInstance(object);
-            String visibilityLabel = object instanceof Draft ? "Update" : state.getVisibilityLabel();
+            String visibilityLabel = object instanceof Draft
+                    ? ObjectType.getInstance(Draft.class).getDisplayName()
+                    : state.getVisibilityLabel();
 
             if (!ObjectUtils.isBlank(visibilityLabel)) {
                 writeStart("span", "class", "visibilityLabel");
@@ -1778,6 +1757,24 @@ public class ToolPageContext extends WebPageContext {
                 attributes);
     }
 
+    /**
+     * Generates a {@code Predicate<ObjectType>} to filter {@link ObjectType}s against CMS display criteria
+     * and optionally check the specified type-level permission against the current
+     * {@link ToolUser}'s permissions.
+     * @param permissions A List of the type-level permissions to be checked.  If {@code null},
+     *                   type permission will not be checked.
+     * @return a new {@code Predicate<ObjectType>}
+     */
+    public java.util.function.Predicate<ObjectType> createTypeDisplayPredicate(Collection<String> permissions) {
+
+        return (ObjectType type) ->
+            type.isConcrete()
+                && (ObjectUtils.isBlank(permissions) || permissions.stream().allMatch((String permission) -> hasPermission("type/" + type.getId() + "/" + permission)))
+                && (getCmsTool().isDisplayTypesNotAssociatedWithJavaClasses() || type.getObjectClass() != null)
+                && !(Draft.class.equals(type.getObjectClass()))
+                && (!type.isDeprecated() || Query.fromType(type).hasMoreThan(0));
+    }
+
     private void writeTypeSelectReally(
             boolean multiple,
             Iterable<ObjectType> types,
@@ -1790,20 +1787,6 @@ public class ToolPageContext extends WebPageContext {
         }
 
         List<ObjectType> typesList = ObjectUtils.to(new TypeReference<List<ObjectType>>() { }, types);
-
-        for (Iterator<ObjectType> i = typesList.iterator(); i.hasNext();) {
-            ObjectType type = i.next();
-
-            if (!type.isConcrete()
-                    || !hasPermission("type/" + type.getId() + "/write")
-                    || (!getCmsTool().isDisplayTypesNotAssociatedWithJavaClasses()
-                    && type.getObjectClass() == null)
-                    || Draft.class.equals(type.getObjectClass())
-                    || (type.isDeprecated()
-                    && !Query.fromType(type).hasMoreThan(0))) {
-                i.remove();
-            }
-        }
 
         for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypes()) {
             if (Boolean.FALSE.equals(type.as(ToolUi.class).getHidden()) && !type.isConcrete()) {
@@ -3241,6 +3224,58 @@ public class ToolPageContext extends WebPageContext {
         }
     }
 
+    public boolean tryMerge(Object object) {
+        if (!isFormPost()) {
+            return false;
+        }
+
+        String action = param(String.class, "action-merge");
+
+        if (ObjectUtils.isBlank(action)) {
+            return false;
+        }
+
+        setContentFormScheduleDate(object);
+
+        State state = State.getInstance(object);
+        Draft draft = getOverlaidDraft(object);
+
+        if (draft == null) {
+            return false;
+        }
+
+        try {
+            state.beginWrites();
+
+            updateUsingParameters(object);
+            updateUsingAllWidgets(object);
+
+            State oldState = State.getInstance(Query
+                    .fromAll()
+                    .where("_id = ?", state.getId())
+                    .noCache()
+                    .first());
+
+            if (oldState != null) {
+                state.as(Workflow.Data.class).getState().put("cms.workflow.currentState", oldState.as(Workflow.Data.class).getCurrentState());
+            }
+
+            publish(object);
+            draft.delete();
+            state.commitWrites();
+
+            redirectOnSave("", "id", state.getId());
+            return true;
+
+        } catch (Exception error) {
+            getErrors().add(error);
+            return false;
+
+        } finally {
+            state.endWrites();
+        }
+    }
+
     /**
      * Tries to apply a workflow action to the given {@code object} if the
      * user has asked for it in the current request.
@@ -3265,6 +3300,8 @@ public class ToolPageContext extends WebPageContext {
         Draft draft = getOverlaidDraft(object);
         Workflow.Data workflowData = state.as(Workflow.Data.class);
         String oldWorkflowState = workflowData.getCurrentState();
+        Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
+        boolean oldContentDraft = contentData.isDraft();
 
         try {
             state.beginWrites();
@@ -3284,21 +3321,12 @@ public class ToolPageContext extends WebPageContext {
 
                     updateUsingParameters(object);
                     updateUsingAllWidgets(object);
-                    state.as(Content.ObjectModification.class).setDraft(false);
+                    contentData.setDraft(false);
                     log.getState().setId(param(UUID.class, "workflowLogId"));
                     updateUsingParameters(log);
                     workflowData.changeState(transition, getUser(), log);
 
                     if (draft == null) {
-                        publish(object);
-
-                    } else if (!State.getInstance(Query.fromAll()
-                            .where("_id = ?", state.getId())
-                            .noCache()
-                            .first())
-                            .isVisible()) {
-
-                        draft.delete();
                         publish(object);
 
                     } else {
@@ -3320,6 +3348,7 @@ public class ToolPageContext extends WebPageContext {
             }
 
             workflowData.revertState(oldWorkflowState);
+            contentData.setDraft(oldContentDraft);
             getErrors().add(error);
             return false;
 
