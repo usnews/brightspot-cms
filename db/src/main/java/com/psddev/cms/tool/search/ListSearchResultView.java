@@ -26,7 +26,6 @@ import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.CmsTool;
-import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.SearchResultField;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Metric;
