@@ -418,9 +418,9 @@ The HTML within the repeatable element must conform to these standards:
                 // Collapse the item unless it has an error message within it
                 // Do not collapse "preview" or "object" mode
                 if ($item.find('.message-error').length === 0
+                    && $item.find('> .layouts').length === 0
                     && !self.modeIsPreview()
                     && !self.modeIsObject()) {
-                    
                     self.itemCollapse($item);
                 }
 

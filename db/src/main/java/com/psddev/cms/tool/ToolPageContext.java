@@ -1678,7 +1678,21 @@ public class ToolPageContext extends WebPageContext {
                     for (Site s : Query.from(Site.class).selectAll()) {
                         for (String url : s.getUrls()) {
                             try {
-                                siteUrls.add(new URL(url).toURI().resolve("/").toString());
+                                String siteUrl = new URL(url).toURI().resolve("/").toString();
+
+                                if (siteUrl.startsWith("http://")) {
+                                    siteUrls.remove("https://" + siteUrl.substring(7));
+
+                                } else if (siteUrl.startsWith("https://")) {
+                                    String insecureSiteUrl = "http://" + siteUrl.substring(8);
+
+                                    if (siteUrls.contains(insecureSiteUrl)) {
+                                        continue;
+                                    }
+                                }
+
+                                siteUrls.add(siteUrl);
+
                             } catch (MalformedURLException error) {
                                 // Ignore invalid site URL.
                             } catch (URISyntaxException error) {
