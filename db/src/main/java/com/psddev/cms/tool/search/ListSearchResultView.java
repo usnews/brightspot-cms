@@ -64,11 +64,6 @@ public class ListSearchResultView extends AbstractSearchResultView {
     }
 
     @Override
-    public boolean isSupported(Search search) {
-        return search.getSelectedType() != null;
-    }
-
-    @Override
     protected void doWriteHtml() throws IOException {
         ObjectType selectedType = search.getSelectedType();
 
