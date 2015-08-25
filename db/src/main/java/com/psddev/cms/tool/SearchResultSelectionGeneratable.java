@@ -67,7 +67,7 @@ public interface SearchResultSelectionGeneratable extends Recordable {
      */
     public static class Data extends Modification<SearchResultSelectionGeneratable> {
 
-        public static final String IGNORE_VALIDATION_EXTRA = "ignoreValidation";
+        public static final String IGNORE_VALIDATION_EXTRA = "cms.ignoreValidation";
 
         @Override
         protected void onValidate() {
