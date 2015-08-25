@@ -36,7 +36,7 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
           'click': function() {
             if (confirm('Are you sure you want to forcefully unlock this field?')) {
               rtc.execute('com.psddev.cms.tool.page.content.EditFieldUpdateAction', {
-                contentId: $container.closest('form').attr('data-o-id'),
+                contentId: $container.closest('form').attr('data-rtc-content-id'),
                 unlockObjectId: $container.closest('.objectInputs').attr('data-id'),
                 unlockFieldName: $container.attr('data-field-name')
               });
@@ -60,8 +60,14 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
       return;
     }
 
+    var contentId = data.contentId;
+
     $.each(fieldNamesByObjectId, function (objectId, fieldNames) {
-      var $inputs = $('.objectInputs[data-id="' + objectId + '"]');
+      var $inputs = $('form[data-rtc-content-id="' + contentId + '"] .objectInputs[data-id="' + objectId + '"]');
+
+      if ($inputs.length === 0) {
+        return;
+      }
 
       $.each(fieldNames, function (i, fieldName) {
         var $container = $inputs.find('> .inputContainer[data-field-name="' + fieldName + '"]');
@@ -121,7 +127,7 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
 
   $('.contentForm').each(function() {
     var $form = $(this);
-    var contentId = $form.attr('data-o-id');
+    var contentId = $form.attr('data-rtc-content-id');
 
     function update() {
       var fieldNamesByObjectId = { };
