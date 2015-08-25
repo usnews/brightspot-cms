@@ -27,14 +27,4 @@ public interface ViewRequest {
      * @return a stream of the parameter values.
      */
     <T> Stream<T> getParameter(Class<T> returnType, String name);
-
-    /**
-     * Gets a stream of the HTTP request header values for the given {@code name}.
-     *
-     * @param returnType the stream type.
-     * @param name the parameter name.
-     * @param <T> the stream type.
-     * @return a stream of the header values.
-     */
-    <T> Stream<T> getHeader(Class<T> returnType, String name);
 }

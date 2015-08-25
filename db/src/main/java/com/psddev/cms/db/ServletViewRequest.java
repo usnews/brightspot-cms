@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
@@ -46,11 +45,5 @@ class ServletViewRequest implements ViewRequest {
     public <T> Stream<T> getParameter(Class<T> returnType, String name) {
         String[] values = request.getParameterValues(name);
         return values != null ? Arrays.stream(values).map((param) -> ObjectUtils.to(returnType, param)) : Stream.empty();
-    }
-
-    @Override
-    public <T> Stream<T> getHeader(Class<T> returnType, String name) {
-        return Collections.list(request.getHeaders(name)).stream()
-                .map((header) -> ObjectUtils.to(returnType, header));
     }
 }
