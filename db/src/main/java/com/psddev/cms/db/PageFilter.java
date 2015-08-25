@@ -31,6 +31,7 @@ import com.psddev.cms.tool.AuthenticationFilter;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.RemoteWidgetFilter;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.cms.view.PageViewClass;
 import com.psddev.cms.view.ViewOutput;
 import com.psddev.cms.view.ViewRequest;
 import com.psddev.cms.view.ViewRenderer;
@@ -1085,7 +1086,9 @@ public class PageFilter extends AbstractFilter {
 
         ViewRequest viewRequest = new ServletViewRequest(request);
 
-        Class<?> layoutViewClass = viewRequest.getLayoutViewClass(object);
+        PageViewClass annotation = object.getClass().getAnnotation(PageViewClass.class);
+
+        Class<?> layoutViewClass = annotation != null ? annotation.value() : null;
         if (layoutViewClass != null) {
 
             Object view = viewRequest.createView(layoutViewClass, object);

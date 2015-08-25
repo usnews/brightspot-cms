@@ -37,28 +37,4 @@ public interface ViewRequest {
      * @return a stream of the header values.
      */
     <T> Stream<T> getHeader(Class<T> returnType, String name);
-
-    /**
-     * Gets the layout view class for the given {@code model} based on the
-     * {@link com.psddev.cms.view.LayoutView} annotation.
-     *
-     * @param model the model to check.
-     * @return the layout view class
-     */
-    default Class<?> getLayoutViewClass(Object model) {
-        LayoutView annotation = model.getClass().getAnnotation(LayoutView.class);
-        return annotation != null ? annotation.value() : null;
-    }
-
-    /**
-     * Gets the main view class for the given {@code model} based on the
-     * {@link com.psddev.cms.view.MainView} annotation.
-     *
-     * @param model the model to check.
-     * @return the main view class.
-     */
-    default Class<?> getMainViewClass(Object model) {
-        MainView annotation = model.getClass().getAnnotation(MainView.class);
-        return annotation != null ? annotation.value() : null;
-    }
 }

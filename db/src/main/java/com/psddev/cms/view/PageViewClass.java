@@ -13,10 +13,10 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface LayoutView {
+public @interface PageViewClass {
 
     /**
-     * @return the view class for the layout.
+     * @return the view class for the page.
      */
     Class<?> value();
 }

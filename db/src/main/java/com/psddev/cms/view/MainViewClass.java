@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface MainView {
+public @interface MainViewClass {
 
     /**
      * @return the view class for the main object.
