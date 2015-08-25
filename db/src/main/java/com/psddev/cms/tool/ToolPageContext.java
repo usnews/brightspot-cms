@@ -131,6 +131,8 @@ public class ToolPageContext extends WebPageContext {
     private static final String OVERLAID_DRAFT_EXTRA = EXTRA_PREFIX + "overlaidDraft";
     private static final String OVERLAID_HISTORY_EXTRA = EXTRA_PREFIX + "overlaidHistory";
 
+    public static final String DEFAULT_OBJECT_LABEL = "Untitled";
+
     /** Creates an instance based on the given {@code pageContext}. */
     public ToolPageContext(PageContext pageContext) {
         super(pageContext);
@@ -971,8 +973,6 @@ public class ToolPageContext extends WebPageContext {
                     ? ObjectType.getInstance(Draft.class).getDisplayName()
                     : state.getVisibilityLabel();
 
-            String label = state.getLabel();
-
             if (!ObjectUtils.isBlank(visibilityLabel)) {
                 writeStart("span", "class", "visibilityLabel");
                     writeHtml(visibilityLabel);
@@ -981,7 +981,7 @@ public class ToolPageContext extends WebPageContext {
                 writeHtml(" ");
             }
 
-            writeHtml(getObjectLabelOrDefault(state, "Untitled"));
+            writeHtml(getObjectLabelOrDefault(state, DEFAULT_OBJECT_LABEL));
         }
     }
 
@@ -1051,7 +1051,7 @@ public class ToolPageContext extends WebPageContext {
 
             if (!typeLabel.equals(label)) {
                 writeHtml(": ");
-                writeHtml(label);
+                writeHtml(getObjectLabelOrDefault(state, DEFAULT_OBJECT_LABEL));
             }
         }
     }
