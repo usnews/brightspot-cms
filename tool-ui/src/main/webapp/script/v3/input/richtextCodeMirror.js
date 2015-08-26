@@ -2590,23 +2590,64 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
         
         clipboardInit: function() {
             
-            var editor, self, $wrapper;
+            var editor, isFirefox, isWindows, self, $wrapper;
             self = this;
 
-            // Set up copy event
             editor = self.codeMirror;
             $wrapper = $(editor.getWrapperElement());
 
+            // Set up copy event
             $wrapper.on('cut copy', function(e){
-                self.clipboardSet(e.originalEvent);
+                self.clipboardCopy(e.originalEvent);
             });
 
+            // Set up paste event
+            // Note if using hte workaround below this will not fire on Ctrl-V paste
             $wrapper.on('paste', function(e){
-                self.clipboardGet(e.originalEvent);
+                self.clipboardPaste(e.originalEvent);
             });
+
+            // Workaround for problem in Firefox clipboard not supporting styled content from Microsoft Word
+            // Bug is described here: https://bugzilla.mozilla.org/show_bug.cgi?id=586587
+            isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+            isWindows = navigator.platform.toUpperCase().indexOf('WIN') > -1;
+            if (isFirefox && isWindows) {
+                
+                self.clipboardUsePasteWorkaround = true;
+      
+                // Create a contenteditable div to be used for pasting data hack
+                self.$clipboardDiv = $('<div/>', {'class':'rte2-clipboard'})
+                    .attr('contenteditable', 'true')
+                    .appendTo(self.$el)
+                    .on('paste', function(e){
+                        self.clipboardPaste(e.originalEvent);
+                    });
+
+                // If user presses Ctrl-v to paste, change the focus
+                // to the contenteditable div we previously created,
+                // so the pasted content will go there instead.
+                // This is because contenteditable properly handles
+                // the content that is pasted in from Microsoft Word
+                // while the clipboard API does not have access to the text/html.
+                $wrapper.on('keydown', function(e) {
+
+                    var x, y;
+                    
+                    if ((e.ctrlKey || e.metaKey) && e.keyCode == 86) {
+
+                        // Problem with calling .focus() on an element is it scrolls the page!
+                        // Save the scroll positions so we can scroll back to original position
+                        self.clipboardX = window.scrollX;
+                        self.clipboardY = window.scrollY;
+
+                        self.$clipboardDiv.focus();
+
+                    }
+                });
+            }
         },
 
-
+        
         /**
          * Paste the contents of the clipboard into the currently selected region.
          * This can only be performed during a user-generated paste event!
@@ -2614,19 +2655,29 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          * @param {Event} e
          * The paste event. This is required because you can only access the clipboardData from one of these events.
          */
-        clipboardGet: function(e) {
-            var allowRaw, self, valueHTML, valueRTE;
-            self = this;
+        clipboardPaste: function(e) {
             
+            var allowRaw, isWorkaround, self, value, valueHTML, valueRTE, valueText;
+            self = this;
+
+            // If we are using the workaround:
+            // Check to see if the focus has been moved to the hidden contenteditable div
+            // Normally this will happen when user types Ctrl-V to paste,
+            // but not when user selects Paste from a menu
+            isWorkaround = self.$clipboardDiv && self.$clipboardDiv.is(e.target);
+
+            // Check if the browser supports clipboard API
             if (e && e.clipboardData && e.clipboardData.getData) {
 
                 // See what type of data is on the clipboard:
-                // data that was copied from the RTE, or HTML or text data from elsewhere
+                // data that was copied from the RTE? Or HTML or text data from elsewhere
                 valueRTE = e.clipboardData.getData('text/brightspot-rte2');
-                valueHTML = e.clipboardData.getData('text/html') || e.clipboardData.getData('text/plain');
+                valueHTML = e.clipboardData.getData('text/html');
+                valueText = e.clipboardData.getData('text/plain');
 
                 if (valueRTE) {
-                    
+
+                    // If we copied data from the RTE use is as-is
                     value = valueRTE;
                     
                 } else if (valueHTML) {
@@ -2637,15 +2688,78 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                     // If we got data from outside the RTE, then don't allow raw HTML,
                     // instead strip out any HTML elements we don't understand
                     allowRaw = false;
-                }
 
-                if (value) {
-                    self.fromHTML(value, self.getRange(), allowRaw);
-                    e.stopPropagation();
-                    e.preventDefault();
-                    return value;
+                } else if (valueText && !isWorkaround) {
+
+                    // If the clipboard only contains text, encode any special characters, and add line breaks.
+                    // Note because of the hidden div hack, if we get text/plain in the clipboard
+                    // we normally won't use it because we have to assume that there was some html that was missed.
+                    // So this will only be reached if the user selects Paste from a menu using the mouse
+                    // and CodeMirror handles the paste operation.
+                    
+                    value = self.htmlEncode(valueText).replace(/[\n\r]/g, '<br/>');
                 }
             }
+
+            // Check if we were able to get a value from the clipboard API
+            if (value) {
+                
+                self.fromHTML(value, self.getRange(), allowRaw);
+                if (isWorkaround) {
+                    self.focus();
+                }
+                e.stopPropagation();
+                e.preventDefault();
+                
+            } else if (isWorkaround) {
+
+                // We didn't find an HTML value from the clipboard.
+                // If the user is on Windows and was pasting from Microsoft Word
+                // we can try an alternate method of retrieving the HTML.
+
+                // When the user typed Ctrl-V we should have previously intercepted it,
+                // so the focus should be on the hidden contenteditable div.
+                // However, if the user selected Paste from a menu the focus will not
+                // be on the div :-(
+                
+                // We will let the paste event continue
+                // and the content should be pasted into our hidden
+                // contenteditable div.
+
+                // Then after a timeout to allow the paste to complete,
+                // we will get the HTML content from the contenteditable div
+                // and copy it into the editor.
+                
+                self.$clipboardDiv.empty();
+
+                setTimeout(function(){
+                    
+                    // Get the content that was pasted into the hidden div
+                    value = self.$clipboardDiv.html();
+                    self.$clipboardDiv.empty();
+
+                    // Clean up the pasted HTML
+                    value = self.clipboardSanitize(value);
+
+                    // Add the cleaned HTML to the editor. Do not allow raw HTML.
+                    self.fromHTML(value, self.getRange(), false);
+
+                    // Since we changed focus to the hidden div before the paste operation,
+                    // put focus back on the editor
+                    self.focus();
+
+                    
+                }, 1);
+            }
+
+            if (isWorkaround) {
+                // Since setting focus() on the hidden div moves the page, scroll page back to original position.
+                // We seem to need a long delay for this to work successfully, but hopefully this can be improved.
+                setTimeout(function(){
+                    window.scrollTo(self.clipboardX, self.clipboardY);
+                }, 100);
+            }
+
         },
 
 
@@ -2685,7 +2799,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          * @param {String} value
          * The HTML text to save in the clipboard.
          */
-        clipboardSet: function(e) {
+        clipboardCopy: function(e) {
             
             var editor, html, range, self, text;
             self = this;
@@ -2716,6 +2830,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             }
         },
 
+        
         //==================================================
         // Miscelaneous Functions
         //==================================================
