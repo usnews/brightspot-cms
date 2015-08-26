@@ -131,7 +131,7 @@ if (workStream != null) {
     State.getInstance(workstreamObject).as(WorkStream.Data.class).complete(workStream, wp.getUser());
 }
 
-Map<String, Object> editingOldValues = State.getInstance(editing).getSimpleValues();
+Map<String, Object> editingOldValues = Draft.findOldValues(editing);
 
 if (wp.tryDelete(editing) ||
         wp.tryNewDraft(editing) ||

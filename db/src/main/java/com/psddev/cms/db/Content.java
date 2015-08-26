@@ -7,13 +7,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -27,7 +25,6 @@ import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
 import com.psddev.dari.db.VisibilityLabel;
-import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PageContextFilter;
 
@@ -338,39 +335,9 @@ public abstract class Content extends Record {
             }
         }
 
-        public static Map<UUID, Map<String, Object>> findEmbeddedObjects(Object value) {
-            Map<UUID, Map<String, Object>> valuesById = new CompactMap<>();
-
-            addEmbeddedObjects(valuesById, value);
-            return valuesById;
-        }
-
-        private static void addEmbeddedObjects(Map<UUID, Map<String, Object>> valuesById, Object value) {
-            Collection<?> collection = null;
-
-            if (value instanceof Map) {
-                @SuppressWarnings("unchecked")
-                Map<String, Object> map = (Map<String, Object>) value;
-                UUID id = ObjectUtils.to(UUID.class, map.get(State.ID_KEY));
-
-                if (id != null) {
-                    valuesById.put(id, map);
-                }
-
-                collection = map.values();
-
-            } else if (value instanceof List) {
-                collection = (Collection<?>) value;
-            }
-
-            if (collection != null) {
-                collection.forEach(item -> addEmbeddedObjects(valuesById, item));
-            }
-        }
-
-        public static History publishChanges(
+        public static History publishDifferences(
                 Object object,
-                Map<UUID, Map<String, Object>> changedValuesById,
+                Map<String, Map<String, Object>> differences,
                 Site site,
                 ToolUser user) {
 
@@ -386,14 +353,10 @@ public abstract class Content extends Record {
                 Object oldObject = Query.fromAll().where("_id = ?", id).noCache().first();
 
                 if (oldObject != null) {
-                    Map<String, Object> oldValues = State.getInstance(oldObject).getSimpleValues();
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> newValues = (Map<String, Object>) applyChangedValues(
-                            findEmbeddedObjects(oldValues),
-                            changedValuesById,
-                            oldValues);
-
-                    state.setValues(newValues);
+                    state.setValues(Draft.mergeDifferences(
+                            state.getDatabase().getEnvironment(),
+                            State.getInstance(oldObject).getSimpleValues(),
+                            differences));
                 }
 
                 return publish(object, site, user);
@@ -401,39 +364,6 @@ public abstract class Content extends Record {
             } finally {
                 lock.unlock();
             }
-        }
-
-        @SuppressWarnings("unchecked")
-        private static Object applyChangedValues(
-                Map<UUID, Map<String, Object>> oldValuesById,
-                Map<UUID, Map<String, Object>> changedValuesById,
-                Object value) {
-
-            if (value instanceof Map) {
-                Map<String, Object> valueMap = (Map<String, Object>) value;
-                UUID valueId = ObjectUtils.to(UUID.class, valueMap.get(State.ID_KEY));
-
-                if (valueId != null) {
-                    Map<String, Object> oldValues = oldValuesById.get(valueId);
-                    Map<String, Object> newValues = new CompactMap<>(oldValues != null ? oldValues : valueMap);
-                    Map<String, Object> changedValues = changedValuesById.get(valueId);
-
-                    if (changedValues != null) {
-                        changedValues.forEach((key, changedValue) ->
-                                newValues.put(key, applyChangedValues(oldValuesById, changedValuesById, changedValue)));
-                    }
-
-                    return newValues;
-                }
-
-            } else if (value instanceof List) {
-                return ((List<Object>) value)
-                        .stream()
-                        .map(item -> applyChangedValues(oldValuesById, changedValuesById, item))
-                        .collect(Collectors.toList());
-            }
-
-            return value;
         }
 
         /**

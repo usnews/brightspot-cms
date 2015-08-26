@@ -730,7 +730,7 @@ public class ToolPageContext extends WebPageContext {
 
             if (draftObject instanceof Draft) {
                 Draft draft = (Draft) draftObject;
-                object = draft.getObject();
+                object = draft.recreate();
 
                 State.getInstance(object).getExtras().put(OVERLAID_DRAFT_EXTRA, draft);
             }
@@ -760,7 +760,7 @@ public class ToolPageContext extends WebPageContext {
                     Draft draft = (Draft) draftObject;
 
                     state.getExtras().put(OVERLAID_DRAFT_EXTRA, draft);
-                    state.getValues().putAll(draft.getObjectChanges());
+                    draft.merge(object);
                 }
             }
 
@@ -2763,6 +2763,11 @@ public class ToolPageContext extends WebPageContext {
         contentData.setScheduleDate(publishDate);
     }
 
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> findOldValuesInForm(State state) {
+        return (Map<String, Object>) ObjectUtils.fromJson(param(String.class, state.getId() + "/oldValues"));
+    }
+
     /**
      * Tries to save the given {@code object} as a draft if the user has
      * asked for it in the current request.
@@ -2812,12 +2817,9 @@ public class ToolPageContext extends WebPageContext {
 
                 draft = new Draft();
                 draft.setOwner(getUser());
-                draft.setObject(object);
-
-            } else {
-                draft.setObject(object);
             }
 
+            draft.update(findOldValuesInForm(state), object);
             publish(draft);
             getResponse().sendRedirect(url("",
                     "editAnyway", null,
@@ -2872,7 +2874,7 @@ public class ToolPageContext extends WebPageContext {
                 Draft draft = new Draft();
 
                 draft.setOwner(getUser());
-                draft.setObject(object);
+                draft.update(findOldValuesInForm(state), object);
                 publish(draft);
 
                 getResponse().sendRedirect(url("",
@@ -3001,12 +3003,12 @@ public class ToolPageContext extends WebPageContext {
                     draft.setOwner(user);
                 }
 
-                draft.setObject(object);
+                draft.update(findOldValuesInForm(state), object);
 
                 if (state.isNew() || contentData.isDraft()) {
                     contentData.setDraft(true);
                     publish(state);
-                    draft.setObjectChanges(null);
+                    draft.setDifferences(null);
                 }
 
                 if (schedule == null) {
@@ -3045,55 +3047,19 @@ public class ToolPageContext extends WebPageContext {
                     contentData.setPublishUser(null);
                 }
 
-                Map<UUID, Map<String, Object>> oldValuesById = Content.Static.findEmbeddedObjects(ObjectUtils.fromJson(param(String.class, state.getId() + "/oldValues")));
-                Map<UUID, Map<String, Object>> newValuesById = Content.Static.findEmbeddedObjects(state.getSimpleValues());
-                Map<UUID, Map<String, Object>> changedValuesById = new CompactMap<>();
-                DatabaseEnvironment environment = state.getDatabase().getEnvironment();
+                Map<String, Map<String, Object>> differences;
 
-                oldValuesById.keySet().stream().filter(newValuesById::containsKey).forEach(id -> {
-                    Map<String, Object> oldValues = oldValuesById.get(id);
-                    Map<String, Object> newValues = newValuesById.get(id);
-                    Map<String, Object> changedValues = new CompactMap<>();
-                    ObjectType type = environment.getTypeById(ObjectUtils.to(UUID.class, newValues.get(State.TYPE_KEY)));
+                if (draft != null) {
+                    differences = draft.getDifferences();
 
-                    Stream.concat(oldValues.keySet().stream(), newValues.keySet().stream()).forEach(key -> {
-                        Object oldValue = oldValues.get(key);
-                        Object newValue = newValues.get(key);
+                } else {
+                    differences = Draft.findDifferences(
+                            state.getDatabase().getEnvironment(),
+                            findOldValuesInForm(state),
+                            state.getSimpleValues());
+                }
 
-                        if (ObjectUtils.equals(oldValue, newValue)) {
-                            return;
-                        }
-
-                        if (ObjectUtils.isBlank(oldValue)
-                                && ObjectUtils.isBlank(newValue)) {
-
-                            return;
-                        }
-
-                        if (type != null) {
-                            ObjectField field = type.getField(key);
-
-                            if (field == null) {
-                                field = environment.getField(key);
-                            }
-
-                            if (field != null
-                                    && field.getInternalType().startsWith(ObjectField.SET_TYPE + "/")
-                                    && ObjectUtils.equals(ObjectUtils.to(Set.class, oldValue), ObjectUtils.to(Set.class, newValue))) {
-
-                                return;
-                            }
-                        }
-
-                        changedValues.put(key, newValue);
-                    });
-
-                    if (!changedValues.isEmpty()) {
-                        changedValuesById.put(id, changedValues);
-                    }
-                });
-
-                publishChanges(object, changedValuesById);
+                publishDifferences(object, differences);
                 state.commitWrites();
                 redirectOnSave("",
                         "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
@@ -3345,7 +3311,7 @@ public class ToolPageContext extends WebPageContext {
 
                     } else {
                         draft.as(Workflow.Data.class).changeState(transition, getUser(), log);
-                        draft.setObject(object);
+                        draft.update(findOldValuesInForm(state), object);
                         publish(draft);
                     }
 
@@ -3513,10 +3479,10 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /**
-     * @see Content.Static#publishChanges(Object, Map, Site, ToolUser)
+     * @see Content.Static#publishDifferences(Object, Map, Site, ToolUser)
      */
-    public History publishChanges(Object object, Map<UUID, Map<String, Object>> changedValuesById) {
-        return updateLockIgnored(Content.Static.publishChanges(object, changedValuesById, getSite(), getUser()));
+    public History publishDifferences(Object object, Map<String, Map<String, Object>> differences) {
+        return updateLockIgnored(Content.Static.publishDifferences(object, differences, getSite(), getUser()));
     }
 
     /**

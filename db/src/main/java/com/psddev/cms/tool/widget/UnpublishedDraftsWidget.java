@@ -284,7 +284,7 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                         for (Object item : drafts.getItems()) {
                             if (item instanceof Draft) {
                                 Draft draft = (Draft) item;
-                                item = draft.getObject();
+                                item = draft.recreate();
 
                                 if (item == null) {
                                     continue;
@@ -293,7 +293,7 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                                 State itemState = State.getInstance(item);
 
                                 if (!itemState.isVisible()
-                                        && draft.getObjectChanges().isEmpty()) {
+                                        && draft.getDifferences().isEmpty()) {
                                     continue;
                                 }
 

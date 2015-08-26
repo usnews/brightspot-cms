@@ -1432,7 +1432,7 @@ public class PageFilter extends AbstractFilter {
                         }
 
                         if (preview instanceof Draft) {
-                            mainObject = ((Draft) preview).getObject();
+                            mainObject = ((Draft) preview).recreate();
 
                         } else if (preview instanceof History) {
                             mainObject = ((History) preview).getObject();
