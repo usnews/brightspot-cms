@@ -32,7 +32,7 @@ java.util.List,
 java.util.Map,
 java.util.Set,
 java.util.UUID
-" %><%
+, java.util.Arrays, java.util.stream.Collectors, com.google.common.collect.ImmutableSet" %><%
 
 ToolPageContext wp = new ToolPageContext(pageContext);
 PageWriter writer = wp.getWriter();
@@ -241,7 +241,9 @@ writer.start("div", "class", "searchForm");
 
                 if (!singleType && !validTypes.isEmpty()) {
                     wp.writeTypeSelect(
-                            validTypes,
+                            validTypes.stream()
+                                .filter(wp.createTypeDisplayPredicate(ImmutableSet.of("read")))
+                                .collect(Collectors.<ObjectType>toSet()),
                             selectedType,
                             "Any Types",
                             "name", Search.SELECTED_TYPE_PARAMETER,
@@ -545,7 +547,9 @@ writer.start("div", "class", "searchForm");
                         }
 
                         wp.writeTypeSelect(
-                                creatableTypes,
+                                creatableTypes.stream()
+                                    .filter(wp.createTypeDisplayPredicate(ImmutableSet.of("write", "read")))
+                                    .collect(Collectors.<ObjectType>toSet()),
                                 selectedType,
                                 null,
                                 "name", "typeId",
