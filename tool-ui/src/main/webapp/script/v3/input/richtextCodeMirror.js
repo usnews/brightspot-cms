@@ -2463,6 +2463,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             }
             
             mark.clear();
+            self.triggerChange();
         },
 
 
@@ -2483,6 +2484,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             }
             
             mark.clear();
+            self.triggerChange();
         },
 
 
