@@ -67,10 +67,11 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
 
   rtc.receive('com.psddev.cms.tool.page.content.PublishBroadcast', function(data) {
     var newValues = data.values;
-    var contentId = data.contentId;
-    var oldValues = $('input[name="' + contentId + '/oldValues"]').val();
+    var newValuesId = newValues._id;
+    var oldValues = $('input[name="' + newValuesId + '/oldValues"]').val();
 
     if (oldValues) {
+      var contentId = data.contentId;
       var userId = data.userId;
       var userName = data.userName;
 
@@ -120,7 +121,7 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
         });
       }
 
-      compare(contentId, $.parseJSON(oldValues), newValues);
+      compare(newValuesId, $.parseJSON(oldValues), newValues);
     }
   });
 

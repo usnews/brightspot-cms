@@ -2,6 +2,7 @@ package com.psddev.cms.tool.page.content;
 
 import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.db.Content;
+import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.rtc.RtcBroadcast;
 import com.psddev.dari.db.State;
@@ -33,7 +34,9 @@ public class PublishBroadcast implements RtcBroadcast<Object> {
                 "userName", user.getName(),
                 "date", date.getTime(),
                 "contentId", state.getId().toString(),
-                "values", state.getSimpleValues()
+                "values", object instanceof Draft
+                        ? State.getInstance(((Draft) object).recreate()).getSimpleValues()
+                        : state.getSimpleValues()
         );
     }
 }
