@@ -573,12 +573,14 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                 wp.writeHtml(" by ");
                                 wp.writeObjectLabel(draftContentData.getUpdateUser());
                                 wp.writeHtml(".");
+                            wp.writeEnd();
 
-                                if (schedule != null) {
-                                    Date triggerDate = schedule.getTriggerDate();
-                                    ToolUser triggerUser = schedule.getTriggerUser();
+                            if (schedule != null) {
+                                Date triggerDate = schedule.getTriggerDate();
+                                ToolUser triggerUser = schedule.getTriggerUser();
 
-                                    if (triggerDate != null || triggerUser != null) {
+                                if (triggerDate != null || triggerUser != null) {
+                                    wp.writeStart("p");
                                         wp.writeHtml(" Scheduled to be published");
 
                                         if (triggerDate != null) {
@@ -592,9 +594,9 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                         }
 
                                         wp.writeHtml(".");
-                                    }
+                                    wp.writeEnd();
                                 }
-                            wp.writeEnd();
+                            }
 
                             wp.writeStart("div", "class", "actions");
                                 if (draft != null) {
