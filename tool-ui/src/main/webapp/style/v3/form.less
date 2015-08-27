@@ -259,7 +259,8 @@
   opacity: 0.6;
   pointer-events: none;
 
-  .inputStatus a,
+  .inputPending a,
+  .inputUpdated a,
   .objectId-edit,
   .repeatableLabel,
   .tabs,
@@ -392,7 +393,8 @@
   }
 }
 
-.inputStatus,
+.inputPending,
+.inputUpdated,
 .inputNote {
   display: block;
   margin-bottom: 5px;
@@ -403,9 +405,10 @@
   }
 }
 
-.inputStatus {
-    .icon;
-    .icon-lock;
+.inputPending,
+.inputUpdated {
+  .icon;
+  .icon-lock;
 }
 
 .inputLabel > .icon-beaker {

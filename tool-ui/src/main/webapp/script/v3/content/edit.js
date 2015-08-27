@@ -1,60 +1,16 @@
 define([ 'jquery', 'v3/rtc' ], function($, rtc) {
 
-  function removeStatuses(userId) {
-    $('.inputStatus[data-user-id="' + userId + '"]').each(function() {
-      var $status = $(this);
-      var $container = $status.closest('.inputContainer');
-
-      if ($container.is('.inputContainer-updated')) {
-        return;
-      }
-
-      if (!$container.is('.inputContainer-readOnly')) {
-        $container.removeClass('inputContainer-pending');
-      }
-
-      $status.remove();
-    });
-  }
-
-  function updateStatus($container, userId, message) {
-    if ($container.length === 0 || $container.is('.inputContainer-updated')) {
-      return;
-    }
-
-    if (!$container.is('.inputContainer-readOnly')) {
-      $container.addClass('inputContainer-pending');
-    }
-
-    $container.find('> .inputLabel').after($('<div/>', {
-      'class': 'inputStatus',
-      'data-user-id': userId,
-      'html': [
-        message + ' - ',
-        $('<a/>', {
-          'text': 'Unlock',
-          'click': function() {
-            if (confirm('Are you sure you want to forcefully unlock this field?')) {
-              rtc.execute('com.psddev.cms.tool.page.content.EditFieldUpdateAction', {
-                contentId: $container.closest('form').attr('data-rtc-content-id'),
-                unlockObjectId: $container.closest('.objectInputs').attr('data-id'),
-                unlockFieldName: $container.attr('data-field-name')
-              });
-            }
-
-            return false;
-          }
-        })
-      ]
-    }));
-  }
-
   rtc.receive('com.psddev.cms.tool.page.content.EditFieldUpdateBroadcast', function(data) {
     var userId = data.userId;
     var userName = data.userName;
     var fieldNamesByObjectId = data.fieldNamesByObjectId;
 
-    removeStatuses(userId);
+    $('.inputPending[data-user-id="' + userId + '"]').each(function() {
+      var $pending = $(this);
+
+      $pending.closest('.inputContainer').removeClass('inputContainer-pending');
+      $pending.remove();
+    });
 
     if (!fieldNamesByObjectId) {
       return;
@@ -81,10 +37,29 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
         });
 
         if (!nested) {
-          updateStatus(
-              $container,
-              userId,
-              'Pending edit from ' + userName);
+          $container.addClass('inputContainer-pending');
+
+          $container.find('> .inputLabel').after($('<div/>', {
+            'class': 'inputPending',
+            'data-user-id': userId,
+            'html': [
+              'Pending edit from ' + userName + ' - ',
+              $('<a/>', {
+                'text': 'Unlock',
+                'click': function() {
+                  if (confirm('Are you sure you want to forcefully unlock this field?')) {
+                    rtc.execute('com.psddev.cms.tool.page.content.EditFieldUpdateAction', {
+                      contentId: $container.closest('form').attr('data-rtc-content-id'),
+                      unlockObjectId: $container.closest('.objectInputs').attr('data-id'),
+                      unlockFieldName: $container.attr('data-field-name')
+                    });
+                  }
+
+                  return false;
+                }
+              })
+            ]
+          }));
         }
       });
     });
@@ -99,7 +74,14 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
       var userId = data.userId;
       var userName = data.userName;
 
-      removeStatuses(userId);
+      function removeUpdated() {
+        var $updated = $(this);
+
+        $updated.closest('.inputContainer').removeClass('inputContainer-updated');
+        $updated.remove();
+      }
+
+      $('.inputUpdated[data-user-id="' + userId + '"]').each(removeUpdated);
 
       function compare(objectId, oldValues, newValues) {
         $.each(oldValues, function(fieldName, oldValue) {
@@ -114,8 +96,25 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
             var $form = $container.closest('form');
 
             if ($form.length > 0 && !$.data($form[0], 'content-edit-submit')) {
-              updateStatus($container, userId, 'Updated by ' + userName + ' at ' + new Date(data.date));
               $container.addClass('inputContainer-updated');
+
+              $container.find('> .inputLabel').after($('<div/>', {
+                'class': 'inputUpdated',
+                'data-user-id': userId,
+                'html': [
+                  'Updated by ' + userName + ' at ' + new Date(data.date) + ' - ',
+                  $('<a/>', {
+                    'text': 'Ignore',
+                    'click': function() {
+                      if (confirm('Are you sure you want to ignore updates to this field and edit it anyway?')) {
+                        $(this).closest('.inputUpdated').each(removeUpdated);
+                      }
+
+                      return false;
+                    }
+                  })
+                ]
+              }));
             }
           }
         });
