@@ -1,4 +1,4 @@
-define([ 'jquery', 'bsp-utils', 'diff' ], function($, bsp_utils) {
+define([ 'jquery', 'bsp-utils', 'diff' ], function($, bsp_utils, JsDiff) {
   bsp_utils.onDomInsert(document, '.contentDiff', {
     'insert': function(container) {
       var $container = $(container);
