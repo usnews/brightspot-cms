@@ -47,6 +47,8 @@ class ViewMap implements Map<String, Object> {
 
     private Map<String, Object> resolved;
 
+    private boolean includeClassName;
+
     private Object view;
 
     private Once resolver = new Once() {
@@ -62,12 +64,23 @@ class ViewMap implements Map<String, Object> {
      * @param view the view to wrap.
      */
     public ViewMap(Object view) {
+        this(view, false);
+    }
+
+    /**
+     * Creates a new Map backed by the specified view.
+     *
+     * @param view the view to wrap.
+     */
+    public ViewMap(Object view, boolean includeClassName) {
+        this.includeClassName = includeClassName;
         this.view = view;
         this.unresolved = new HashMap<>();
         this.resolved = new HashMap<>();
 
         try {
             Arrays.stream(Introspector.getBeanInfo(view.getClass()).getPropertyDescriptors())
+                    .filter((prop) -> includeClassName || !"class".equals(prop.getName()))
                     .forEach(prop -> unresolved.put(prop.getName(), () -> invoke(prop.getReadMethod(), view)));
 
         } catch (IntrospectionException e) {
@@ -237,7 +250,7 @@ class ViewMap implements Map<String, Object> {
             return value.toString();
 
         } else if (value != null) {
-            value = new ViewMap(value);
+            value = new ViewMap(value, includeClassName);
         }
 
         return value;

@@ -31,6 +31,7 @@ import com.psddev.cms.tool.AuthenticationFilter;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.RemoteWidgetFilter;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.cms.view.JsonViewRenderer;
 import com.psddev.cms.view.PageViewClass;
 import com.psddev.cms.view.ViewOutput;
 import com.psddev.cms.view.ViewRequest;
@@ -1094,7 +1095,20 @@ public class PageFilter extends AbstractFilter {
             Object view = viewRequest.createView(layoutViewClass, object);
             if (view != null) {
 
-                ViewRenderer renderer = ViewRenderer.createRenderer(view);
+                ViewRenderer renderer;
+                if ("json".equals(request.getParameter("_renderer"))) {
+
+                    JsonViewRenderer jsonViewRenderer = new JsonViewRenderer();
+                    jsonViewRenderer.setIndented(!Settings.isProduction());
+                    jsonViewRenderer.setIncludeClassNames(!Settings.isProduction());
+                    renderer = jsonViewRenderer;
+
+                    response.setContentType("application/json");
+
+                } else {
+                    renderer = ViewRenderer.createRenderer(view);
+                }
+
                 if (renderer != null) {
 
                     ViewOutput result = renderer.render(view);
