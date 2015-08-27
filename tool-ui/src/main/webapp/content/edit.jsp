@@ -110,6 +110,7 @@ if (selected instanceof Page) {
     }
 }
 
+Map<String, Object> editingOldValues = Draft.findOldValues(editing);
 WorkStream workStream = Query.from(WorkStream.class).where("_id = ?", wp.param(UUID.class, "workStreamId")).first();
 
 if (workStream != null) {
@@ -130,8 +131,6 @@ if (workStream != null) {
 
     State.getInstance(workstreamObject).as(WorkStream.Data.class).complete(workStream, wp.getUser());
 }
-
-Map<String, Object> editingOldValues = Draft.findOldValues(editing);
 
 if (wp.tryDelete(editing) ||
         wp.tryNewDraft(editing) ||
