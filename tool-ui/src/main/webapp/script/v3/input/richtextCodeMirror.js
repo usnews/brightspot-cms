@@ -1046,7 +1046,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          * The range of positions {from,to} 
          *
          * @returns Boolean
-         * True if all charcters in the range are styled with className.
+         * True if any charcter in the range is styled with className.
          */
         inlineHasStyle: function(styleKey, range) {
             
@@ -2266,7 +2266,13 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                     if (textOriginal === '\n') {
                         return;
                     }
-                    
+
+                    // Determine if *every* character in the range is already marked as an insertion.
+                    // In this case we can just delete the content and don't need to mark it as deleted.
+                    if (self.inlineGetStyles(changeObj).trackInsert === true) {
+                        return;
+                    }
+
                     // Do not actually delete the text because we will mark it instead
                     changeObj.cancel();
 
@@ -2394,9 +2400,12 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             if (textOriginal === '\n') {
                 return;
             }
-            
-            // Add formatting to show the deleted area
-            self.inlineSetStyle('trackDelete', range);
+
+            // Determine if every character in the range is already marked as an insertion.
+            // In this case we can just delete the content and don't need to mark it as deleted.
+            if (self.inlineGetStyles(range).trackInsert !== true) {
+                self.inlineSetStyle('trackDelete', range);
+            }
 
             // Remove any text within the range that is marked as inserted
             self.inlineRemoveStyle('trackInsert', range, {deleteText:true});
