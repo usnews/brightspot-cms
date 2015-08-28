@@ -137,7 +137,10 @@ public class Draft extends Content {
         Map<String, Map<String, Object>> valuesById = new CompactMap<>();
 
         addIdMaps(valuesById, value);
-        valuesById.values().forEach(Draft::minify);
+
+        for (Map.Entry<String, Map<String, Object>> entry : valuesById.entrySet()) {
+            entry.setValue(minify(entry.getValue()));
+        }
 
         return valuesById;
     }
@@ -165,10 +168,14 @@ public class Draft extends Content {
         }
     }
 
-    private static void minify(Map<String, Object> map) {
+    private static Map<String, Object> minify(Map<String, Object> map) {
+        Map<String, Object> minified = new CompactMap<>();
+
         for (Map.Entry<String, Object> entry : map.entrySet()) {
-            entry.setValue(minifyValue(entry.getValue()));
+            minified.put(entry.getKey(), minifyValue(entry.getValue()));
         }
+
+        return minified;
     }
 
     @SuppressWarnings("unchecked")
@@ -181,9 +188,7 @@ public class Draft extends Content {
                 return ImmutableMap.of(State.ID_KEY, id);
 
             } else {
-                minify((Map<String, Object>) value);
-
-                return value;
+                return minify((Map<String, Object>) value);
             }
 
         } else if (value instanceof Collection) {
