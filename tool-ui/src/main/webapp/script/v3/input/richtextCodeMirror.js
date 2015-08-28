@@ -3012,6 +3012,13 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
         },
 
 
+        setCursor: function(line, ch) {
+            var self;
+            self = this;
+            self.codeMirror.setCursor(line, ch);
+        },
+
+        
         /**
          * Determine if an element is a "container" for another element.
          * For example, element "li" is contained within a "ul" or "ol" element.

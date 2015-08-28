@@ -1641,10 +1641,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
                 // Close the popup - this will also trigger the enhancement display to be updated (see 'close' event below)
                 $target.popup('close');
-
+                
                 // Put focus back on the editor
                 self.focus();
-                
+
                 event.preventDefault();
                 event.stopImmediatePropagation();
                 return false;
@@ -1653,7 +1653,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
             // Set up a global close event to determine when the enhancement popup is closed
             // so we can update the enhancement display (or remove the enhancement)
-            $(document).on('close', '.popup[name^="contentEnhancement-"]', function() {
+            $(document.body).on('close', '.popup[name^="contentEnhancement-"]', function() {
 
                 var $enhancement, $popupTrigger, $popup;
 
@@ -1677,8 +1677,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 // This will also remove the enhancement if it is empty.
                 self.enhancementUpdate($enhancement);
                 
-                // Put focus back on the editor
-                self.focus();
             });
         },
 
@@ -1718,6 +1716,13 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 $enhancement.addClass('rte2-marker');
             }
 
+            // Clicking on the enhancement should focus back on the editor
+            // and place the cursor at the start of the line that contains the enhancement
+            $enhancement.on('click', function(){
+                self.enhancementSetCursor(this);
+                self.focus();
+            });
+            
             // Add the label (preview image and label text)
             $('<div/>', {'class': 'rte2-enhancement-label' }).appendTo($enhancement);
 
@@ -1765,7 +1770,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             reference = self.enhancementGetReference($enhancement);
             emptyText = self.enhancementIsMarker($enhancement) ? 'Empty Marker' : 'Empty Enhancement';
 
-            if (!reference) {
+            if (!reference.record) {
                 self.enhancementRemoveCompletely($enhancement);
                 return;
             }
@@ -2133,7 +2138,26 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             }
         },
 
+        
+        /**
+         * Set the editor cursor to the same line that contains the enhancement.
+         */
+        enhancementSetCursor: function(el) {
+            var line, mark, self;
 
+            self = this;
+            
+            mark = self.enhancementGetMark(el);
+            if (!mark) {
+                return;
+            }
+
+            line = self.rte.enhancementGetLineNumber(mark);
+            
+            self.rte.setCursor(line, 0);
+        },
+
+        
         /**
          * Sets the position for an enhancement.
          *
@@ -2672,6 +2696,11 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self.rte.focus();
             self.toolbarUpdate();
             self.rte.refresh();
+        },
+
+        setCursor: function(line, ch) {
+            var self;
+            self.rte.setCursor(line, ch);
         }
 
     };
