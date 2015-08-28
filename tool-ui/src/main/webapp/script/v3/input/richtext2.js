@@ -1641,6 +1641,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
                 // Close the popup - this will also trigger the enhancement display to be updated (see 'close' event below)
                 $target.popup('close');
+
+                // Put focus back on the editor
+                self.focus();
                 
                 event.preventDefault();
                 event.stopImmediatePropagation();
@@ -1673,7 +1676,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 // Update the enhancement to show a preview of the content.
                 // This will also remove the enhancement if it is empty.
                 self.enhancementUpdate($enhancement);
-
+                
+                // Put focus back on the editor
+                self.focus();
             });
         },
 
@@ -2666,6 +2671,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self = this;
             self.rte.focus();
             self.toolbarUpdate();
+            self.rte.refresh();
         }
 
     };
