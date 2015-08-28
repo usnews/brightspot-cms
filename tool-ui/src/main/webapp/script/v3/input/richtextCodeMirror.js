@@ -3654,7 +3654,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                             });
                             
                         } else {
-                            text = text.replace(/[\n\r]/g, '').replace(/\s+/g, ' ');
+                            text = text.replace(/[\n\r]/g, ' ').replace(/\s+/g, ' ');
                         }
                         
                         val += text;
