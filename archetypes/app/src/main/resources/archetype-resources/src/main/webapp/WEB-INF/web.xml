@@ -11,6 +11,7 @@
     <filter>
         <filter-name>ApplicationFilter</filter-name>
         <filter-class>com.psddev.dari.db.ApplicationFilter</filter-class>
+        <async-supported>true</async-supported>
     </filter>
     <filter-mapping>
         <filter-name>ApplicationFilter</filter-name>
@@ -28,6 +29,7 @@
     <filter>
         <filter-name>PageFilter</filter-name>
         <filter-class>com.psddev.cms.db.PageFilter</filter-class>
+        <async-supported>true</async-supported>
     </filter>
     <filter-mapping>
         <filter-name>PageFilter</filter-name>
