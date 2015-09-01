@@ -7,6 +7,8 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,6 +24,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -35,6 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
 
+import com.google.common.base.MoreObjects;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -246,6 +250,19 @@ public class ToolPageContext extends WebPageContext {
     /** Returns a label for the type of the given {@code object}. */
     public String getTypeLabel(Object object) {
         return Static.getTypeLabel(object);
+    }
+
+    public String localize(String baseName, String key, Object... arguments) {
+        if (ObjectUtils.isBlank(baseName)) {
+            baseName = "com.psddev.cms.DefaultLocalization";
+        }
+
+        Locale locale = MoreObjects.firstNonNull(getUser().getLocale(), Locale.getDefault());
+        ResourceBundle bundle = ResourceBundle.getBundle(baseName, locale);
+        String format = bundle.getString(key);
+        format = new String(format.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+
+        return new MessageFormat(format, locale).format(arguments);
     }
 
     /**
@@ -1289,15 +1306,9 @@ public class ToolPageContext extends WebPageContext {
 
                             writeStart("div", "class", "toolUser");
                                 writeStart("div", "class", "toolUserWelcome");
-                                    writeHtml("Welcome, ");
-
-                                    if (firstName.equals(firstName.toLowerCase(Locale.ENGLISH))) {
-                                        writeHtml(firstName.substring(0, 1).toUpperCase(Locale.ENGLISH));
-                                        writeHtml(firstName.substring(1));
-
-                                    } else {
-                                        writeHtml(firstName);
-                                    }
+                                    writeHtml(localize(null, "welcome", firstName.equals(firstName.toLowerCase(Locale.ENGLISH))
+                                            ? firstName.substring(0, 1).toUpperCase(Locale.ENGLISH) + firstName.substring(1)
+                                            : firstName));
                                 writeEnd();
 
                                 writeStart("div", "class", "toolUserControls");
@@ -1323,8 +1334,9 @@ public class ToolPageContext extends WebPageContext {
                             if (Site.Static.findAll().size() > 0) {
                                 writeStart("div", "class", "toolUserSite");
                                     writeStart("div", "class", "toolUserSiteDisplay");
-                                        writeHtml("Site: ");
-                                        writeHtml(site != null ? site.getLabel() : "Global");
+                                        writeHtml(localize(null, "site"));
+                                        writeHtml(": ");
+                                        writeHtml(site != null ? site.getLabel() : localize(null, "global"));
                                     writeEnd();
 
                                     writeStart("div", "class", "toolUserSiteControls");
@@ -1404,7 +1416,7 @@ public class ToolPageContext extends WebPageContext {
                             writeElement("input", "type", "hidden", "name", Search.NAME_PARAMETER, "value", "global");
 
                             writeStart("span", "class", "searchInput");
-                                writeStart("label", "for", createId()).writeHtml("Search").writeEnd();
+                                writeStart("label", "for", createId()).writeHtml(localize(null, "search.label")).writeEnd();
                                 writeElement("input", "type", "text", "id", getId(), "name", "q");
                                 writeStart("button").writeHtml("Go").writeEnd();
                             writeEnd();

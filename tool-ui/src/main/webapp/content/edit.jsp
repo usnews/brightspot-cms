@@ -430,7 +430,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
 
         <div class="contentForm-aside">
             <div class="widget widget-publishing">
-                <h1 class="icon icon-action-publish">Publishing</h1>
+                <h1 class="icon icon-action-publish"><%= wp.h(wp.localize(null, "publishing")) %></h1>
 
                 <%
                 wp.writeStart("div", "class", "widget-controls");
