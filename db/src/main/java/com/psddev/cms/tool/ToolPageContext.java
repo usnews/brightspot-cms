@@ -3050,6 +3050,11 @@ public class ToolPageContext extends WebPageContext {
 
                 if (draft != null) {
                     differences = draft.getDifferences();
+                    Map<String, Object> newValues = differences.get(state.getId().toString());
+
+                    if (newValues != null) {
+                        newValues.remove("cms.workflow.currentState");
+                    }
 
                 } else {
                     differences = Draft.findDifferences(
