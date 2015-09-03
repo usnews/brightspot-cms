@@ -145,7 +145,7 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
                         page.writeStart("li", "class", "previous");
                             page.writeStart("a",
                                     "href", page.url("", "date", previous.getMillis()));
-                                page.writeHtml(page.localize(null, "scheduledEvents.previous", mode));
+                                page.writeHtml(page.localize(null, "prev.count", mode));
                             page.writeEnd();
                         page.writeEnd();
                     }
@@ -160,7 +160,7 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
                     page.writeStart("li", "class", "next");
                         page.writeStart("a",
                                 "href", page.url("", "date", mode.getNext(date).getMillis()));
-                            page.writeHtml(page.localize(null, "scheduledEvents.next", mode));
+                            page.writeHtml(page.localize(null, "next.count", mode));
                         page.writeEnd();
                     page.writeEnd();
 
