@@ -43,12 +43,12 @@ public class AdminTrash extends PageServlet {
                 page.writeStart("div", "class", "leftNav");
                     page.writeStart("div", "class", "widget");
                         page.writeStart("h1", "class", "icon icon-action-trash");
-                            page.writeHtml("Trash");
+                            page.writeHtml(page.localize(null, "trash.title"));
                         page.writeEnd();
 
                         if (trashes.getOffset() + trashes.getItems().size() <= 0) {
                             page.writeStart("div", "class", "message message-info");
-                                page.writeHtml("Nothing in trash!");
+                                page.writeHtml(page.localize(null, "trash.noTrashMessage"));
                             page.writeEnd();
 
                         } else {
@@ -57,7 +57,7 @@ public class AdminTrash extends PageServlet {
                                     if (trashes.hasPrevious()) {
                                         page.writeStart("li", "class", "paginationPrevious");
                                             page.writeStart("a", "href", page.url("", "offset", trashes.getPreviousOffset()));
-                                                page.writeHtml("Newer");
+                                                page.writeHtml(page.localize(null, "newer"));
                                             page.writeEnd();
                                         page.writeEnd();
                                     }
@@ -65,7 +65,7 @@ public class AdminTrash extends PageServlet {
                                     if (trashes.hasNext()) {
                                         page.writeStart("li", "class", "paginationNext");
                                             page.writeStart("a", "href", page.url("", "offset", trashes.getNextOffset()));
-                                                page.writeHtml("Older");
+                                                page.writeHtml(page.localize(null, "older"));
                                             page.writeEnd();
                                         page.writeEnd();
                                     }
@@ -78,7 +78,7 @@ public class AdminTrash extends PageServlet {
 
                                     page.writeStart("li", "class", item.equals(trash) ? "selected" : null);
                                         page.writeStart("a", "href", page.url(null, "id", itemState.getId()));
-                                            page.writeHtml(page.getObjectLabelOrDefault(itemState, "Untitled"));
+                                            page.writeHtml(page.getObjectLabelOrDefault(itemState, page.localize(null, "untitled")));
                                         page.writeEnd();
                                     page.writeEnd();
                                 }
