@@ -232,7 +232,7 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                     page.writeHtml(page.localize(
                             null,
                             "unpublishedDrafts.noDraftsMessage",
-                            label != null ? label.toLowerCase(Locale.ENGLISH) : page.localize(null, "matching")));
+                            label != null ? label.toLowerCase(Locale.ENGLISH) : page.localize(null, "unpublishedDrafts.matching")));
                 page.writeEnd();
 
             } else {
