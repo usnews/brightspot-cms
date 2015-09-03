@@ -34,13 +34,13 @@ public class AdminWorkflows extends PageServlet {
                 page.writeStart("div", "class", "leftNav");
                     page.writeStart("div", "class", "widget");
                         page.writeStart("h1", "class", "icon icon-object-workflow");
-                            page.writeHtml("Workflows");
+                            page.writeHtml(page.localize(null, "workflows.title"));
                         page.writeEnd();
 
                         page.writeStart("ul", "class", "links");
                             page.writeStart("li", "class", "new " + (selectedState.isNew() ? "selected" : ""));
                                 page.writeStart("a", "href", page.url(null));
-                                    page.writeHtml("New Workflow");
+                                    page.writeHtml(page.localize(null, "workflows.new"));
                                 page.writeEnd();
                             page.writeEnd();
 
