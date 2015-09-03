@@ -68,7 +68,7 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
         page.writeStart("div", "class", "widget widget-scheduledEvents" + (hasSchedules ? "" : " widget-scheduledEvents-empty"));
             page.writeStart("h1", "class", "icon icon-action-schedule");
 
-                page.writeHtml("Scheduled Events");
+                page.writeHtml(page.localize(null, "scheduledEvents.title"));
 
             page.writeEnd();
 
@@ -79,7 +79,7 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
                                 "class", "icon icon-action-create",
                                 "href", page.cmsUrl("/scheduleEdit"),
                                 "target", "scheduleEdit");
-                            page.writeHtml("New");
+                            page.writeHtml(page.localize(null, "new"));
                         page.writeEnd();
                     page.writeEnd();
 
@@ -88,7 +88,7 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
                                 "class", "icon icon-action-search",
                                 "href", page.cmsUrl("/scheduleList"),
                                 "target", "scheduleList");
-                            page.writeHtml("View All");
+                            page.writeHtml(page.localize(null, "viewAll"));
                         page.writeEnd();
                     page.writeEnd();
                 page.writeEnd();
@@ -98,7 +98,7 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
                         page.writeStart("li", "class", (m.equals(mode) ? "selected" : ""));
                             page.writeStart("a",
                                     "href", page.url("", "mode", m.name()));
-                                page.writeHtml(m.displayName);
+                                page.writeHtml(page.localize(null, m.resourceKey));
                             page.writeEnd();
                         page.writeEnd();
                     }
@@ -112,6 +112,7 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
             String endMonth = end.monthOfYear().getAsText();
             int endYear = end.year().get();
 
+            //TODO: LOCALIZE
             page.writeStart("div", "class", "scheduledEvents-controls");
                 page.writeStart("div", "class", "scheduledEvents-dateRange");
                     page.writeHtml(beginMonth);
@@ -144,7 +145,7 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
                         page.writeStart("li", "class", "previous");
                             page.writeStart("a",
                                     "href", page.url("", "date", previous.getMillis()));
-                                page.writeHtml("Previous ").writeHtml(mode);
+                                page.writeHtml(page.localize(null, "scheduledEvents.previous", mode));
                             page.writeEnd();
                         page.writeEnd();
                     }
@@ -152,14 +153,14 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
                     page.writeStart("li");
                         page.writeStart("a",
                                 "href", page.url("", "date", System.currentTimeMillis()));
-                            page.writeHtml("Today");
+                            page.writeHtml(page.localize(null, "scheduledEvents.today"));
                         page.writeEnd();
                     page.writeEnd();
 
                     page.writeStart("li", "class", "next");
                         page.writeStart("a",
                                 "href", page.url("", "date", mode.getNext(date).getMillis()));
-                            page.writeHtml("Next ").writeHtml(mode);
+                            page.writeHtml(page.localize(null, "scheduledEvents.next", mode));
                         page.writeEnd();
                     page.writeEnd();
 
@@ -171,7 +172,7 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
     }
 
     private enum Mode {
-        DAY("Day") {
+        DAY("scheduledEvents.day") {
 
             @Override
             public DateTime getBegin(DateTime date) {
@@ -198,7 +199,7 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
                 displayAgendaView(page, schedulesByDate);
             }
         },
-        WEEK("Week") {
+        WEEK("scheduledEvents.week") {
 
             @Override
             public DateTime getBegin(DateTime date) {
@@ -226,7 +227,7 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
             }
         },
 
-        MONTH("Month") {
+        MONTH("scheduledEvents.month") {
 
             @Override
             public DateTime getBegin(DateTime date) {
@@ -321,10 +322,10 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
             }
         };
 
-        private final String displayName;
+        private final String resourceKey;
 
-        private Mode(String displayName) {
-            this.displayName = displayName;
+        Mode(String resourceKey) {
+            this.resourceKey = resourceKey;
         }
 
         public abstract DateTime getBegin(DateTime date);
@@ -339,7 +340,7 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
 
         @Override
         public String toString() {
-            return displayName;
+            return resourceKey;
         }
 
         public static void displayAgendaView(ToolPageContext page, Map<DateTime, List<Schedule>> schedulesByDate) throws IOException {
