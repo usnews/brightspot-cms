@@ -120,7 +120,7 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
 
         page.writeStart("div", "class", "widget widget-unpublishedDrafts");
             page.writeStart("h1", "class", "icon icon-object-draft");
-                page.writeHtml("Unpublished Drafts");
+                page.writeHtml(page.localize(null, "unpublishedDrafts.title"));
             page.writeEnd();
 
             page.writeStart("div", "class", "widget-filters");
@@ -137,7 +137,7 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                                 "data-bsp-autosubmit", "",
                                 "name", "state");
                             page.writeStart("option", "value", "");
-                                page.writeHtml("Any Statuses");
+                                page.writeHtml(page.localize(null, "unpublishedDrafts.anyStatuses"));
                             page.writeEnd();
 
                             for (Map.Entry<String, String> entry : workflowStateLabels.entrySet()) {
@@ -158,7 +158,7 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                                     .filter(page.createTypeDisplayPredicate(ImmutableSet.of("read")))
                                     .collect(Collectors.toList()),
                             type,
-                            "Any Types",
+                            page.localize(null, "anyTypes"),
                             "name", "typeId",
                             "data-bsp-autosubmit", "",
                             "data-searchable", true);
@@ -171,7 +171,7 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                                 page.writeStart("option",
                                         "selected", t.equals(userType) ? "selected" : null,
                                         "value", t.name());
-                                    page.writeHtml(t.getDisplayName());
+                                    page.writeHtml(page.localize(null, t.getResourceKey()));
                                 page.writeEnd();
                             }
                         }
@@ -229,9 +229,10 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                 String label = state != null ? workflowStateLabels.get(state) : null;
 
                 page.writeStart("div", "class", "message message-info");
-                    page.writeHtml("No ");
-                    page.writeHtml(label != null ? label.toLowerCase(Locale.ENGLISH) : "matching");
-                    page.writeHtml(" items.");
+                    page.writeHtml(page.localize(
+                            null,
+                            "unpublishedDrafts.noDraftsMessage",
+                            label != null ? label.toLowerCase(Locale.ENGLISH) : page.localize(null, "matching")));
                 page.writeEnd();
 
             } else {
@@ -239,14 +240,13 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                     if (drafts.hasPrevious()) {
                         page.writeStart("li", "class", "first");
                             page.writeStart("a", "href", page.url("", "offset", drafts.getFirstOffset()));
-                                page.writeHtml("Newest");
+                                page.writeHtml(page.localize(null, "newest"));
                             page.writeEnd();
                         page.writeEnd();
 
                         page.writeStart("li", "class", "previous");
                             page.writeStart("a", "href", page.url("", "offset", drafts.getPreviousOffset()));
-                                page.writeHtml("Newer ");
-                                page.writeHtml(drafts.getLimit());
+                                page.writeHtml(page.localize(null, "newer.count", drafts.getLimit()));
                             page.writeEnd();
                         page.writeEnd();
                     }
@@ -261,8 +261,7 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                                     page.writeStart("option",
                                             "value", l,
                                             "selected", limit == l ? "selected" : null);
-                                        page.writeHtml("Show ");
-                                        page.writeHtml(l);
+                                        page.writeHtml(page.localize(null, "show.count", l));
                                     page.writeEnd();
                                 }
                             page.writeEnd();
@@ -272,8 +271,7 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                     if (drafts.hasNext()) {
                         page.writeStart("li", "class", "next");
                             page.writeStart("a", "href", page.url("", "offset", drafts.getNextOffset()));
-                                page.writeHtml("Older ");
-                                page.writeHtml(drafts.getLimit());
+                                page.writeHtml(page.localize(null, "older.count", drafts.getLimit()));
                             page.writeEnd();
                         page.writeEnd();
                     }
@@ -311,7 +309,7 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                                                         "id", itemState.getId(),
                                                         "draftId", draftId));
                                             page.writeStart("span", "class", "visibilityLabel");
-                                                page.writeHtml("Content Update");
+                                                page.writeHtml(page.localize(null, "unpublishedDrafts.contentUpdate"));
                                             page.writeEnd();
 
                                             page.writeHtml(" ");
@@ -354,19 +352,19 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
 
     private enum UserType {
 
-        ANYONE("Anyone"),
-        ME("Me"),
-        ROLE("Role"),
-        USER("User");
+        ANYONE("anyone"),
+        ME("me"),
+        ROLE("role"),
+        USER("user");
 
-        private String displayName;
+        private String resourceKey;
 
-        private UserType(String displayName) {
-            this.displayName = displayName;
+        private UserType(String resourceKey) {
+            this.resourceKey = resourceKey;
         }
 
-        public String getDisplayName() {
-            return displayName;
+        public String getResourceKey() {
+            return resourceKey;
         }
     }
 
