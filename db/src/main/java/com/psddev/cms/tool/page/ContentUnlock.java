@@ -37,7 +37,7 @@ public class ContentUnlock extends PageServlet {
         String returnUrl = page.param(String.class, "returnUrl");
 
         if (ObjectUtils.isBlank(returnUrl)) {
-            page.writeRaw("OK");
+            page.writeHtml(page.localize(null, "ok"));
 
         } else {
             JspUtils.redirect(
