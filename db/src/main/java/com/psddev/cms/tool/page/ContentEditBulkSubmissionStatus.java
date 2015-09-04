@@ -33,14 +33,14 @@ public class ContentEditBulkSubmissionStatus extends PageServlet {
             page.writeStart("div", "class", "widget");
             {
                 page.writeStart("h1");
-                page.writeHtml("Bulk Edit Status");
+                    page.writeHtml(page.localize(null, "contentEditBulkSubmissionStatus.title"));
                 page.writeEnd();
 
                 Date finishDate = submission.getFinishDate();
 
                 if (finishDate == null) {
                     page.writeStart("div", "class", "message message-warning");
-                    page.writeHtml("Running... ");
+                    page.writeHtml(page.localize(null, "contentEditBulkSubmissionStatus.running"));
                     writeSubmission(page, submission);
                     page.writeEnd();
 
@@ -58,13 +58,13 @@ public class ContentEditBulkSubmissionStatus extends PageServlet {
                     if (!ObjectUtils.isBlank(returnUrl)) {
                         page.writeStart("p");
                         page.writeStart("a", "class", "icon icon-arrow-left", "href", returnUrl);
-                        page.writeHtml("Return to the search result");
+                        page.writeHtml(page.localize(null, "contentEditBulkSubmissionStatus.returnToSearch"));
                         page.writeEnd();
                         page.writeEnd();
                     }
 
                     page.writeStart("div", "class", "message message-success");
-                    page.writeHtml("Finished running! ");
+                    page.writeHtml(page.localize(null, "contentEditBulkSubmissionStatus.finishedMessage"));
                     writeSubmission(page, submission);
                     page.writeEnd();
                 }
@@ -75,11 +75,12 @@ public class ContentEditBulkSubmissionStatus extends PageServlet {
     }
 
     private void writeSubmission(ToolPageContext page, ContentEditBulkSubmission submission) throws IOException {
-        page.writeHtml(submission.getSuccesses());
-        page.writeHtml(" successes and ");
-        page.writeHtml(submission.getFailures());
-        page.writeHtml(" failures out of ");
-        page.writeHtml(submission.getCount());
-        page.writeHtml(" items.");
+        page.writeHtml(
+                page.localize(
+                        null,
+                        "contentEditBulkSubmissionStatus.submission",
+                        submission.getSuccesses(),
+                        submission.getFailures(),
+                        submission.getCount()));
     }
 }
