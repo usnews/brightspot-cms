@@ -105,6 +105,7 @@ body.hasToolBroadcast {
     if (user == null) {
     %>
     <div class="message">
+      <!--TODO LOCALIZATION -->
         The reset password request is no longer valid. <br />
         Please use this <a href="<%= wp.url("forgot-password.jsp") %>">link</a> to reset password again.
     </div>
@@ -122,7 +123,7 @@ body.hasToolBroadcast {
 
         <div class="inputContainer">
             <div class="inputLabel">
-                <label for="<%= wp.createId() %>">New Password</label>
+                <label for="<%= wp.createId() %>"><%= wp.h(wp.localize(null, "passwordReset.newPassword")) %></label>
             </div>
             <div class="inputSmall">
                 <input class="autoFocus" id="<%= wp.getId() %>" name="password1" type="password">
@@ -131,7 +132,7 @@ body.hasToolBroadcast {
 
         <div class="inputContainer">
             <div class="inputLabel">
-                <label for="<%= wp.createId() %>">Confirm Password</label>
+                <label for="<%= wp.createId() %>"><%= wp.h(wp.localize(null, "passwordReset.confirmPassword")) %></label>
             </div>
             <div class="inputSmall">
                 <input id="<%= wp.getId() %>" name="password2" type="password">
@@ -139,8 +140,8 @@ body.hasToolBroadcast {
         </div>
 
         <div class="buttons">
-            <button class="action">Reset</button>
-            <a href="<%= wp.url("logIn.jsp") %>">Go Back To Log In Page</a>
+            <button class="action"><%= wp.h(wp.localize(null, "passwordReset.reset")) %></button>
+            <a href="<%= wp.url("logIn.jsp") %>"><%= wp.h(wp.localize(null, "passwordReset.login")) %></a>
         </div>
     </form>
 
