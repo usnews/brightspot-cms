@@ -119,19 +119,21 @@ public class ContentRevisions extends Widget {
 
         page.writeStart("div", "class", "widget");
             page.writeStart("h1", "class", "icon icon-object-history");
-                page.writeHtml("Revisions");
+                page.writeHtml(page.localize(null, "contentRevisions.title"));
             page.writeEnd();
 
             page.writeStart("ul", "class", "links");
                 page.writeStart("li", "class", object.equals(selected) ? "selected" : null);
                     page.writeStart("a", "href", page.originalUrl(null, object));
-                        page.writeHtml("Live");
+                        page.writeHtml(page.localize(null, "contentRevisions.live"));
                     page.writeEnd();
                 page.writeEnd();
             page.writeEnd();
 
             if (!scheduled.isEmpty()) {
-                page.writeStart("h2").writeHtml("Scheduled").writeEnd();
+                page.writeStart("h2");
+                page.writeHtml(page.localize(null, "contentRevisions.scheduled"));
+                page.writeEnd();
 
                 page.writeStart("ul", "class", "links pageThumbnails");
                     for (Draft d : scheduled) {
@@ -143,6 +145,7 @@ public class ContentRevisions extends Widget {
                                 "data-preview-url", "/_preview?_cms.db.previewId=" + d.getId());
                             page.writeStart("a", "href", page.objectUrl(null, d));
                                 if (ObjectUtils.isBlank(sn)) {
+                                    // TODO: LOCALIZE
                                     page.writeHtml(page.formatUserDateTime(s.getTriggerDate()));
                                     page.writeHtml(" by ");
                                     page.writeObjectLabel(s.getTriggerUser());
@@ -158,6 +161,7 @@ public class ContentRevisions extends Widget {
 
             if (!drafts.isEmpty()) {
                 page.writeStart("h2");
+                    // TODO: LOCALIZE
                     page.writeObjectLabel(ObjectType.getInstance(Draft.class));
                     page.writeHtml(" Items");
                 page.writeEnd();
@@ -169,7 +173,8 @@ public class ContentRevisions extends Widget {
                         page.writeStart("li",
                                 "class", d.equals(selected) ? "selected" : null,
                                 "data-preview-url", "/_preview?_cms.db.previewId=" + d.getId());
-                            page.writeStart("a", "href", page.objectUrl(null, d));
+                        page.writeStart("a", "href", page.objectUrl(null, d));
+                        // TODO: LOCALIZE
                                 page.writeHtml(page.formatUserDateTime(dcd.getUpdateDate()));
                                 page.writeHtml(" by ");
                                 page.writeObjectLabel(dcd.getUpdateUser());
@@ -180,7 +185,9 @@ public class ContentRevisions extends Widget {
             }
 
             if (!namedHistories.isEmpty()) {
-                page.writeStart("h2").writeHtml("Named Past").writeEnd();
+                page.writeStart("h2");
+                    page.writeHtml(page.localize(null, "contentRevisions.namedPast"));
+                page.writeEnd();
 
                 page.writeStart("ul", "class", "links pageThumbnails");
                     for (History h : namedHistories) {
@@ -206,9 +213,7 @@ public class ContentRevisions extends Widget {
                                 "href", page.cmsUrl("/searchAdvancedFull",
                                         Search.SELECTED_TYPE_PARAMETER, ObjectType.getInstance(History.class).getId(),
                                         Search.ADVANCED_QUERY_PARAMETER, "objectId = " + state.getId()));
-                            page.writeHtml("View All ");
-                            page.writeHtml(historiesResult.getCount());
-                            page.writeHtml(" Past Revisions");
+                            page.writeHtml(page.localize(null, "contentRevisions.viewAllRevisions", historiesResult.getCount()));
                         page.writeEnd();
                     page.writeEnd();
 
@@ -226,6 +231,7 @@ public class ContentRevisions extends Widget {
                                 "data-preview-url", "/_preview?_cms.db.previewId=" + h.getId());
 
                             page.writeStart("a", "href", page.objectUrl(null, h));
+                                //TODO: LOCALIZE
                                 if (ObjectUtils.to(boolean.class, originals.get("cms.content.draft"))) {
                                     page.writeStart("span", "class", "visibilityLabel");
                                         page.writeHtml("Initial Draft");
