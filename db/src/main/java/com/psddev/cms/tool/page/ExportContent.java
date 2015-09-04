@@ -88,13 +88,12 @@ public class ExportContent extends PageServlet {
             if (page.getSearch() != null && page.getSearch().getSelectedType() != null) {
 
                 page.writeStart("div", "class", "searchResult-action-simple");
-                page.writeStart("a",
-                        "class", "button",
-                        "target", "_top",
-                        "href", getActionUrl(page, null, Context.ACTION_PARAMETER, true));
-                page.writeHtml("Export");
-                page.writeHtml(page.getSelection() != null ? " Selected" : " All");
-                page.writeEnd();
+                    page.writeStart("a",
+                            "class", "button",
+                            "target", "_top",
+                            "href", getActionUrl(page, null, Context.ACTION_PARAMETER, true));
+                        page.writeHtml(page.localize(null, "exportContent.exportButton", page.getSelection() != null ? " Selected" : " All"));
+                    page.writeEnd();
                 page.writeEnd();
             }
         }
