@@ -60,7 +60,7 @@ public class GuideField extends PageServlet {
                 page.writeStart("div", "class", "tabbed");
 
                     // Editorial field description.
-                    page.writeStart("div", "data-tab", "For Editors");
+                    page.writeStart("div", "data-tab", page.localize(null, "forEditors"));
                         GuideType guideType = GuideType.Static.getGuideType(type);
                         ReferentialText fieldDescription = null;
 
@@ -97,18 +97,18 @@ public class GuideField extends PageServlet {
                         List<String> constraints = new ArrayList<String>();
 
                         if (field.isRequired()) {
-                            constraints.add("Required");
+                            constraints.add(page.localize(null, "required"));
                         }
 
                         Object absMin = GuideType.Static.getFieldMinimumValue(field);
                         Object absMax = GuideType.Static.getFieldMaximumValue(field);
 
                         if (absMin != null) {
-                            constraints.add("Absolute Minimum: " + absMin);
+                            constraints.add(page.localize(null, "guideField.absoluteMin", absMin));
                         }
 
                         if (absMax != null) {
-                            constraints.add("Absolute Maximum: " + absMax);
+                            constraints.add(page.localize(null, "guideField.absoluteMax", absMax));
                         }
 
                         ToolUi fieldUi = field.as(ToolUi.class);
@@ -116,16 +116,16 @@ public class GuideField extends PageServlet {
                         Object sugMax = fieldUi.getSuggestedMaximum();
 
                         if (sugMin != null) {
-                            constraints.add("Suggested Minimum: " + sugMin);
+                            constraints.add(page.localize(null, "guideField.suggestedMinimum", sugMin));
                         }
 
                         if (sugMax != null) {
-                            constraints.add("Suggested Maximum: " + sugMax);
+                            constraints.add(page.localize(null, "guideField.suggestedMaximum", sugMax));
                         }
 
                         if (!constraints.isEmpty()) {
                             page.writeStart("h2", "style", "margin-top:15px;");
-                                page.writeHtml("Constraints");
+                                page.writeHtml(page.localize(null, "guideField.constraints"));
                             page.writeEnd();
 
                             page.writeStart("ul");
@@ -141,13 +141,13 @@ public class GuideField extends PageServlet {
                                 || fieldDescription.isEmpty())
                                 && constraints.isEmpty()) {
                             page.writeStart("div", "class", "message message-info");
-                                page.writeHtml("No editorial production guide for this field.");
+                                page.writeHtml(page.localize(null, "guideField.noGuideMessage"));
                             page.writeEnd();
                         }
                     page.writeEnd();
 
                     // Development help.
-                    page.writeStart("div", "data-tab", "For Developers");
+                    page.writeStart("div", "data-tab", page.localize(null, "forDevelopers"));
                         Class<?> fieldDeclaringClass = ObjectUtils.getClassByName(field.getJavaDeclaringClassName());
 
                         if (fieldDeclaringClass != null) {

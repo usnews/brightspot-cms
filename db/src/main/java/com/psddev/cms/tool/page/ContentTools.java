@@ -138,7 +138,7 @@ public class ContentTools extends PageServlet {
                 page.writeStart("div", "class", "tabbed");
                     page.writeStart("div",
                             "class", "fixedScrollable",
-                            "data-tab", page.localize(null, "contentTools.forEditors"));
+                            "data-tab", page.localize(null, "forEditors"));
                         if (object != null) {
                             Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
                             Date publishDate = contentData.getPublishDate();
@@ -335,7 +335,7 @@ public class ContentTools extends PageServlet {
 
                     page.writeStart("div",
                             "class", "fixedScrollable",
-                            "data-tab", page.localize(null, "contentTools.forDevelopers"));
+                            "data-tab", page.localize(null, "forDevelopers"));
                         page.writeStart("ul");
                             if (object != null) {
                                 page.writeStart("li");
@@ -580,7 +580,7 @@ public class ContentTools extends PageServlet {
             }
 
             page.writeStart("h2");
-                page.writeHtml(page.localize(null, "contentTools.possibleAnnotations"));
+            page.writeHtml(page.localize(null, "contentTools.possibleAnnotations"));
             page.writeEnd();
 
             page.writeStart("ul");
