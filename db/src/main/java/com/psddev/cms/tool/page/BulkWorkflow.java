@@ -78,13 +78,12 @@ public class BulkWorkflow extends PageServlet {
         case BUTTON:
 
             page.writeStart("div", "class", "searchResult-action-simple");
-            page.writeStart("a",
-                    "class", "button",
-                    "target", TARGET,
-                    "href", getActionUrl(page, null, null, null, WidgetState.DETAIL));
-            page.writeHtml("Bulk Workflow");
-            page.writeHtml(page.getSelection() != null ? " Selected" : "");
-            page.writeEnd();
+                page.writeStart("a",
+                        "class", "button",
+                        "target", TARGET,
+                        "href", getActionUrl(page, null, null, null, WidgetState.DETAIL));
+                    page.writeHtml(page.localize(null, "bulkWorkflow.button", page.getSelection() != null ? " Selected" : ""));
+                page.writeEnd();
             page.writeEnd();
 
             break;
@@ -182,18 +181,16 @@ public class BulkWorkflow extends PageServlet {
                 if (successCount > 0) {
 
                     page.writeStart("div", "class", "message message-success");
-                    page.writeHtml("Successfully transitioned ");
-                    page.writeHtml(successCount);
-                    page.writeHtml(" items. ");
+                        page.writeHtml(page.localize(null, "bulkWorkflow.successMessage", successCount));
 
-                    String returnUrl = page.param(String.class, "returnUrl");
+                        String returnUrl = page.param(String.class, "returnUrl");
 
-                    if (!ObjectUtils.isBlank(returnUrl)) {
-                        page.writeStart("a",
-                                "href", returnUrl);
-                        page.writeHtml("Return to search.");
-                        page.writeEnd();
-                    }
+                        if (!ObjectUtils.isBlank(returnUrl)) {
+                            page.writeStart("a",
+                                    "href", returnUrl);
+                            page.writeHtml(page.localize(null, "returnToSearch"));
+                            page.writeEnd();
+                        }
                     page.writeEnd(); // end .message-success
                 }
 
@@ -241,7 +238,10 @@ public class BulkWorkflow extends PageServlet {
 
         if (!page.hasAnyTransitions()) {
             page.writeStart("p");
-            page.writeHtml("No workflow transitions are available for the specified " + (page.getSelection() != null ? "selection" : "search") + ".");
+            page.writeHtml(
+                    page.localize(
+                            null,
+                            page.getSelection() != null ? "bulkWorkflow.noTransitionsMessageSelection" : "bulkWorkflow.noTransitionsMessageSearch"));
             page.writeEnd();
         }
 
@@ -292,7 +292,7 @@ public class BulkWorkflow extends PageServlet {
 
         page.writeStart("div", "class", "widget");
         page.writeStart("h1");
-        page.writeHtml("Confirm Bulk Workflow");
+            page.writeHtml(page.localize(null, "bulkWorkflow.confirmTitle"));
         page.writeEnd();
 
         ObjectType transitionSourceType = ObjectType.getInstance(page.param(UUID.class, Context.TYPE_ID_PARAMETER));
@@ -322,22 +322,30 @@ public class BulkWorkflow extends PageServlet {
         page.writeStart("table", "class", "table-striped");
 
         page.writeStart("tr");
-        page.writeStart("td").writeHtml("Type").writeEnd();
+        page.writeStart("td");
+            page.writeHtml(page.localize(null, "type"));
+        page.writeEnd();
         page.writeStart("td").writeHtml(transitionSourceType.getDisplayName()).writeEnd();
         page.writeEnd(); // end row
 
         page.writeStart("tr");
-        page.writeStart("td").writeHtml("Count").writeEnd();
+        page.writeStart("td");
+            page.writeHtml(page.localize(null, "count"));
+        page.writeEnd();
         page.writeStart("td").writeHtml(page.getWorkflowStateCount(transitionSourceType, workflowStateName)).writeEnd();
         page.writeEnd(); // end row
 
         page.writeStart("tr");
-        page.writeStart("td").writeHtml("Current State").writeEnd();
+        page.writeStart("td");
+            page.writeHtml(page.localize(null, "bulkWorkflow.currentState"));
+        page.writeEnd();
         page.writeStart("td").writeHtml(workflowTransition.getSource().getDisplayName()).writeEnd();
         page.writeEnd(); // end row
 
         page.writeStart("tr");
-        page.writeStart("td").writeHtml("New State").writeEnd();
+        page.writeStart("td");
+        page.writeHtml(page.localize(null, "bulkWorkflow.newState"));
+        page.writeEnd();
         page.writeStart("td").writeHtml(workflowTransition.getTarget().getDisplayName()).writeEnd();
         page.writeEnd(); // end row
 
@@ -355,7 +363,7 @@ public class BulkWorkflow extends PageServlet {
         page.writeEnd();
 
         page.writeStart("button", "name", "action-workflow", "value", workflowTransition.getName());
-        page.writeHtml("Confirm Bulk " + workflowTransition.getDisplayName());
+            page.writeHtml(page.localize(null, "bulkWorkflow.confirmTransition", workflowTransition.getDisplayName()));
         page.writeEnd();
         page.writeEnd();
 

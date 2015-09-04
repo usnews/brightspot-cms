@@ -178,7 +178,7 @@ public class BulkArchive extends PageServlet {
                             if (!ObjectUtils.isBlank(returnUrl)) {
                                 page.writeStart("a",
                                         "href", returnUrl);
-                                    page.writeHtml(page.localize(null, "bulkArchive.returnLink"));
+                                page.writeHtml(page.localize(null, "returnToSearch"));
                                 page.writeEnd();
                             }
                         page.writeEnd(); // end .message-success
