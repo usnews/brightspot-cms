@@ -159,9 +159,7 @@ public class ContentEditBulk extends PageServlet {
 
             page.writeStart("div", "class", "widget");
                 page.writeStart("h1");
-                    page.writeHtml("Bulk Edit ");
-                    page.writeHtml(count);
-                    page.writeHtml(" Items");
+                    page.writeHtml(page.localize(null, "contentEditBulk.title", count));
                 page.writeEnd();
 
                 page.writeObject(error);
@@ -210,7 +208,7 @@ public class ContentEditBulk extends PageServlet {
                                 "class", "action icon icon-action-save",
                                 "name", "action-save",
                                 "value", "true");
-                            page.writeHtml("Bulk Save");
+                            page.writeHtml(page.localize(null, "contentEditBulk.bulkSave"));
                         page.writeEnd();
                     page.writeEnd();
                 page.writeEnd();
