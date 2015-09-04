@@ -149,7 +149,7 @@ body.hasToolBroadcast {
     <%
     if (wp.param(boolean.class, "forced")) {
         wp.writeStart("div", "class", "message message-warning");
-            wp.writeHtml("<%= wp.h(wp.localize(null, "login.inactive")) %>");
+            wp.writeHtml(wp.localize(null, "login.inactive"));
         wp.writeEnd();
     }
 
