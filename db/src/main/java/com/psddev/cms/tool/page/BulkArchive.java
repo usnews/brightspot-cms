@@ -88,11 +88,13 @@ public class BulkArchive extends PageServlet {
                         "target", TARGET,
                         "action", new UrlBuilder(page.getRequest()).absolutePath(page.cmsUrl(PATH)).currentParameters().parameter(Context.WIDGET_STATE_PARAMETER, WidgetState.BUTTON));
 
-                page.writeStart("p");
-                page.writeHtml("Click below to confirm bulk " + action.name().toLowerCase() + " of " + availableCount + " items.");
-                page.writeEnd();
+                    page.writeStart("p");
+                        page.writeHtml(page.localize(null, "bulkArchive.confirmMessage", action.name().toLowerCase(), availableCount));
+                    page.writeEnd();
 
-                page.writeStart("button", "class", actionIconClass).writeHtml("Confirm bulk " + action.name()).writeEnd();
+                    page.writeStart("button", "class", actionIconClass);
+                        page.writeHtml(page.localize(null, "bulkArchive.confirmButton", action.name()));
+                    page.writeEnd();
                 page.writeEnd();
 
                 break;
@@ -164,42 +166,43 @@ public class BulkArchive extends PageServlet {
                     if (successCount > 0) {
 
                         page.writeStart("div", "class", "message message-success");
-                        if (Action.RESTORE.equals(action)) {
-                            page.writeHtml("Successfully restored ");
-                        } else if (Action.ARCHIVE.equals(action)) {
-                            page.writeHtml("Successfully archived ");
-                        }
-                        page.writeHtml(successCount);
-                        page.writeHtml(" items. ");
 
-                        String returnUrl = page.param(String.class, "returnUrl");
+                            page.writeHtml(
+                                    page.localize(
+                                            null,
+                                            Action.RESTORE.equals(action) ? "bulkArchive.restoreMessage" : "bulkArchive.archiveMessage",
+                                            successCount));
 
-                        if (!ObjectUtils.isBlank(returnUrl)) {
-                            page.writeStart("a",
-                                    "href", returnUrl);
-                            page.writeHtml("Return to search.");
-                            page.writeEnd();
-                        }
+                            String returnUrl = page.param(String.class, "returnUrl");
+
+                            if (!ObjectUtils.isBlank(returnUrl)) {
+                                page.writeStart("a",
+                                        "href", returnUrl);
+                                    page.writeHtml(page.localize(null, "bulkArchive.returnLink"));
+                                page.writeEnd();
+                            }
                         page.writeEnd(); // end .message-success
                     }
                 } else {
                     page.writeStart("div", "class", "searchResult-action-simple");
-                    page.writeStart("a",
-                            "class", "button " + actionIconClass,
-                            "target", TARGET,
-                            "href", new UrlBuilder(page.getRequest())
-                                    .absolutePath(page.cmsUrl(PATH))
-                                    .currentParameters()
-                                    .parameter(Context.SELECTION_ID_PARAMETER, page.getSelection() != null ? page.getSelection().getId() : null)
-                                    .parameter("action", action.name()));
+                        page.writeStart("a",
+                                "class", "button " + actionIconClass,
+                                "target", TARGET,
+                                "href", new UrlBuilder(page.getRequest())
+                                        .absolutePath(page.cmsUrl(PATH))
+                                        .currentParameters()
+                                        .parameter(Context.SELECTION_ID_PARAMETER, page.getSelection() != null ? page.getSelection().getId() : null)
+                                        .parameter("action", action.name()));
 
-                    if (Action.RESTORE.equals(action)) {
-                        page.writeHtml("Bulk Restore");
-                    } else if (Action.ARCHIVE.equals(action)) {
-                        page.writeHtml("Bulk Archive");
-                    }
-                    page.writeHtml(page.getSelection() != null ? " Selected" : " All");
-                    page.writeEnd();
+                            String resourceKey = null;
+                            if (Action.RESTORE.equals(action)) {
+                                resourceKey = page.getSelection() != null ? "bulkArchive.restoreSelected" : "bulkArchive.restoreAll";
+                            } else if (Action.ARCHIVE.equals(action)) {
+                                resourceKey = page.getSelection() != null ? "bulkArchive.archiveSelected" : "bulkArchive.archiveAll";
+                            }
+
+                            page.writeHtml(page.localize(null, resourceKey));
+                        page.writeEnd();
                     page.writeEnd();
                 }
                 break;
