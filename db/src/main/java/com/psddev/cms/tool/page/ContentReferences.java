@@ -42,7 +42,7 @@ public class ContentReferences extends PageServlet {
 
         page.writeStart("div", "class", "widget");
             page.writeStart("h1", "class", "icon icon-book");
-                page.writeHtml("References");
+                page.writeHtml(page.localize(null, "contentReferences.title"));
             page.writeEnd();
 
             if (result.hasNext()) {
@@ -52,14 +52,12 @@ public class ContentReferences extends PageServlet {
                             "target", "_top",
                             "href", page.cmsUrl("/searchAdvancedFull",
                                     Search.ADVANCED_QUERY_PARAMETER, query.getPredicate().toString()));
-                        page.writeHtml("View All ");
-                        page.writeHtml(result.getCount());
-                        page.writeHtml(" References");
+                        page.writeHtml(page.localize(null, "contentReferences.viewAll", result.getCount()));
                     page.writeEnd();
                 page.writeEnd();
 
                 page.writeStart("h2");
-                    page.writeHtml("10 Most Recent");
+                    page.writeHtml(page.localize(null, "contentReferences.tenMostRecent", "10"));
                 page.writeEnd();
             }
 
