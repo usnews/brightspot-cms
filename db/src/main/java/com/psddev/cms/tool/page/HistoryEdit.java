@@ -56,7 +56,9 @@ public class HistoryEdit extends PageServlet {
                         "action", page.url(""));
                     page.writeStart("div", "class", "inputContainer");
                         page.writeStart("div", "class", "inputLabel");
-                            page.writeStart("label", "for", page.createId()).writeHtml("Name").writeEnd();
+                            page.writeStart("label", "for", page.createId());
+                                page.writeHtml(page.localize(null, "historyEdit.name"));
+                            page.writeEnd();
                         page.writeEnd();
 
                         page.writeStart("div", "class", "inputSmall");
@@ -73,7 +75,7 @@ public class HistoryEdit extends PageServlet {
                                 "class", "icon icon-action-save",
                                 "name", "action-save",
                                 "value", "true");
-                            page.writeHtml("Save");
+                            page.writeHtml(page.localize(null, "save"));
                         page.writeEnd();
                     page.writeEnd();
                 page.writeEnd();
