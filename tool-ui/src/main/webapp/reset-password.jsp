@@ -105,8 +105,8 @@ body.hasToolBroadcast {
     if (user == null) {
     %>
     <div class="message">
-     // TO DO LOCALIZATION
-        <%The reset password request is no longer valid. <br />
+      <!--TODO LOCALIZATION -->
+        The reset password request is no longer valid. <br />
         Please use this <a href="<%= wp.url("forgot-password.jsp") %>">link</a> to reset password again.
     </div>
     <%

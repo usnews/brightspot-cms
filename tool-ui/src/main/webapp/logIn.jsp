@@ -149,7 +149,7 @@ body.hasToolBroadcast {
     <%
     if (wp.param(boolean.class, "forced")) {
         wp.writeStart("div", "class", "message message-warning");
-            wp.writeHtml("You've been inactive for too long or logged out from a different page. Please log in again.");
+            wp.writeHtml("<%= wp.h(wp.localize(null, "login.inactive")) %>");
         wp.writeEnd();
     }
 
@@ -160,8 +160,7 @@ body.hasToolBroadcast {
 
     <% if (!Query.from(ToolUser.class).hasMoreThan(0)) { %>
         <div class="message message-info">
-            <p>Welcome! You're our first user. Give us your email or
-            username and password and we'll make you an administrator.</p>
+            <p><%= wp.h(wp.localize(null, "login.welcomeMessage")) %></p>
         </div>
     <% } %>
 
@@ -169,37 +168,37 @@ body.hasToolBroadcast {
         <% if (user == null) { %>
             <div class="inputContainer">
                 <div class="inputLabel">
-                    <label for="<%= wp.createId() %>">Username</label>
+                    <label for="<%= wp.createId() %>"><%= wp.h(wp.localize(null, "login.username")) %></label>
                 </div>
                 <div class="inputSmall">
-                    <input class="autoFocus" id="<%= wp.getId() %>" name="username" type="text" value="<%= wp.h(username) %>" placeholder="Email or Username">
+                    <input class="autoFocus" id="<%= wp.getId() %>" name="username" type="text" value="<%= wp.h(username) %>" placeholder="<%= wp.h(wp.localize(null, "login.usernamePlaceholder")) %>">
                 </div>
             </div>
 
             <div class="inputContainer">
                 <div class="inputLabel">
-                    <label for="<%= wp.createId() %>">Password</label>
+                    <label for="<%= wp.createId() %>"><%= wp.h(wp.localize(null, "login.password")) %></label>
                 </div>
                 <div class="inputSmall">
-                    <input id="<%= wp.getId() %>" name="password" type="password" placeholder="Password">
+                    <input id="<%= wp.getId() %>" name="password" type="password" placeholder="<%= wp.h(wp.localize(null, "login.password")) %>">
                 </div>
             </div>
 
         <% } else { %>
             <div class="inputContainer">
                 <div class="inputLabel">
-                    <label for="<%= wp.createId() %>">Code</label>
+                    <label for="<%= wp.createId() %>"><%= wp.h(wp.localize(null, "login.code")) %></label>
                 </div>
                 <div class="inputSmall">
-                    <input class="autoFocus" id="<%= wp.getId() %>" name="totpCode" type="text" placeholder="Two Factor Authentication Code">
+                    <input class="autoFocus" id="<%= wp.getId() %>" name="totpCode" type="text" placeholder="<%= wp.h(wp.localize(null, "login.codePlaceholder")) %>">
                 </div>
             </div>
         <% } %>
 
         <div class="buttons">
-            <button class="action action-logIn">Log In</button>
+            <button class="action action-logIn"><%= wp.h(wp.localize(null, "login.loginButton")) %></button>
             <% if (!StringUtils.isBlank(Settings.get(String.class, "cms/tool/forgotPasswordEmailSender")) && user == null) {%>
-            <a href="<%= wp.url("forgot-password.jsp", AuthenticationFilter.RETURN_PATH_PARAMETER, returnPath) %>">Forgot Password?</a>
+            <a href="<%= wp.url("forgot-password.jsp", AuthenticationFilter.RETURN_PATH_PARAMETER, returnPath) %>"><%= wp.h(wp.localize(null, "login.forgotPassword")) %></a>
             <% } %>
         </div>
     </form>
