@@ -27,7 +27,7 @@ public class ToolUserSaveSearch extends PageServlet {
             String name = page.param(String.class, "name");
 
             if (ObjectUtils.isBlank(name)) {
-                throw new IllegalArgumentException("[Name] is required!");
+                throw new IllegalArgumentException(page.localize(null, "toolUserSaveSearch.requiredErrorMessage", page.localize(null, "toolUserSaveSearch.name")));
             }
 
             String search = page.param(String.class, "search");
@@ -51,7 +51,7 @@ public class ToolUserSaveSearch extends PageServlet {
         page.writeHeader();
             page.writeStart("div", "class", "widget");
                 page.writeStart("h1", "class", "icon icon-action-search");
-                    page.writeHtml("Save Search");
+                    page.writeHtml(page.localize(null, "toolUserSaveSearch.title"));
                 page.writeEnd();
 
                 page.writeStart("form",
@@ -60,7 +60,7 @@ public class ToolUserSaveSearch extends PageServlet {
                     page.writeStart("div", "class", "inputContainer");
                         page.writeStart("div", "class", "inputLabel");
                             page.writeStart("label");
-                                page.writeHtml("Name");
+                                page.writeHtml(page.localize(null, "toolUserSaveSearch.name"));
                             page.writeEnd();
                         page.writeEnd();
 
@@ -68,14 +68,14 @@ public class ToolUserSaveSearch extends PageServlet {
                             page.writeElement("input",
                                     "type", "text",
                                     "name", "name",
-                                    "placeholder", "(Required)");
+                                    "placeholder", "(" + page.localize(null, "required") + ")");
                         page.writeEnd();
                     page.writeEnd();
 
                     page.writeStart("div", "class", "actions");
                         page.writeStart("button",
                                 "class", "action icon icon-action-save");
-                            page.writeHtml("Save");
+                            page.writeHtml(page.localize(null, "save"));
                         page.writeEnd();
                     page.writeEnd();
                 page.writeEnd();
