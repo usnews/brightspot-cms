@@ -213,7 +213,7 @@ writer.start("div", "class", "searchForm");
                     !globalFilters.isEmpty() ||
                     !fieldFilters.isEmpty()) {
                 writer.writeStart("h2");
-                writer.writeHtml(wp.localize(null, "search.filter"));
+                writer.writeHtml(wp.localize(null, "search.filters"));
                 writer.writeEnd();
             }
 
