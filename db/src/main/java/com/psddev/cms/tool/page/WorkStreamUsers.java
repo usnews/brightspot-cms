@@ -32,6 +32,7 @@ public class WorkStreamUsers extends PageServlet {
 
         page.writeStart("div", "class", "widget");
             page.writeStart("h1", "class", "icon icon-object-workStream");
+                // TODO: LOCALIZE
                 page.writeHtml("Users Working On: ");
                 page.writeObjectLabel(workStream);
             page.writeEnd();
@@ -39,7 +40,7 @@ public class WorkStreamUsers extends PageServlet {
             if (users.isEmpty()) {
                 page.writeStart("div", "class", "message message-info");
                     page.writeStart("p");
-                        page.writeHtml("No users working on this work stream yet!");
+                        page.writeHtml(page.localize(null, "workStreamUsers.noUsersMessage"));
                     page.writeEnd();
                 page.writeEnd();
 
@@ -47,9 +48,15 @@ public class WorkStreamUsers extends PageServlet {
                 page.writeStart("table", "class", "table-striped");
                     page.writeStart("thead");
                         page.writeStart("tr");
-                            page.writeStart("th").writeHtml("User").writeEnd();
-                            page.writeStart("th").writeHtml("Currently On").writeEnd();
-                            page.writeStart("th").writeHtml("Completed").writeEnd();
+                            page.writeStart("th");
+                                page.writeHtml(page.localize(null, "user"));
+                            page.writeEnd();
+                            page.writeStart("th");
+                                page.writeHtml(page.localize(null, "workStreamUsers.currentlyOn"));
+                            page.writeEnd();
+                            page.writeStart("th");
+                                page.writeHtml(page.localize(null, "workStreamUsers.completed"));
+                            page.writeEnd();
                         page.writeEnd();
                     page.writeEnd();
 
