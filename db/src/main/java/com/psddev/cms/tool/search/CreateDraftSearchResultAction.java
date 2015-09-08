@@ -93,6 +93,7 @@ public class CreateDraftSearchResultAction implements SearchResultAction {
                                     .currentParameters()
                                     .parameter("typeIdAndField", generate.type.getId())
                                     .parameter("selectionId", selection.getId()));
+                    // TODO: LOCALIZE
                     page.writeHtml("Create New ");
                     page.writeObjectLabel(generate.type);
 
