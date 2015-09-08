@@ -3670,7 +3670,16 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                             });
                             
                         } else {
+
+                            // Convert multiple white space to single space
                             text = text.replace(/[\n\r]/g, ' ').replace(/\s+/g, ' ');
+                            
+                            // If text node is not within an element remove leading and trailing spaces.
+                            // For example, pasting content from Word has text nodes with whitespace
+                            // between elements.
+                            if ($(next.parentElement).is('body')) {
+                                text = text.replace(/^\s*|\s*$/g, '');
+                            }
                         }
                         
                         val += text;
