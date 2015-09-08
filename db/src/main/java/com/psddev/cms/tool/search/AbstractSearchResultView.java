@@ -89,11 +89,13 @@ public abstract class AbstractSearchResultView implements SearchResultView {
                     "href", page.toolUrl(CmsTool.class, "/searchResultFields",
                             "typeId", type != null ? type.getId() : null));
 
-                page.writeHtml("Fields: ");
-                page.writeHtml(user != null
-                        && user.getSearchResultFieldsByTypeId().get(type != null ? type.getId().toString() : "") != null
-                        ? "Custom"
-                        : "Default");
+                if (user != null
+                        && user.getSearchResultFieldsByTypeId().get(type != null ? type.getId().toString() : "") != null) {
+                    page.writeHtml(page.localize(null, "abstractSearchResultView.customFields"));
+                } else {
+                    page.writeHtml(page.localize(null, "abstractSearchResultView.defaultFields"));
+                }
+
             page.writeEnd();
         page.writeEnd();
     }
@@ -162,7 +164,7 @@ public abstract class AbstractSearchResultView implements SearchResultView {
                         page.writeStart("option",
                                 "value", value,
                                 "selected", value.equals(search.getSort()) ? "selected" : null);
-                            page.writeHtml("Sort: ").writeHtml(label);
+                            page.writeHtml(page.localize(null, "abstractSearchResultView.sortOption", label));
                         page.writeEnd();
                     }
                 page.writeEnd();
@@ -200,8 +202,7 @@ public abstract class AbstractSearchResultView implements SearchResultView {
                         page.writeStart("option",
                                 "selected", limit == resultLimit ? "selected" : null,
                                 "value", limit);
-                        page.writeHtml("Show: ");
-                        page.writeHtml(limit);
+                        page.writeHtml(page.localize(null, "show.count", limit));
                         page.writeEnd();
                     }
                 }
@@ -218,12 +219,12 @@ public abstract class AbstractSearchResultView implements SearchResultView {
                 if (result.hasPrevious()) {
                     page.writeStart("li", "class", "previous");
                         page.writeStart("a", "href", page.url("", Search.OFFSET_PARAMETER, result.getPreviousOffset()));
-                            page.writeHtml("Previous ");
-                            page.writeHtml(result.getLimit());
+                            page.writeHtml(page.localize(null, "prev.count", result.getLimit()));
                         page.writeEnd();
                     page.writeEnd();
                 }
 
+                // TODO: LOCALIZE
                 page.writeStart("li");
                     page.writeHtml(result.getFirstItemIndex());
                     page.writeHtml(" to ");
@@ -235,8 +236,7 @@ public abstract class AbstractSearchResultView implements SearchResultView {
                 if (result.hasNext()) {
                     page.writeStart("li", "class", "next");
                         page.writeStart("a", "href", page.url("", Search.OFFSET_PARAMETER, result.getNextOffset()));
-                            page.writeHtml("Next ");
-                            page.writeHtml(result.getLimit());
+                            page.writeHtml(page.localize(null, "next.count", result.getLimit()));
                         page.writeEnd();
                     page.writeEnd();
                 }
@@ -247,7 +247,7 @@ public abstract class AbstractSearchResultView implements SearchResultView {
     protected void writeEmptyHtml() throws IOException {
         page.writeStart("div", "class", "message message-warning");
             page.writeStart("p");
-                page.writeHtml("No matching items!");
+                page.writeHtml(page.localize(null, "abstractSearchResultView.noMatchingItemsMessage"));
             page.writeEnd();
         page.writeEnd();
     }
