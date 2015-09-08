@@ -300,7 +300,9 @@ public class UploadFiles extends PageServlet {
         Collections.sort(types, new ObjectFieldComparator("name", false));
         Uploader uploader = Uploader.getUploader(Optional.empty());
 
-        page.writeStart("h1").writeHtml("Upload Files").writeEnd();
+        page.writeStart("h1");
+            page.writeHtml(page.localize(null, "uploadFiles.title"));
+        page.writeEnd();
 
         page.writeStart("form",
                 "method", "post",
@@ -331,7 +333,9 @@ public class UploadFiles extends PageServlet {
 
             page.writeStart("div", "class", "inputContainer bulk-upload-files");
                 page.writeStart("div", "class", "inputLabel");
-                    page.writeStart("label", "for", page.createId()).writeHtml("Files").writeEnd();
+                    page.writeStart("label", "for", page.createId());
+                        page.writeHtml(page.localize(null, "uploadFiles.files"));
+                    page.writeEnd();
                 page.writeEnd();
                 page.writeStart("div", "class", "inputSmall");
                     if (uploader != null) {
@@ -348,7 +352,9 @@ public class UploadFiles extends PageServlet {
 
             page.writeStart("div", "class", "inputContainer");
                 page.writeStart("div", "class", "inputLabel");
-                    page.writeStart("label", "for", page.createId()).writeHtml("Type").writeEnd();
+                    page.writeStart("label", "for", page.createId());
+                        page.writeHtml(page.localize(null, "type"));
+                    page.writeEnd();
                 page.writeEnd();
                 page.writeStart("div", "class", "inputSmall");
                     page.writeStart("select",
@@ -391,7 +397,9 @@ public class UploadFiles extends PageServlet {
             }
 
             page.writeStart("div", "class", "buttons");
-                page.writeStart("button", "name", "action-upload").writeHtml("Upload").writeEnd();
+                page.writeStart("button", "name", "action-upload");
+                    page.writeHtml(page.localize(null, "uploadFiles.upload"));
+                page.writeEnd();
             page.writeEnd();
 
         page.writeEnd();
