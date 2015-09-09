@@ -3289,7 +3289,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
                         // Only include the enhancement if the first character of this line is within the selected range
                         charInRange = (lineNo >= range.from.line) && (lineNo <= range.to.line);
-                        if (lineNo === range.from.line && 0 <= range.from.ch) {
+                        if (lineNo === range.from.line && range.from.ch > 0) {
                             charInRange = false;
                         }
                         if (!charInRange) {
