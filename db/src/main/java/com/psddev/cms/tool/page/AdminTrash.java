@@ -43,7 +43,7 @@ public class AdminTrash extends PageServlet {
                 page.writeStart("div", "class", "leftNav");
                     page.writeStart("div", "class", "widget");
                         page.writeStart("h1", "class", "icon icon-action-trash");
-                            page.writeHtml(page.localize(null, "adminTrash.title"));
+                            page.writeHtml(page.localize(AdminTrash.class, "adminTrash.title"));
                         page.writeEnd();
 
                         if (trashes.getOffset() + trashes.getItems().size() <= 0) {
@@ -57,7 +57,7 @@ public class AdminTrash extends PageServlet {
                                     if (trashes.hasPrevious()) {
                                         page.writeStart("li", "class", "paginationPrevious");
                                             page.writeStart("a", "href", page.url("", "offset", trashes.getPreviousOffset()));
-                                                page.writeHtml(page.localize(null, "newer"));
+                                                page.writeHtml(page.localize(AdminTrash.class, "action.pagination.newer"));
                                             page.writeEnd();
                                         page.writeEnd();
                                     }
@@ -65,7 +65,7 @@ public class AdminTrash extends PageServlet {
                                     if (trashes.hasNext()) {
                                         page.writeStart("li", "class", "paginationNext");
                                             page.writeStart("a", "href", page.url("", "offset", trashes.getNextOffset()));
-                                                page.writeHtml(page.localize(null, "older"));
+                                                page.writeHtml(page.localize(AdminTrash.class, "action.pagination.older"));
                                             page.writeEnd();
                                         page.writeEnd();
                                     }
