@@ -8,13 +8,13 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -23,6 +23,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -39,6 +40,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
 
 import com.google.common.base.MoreObjects;
+import com.ibm.icu.text.MessageFormat;
+import com.psddev.dari.db.Recordable;
+import com.psddev.dari.util.CascadingMap;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -252,17 +256,152 @@ public class ToolPageContext extends WebPageContext {
         return Static.getTypeLabel(object);
     }
 
-    public String localize(String baseName, String key, Object... arguments) {
-        if (ObjectUtils.isBlank(baseName)) {
-            baseName = "com.psddev.cms.DefaultLocalization";
+    public String localize(Object context, String key) {
+        String baseName = null;
+
+        if (context instanceof ObjectField) {
+            context = ((ObjectField) context).getParentType();
         }
 
-        Locale locale = MoreObjects.firstNonNull(getUser().getLocale(), Locale.getDefault());
-        ResourceBundle bundle = ResourceBundle.getBundle(baseName, locale);
-        String format = bundle.getString(key);
-        format = new String(format.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+        ObjectType type = null;
+        State state = null;
 
-        return new MessageFormat(format, locale).format(arguments);
+        if (context != null) {
+            if (context instanceof ObjectType) {
+                type = (ObjectType) context;
+                baseName = type.getInternalName();
+
+            } else if (context instanceof Class) {
+                type = ObjectType.getInstance((Class<?>) context);
+
+                if (type != null) {
+                    baseName = type.getInternalName();
+
+                } else {
+                    baseName = ((Class<?>) context).getName();
+                }
+
+            } else if (context instanceof Recordable) {
+                state = ((Recordable) context).getState();
+                type = state.getType();
+
+                if (type != null) {
+                    baseName = type.getInternalName();
+                }
+
+            } else {
+                baseName = context.getClass().getName();
+            }
+        }
+
+        String localized = createLocalizedString(
+                MoreObjects.firstNonNull(getUser().getLocale(), Locale.getDefault()),
+                baseName,
+                key,
+                state);
+
+        if (localized == null) {
+            localized = createLocalizedString(Locale.US, baseName, key, state);
+        }
+
+        if (localized == null) {
+            if (type != null && "displayName".equals(key)) {
+                return type.getDisplayName();
+
+            } else {
+                throw new MissingResourceException(
+                        String.format("Can't find [%s] key in [%s] resource bundle!", key, baseName),
+                        baseName,
+                        key);
+            }
+
+        } else {
+            return localized;
+        }
+    }
+
+    private String createLocalizedString(Locale locale, String baseName, String key, State state) {
+        CascadingMap<String, Object> arguments = new CascadingMap<>();
+        List<Map<String, Object>> argumentsSources = arguments.getSources();
+        String pattern = null;
+
+        if (baseName != null) {
+            ResourceBundle contextOverride = findBundle(baseName + "Override", locale);
+            ResourceBundle contextDefault = findBundle(baseName + "Default", locale);
+
+            if (contextOverride != null) {
+                argumentsSources.add(createBundleMap(contextOverride));
+
+                pattern = findBundleString(contextOverride, key);
+            }
+
+            if (contextDefault != null) {
+                argumentsSources.add(createBundleMap(contextDefault));
+
+                if (pattern == null) {
+                    pattern = findBundleString(contextDefault, key);
+                }
+            }
+        }
+
+        if (state != null) {
+            argumentsSources.add(state);
+        }
+
+        if (pattern == null) {
+            ResourceBundle fallbackOverride = findBundle("FallbackOverride", locale);
+
+            if (fallbackOverride != null) {
+                pattern = findBundleString(fallbackOverride, key);
+            }
+
+            if (pattern == null) {
+                ResourceBundle fallbackDefault = findBundle("FallbackDefault", locale);
+
+                if (fallbackDefault != null) {
+                    pattern = findBundleString(fallbackDefault, key);
+                }
+            }
+        }
+
+        if (pattern == null) {
+            return null;
+
+        } else {
+            return new MessageFormat(pattern, locale).format(arguments);
+        }
+    }
+
+    private ResourceBundle findBundle(String baseName, Locale locale) {
+        try {
+            return ResourceBundle.getBundle(baseName, locale);
+
+        } catch (MissingResourceException error) {
+            return null;
+        }
+    }
+
+    private Map<String, Object> createBundleMap(ResourceBundle bundle) {
+        Map<String, Object> map = new CompactMap<>();
+
+        for (Enumeration<String> keys = bundle.getKeys(); keys.hasMoreElements();) {
+            String key = keys.nextElement();
+
+            map.put(key, findBundleString(bundle, key));
+        }
+
+        return map;
+    }
+
+    private String findBundleString(ResourceBundle bundle, String key) {
+        try {
+            String pattern = bundle.getString(key);
+
+            return new String(pattern.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+
+        } catch (MissingResourceException error) {
+            return null;
+        }
     }
 
     /**
@@ -1288,9 +1427,6 @@ public class ToolPageContext extends WebPageContext {
 
                     if (user != null) {
                         StorageItem avatar = user.getAvatar();
-                        String name = user.getName().trim();
-                        String[] nameParts = name.split("\\s+");
-                        String firstName = nameParts[0];
 
                         writeStart("div", "class", "toolUserDisplay");
                             writeStart("span", "class", "toolUserAvatar");
@@ -1306,9 +1442,7 @@ public class ToolPageContext extends WebPageContext {
 
                             writeStart("div", "class", "toolUser");
                                 writeStart("div", "class", "toolUserWelcome");
-                                    writeHtml(localize(null, "welcome", firstName.equals(firstName.toLowerCase(Locale.ENGLISH))
-                                            ? firstName.substring(0, 1).toUpperCase(Locale.ENGLISH) + firstName.substring(1)
-                                            : firstName));
+                                    writeHtml(localize(user, "welcome"));
                                 writeEnd();
 
                                 writeStart("div", "class", "toolUserControls");
@@ -1324,7 +1458,7 @@ public class ToolPageContext extends WebPageContext {
                                         writeStart("li");
                                             writeStart("a",
                                                     "href", cmsUrl("/misc/logOut.jsp"));
-                                                writeHtml("Log Out");
+                                                writeHtml(localize(ToolUser.class, "action.logOut"));
                                             writeEnd();
                                         writeEnd();
                                     writeEnd();
@@ -1334,9 +1468,9 @@ public class ToolPageContext extends WebPageContext {
                             if (Site.Static.findAll().size() > 0) {
                                 writeStart("div", "class", "toolUserSite");
                                     writeStart("div", "class", "toolUserSiteDisplay");
-                                        writeHtml(localize(null, "site"));
+                                        writeHtml(localize(Site.class, "displayName"));
                                         writeHtml(": ");
-                                        writeHtml(site != null ? site.getLabel() : localize(null, "global"));
+                                        writeHtml(site != null ? site.getLabel() : localize(Site.class, "global"));
                                     writeEnd();
 
                                     writeStart("div", "class", "toolUserSiteControls");
@@ -1346,7 +1480,7 @@ public class ToolPageContext extends WebPageContext {
                                                 writeStart("a",
                                                     "href", cmsUrl("/siteSwitch"),
                                                     "target", "siteSwitch");
-                                                    writeHtml("Switch");
+                                                    writeHtml(localize(Site.class, "action.switch"));
                                                 writeEnd();
                                             writeEnd();
                                         }

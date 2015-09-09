@@ -26,6 +26,7 @@ java.net.MalformedURLException,
 java.net.URL,
 java.util.List,
 java.util.Map,
+java.util.MissingResourceException,
 java.util.UUID,
 
 javax.servlet.ServletException
@@ -65,8 +66,23 @@ if (!isHidden && (!ObjectUtils.isBlank(tab) && !ContentField.DEFAULT_TAB_VALUE.e
     isHidden = true;
 }
 
+if (ObjectUtils.isBlank(tab)) {
+    tab = "Main";
+}
+
+try {
+    tab = wp.localize(field, "tab." + tab);
+
+} catch (MissingResourceException error) {
+}
+
 if (ObjectUtils.isBlank(label)) {
-    label = field.getLabel();
+    try {
+        label = wp.localize(field, "field." + field.getInternalName());
+
+    } catch (MissingResourceException error) {
+        label = field.getDisplayName();
+    }
 }
 
 List<String> errors = state.getErrors(field);
