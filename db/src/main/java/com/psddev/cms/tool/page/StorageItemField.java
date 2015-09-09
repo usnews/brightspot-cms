@@ -534,14 +534,14 @@ public class StorageItemField extends PageServlet {
                                 "data-hide", ".fileSelectorItem",
                                 "data-show", ".fileSelectorExisting",
                                 "value", "keep");
-                            page.writeHtml(page.localize(null, "storageItemField.keep"));
+                            page.writeHtml(page.localize(StorageItemField.class, "keep"));
                         page.writeEnd();
                     }
 
                     page.writeStart("option",
                             "data-hide", ".fileSelectorItem",
                             "value", "none");
-                        page.writeHtml(page.localize(null, "storageItemField.none"));
+                        page.writeHtml(page.localize(StorageItemField.class, "none"));
                     page.writeEnd();
 
                     page.writeStart("option",
@@ -549,14 +549,14 @@ public class StorageItemField extends PageServlet {
                             "data-show", ".fileSelectorNewUpload",
                             "value", "newUpload",
                             fieldValue == null && field.isRequired() ? " selected" : "");
-                        page.writeHtml(page.localize(null, "storageItemField.newUpload"));
+                        page.writeHtml(page.localize(StorageItemField.class, "newUpload"));
                     page.writeEnd();
 
                     page.writeStart("option",
                             "data-hide", ".fileSelectorItem",
                             "data-show", ".fileSelectorNewUrl",
                             "value", "newUrl");
-                        page.writeHtml(page.localize(null, "storageItemField.newUrl"));
+                        page.writeHtml(page.localize(StorageItemField.class, "newUrl"));
                     page.writeEnd();
 
                     if (!ObjectUtils.isBlank(page.getCmsTool().getDropboxApplicationKey())) {
