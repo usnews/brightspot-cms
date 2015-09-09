@@ -83,7 +83,7 @@ public class ScheduleEdit extends PageServlet {
                             "class", "icon icon-action-save",
                             "name", "action-save",
                             "value", "true");
-                        page.writeHtml(page.localize(null, "save"));
+                        page.writeHtml(page.localize(ScheduleEdit.class, "action.save"));
                     page.writeEnd();
 
                     if (!newSchedule) {
@@ -91,7 +91,7 @@ public class ScheduleEdit extends PageServlet {
                                 "class", "icon icon-action-delete action-pullRight link",
                                 "name", "action-delete",
                                 "value", "true");
-                            page.writeHtml(page.localize(null, "delete"));
+                            page.writeHtml(page.localize(ScheduleEdit.class, "action.delete"));
                         page.writeEnd();
                     }
                 page.writeEnd();

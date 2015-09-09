@@ -201,7 +201,7 @@ public class SearchResultActions extends PageServlet {
             page.writeStart("a",
                     "class", "searchResult-selectionReset action action-delete",
                     "href", page.url("", ACTION_PARAMETER, ACTION_CLEAR, SELECTION_ID_PARAMETER, null));
-            page.writeHtml(page.localize(null, "delete"));
+            page.writeHtml(page.localize(SearchResultActions.class, "action.delete"));
             page.writeEnd();
 
         } else {

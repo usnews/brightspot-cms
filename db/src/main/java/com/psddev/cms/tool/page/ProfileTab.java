@@ -75,7 +75,7 @@ public class ProfileTab extends ProfilePanelTab {
 
                 page.writeStart("div", "class", "actions");
                     page.writeStart("button", "class", "icon icon-action-save");
-                        page.writeHtml(page.localize(null, "save"));
+                        page.writeHtml(page.localize(ProfileTab.class, "action.save"));
                     page.writeEnd();
                 page.writeEnd();
             page.writeEnd();

@@ -75,7 +75,7 @@ public class HistoryEdit extends PageServlet {
                                 "class", "icon icon-action-save",
                                 "name", "action-save",
                                 "value", "true");
-                            page.writeHtml(page.localize(null, "save"));
+                            page.writeHtml(page.localize(HistoryEdit.class, "action.save"));
                         page.writeEnd();
                     page.writeEnd();
                 page.writeEnd();

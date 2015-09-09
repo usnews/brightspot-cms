@@ -63,7 +63,7 @@ public class ToolUserSaveSelection extends PageServlet {
                 page.writeStart("div", "class", "actions");
                     page.writeStart("button",
                         "class", "action icon icon-action-save");
-                        page.writeHtml(page.localize(null, "save"));
+                        page.writeHtml(page.localize(ToolUserSaveSelection.class, "action.save"));
                     page.writeEnd();
                 page.writeEnd();
             page.writeEnd();

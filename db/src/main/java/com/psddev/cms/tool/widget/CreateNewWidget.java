@@ -25,6 +25,7 @@ import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.Dashboard;
 import com.psddev.cms.tool.DefaultDashboardWidget;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.cms.tool.page.CreateNew;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectType;
@@ -213,13 +214,13 @@ public class CreateNewWidget extends DefaultDashboardWidget {
                     page.writeStart("div", "class", "actions");
                         page.writeStart("button",
                                 "class", "action action-save");
-                            page.writeHtml(page.localize(null, "save"));
+                            page.writeHtml(page.localize(CreateNewWidget.class, "action.save"));
                         page.writeEnd();
 
                         page.writeStart("a",
                                 "class", "action action-cancel action-pullRight",
                                 "href", page.url(null));
-                            page.writeHtml(page.localize(null, "cancel"));
+                            page.writeHtml(page.localize(CreateNewWidget.class, "action.cancel"));
                         page.writeEnd();
                     page.writeEnd();
 
@@ -327,7 +328,7 @@ public class CreateNewWidget extends DefaultDashboardWidget {
                             page.writeHtml(" ");
 
                             page.writeStart("button", "class", "action action-create");
-                                page.writeHtml(page.localize(null, "new"));
+                                page.writeHtml(page.localize(CreateNewWidget.class, "new"));
                             page.writeEnd();
                         page.writeEnd();
                     }
