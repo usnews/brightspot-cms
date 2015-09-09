@@ -469,11 +469,20 @@ public class ToolPageContext extends WebPageContext {
                         }
                     }
 
-                    translations = new MachineTranslations().getState();
+                    final String finalTranslation = translation;
+                    Thread saveTranslations = new Thread() {
 
-                    translations.setId(translationsId);
-                    translations.putAtomically(key, translation);
-                    translations.save();
+                        @Override
+                        public void run() {
+                            com.psddev.dari.db.State translations = new MachineTranslations().getState();
+
+                            translations.setId(translationsId);
+                            translations.putAtomically(key, finalTranslation);
+                            translations.save();
+                        }
+                    };
+
+                    saveTranslations.start();
 
                     return new MessageFormat(translation, target).format(arguments);
                 }
