@@ -265,11 +265,13 @@ public class ToolPageContext extends WebPageContext {
         return Static.getTypeLabel(object);
     }
 
-    public String localize(Object context, String key) throws IOException {
+    public String localize(Object context, Map<String, Object> contextOverrides, String key) throws IOException {
         String baseName = null;
+        ObjectField field = null;
 
         if (context instanceof ObjectField) {
-            context = ((ObjectField) context).getParentType();
+            field = (ObjectField) context;
+            context = field.getParentType();
         }
 
         ObjectType type = null;
@@ -304,48 +306,58 @@ public class ToolPageContext extends WebPageContext {
         }
 
         Locale locale = MoreObjects.firstNonNull(getUser().getLocale(), Locale.getDefault());
-        String localized = createLocalizedString(locale, locale, baseName, key, state);
+        String localized = createLocalizedString(locale, locale, baseName, key, null, null, state, contextOverrides);
 
         if (localized == null) {
-            localized = createLocalizedString(Locale.US, locale, baseName, key, state);
+            localized = createLocalizedString(Locale.US, locale, baseName, key, field, type, state, contextOverrides);
         }
 
         if (localized == null) {
-            if (type != null && "displayName".equals(key)) {
-                return type.getDisplayName();
-
-            } else {
-                throw new MissingResourceException(
-                        String.format("Can't find [%s] key in [%s] resource bundle!", key, baseName),
-                        baseName,
-                        key);
-            }
+            throw new MissingResourceException(
+                    String.format("Can't find [%s] key in [%s] resource bundle!", key, baseName),
+                    baseName,
+                    key);
 
         } else {
             return localized;
         }
     }
 
-    private String createLocalizedString(Locale source, Locale target, String baseName, String key, State state) throws IOException {
+    private String createLocalizedString(
+            Locale source,
+            Locale target,
+            String baseName,
+            String key,
+            ObjectField field,
+            ObjectType type,
+            State state,
+            Map<String, Object> contextOverrides)
+            throws IOException {
+
         CascadingMap<String, Object> arguments = new CascadingMap<>();
         List<Map<String, Object>> argumentsSources = arguments.getSources();
+
+        if (contextOverrides != null) {
+            argumentsSources.add(contextOverrides);
+        }
+
         String pattern = null;
 
         if (baseName != null) {
-            ResourceBundle contextOverride = findBundle(baseName + "Override", source);
-            ResourceBundle contextDefault = findBundle(baseName + "Default", source);
+            ResourceBundle baseOverride = findBundle(baseName + "Override", source);
+            ResourceBundle baseDefault = findBundle(baseName + "Default", source);
 
-            if (contextOverride != null) {
-                argumentsSources.add(createBundleMap(contextOverride));
+            if (baseOverride != null) {
+                argumentsSources.add(createBundleMap(baseOverride));
 
-                pattern = findBundleString(contextOverride, key);
+                pattern = findBundleString(baseOverride, key);
             }
 
-            if (contextDefault != null) {
-                argumentsSources.add(createBundleMap(contextDefault));
+            if (baseDefault != null) {
+                argumentsSources.add(createBundleMap(baseDefault));
 
                 if (pattern == null) {
-                    pattern = findBundleString(contextDefault, key);
+                    pattern = findBundleString(baseDefault, key);
                 }
             }
         }
@@ -366,6 +378,22 @@ public class ToolPageContext extends WebPageContext {
 
                 if (fallbackDefault != null) {
                     pattern = findBundleString(fallbackDefault, key);
+                }
+            }
+        }
+
+        if (pattern == null) {
+            if (field != null) {
+                if (key.startsWith("tab.")) {
+                    pattern = key.substring(4);
+
+                } else if (key.startsWith("field.")) {
+                    pattern = field.getDisplayName();
+                }
+
+            } else if (type != null) {
+                if (key.equals("displayName")) {
+                    pattern = type.getDisplayName();
                 }
             }
         }
@@ -523,6 +551,10 @@ public class ToolPageContext extends WebPageContext {
         } catch (MissingResourceException error) {
             return null;
         }
+    }
+
+    public String localize(Object context, String key) throws IOException {
+        return localize(context, null, key);
     }
 
     /**
