@@ -43,12 +43,12 @@ public class AdminTrash extends PageServlet {
                 page.writeStart("div", "class", "leftNav");
                     page.writeStart("div", "class", "widget");
                         page.writeStart("h1", "class", "icon icon-action-trash");
-                            page.writeHtml(page.localize(null, "trash.title"));
+                            page.writeHtml(page.localize(null, "adminTrash.title"));
                         page.writeEnd();
 
                         if (trashes.getOffset() + trashes.getItems().size() <= 0) {
                             page.writeStart("div", "class", "message message-info");
-                                page.writeHtml(page.localize(null, "trash.noTrashMessage"));
+                                page.writeHtml(page.localize(AdminTrash.class, "adminTrash.message.noTrash"));
                             page.writeEnd();
 
                         } else {
