@@ -267,10 +267,10 @@ public class SearchResultActions extends PageServlet {
             page.writeStart("p");
 
             if (count > 0) {
-                page.writeHtml(page.localize(null, "searchResultActions.moreItemsSelected", items.size()));
+                page.writeHtml(page.localize(items, "searchResultActions.moreItemsSelected"));
 
             } else {
-                page.writeHtml(page.localize(null, "searchResultActions.itemsSelected", items.size()));
+                page.writeHtml(page.localize(items, "searchResultActions.itemsSelected"));
             }
 
             page.writeEnd();

@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import javax.servlet.ServletException;
 
+import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
@@ -27,7 +28,10 @@ public class ToolUserSaveSearch extends PageServlet {
             String name = page.param(String.class, "name");
 
             if (ObjectUtils.isBlank(name)) {
-                throw new IllegalArgumentException(page.localize(null, "toolUserSaveSearch.requiredErrorMessage", page.localize(null, "toolUserSaveSearch.name")));
+                throw new IllegalArgumentException(
+                        page.localize(
+                                ImmutableMap.of("displayName", page.localize(ToolUserSaveSearch.class, "label.name")),
+                                "error.required"));
             }
 
             String search = page.param(String.class, "search");
@@ -60,7 +64,7 @@ public class ToolUserSaveSearch extends PageServlet {
                     page.writeStart("div", "class", "inputContainer");
                         page.writeStart("div", "class", "inputLabel");
                             page.writeStart("label");
-                                page.writeHtml(page.localize(null, "toolUserSaveSearch.name"));
+                                page.writeHtml(page.localize(ToolUserSaveSearch.class, "label.name"));
                             page.writeEnd();
                         page.writeEnd();
 
@@ -68,7 +72,7 @@ public class ToolUserSaveSearch extends PageServlet {
                             page.writeElement("input",
                                     "type", "text",
                                     "name", "name",
-                                    "placeholder", "(" + page.localize(null, "required") + ")");
+                                    "placeholder", page.localize(ToolUserSaveSearch.class, "placeholder.required"));
                         page.writeEnd();
                     page.writeEnd();
 
