@@ -155,7 +155,7 @@ public class ImageFileType implements FileContentType {
                 page.writeStart("div", "class", "imageEditor-tools");
 
                     page.writeStart("h2");
-                        page.writeHtml(page.localize(null, "imageFileType.tools"));
+                        page.writeHtml(page.localize(ImageFileType.class, "tools"));
                     page.writeEnd();
 
                     page.writeStart("ul");
@@ -165,7 +165,7 @@ public class ImageFileType implements FileContentType {
                                         "class", "icon icon-tint",
                                         "href", page.h(page.cmsUrl("/contentColors", "id", state.getId())),
                                         "target", "contentColors");
-                                    page.writeHtml(page.localize(null, "imageFileType.colors"));
+                                    page.writeHtml(page.localize(ImageFileType.class, "colors"));
                                 page.writeEnd();
                             page.writeEnd();
                         }
@@ -175,7 +175,7 @@ public class ImageFileType implements FileContentType {
                                     "class", "action-preview",
                                     "href", fieldValue.getPublicUrl(),
                                     "target", "_blank");
-                                page.writeHtml(page.localize(null, "imageFileType.viewOriginal"));
+                                page.writeHtml(page.localize(ImageFileType.class, "viewOriginal"));
                             page.writeEnd();
                         page.writeEnd();
 
@@ -184,7 +184,7 @@ public class ImageFileType implements FileContentType {
                                     "class", "icon icon-crop",
                                     "href", page.h(page.url("/contentImages", "data", ObjectUtils.toJson(fieldValue))),
                                     "target", "contentImages");
-                                page.writeHtml(page.localize(null, "imageFileType.viewResized"));
+                                page.writeHtml(page.localize(ImageFileType.class, "viewResized"));
                             page.writeEnd();
                         page.writeEnd();
                     page.writeEnd();
@@ -192,7 +192,7 @@ public class ImageFileType implements FileContentType {
 
                 page.writeStart("div", "class", "imageEditor-edit");
                     page.writeStart("h2");
-                        page.writeHtml(page.localize(null, "imageFileType.adjustments"));
+                        page.writeHtml(page.localize(ImageFileType.class, "adjustments"));
                     page.writeEnd();
 
                     boolean usingJavaImageEditor = ImageEditor.Static.getDefault() != null && (ImageEditor.Static.getDefault() instanceof JavaImageEditor);
@@ -202,12 +202,12 @@ public class ImageFileType implements FileContentType {
                             if (usingJavaImageEditor) {
                                 page.writeStart("tr");
                                     page.writeStart("th");
-                                        page.writeHtml(page.localize(null, "imageFileType.blur"));
+                                        page.writeHtml(page.localize(ImageFileType.class, "blur"));
                                     page.writeEnd();
 
                                     page.writeStart("td");
                                         page.writeStart("a", "class", "imageEditor-addBlurOverlay");
-                                            page.writeHtml(page.localize(null, "imageFileType.addBlur"));
+                                            page.writeHtml(page.localize(ImageFileType.class, "addBlur"));
                                         page.writeEnd();
                                         page.writeTag("br");
 
@@ -223,7 +223,7 @@ public class ImageFileType implements FileContentType {
                             // Brightness
                             page.writeStart("tr");
                                 page.writeStart("th");
-                                    page.writeHtml(page.localize(null, "imageFileType.brightness"));
+                                    page.writeHtml(page.localize(ImageFileType.class, "brightness"));
                                 page.writeEnd();
                                 page.writeStart("td");
                                     page.writeTag("input", "type", "range", "name", page.h(brightnessName), "value", page.h(brightness), "min", "-1.0", "max", "1.0", "step", "0.01");
@@ -233,7 +233,7 @@ public class ImageFileType implements FileContentType {
                             // Contrast
                             page.writeStart("tr");
                                 page.writeStart("th");
-                                    page.writeHtml(page.localize(null, "imageFileType.contrast"));
+                                    page.writeHtml(page.localize(ImageFileType.class, "contrast"));
                                 page.writeEnd();
                                 page.writeStart("td");
                                     page.writeTag("input", "type", "range", "name", page.h(contrastName), "value", page.h(contrast), "min", "-1.0", "max", "1.0", "step", "0.01");
@@ -243,7 +243,7 @@ public class ImageFileType implements FileContentType {
                             // Flip H
                             page.writeStart("tr");
                                 page.writeStart("th");
-                                    page.writeHtml(page.localize(null, "imageFileType.flipH"));
+                                    page.writeHtml(page.localize(ImageFileType.class, "flipH"));
                                 page.writeEnd();
                                 page.writeStart("td");
                                     page.writeTag("input", "type", "checkbox", "name", page.h(flipHName), "value", page.h("true"), flipH ? "checked" : "", "");
@@ -253,7 +253,7 @@ public class ImageFileType implements FileContentType {
                             // Flip V
                             page.writeStart("tr");
                                 page.writeStart("th");
-                                    page.writeHtml(page.localize(null, "imageFileType.flipV"));
+                                    page.writeHtml(page.localize(ImageFileType.class, "flipV"));
                                 page.writeEnd();
                                 page.writeStart("td");
                                     page.writeTag("input", "type", "checkbox", "name", page.h(flipVName), "value", page.h("true"), flipV ? "checked" : "", "");
@@ -263,7 +263,7 @@ public class ImageFileType implements FileContentType {
                             // Invert
                             page.writeStart("tr");
                                 page.writeStart("th");
-                                    page.writeHtml(page.localize(null, "imageFileType.invert"));
+                                    page.writeHtml(page.localize(ImageFileType.class, "invert"));
                                 page.writeEnd();
                                 page.writeStart("td");
                                     page.writeTag("input", "type", "checkbox", "name", page.h(invertName), "value", page.h("true"), invert ? "checked" : "", "");
@@ -273,7 +273,7 @@ public class ImageFileType implements FileContentType {
                             // Grayscale
                             page.writeStart("tr");
                                 page.writeStart("th");
-                                    page.writeHtml(page.localize(null, "imageFileType.grayscale"));
+                                    page.writeHtml(page.localize(ImageFileType.class, "grayscale"));
                                 page.writeEnd();
                                 page.writeStart("td");
                                     page.writeTag("input", "type", "checkbox", "name", page.h(grayscaleName), "value", page.h("true"), grayscale ? "checked" : "", "");
@@ -283,7 +283,7 @@ public class ImageFileType implements FileContentType {
                             // Rotate
                             page.writeStart("tr");
                                 page.writeStart("th");
-                                    page.writeHtml(page.localize(null, "imageFileType.rotate"));
+                                    page.writeHtml(page.localize(ImageFileType.class, "rotate"));
                                 page.writeEnd();
                                 page.writeStart("td");
                                     page.writeTag("input", "type", "range", "name", page.h(rotateName), "value", page.h(rotate), "min", "-90", "max", "90", "step", "90");
@@ -293,7 +293,7 @@ public class ImageFileType implements FileContentType {
                             // Sepia
                             page.writeStart("tr");
                                 page.writeStart("th");
-                                    page.writeHtml(page.localize(null, "imageFileType.sepia"));
+                                    page.writeHtml(page.localize(ImageFileType.class, "sepia"));
                                 page.writeEnd();
                                 page.writeStart("td");
                                     page.writeTag("input", "type", "checkbox", "name", page.h(sepiaName), "value", page.h("true"), sepia ? "checked" : "");
@@ -304,7 +304,7 @@ public class ImageFileType implements FileContentType {
                                 // Sharpen
                                 page.writeStart("tr");
                                 page.writeStart("th");
-                                page.writeHtml(page.localize(null, "imageFileType.sharpen"));
+                                page.writeHtml(page.localize(ImageFileType.class, "sharpen"));
                                     page.writeEnd();
                                     page.writeStart("td");
                                         page.writeTag("input", "type", "range", "name", page.h(sharpenName), "value", page.h(sharpen), "min", "0", "max", "10", "step", "1");
@@ -322,7 +322,7 @@ public class ImageFileType implements FileContentType {
                 if (!crops.isEmpty()) {
                     page.writeStart("div", "class", "imageEditor-sizes");
                         page.writeStart("h2");
-                            page.writeHtml(page.localize(null, "imageFileType.standardSizes"));
+                            page.writeHtml(page.localize(ImageFileType.class, "standardSizes"));
                         page.writeEnd();
                         page.writeStart("table", "data-crop-center", page.h(centerCrop));
                             page.writeStart("tbody");
