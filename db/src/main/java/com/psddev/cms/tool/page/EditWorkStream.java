@@ -36,7 +36,7 @@ public class EditWorkStream extends PageServlet {
                         "class", "icon icon-action-search",
                         "href", page.cmsUrl("/misc/savedSearch.jsp", "search", ObjectUtils.toJson(object.getSearch().getState().getSimpleValues())),
                         "target", "miscSavedSearch");
-                    page.writeHtml(page.localize(null, "editWorkStream.viewItems"));
+                    page.writeHtml(page.localize(EditWorkStream.class, "action.viewItems"));
                 page.writeEnd();
             page.writeEnd();
         }
