@@ -12,6 +12,7 @@ import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.tool.SearchResultSelectionItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -159,7 +160,10 @@ public class ContentEditBulk extends PageServlet {
 
             page.writeStart("div", "class", "widget");
                 page.writeStart("h1");
-                    page.writeHtml(page.localize(null, "contentEditBulk.title", count));
+                    page.writeHtml(page.localize(
+                            ContentEditBulk.class,
+                            ImmutableMap.of("count", count),
+                            "contentEditBulk.title"));
                 page.writeEnd();
 
                 page.writeObject(error);
@@ -208,7 +212,7 @@ public class ContentEditBulk extends PageServlet {
                                 "class", "action icon icon-action-save",
                                 "name", "action-save",
                                 "value", "true");
-                            page.writeHtml(page.localize(null, "contentEditBulk.bulkSave"));
+                            page.writeHtml(page.localize(ContentEditBulk.class, "action.bulkSave"));
                         page.writeEnd();
                     page.writeEnd();
                 page.writeEnd();
