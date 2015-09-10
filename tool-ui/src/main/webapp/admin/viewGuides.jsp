@@ -44,12 +44,7 @@ if (settings.isAutoGenerateContentTypeGuides() == true) {
 }
 
 List<Guide> guides = Query.from(Guide.class).sortAscending("title").select();
-List<GuideType> typeGuides = Query.from(GuideType.class).sortAscending("documentedType/name").select();
-List<GuidePage> pageGuides = Query.from(GuidePage.class).sortAscending("name").select();
-List<Page> templates = Query.from(Page.class).sortAscending("name").select();
 String incompleteIndicator = "*";
-
-
 
 // --- Presentation ---
 wp.include("/WEB-INF/header.jsp"); %>
