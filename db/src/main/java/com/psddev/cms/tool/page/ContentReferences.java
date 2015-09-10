@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import javax.servlet.ServletException;
 
+import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Draft;
@@ -42,7 +43,7 @@ public class ContentReferences extends PageServlet {
 
         page.writeStart("div", "class", "widget");
             page.writeStart("h1", "class", "icon icon-book");
-                page.writeHtml(page.localize(null, "contentReferences.title"));
+                page.writeHtml(page.localize(ContentReferences.class, "title"));
             page.writeEnd();
 
             if (result.hasNext()) {
@@ -52,12 +53,18 @@ public class ContentReferences extends PageServlet {
                             "target", "_top",
                             "href", page.cmsUrl("/searchAdvancedFull",
                                     Search.ADVANCED_QUERY_PARAMETER, query.getPredicate().toString()));
-                        page.writeHtml(page.localize(null, "contentReferences.viewAll", result.getCount()));
+                        page.writeHtml(page.localize(
+                                ContentReferences.class,
+                                ImmutableMap.of("count", result.getCount()),
+                                "action.viewAll"));
                     page.writeEnd();
                 page.writeEnd();
 
                 page.writeStart("h2");
-                    page.writeHtml(page.localize(null, "contentReferences.tenMostRecent", "10"));
+                    page.writeHtml(page.localize(
+                            ContentReferences.class,
+                            ImmutableMap.of("count", result.getCount()),
+                            "subtitle.mostRecent"));
                 page.writeEnd();
             }
 
