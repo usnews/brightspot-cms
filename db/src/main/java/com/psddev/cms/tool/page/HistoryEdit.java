@@ -46,7 +46,7 @@ public class HistoryEdit extends PageServlet {
         page.writeHeader();
             page.writeStart("div", "class", "widget");
                 page.writeStart("h1", "class", "icon icon-object-history");
-                    page.writeHtml("Name Revision");
+                    page.writeHtml(page.localize(HistoryEdit.class, "title"));
                 page.writeEnd();
 
                 page.include("/WEB-INF/errors.jsp");
@@ -57,7 +57,7 @@ public class HistoryEdit extends PageServlet {
                     page.writeStart("div", "class", "inputContainer");
                         page.writeStart("div", "class", "inputLabel");
                             page.writeStart("label", "for", page.createId());
-                                page.writeHtml(page.localize(null, "historyEdit.name"));
+                                page.writeHtml(page.localize(HistoryEdit.class, "label.name"));
                             page.writeEnd();
                         page.writeEnd();
 
