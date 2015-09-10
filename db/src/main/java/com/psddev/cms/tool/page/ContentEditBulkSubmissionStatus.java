@@ -1,5 +1,6 @@
 package com.psddev.cms.tool.page;
 
+import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Query;
@@ -33,14 +34,14 @@ public class ContentEditBulkSubmissionStatus extends PageServlet {
             page.writeStart("div", "class", "widget");
             {
                 page.writeStart("h1");
-                    page.writeHtml(page.localize(null, "contentEditBulkSubmissionStatus.title"));
+                    page.writeHtml(page.localize(ContentEditBulkSubmissionStatus.class, "contentEditBulkSubmissionStatus.title"));
                 page.writeEnd();
 
                 Date finishDate = submission.getFinishDate();
 
                 if (finishDate == null) {
                     page.writeStart("div", "class", "message message-warning");
-                    page.writeHtml(page.localize(null, "contentEditBulkSubmissionStatus.running"));
+                    page.writeHtml(page.localize(ContentEditBulkSubmissionStatus.class, "contentEditBulkSubmissionStatus.message.running"));
                     writeSubmission(page, submission);
                     page.writeEnd();
 
@@ -58,13 +59,13 @@ public class ContentEditBulkSubmissionStatus extends PageServlet {
                     if (!ObjectUtils.isBlank(returnUrl)) {
                         page.writeStart("p");
                         page.writeStart("a", "class", "icon icon-arrow-left", "href", returnUrl);
-                        page.writeHtml(page.localize(null, "contentEditBulkSubmissionStatus.returnToSearch"));
+                        page.writeHtml(page.localize(ContentEditBulkSubmissionStatus.class, "action.returnToSearch"));
                         page.writeEnd();
                         page.writeEnd();
                     }
 
                     page.writeStart("div", "class", "message message-success");
-                    page.writeHtml(page.localize(null, "contentEditBulkSubmissionStatus.finishedMessage"));
+                    page.writeHtml(page.localize(ContentEditBulkSubmissionStatus.class, "contentEditBulkSubmissionStatus.message.finished"));
                     writeSubmission(page, submission);
                     page.writeEnd();
                 }
@@ -77,10 +78,11 @@ public class ContentEditBulkSubmissionStatus extends PageServlet {
     private void writeSubmission(ToolPageContext page, ContentEditBulkSubmission submission) throws IOException {
         page.writeHtml(
                 page.localize(
-                        null,
-                        "contentEditBulkSubmissionStatus.submission",
-                        submission.getSuccesses(),
-                        submission.getFailures(),
-                        submission.getCount()));
+                        ContentEditBulkSubmissionStatus.class,
+                        ImmutableMap.of(
+                                "successCount", submission.getSuccesses(),
+                                "failureCount", submission.getFailures(),
+                                "totalCount", submission.getCount()),
+                        "contentEditBulkSubmissionStatus.message.submissionStatus"));
     }
 }
