@@ -46,7 +46,7 @@ public class ContentImages extends PageServlet {
         page.writeHeader();
             page.writeStart("div", "class", "widget");
                 page.writeStart("h1", "class", "icon icon-crop");
-                    page.writeHtml(page.localize(null, "contentImages.title"));
+                    page.writeHtml(page.localize(ContentImages.class, "title"));
                 page.writeEnd();
 
                 page.writeStart("select",
