@@ -1,5 +1,6 @@
 package com.psddev.cms.tool.page;
 
+import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.db.Content;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.SearchResultSelection;
@@ -89,11 +90,19 @@ public class BulkArchive extends PageServlet {
                         "action", new UrlBuilder(page.getRequest()).absolutePath(page.cmsUrl(PATH)).currentParameters().parameter(Context.WIDGET_STATE_PARAMETER, WidgetState.BUTTON));
 
                     page.writeStart("p");
-                        page.writeHtml(page.localize(null, "bulkArchive.confirmMessage", action.name().toLowerCase(), availableCount));
+                        page.writeHtml(page.localize(
+                                BulkArchive.class,
+                                ImmutableMap.of(
+                                        "action", action.name().toLowerCase(),
+                                        "count", availableCount),
+                                "bulkArchive.message.confirm"));
                     page.writeEnd();
 
                     page.writeStart("button", "class", actionIconClass);
-                        page.writeHtml(page.localize(null, "bulkArchive.confirmButton", action.name()));
+                        page.writeHtml(page.localize(
+                                BulkArchive.class,
+                                ImmutableMap.of("name", action.name()),
+                                "bulkArchive.action.confirm"));
                     page.writeEnd();
                 page.writeEnd();
 
@@ -167,11 +176,12 @@ public class BulkArchive extends PageServlet {
 
                         page.writeStart("div", "class", "message message-success");
 
-                            page.writeHtml(
-                                    page.localize(
-                                            null,
-                                            Action.RESTORE.equals(action) ? "bulkArchive.restoreMessage" : "bulkArchive.archiveMessage",
-                                            successCount));
+                            page.writeHtml(page.localize(
+                                    BulkArchive.class,
+                                    ImmutableMap.of("count", successCount),
+                                    Action.RESTORE.equals(action)
+                                            ? "bulkArchive.message.restored"
+                                            : "bulkArchive.message.archived"));
 
                             String returnUrl = page.param(String.class, "returnUrl");
 
@@ -196,12 +206,12 @@ public class BulkArchive extends PageServlet {
 
                             String resourceKey = null;
                             if (Action.RESTORE.equals(action)) {
-                                resourceKey = page.getSelection() != null ? "bulkArchive.restoreSelected" : "bulkArchive.restoreAll";
+                                resourceKey = page.getSelection() != null ? "bulkArchive.action.restoreSelected" : "bulkArchive.action.restoreAll";
                             } else if (Action.ARCHIVE.equals(action)) {
-                                resourceKey = page.getSelection() != null ? "bulkArchive.archiveSelected" : "bulkArchive.archiveAll";
+                                resourceKey = page.getSelection() != null ? "bulkArchive.action.archiveSelected" : "bulkArchive.action.archiveAll";
                             }
 
-                            page.writeHtml(page.localize(null, resourceKey));
+                            page.writeHtml(page.localize(BulkArchive.class, resourceKey));
                         page.writeEnd();
                     page.writeEnd();
                 }
