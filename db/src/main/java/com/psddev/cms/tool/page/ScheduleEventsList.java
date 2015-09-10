@@ -49,7 +49,7 @@ public class ScheduleEventsList extends PageServlet {
 
         page.writeStart("div", "class", "widget");
             page.writeStart("h1", "class", "icon icon-object-schedule");
-                page.writeHtml(page.localize(null, "scheduleEventsList.title"));
+                page.writeHtml(page.localize(ScheduleEventsList.class, "title"));
             page.writeEnd();
 
             page.writeStart("ul");
