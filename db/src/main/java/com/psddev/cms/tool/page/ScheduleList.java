@@ -27,7 +27,7 @@ public class ScheduleList extends PageServlet {
     public static void reallyDoService(ToolPageContext page) throws IOException, ServletException {
         page.writeStart("div", "class", "widget");
             page.writeStart("h1", "class", "icon icon-object-schedule");
-                page.writeHtml(page.localize(null, "scheduleList.title"));
+                page.writeHtml(page.localize(ScheduleList.class, "title"));
             page.writeEnd();
 
             page.writeStart("ul");
