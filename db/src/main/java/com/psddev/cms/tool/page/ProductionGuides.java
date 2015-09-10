@@ -29,13 +29,13 @@ public class ProductionGuides extends PageServlet {
         page.writeStart("div", "class", "widget");
 
         page.writeStart("h1", "class", "icon icon-book");
-            page.writeHtml(page.localize(null, "productionGuides.title"));
+            page.writeHtml(page.localize(ProductionGuides.class, "title"));
         page.writeEnd();
 
         if (ObjectUtils.isBlank(guides)) {
             page.writeStart("div", "class", "message message-info");
                 page.writeStart("p");
-                    page.writeHtml(page.localize(null, "productionGuides.noGuidesMessage"));
+                    page.writeHtml(page.localize(ProductionGuides.class, "message.noGuides"));
                 page.writeEnd();
             page.writeEnd();
         } else {
