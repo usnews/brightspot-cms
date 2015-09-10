@@ -26,7 +26,7 @@ public class ContentExternalPreview extends PageServlet {
             page.writeStart("div", "class", "widget");
                 page.writeStart("h1",
                         "class", "icon icon-action-preview");
-                    page.writeHtml(page.localize(null, "contentExternalPreview.title"));
+                    page.writeHtml(page.localize(ContentExternalPreview.class, "title"));
                 page.writeEnd();
 
                 page.writeStart("iframe",
