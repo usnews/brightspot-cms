@@ -29,6 +29,8 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -43,6 +45,13 @@ import com.google.common.base.MoreObjects;
 import com.ibm.icu.text.MessageFormat;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.util.CascadingMap;
+import com.psddev.dari.util.CollectionUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -256,18 +265,23 @@ public class ToolPageContext extends WebPageContext {
         return Static.getTypeLabel(object);
     }
 
-    public String localize(Object context, String key) {
+    public String localize(Object context, Map<String, Object> contextOverrides, String key) throws IOException {
         String baseName = null;
+        ObjectField field = null;
 
         if (context instanceof ObjectField) {
-            context = ((ObjectField) context).getParentType();
+            field = (ObjectField) context;
+            context = field.getParentType();
         }
 
         ObjectType type = null;
         State state = null;
 
         if (context != null) {
-            if (context instanceof ObjectType) {
+            if (context instanceof String) {
+                baseName = (String) context;
+
+            } else if (context instanceof ObjectType) {
                 type = (ObjectType) context;
                 baseName = type.getInternalName();
 
@@ -294,52 +308,59 @@ public class ToolPageContext extends WebPageContext {
             }
         }
 
-        String localized = createLocalizedString(
-                MoreObjects.firstNonNull(getUser().getLocale(), Locale.getDefault()),
-                baseName,
-                key,
-                state);
+        Locale locale = MoreObjects.firstNonNull(getUser().getLocale(), Locale.getDefault());
+        String localized = createLocalizedString(locale, locale, baseName, key, null, null, state, contextOverrides);
 
         if (localized == null) {
-            localized = createLocalizedString(Locale.US, baseName, key, state);
+            localized = createLocalizedString(Locale.US, locale, baseName, key, field, type, state, contextOverrides);
         }
 
         if (localized == null) {
-            if (type != null && "displayName".equals(key)) {
-                return type.getDisplayName();
-
-            } else {
-                throw new MissingResourceException(
-                        String.format("Can't find [%s] key in [%s] resource bundle!", key, baseName),
-                        baseName,
-                        key);
-            }
+            throw new MissingResourceException(
+                    String.format("Can't find [%s] key in [%s] resource bundle!", key, baseName),
+                    baseName,
+                    key);
 
         } else {
             return localized;
         }
     }
 
-    private String createLocalizedString(Locale locale, String baseName, String key, State state) {
+    private String createLocalizedString(
+            Locale source,
+            Locale target,
+            String baseName,
+            String key,
+            ObjectField field,
+            ObjectType type,
+            State state,
+            Map<String, Object> contextOverrides)
+            throws IOException {
+
         CascadingMap<String, Object> arguments = new CascadingMap<>();
         List<Map<String, Object>> argumentsSources = arguments.getSources();
+
+        if (contextOverrides != null) {
+            argumentsSources.add(contextOverrides);
+        }
+
         String pattern = null;
 
         if (baseName != null) {
-            ResourceBundle contextOverride = findBundle(baseName + "Override", locale);
-            ResourceBundle contextDefault = findBundle(baseName + "Default", locale);
+            ResourceBundle baseOverride = findBundle(baseName + "Override", source);
+            ResourceBundle baseDefault = findBundle(baseName + "Default", source);
 
-            if (contextOverride != null) {
-                argumentsSources.add(createBundleMap(contextOverride));
+            if (baseOverride != null) {
+                argumentsSources.add(createBundleMap(baseOverride));
 
-                pattern = findBundleString(contextOverride, key);
+                pattern = findBundleString(baseOverride, key);
             }
 
-            if (contextDefault != null) {
-                argumentsSources.add(createBundleMap(contextDefault));
+            if (baseDefault != null) {
+                argumentsSources.add(createBundleMap(baseDefault));
 
                 if (pattern == null) {
-                    pattern = findBundleString(contextDefault, key);
+                    pattern = findBundleString(baseDefault, key);
                 }
             }
         }
@@ -349,14 +370,14 @@ public class ToolPageContext extends WebPageContext {
         }
 
         if (pattern == null) {
-            ResourceBundle fallbackOverride = findBundle("FallbackOverride", locale);
+            ResourceBundle fallbackOverride = findBundle("FallbackOverride", source);
 
             if (fallbackOverride != null) {
                 pattern = findBundleString(fallbackOverride, key);
             }
 
             if (pattern == null) {
-                ResourceBundle fallbackDefault = findBundle("FallbackDefault", locale);
+                ResourceBundle fallbackDefault = findBundle("FallbackDefault", source);
 
                 if (fallbackDefault != null) {
                     pattern = findBundleString(fallbackDefault, key);
@@ -365,16 +386,147 @@ public class ToolPageContext extends WebPageContext {
         }
 
         if (pattern == null) {
+            if (field != null) {
+                if (key.startsWith("tab.")) {
+                    pattern = key.substring(4);
+
+                } else if (key.startsWith("field.")) {
+                    pattern = field.getDisplayName();
+                }
+
+            } else if (type != null) {
+                if (key.equals("displayName")) {
+                    pattern = type.getDisplayName();
+                }
+            }
+        }
+
+        if (pattern == null) {
             return null;
 
+        } else if (source.equals(target)) {
+            return new MessageFormat(pattern, target).format(arguments);
+
         } else {
-            return new MessageFormat(pattern, locale).format(arguments);
+            String googleServerApiKey = getCmsTool().getGoogleServerApiKey();
+
+            if (ObjectUtils.isBlank(googleServerApiKey)) {
+                return new MessageFormat(pattern, source).format(arguments);
+            }
+
+            // Already translated?
+            UUID translationsId = MachineTranslations.createId(baseName, target);
+            State translations = State.getInstance(Query
+                    .from(MachineTranslations.class)
+                    .where("_id = ?", translationsId)
+                    .first());
+
+            if (translations != null) {
+                String translation = (String) translations.get(key);
+
+                if (translation != null) {
+                    return new MessageFormat(translation, target).format(arguments);
+                }
+            }
+
+            // Convert named arguments to be numbered to prevent the names
+            // from being translated.
+            MessageFormat numberedFormat = new MessageFormat(pattern, target);
+            Map<String, String> numberedToNamed = null;
+
+            if (numberedFormat.usesNamedArguments()) {
+
+                // e.g. Hi, {name} -> Hi, {0}
+                Map<String, Object> numberedArgumentByName = new CompactMap<>();
+                int index = 0;
+
+                for (String name : numberedFormat.getArgumentNames()) {
+                    numberedArgumentByName.put(name, "{" + index + "}");
+                    numberedFormat.setFormatByArgumentName(name, null);
+
+                    ++ index;
+                }
+
+                // Use the numbered pattern to create a regex that can find
+                // the named arguments from the original pattern.
+                String numberedPattern = numberedFormat.format(numberedArgumentByName);
+                Matcher numberedArgumentMatcher = Pattern.compile("\\{\\d+\\}").matcher(numberedPattern);
+                StringBuilder namedArgumentPattern = new StringBuilder();
+                List<String> numberedArguments = new ArrayList<>();
+                int lastEnd = 0;
+
+                while (numberedArgumentMatcher.find()) {
+                    namedArgumentPattern.append(Pattern.quote(numberedPattern.substring(lastEnd, numberedArgumentMatcher.start())));
+                    namedArgumentPattern.append("(\\{.+?\\})");
+                    numberedArguments.add(numberedArgumentMatcher.group(0));
+
+                    lastEnd = numberedArgumentMatcher.end();
+                }
+
+                // Map all numbered argument to the named ones.
+                // e.g. {0} = {name}
+                Matcher namedArgumentMatcher = Pattern.compile(namedArgumentPattern.toString()).matcher(pattern);
+                pattern = numberedPattern;
+
+                if (namedArgumentMatcher.matches()) {
+                    numberedToNamed = new CompactMap<>();
+
+                    for (int i = 1; i <= namedArgumentMatcher.groupCount(); ++ i) {
+                        numberedToNamed.put(numberedArguments.get(i - 1), namedArgumentMatcher.group(1));
+                    }
+
+                } else {
+                    throw new IllegalArgumentException();
+                }
+            }
+
+            try (CloseableHttpClient client = HttpClients.createDefault()) {
+                HttpUriRequest request = RequestBuilder.get()
+                        .setUri("https://www.googleapis.com/language/translate/v2")
+                        .addParameter("key", googleServerApiKey)
+                        .addParameter("q", pattern)
+                        .addParameter("source", source.getLanguage())
+                        .addParameter("target", target.getLanguage())
+                        .build();
+
+                try (CloseableHttpResponse response = client.execute(request)) {
+                    String responseText = EntityUtils.toString(response.getEntity());
+                    String translation = (String) CollectionUtils.getByPath(ObjectUtils.fromJson(responseText), "data/translations/0/translatedText");
+
+                    // Restore named arguments.
+                    if (numberedToNamed != null) {
+                        for (Map.Entry<String, String> entry : numberedToNamed.entrySet()) {
+                            translation = translation.replace(entry.getKey(), entry.getValue());
+                        }
+                    }
+
+                    final String finalTranslation = translation;
+                    Thread saveTranslations = new Thread() {
+
+                        @Override
+                        public void run() {
+                            com.psddev.dari.db.State translations = new MachineTranslations().getState();
+
+                            translations.setId(translationsId);
+                            translations.putAtomically(key, finalTranslation);
+                            translations.save();
+                        }
+                    };
+
+                    saveTranslations.start();
+
+                    return new MessageFormat(translation, target).format(arguments);
+                }
+            }
         }
     }
 
     private ResourceBundle findBundle(String baseName, Locale locale) {
         try {
-            return ResourceBundle.getBundle(baseName, locale);
+            return ResourceBundle.getBundle(
+                    baseName,
+                    locale,
+                    ResourceBundle.Control.getNoFallbackControl(ResourceBundle.Control.FORMAT_DEFAULT));
 
         } catch (MissingResourceException error) {
             return null;
@@ -402,6 +554,10 @@ public class ToolPageContext extends WebPageContext {
         } catch (MissingResourceException error) {
             return null;
         }
+    }
+
+    public String localize(Object context, String key) throws IOException {
+        return localize(context, null, key);
     }
 
     /**
