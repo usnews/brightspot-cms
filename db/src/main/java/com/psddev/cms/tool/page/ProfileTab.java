@@ -44,7 +44,7 @@ public class ProfileTab extends ProfilePanelTab {
 
         page.writeStart("div",
                 "class", "p-tud-profile",
-                "data-tab", page.localize(null, "profileTab.title"));
+                "data-tab", page.localize(ProfileTab.class, "title"));
 
             page.writeStart("ul", "class", "piped");
                 page.writeStart("li");
@@ -52,7 +52,7 @@ public class ProfileTab extends ProfilePanelTab {
                             "class", "icon icon-key",
                             "href", page.cmsUrl("/toolUserTfa"),
                             "target", "toolUserTfa");
-                        page.writeHtml(page.localize(null, user.isTfaEnabled() ? "profileTab.enableTfa" : "profileTab.disableTfa"));
+                        page.writeHtml(page.localize(ProfileTab.class, user.isTfaEnabled() ? "action.enableTfa" : "action.disableTfa"));
                     page.writeEnd();
                 page.writeEnd();
             page.writeEnd();
