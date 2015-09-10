@@ -290,7 +290,7 @@ writer.start("div", "class", "searchForm");
                     writer.start("button").html("Go").end();
                 writer.end();
 
-                if (selectedType == null) {
+                if (selectedType == null || selectedType.as(ToolUi.class).isDisplayGlobalFilters()) {
                     writer.start("div", "class", "searchFiltersGlobal");
                         for (ObjectType filter : globalFilters) {
                             String filterId = filter.getId().toString();
