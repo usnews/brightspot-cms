@@ -278,7 +278,10 @@ public class ToolPageContext extends WebPageContext {
         State state = null;
 
         if (context != null) {
-            if (context instanceof ObjectType) {
+            if (context instanceof String) {
+                baseName = (String) context;
+
+            } else if (context instanceof ObjectType) {
                 type = (ObjectType) context;
                 baseName = type.getInternalName();
 
