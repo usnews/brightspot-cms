@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import javax.servlet.ServletException;
 
+import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.db.GuideType;
 import com.psddev.cms.db.PageFilter;
 import com.psddev.cms.db.ToolUi;
@@ -60,7 +61,7 @@ public class GuideField extends PageServlet {
                 page.writeStart("div", "class", "tabbed");
 
                     // Editorial field description.
-                    page.writeStart("div", "data-tab", page.localize(null, "forEditors"));
+                    page.writeStart("div", "data-tab", page.localize(GuideField.class, "label.forEditors"));
                         GuideType guideType = GuideType.Static.getGuideType(type);
                         ReferentialText fieldDescription = null;
 
@@ -97,18 +98,24 @@ public class GuideField extends PageServlet {
                         List<String> constraints = new ArrayList<String>();
 
                         if (field.isRequired()) {
-                            constraints.add(page.localize(null, "required"));
+                            constraints.add(page.localize(GuideField.class, "label.required"));
                         }
 
                         Object absMin = GuideType.Static.getFieldMinimumValue(field);
                         Object absMax = GuideType.Static.getFieldMaximumValue(field);
 
                         if (absMin != null) {
-                            constraints.add(page.localize(null, "guideField.absoluteMin", absMin));
+                            constraints.add(page.localize(
+                                    GuideField.class,
+                                    ImmutableMap.of("min", absMin),
+                                    "label.absoluteMin"));
                         }
 
                         if (absMax != null) {
-                            constraints.add(page.localize(null, "guideField.absoluteMax", absMax));
+                            constraints.add(page.localize(
+                                    GuideField.class,
+                                    ImmutableMap.of("max", absMax),
+                                    "label.absoluteMax"));
                         }
 
                         ToolUi fieldUi = field.as(ToolUi.class);
@@ -116,16 +123,22 @@ public class GuideField extends PageServlet {
                         Object sugMax = fieldUi.getSuggestedMaximum();
 
                         if (sugMin != null) {
-                            constraints.add(page.localize(null, "guideField.suggestedMinimum", sugMin));
+                            constraints.add(page.localize(
+                                    GuideField.class,
+                                    ImmutableMap.of("min", sugMin),
+                                    "label.suggestedMinimum"));
                         }
 
                         if (sugMax != null) {
-                            constraints.add(page.localize(null, "guideField.suggestedMaximum", sugMax));
+                            constraints.add(page.localize(
+                                    GuideField.class,
+                                    ImmutableMap.of("max", sugMax),
+                                    "label.suggestedMaximum"));
                         }
 
                         if (!constraints.isEmpty()) {
                             page.writeStart("h2", "style", "margin-top:15px;");
-                                page.writeHtml(page.localize(null, "guideField.constraints"));
+                                page.writeHtml(page.localize(GuideField.class, "subtitle.constraints"));
                             page.writeEnd();
 
                             page.writeStart("ul");
@@ -141,13 +154,13 @@ public class GuideField extends PageServlet {
                                 || fieldDescription.isEmpty())
                                 && constraints.isEmpty()) {
                             page.writeStart("div", "class", "message message-info");
-                                page.writeHtml(page.localize(null, "guideField.noGuideMessage"));
+                                page.writeHtml(page.localize(GuideField.class, "message.noGuide"));
                             page.writeEnd();
                         }
                     page.writeEnd();
 
                     // Development help.
-                    page.writeStart("div", "data-tab", page.localize(null, "forDevelopers"));
+                    page.writeStart("div", "data-tab", page.localize(GuideField.class, "label.forDevelopers"));
                         Class<?> fieldDeclaringClass = ObjectUtils.getClassByName(field.getJavaDeclaringClassName());
 
                         if (fieldDeclaringClass != null) {
