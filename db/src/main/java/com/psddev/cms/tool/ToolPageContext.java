@@ -317,6 +317,17 @@ public class ToolPageContext extends WebPageContext {
         }
 
         if (localized == null) {
+            Locale usLocale = Locale.US;
+            String usLanguage = usLocale.getLanguage();
+
+            if (!usLanguage.equals(defaultLocale.getLanguage())
+                    && !usLanguage.equals(userLocale.getLanguage())) {
+
+                localized = createLocalizedString(usLocale, userLocale, baseName, key, state, contextOverrides);
+            }
+        }
+
+        if (localized == null) {
             throw new MissingResourceException(
                     String.format("Can't find [%s] key in [%s] resource bundle!", key, baseName),
                     baseName,
