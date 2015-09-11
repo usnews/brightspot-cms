@@ -163,7 +163,7 @@ public class ContentEditBulk extends PageServlet {
                     page.writeHtml(page.localize(
                             ContentEditBulk.class,
                             ImmutableMap.of("count", count),
-                            "contentEditBulk.title"));
+                            "title"));
                 page.writeEnd();
 
                 page.writeObject(error);

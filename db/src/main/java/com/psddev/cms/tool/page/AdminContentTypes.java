@@ -110,7 +110,7 @@ public class AdminContentTypes extends PageServlet {
                 page.writeStart("div", "class", "leftNav");
                     page.writeStart("div", "class", "widget");
                         page.writeStart("h1", "class");
-                            page.writeHtml(page.localize(AdminContentTypes.class, "adminContentTypes.title"));
+                            page.writeHtml(page.localize(AdminContentTypes.class, "title"));
                         page.writeEnd();
 
                         page.writeStart("ul", "class", "links");

@@ -98,7 +98,7 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
                                                 "right", "70px",
                                                 "text-align", "center",
                                                 "width", "90px"));
-                                page.writeHtml(page.localize(WorkStreamsWidget.class, "continue"));
+                                page.writeHtml(page.localize(WorkStreamsWidget.class, "action.continue"));
                                 page.writeEnd();
 
                                 page.writeStart("a",
@@ -110,7 +110,7 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
                                                 "right", 0,
                                                 "text-align", "center",
                                                 "width", "65px"));
-                                    page.writeHtml(page.localize(WorkStreamsWidget.class, "stop"));
+                                    page.writeHtml(page.localize(WorkStreamsWidget.class, "action.stop"));
                                 page.writeEnd();
 
                             } else {
@@ -124,7 +124,7 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
                                                 "right", 0,
                                                 "text-align", "center",
                                                 "width", "70px"));
-                                    page.writeHtml(page.localize(WorkStreamsWidget.class, "start"));
+                                    page.writeHtml(page.localize(WorkStreamsWidget.class, "action.start"));
                                 page.writeEnd();
                             }
 

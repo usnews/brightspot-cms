@@ -86,7 +86,7 @@ public class BulkWorkflow extends PageServlet {
                     page.writeHtml(page.localize(
                             BulkWorkflow.class,
                             ImmutableMap.of("extra", page.getSelection() != null ? " Selected" : ""),
-                            "bulkWorkflow.action"));
+                            "action.bulkWorfklow"));
                 page.writeEnd();
             page.writeEnd();
 
@@ -188,7 +188,7 @@ public class BulkWorkflow extends PageServlet {
                         page.writeHtml(page.localize(
                                 BulkWorkflow.class,
                                 ImmutableMap.of("count", successCount),
-                                "bulkWorkflow.message.success"));
+                                "message.success"));
 
                         String returnUrl = page.param(String.class, "returnUrl");
 
@@ -248,8 +248,8 @@ public class BulkWorkflow extends PageServlet {
             page.writeHtml(page.localize(
                     BulkWorkflow.class,
                     page.getSelection() != null
-                            ? "bulkWorkflow.message.noTransitionsForSelection"
-                            : "bulkWorkflow.message.noTransitionsForSearch"));
+                            ? "message.noTransitionsForSelection"
+                            : "message.noTransitionsForSearch"));
             page.writeEnd();
         }
 
@@ -300,7 +300,7 @@ public class BulkWorkflow extends PageServlet {
 
         page.writeStart("div", "class", "widget");
         page.writeStart("h1");
-            page.writeHtml(page.localize(BulkWorkflow.class, "bulkWorkflow.title.confirm"));
+            page.writeHtml(page.localize(BulkWorkflow.class, "title.confirm"));
         page.writeEnd();
 
         ObjectType transitionSourceType = ObjectType.getInstance(page.param(UUID.class, Context.TYPE_ID_PARAMETER));
@@ -345,14 +345,14 @@ public class BulkWorkflow extends PageServlet {
 
         page.writeStart("tr");
         page.writeStart("td");
-            page.writeHtml(page.localize(BulkWorkflow.class, "bulkWorkflow.label.currentState"));
+            page.writeHtml(page.localize(BulkWorkflow.class, "label.currentState"));
         page.writeEnd();
         page.writeStart("td").writeHtml(workflowTransition.getSource().getDisplayName()).writeEnd();
         page.writeEnd(); // end row
 
         page.writeStart("tr");
         page.writeStart("td");
-        page.writeHtml(page.localize(BulkWorkflow.class, "bulkWorkflow.label.newState"));
+        page.writeHtml(page.localize(BulkWorkflow.class, "label.newState"));
         page.writeEnd();
         page.writeStart("td").writeHtml(workflowTransition.getTarget().getDisplayName()).writeEnd();
         page.writeEnd(); // end row
@@ -374,7 +374,7 @@ public class BulkWorkflow extends PageServlet {
             page.writeHtml(page.localize(
                     BulkWorkflow.class,
                     ImmutableMap.of("name", workflowTransition.getDisplayName()),
-                    "bulkWorkflow.action.confirm"));
+                    "action.confirm"));
         page.writeEnd();
         page.writeEnd();
 
@@ -478,7 +478,7 @@ public class BulkWorkflow extends PageServlet {
                         throw new IllegalArgumentException(this.localize(
                                 BulkWorkflow.class,
                                 ImmutableMap.of("id", selectionId),
-                                "bulkWorkflow.error.noSelectionExists"));
+                                "error.noSelectionExists"));
                     } catch(IOException exception) {
                         throw new IllegalArgumentException("No SearchResultSelection exists for id " + selectionId);
                     }
@@ -861,8 +861,7 @@ public class BulkWorkflow extends PageServlet {
                                     ImmutableMap.of(
                                             "transitionName", transition.getDisplayName(),
                                             "typeDisplayName", state.getType().getDisplayName()),
-                                    "bulkWorkflow.error.transitionPermission"
-                                    ));
+                                    "error.transitionPermission"));
                         }
 
                         WorkflowLog log = new WorkflowLog();

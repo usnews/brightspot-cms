@@ -95,14 +95,14 @@ public class BulkArchive extends PageServlet {
                                 ImmutableMap.of(
                                         "action", action.name().toLowerCase(),
                                         "count", availableCount),
-                                "bulkArchive.message.confirm"));
+                                "message.confirm"));
                     page.writeEnd();
 
                     page.writeStart("button", "class", actionIconClass);
                         page.writeHtml(page.localize(
                                 BulkArchive.class,
                                 ImmutableMap.of("name", action.name()),
-                                "bulkArchive.action.confirm"));
+                                "action.confirm"));
                     page.writeEnd();
                 page.writeEnd();
 
@@ -180,8 +180,8 @@ public class BulkArchive extends PageServlet {
                                     BulkArchive.class,
                                     ImmutableMap.of("count", successCount),
                                     Action.RESTORE.equals(action)
-                                            ? "bulkArchive.message.restored"
-                                            : "bulkArchive.message.archived"));
+                                            ? "message.restored"
+                                            : "message.archived"));
 
                             String returnUrl = page.param(String.class, "returnUrl");
 
@@ -206,9 +206,9 @@ public class BulkArchive extends PageServlet {
 
                             String resourceKey = null;
                             if (Action.RESTORE.equals(action)) {
-                                resourceKey = page.getSelection() != null ? "bulkArchive.action.restoreSelected" : "bulkArchive.action.restoreAll";
+                                resourceKey = page.getSelection() != null ? "action.restoreSelected" : "action.restoreAll";
                             } else if (Action.ARCHIVE.equals(action)) {
-                                resourceKey = page.getSelection() != null ? "bulkArchive.action.archiveSelected" : "bulkArchive.action.archiveAll";
+                                resourceKey = page.getSelection() != null ? "action.archiveSelected" : "action.archiveAll";
                             }
 
                             page.writeHtml(page.localize(BulkArchive.class, resourceKey));

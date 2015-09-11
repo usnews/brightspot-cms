@@ -34,14 +34,14 @@ public class ContentEditBulkSubmissionStatus extends PageServlet {
             page.writeStart("div", "class", "widget");
             {
                 page.writeStart("h1");
-                    page.writeHtml(page.localize(ContentEditBulkSubmissionStatus.class, "contentEditBulkSubmissionStatus.title"));
+                    page.writeHtml(page.localize(ContentEditBulkSubmissionStatus.class, "title"));
                 page.writeEnd();
 
                 Date finishDate = submission.getFinishDate();
 
                 if (finishDate == null) {
                     page.writeStart("div", "class", "message message-warning");
-                    page.writeHtml(page.localize(ContentEditBulkSubmissionStatus.class, "contentEditBulkSubmissionStatus.message.running"));
+                    page.writeHtml(page.localize(ContentEditBulkSubmissionStatus.class, "message.running"));
                     writeSubmission(page, submission);
                     page.writeEnd();
 
@@ -65,7 +65,7 @@ public class ContentEditBulkSubmissionStatus extends PageServlet {
                     }
 
                     page.writeStart("div", "class", "message message-success");
-                    page.writeHtml(page.localize(ContentEditBulkSubmissionStatus.class, "contentEditBulkSubmissionStatus.message.finished"));
+                    page.writeHtml(page.localize(ContentEditBulkSubmissionStatus.class, "message.finished"));
                     writeSubmission(page, submission);
                     page.writeEnd();
                 }
@@ -83,6 +83,6 @@ public class ContentEditBulkSubmissionStatus extends PageServlet {
                                 "successCount", submission.getSuccesses(),
                                 "failureCount", submission.getFailures(),
                                 "totalCount", submission.getCount()),
-                        "contentEditBulkSubmissionStatus.message.submissionStatus"));
+                        "message.submissionStatus"));
     }
 }
