@@ -22,14 +22,14 @@ public class WorkStreamSearchResultAction implements SearchResultAction {
         if (selection != null && selection.createItemsQuery().hasMoreThan(0)) {
 
                 page.writeStart("div", "class", "searchResult-action-simple");
-                page.writeStart("a",
-                        "class", "button",
-                        "href", page.cmsUrl(CreateWorkStream.PATH,
-                                "query", ObjectUtils.toJson(selection.createItemsQuery().getState().getSimpleValues()),
-                                "selectionId", selection.getId()),
-                        "target", "newWorkStream");
-                page.writeHtml("New Work Stream");
-                page.writeEnd();
+                    page.writeStart("a",
+                            "class", "button",
+                            "href", page.cmsUrl(CreateWorkStream.PATH,
+                                    "query", ObjectUtils.toJson(selection.createItemsQuery().getState().getSimpleValues()),
+                                    "selectionId", selection.getId()),
+                            "target", "newWorkStream");
+                        page.writeHtml(page.localize(WorkStreamSearchResultAction.class, "action.newWorkStream"));
+                    page.writeEnd();
                 page.writeEnd();
             return;
         }
@@ -50,7 +50,7 @@ public class WorkStreamSearchResultAction implements SearchResultAction {
                             "search", ObjectUtils.toJson(search.getState().getSimpleValues()),
                             "incompleteIfMatching", hasMissing),
                     "target", "newWorkStream");
-                page.writeHtml("New Work Stream");
+                page.writeHtml(page.localize(WorkStreamSearchResultAction.class, "action.newWorkStream"));
             page.writeEnd();
         page.writeEnd();
     }

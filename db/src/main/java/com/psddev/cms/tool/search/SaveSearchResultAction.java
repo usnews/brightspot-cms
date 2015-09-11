@@ -26,7 +26,7 @@ public class SaveSearchResultAction implements SearchResultAction {
                     "target", "toolUserSaveSearch",
                     "href", page.cmsUrl("/toolUserSaveSearch",
                             "search", page.url("", Search.NAME_PARAMETER, null)));
-                page.writeHtml("Save Search");
+                page.writeHtml(page.localize(SaveSearchResultAction.class, "action.saveSearch"));
             page.writeEnd();
         page.writeEnd();
     }

@@ -25,7 +25,7 @@ public class FullscreenSearchResultAction implements SearchResultAction {
                             .absolutePath(page.cmsUrl("/searchAdvancedFull"))
                             .currentParameters()
                             .parameter(Search.NAME_PARAMETER, null));
-                page.writeHtml(page.localize(null, "fullScreenSearchResultAction.fullScreen"));
+                page.writeHtml(page.localize(FullscreenSearchResultAction.class, "action.fullScreen"));
             page.writeEnd();
         page.writeEnd();
     }

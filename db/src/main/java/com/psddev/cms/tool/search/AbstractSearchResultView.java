@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.CmsTool;
@@ -91,9 +92,9 @@ public abstract class AbstractSearchResultView implements SearchResultView {
 
                 if (user != null
                         && user.getSearchResultFieldsByTypeId().get(type != null ? type.getId().toString() : "") != null) {
-                    page.writeHtml(page.localize(null, "abstractSearchResultView.customFields"));
+                    page.writeHtml(page.localize(AbstractSearchResultView.class, "link.customFields"));
                 } else {
-                    page.writeHtml(page.localize(null, "abstractSearchResultView.defaultFields"));
+                    page.writeHtml(page.localize(AbstractSearchResultView.class, "link.defaultFields"));
                 }
 
             page.writeEnd();
@@ -164,7 +165,10 @@ public abstract class AbstractSearchResultView implements SearchResultView {
                         page.writeStart("option",
                                 "value", value,
                                 "selected", value.equals(search.getSort()) ? "selected" : null);
-                            page.writeHtml(page.localize(null, "abstractSearchResultView.sortOption", label));
+                            page.writeHtml(page.localize(
+                                    AbstractSearchResultView.class,
+                                    ImmutableMap.of("label", label),
+                                    "option.sort"));
                         page.writeEnd();
                     }
                 page.writeEnd();
@@ -202,7 +206,7 @@ public abstract class AbstractSearchResultView implements SearchResultView {
                         page.writeStart("option",
                                 "selected", limit == resultLimit ? "selected" : null,
                                 "value", limit);
-                        page.writeHtml(page.localize(null, "show.count", limit));
+                        page.writeHtml(page.localize(ImmutableMap.of("count", limit), "option.showCount"));
                         page.writeEnd();
                     }
                 }
@@ -219,7 +223,7 @@ public abstract class AbstractSearchResultView implements SearchResultView {
                 if (result.hasPrevious()) {
                     page.writeStart("li", "class", "previous");
                         page.writeStart("a", "href", page.url("", Search.OFFSET_PARAMETER, result.getPreviousOffset()));
-                            page.writeHtml(page.localize(null, "prev.count", result.getLimit()));
+                            page.writeHtml(page.localize(ImmutableMap.of("count", result.getLimit()), "action.previous.count"));
                         page.writeEnd();
                     page.writeEnd();
                 }
@@ -236,7 +240,7 @@ public abstract class AbstractSearchResultView implements SearchResultView {
                 if (result.hasNext()) {
                     page.writeStart("li", "class", "next");
                         page.writeStart("a", "href", page.url("", Search.OFFSET_PARAMETER, result.getNextOffset()));
-                            page.writeHtml(page.localize(null, "next.count", result.getLimit()));
+                            page.writeHtml(page.localize(ImmutableMap.of("count", result.getLimit()), "action.next.count"));
                         page.writeEnd();
                     page.writeEnd();
                 }
@@ -247,7 +251,7 @@ public abstract class AbstractSearchResultView implements SearchResultView {
     protected void writeEmptyHtml() throws IOException {
         page.writeStart("div", "class", "message message-warning");
             page.writeStart("p");
-                page.writeHtml(page.localize(null, "abstractSearchResultView.noMatchingItemsMessage"));
+                page.writeHtml(page.localize(AbstractSearchResultView.class, "message.noMatching"));
             page.writeEnd();
         page.writeEnd();
     }

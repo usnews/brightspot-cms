@@ -86,9 +86,9 @@ public class BulkEditSearchResultAction implements SearchResultAction {
                             .parameter("typeId", typeId)
                             .parameter("selectionId", selectionId));
                 if (selection != null) {
-                    page.writeHtml(page.localize(null, "bulkEditSearchResultAction.editSelected"));
+                    page.writeHtml(page.localize(BulkEditSearchResultAction.class, "action.editSelected"));
                 } else {
-                    page.writeHtml(page.localize(null, "bulkEditSearchResultAction.editAll"));
+                    page.writeHtml(page.localize(BulkEditSearchResultAction.class, "action.editAll"));
                 }
             page.writeEnd();
         page.writeEnd();
