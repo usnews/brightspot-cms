@@ -123,7 +123,9 @@ body.hasToolBroadcast {
 
         <div class="inputContainer">
             <div class="inputLabel">
-                <label for="<%= wp.createId() %>"><%= wp.h(wp.localize(null, "passwordReset.newPassword")) %></label>
+                <label for="<%= wp.createId() %>">
+                    <%= wp.h(wp.localize("com.psddev.cms.tool.page.ResetPassword", "label.password")) %>
+                </label>
             </div>
             <div class="inputSmall">
                 <input class="autoFocus" id="<%= wp.getId() %>" name="password1" type="password">
@@ -132,7 +134,9 @@ body.hasToolBroadcast {
 
         <div class="inputContainer">
             <div class="inputLabel">
-                <label for="<%= wp.createId() %>"><%= wp.h(wp.localize(null, "passwordReset.confirmPassword")) %></label>
+                <label for="<%= wp.createId() %>">
+                    <%= wp.h(wp.localize("com.psddev.cms.tool.page.ResetPassword", "label.confirmPassword")) %>
+                </label>
             </div>
             <div class="inputSmall">
                 <input id="<%= wp.getId() %>" name="password2" type="password">
@@ -140,8 +144,8 @@ body.hasToolBroadcast {
         </div>
 
         <div class="buttons">
-            <button class="action"><%= wp.h(wp.localize(null, "passwordReset.reset")) %></button>
-            <a href="<%= wp.url("logIn.jsp") %>"><%= wp.h(wp.localize(null, "passwordReset.login")) %></a>
+            <button class="action"><%= wp.h(wp.localize("com.psddev.cms.tool.page.ResetPassword", "action.reset")) %></button>
+            <a href="<%= wp.url("logIn.jsp") %>"><%= wp.h(wp.localize("com.psddev.cms.tool.page.ResetPassword", "action.back")) %></a>
         </div>
     </form>
 

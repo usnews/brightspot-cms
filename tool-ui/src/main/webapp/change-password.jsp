@@ -41,14 +41,14 @@ if (user != null) {
 
         try {
             if (StringUtils.isBlank(currentPassword)) {
-                throw new PasswordException("Must supply your current password!");
+                throw new PasswordException(wp.localize("com.psddev.cms.tool.page.ChangePassword", "error.missingPassword"));
             }
             if (StringUtils.isBlank(newPassword1) || StringUtils.isBlank(newPassword2) || !newPassword1.equals(newPassword2)) {
-                throw new PasswordException("Passwords don't match!");
+                throw new PasswordException(wp.localize("com.psddev.cms.tool.page.ChangePassword", "error.passwordMatch"));
             }
             Password current = user.getPassword();
             if (!current.check(currentPassword)) {
-                throw new PasswordException("Invalid current password!");
+                throw new PasswordException(wp.localize("com.psddev.cms.tool.page.ChangePassword", "error.invalidPassword"));
             }
 
             UserPasswordPolicy userPasswordPolicy = UserPasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/userPasswordPolicy"));
@@ -132,7 +132,7 @@ body.hasToolBroadcast {
     %>
 
     <div class="message">
-        Your password has expired! Please change your password.
+        <%= wp.h(wp.localize("com.psddev.cms.tool.page.ChangePassword", "message.expired"))%>
     </div>
 
     <%
@@ -144,7 +144,9 @@ body.hasToolBroadcast {
     <form action="<%= wp.url("") %>" method="post">
         <div class="inputContainer">
             <div class="inputLabel">
-                <label for="<%= wp.createId() %>">Current Password</label>
+                <label for="<%= wp.createId() %>">
+                    <%= wp.h(wp.localize("com.psddev.cms.tool.page.ChangePassword", "label.password"))%>
+                </label>
             </div>
             <div class="inputSmall">
                 <input class="autoFocus" id="<%= wp.getId() %>" name="current_password" type="password">
@@ -153,7 +155,9 @@ body.hasToolBroadcast {
 
         <div class="inputContainer">
             <div class="inputLabel">
-                <label for="<%= wp.createId() %>">New Password</label>
+                <label for="<%= wp.createId() %>">
+                <%= wp.h(wp.localize("com.psddev.cms.tool.page.ChangePassword", "label.newPassword"))%>
+                </label>
             </div>
             <div class="inputSmall">
                 <input id="<%= wp.getId() %>" name="password1" type="password">
@@ -162,7 +166,9 @@ body.hasToolBroadcast {
 
         <div class="inputContainer">
             <div class="inputLabel">
-                <label for="<%= wp.createId() %>">Confirm Password</label>
+                <label for="<%= wp.createId() %>">
+                    <%= wp.h(wp.localize("com.psddev.cms.tool.page.ChangePassword", "label.confirmPassword"))%>
+                </label>
             </div>
             <div class="inputSmall">
                 <input id="<%= wp.getId() %>" name="password2" type="password">
@@ -170,7 +176,9 @@ body.hasToolBroadcast {
         </div>
 
         <div class="buttons">
-            <button class="action">Change</button>
+            <button class="action">
+                <%= wp.h(wp.localize("com.psddev.cms.tool.page.ChangePassword", "label.confirmPassword"))%>
+            </button>
         </div>
     </form>
 

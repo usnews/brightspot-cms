@@ -149,7 +149,7 @@ body.hasToolBroadcast {
     <%
     if (wp.param(boolean.class, "forced")) {
         wp.writeStart("div", "class", "message message-warning");
-            wp.writeHtml(wp.localize(null, "login.inactive"));
+            wp.writeHtml(wp.localize("com.psddev.cms.tool.page.LogIn", "message.inactive"));
         wp.writeEnd();
     }
 
@@ -160,7 +160,7 @@ body.hasToolBroadcast {
 
     <% if (!Query.from(ToolUser.class).hasMoreThan(0)) { %>
         <div class="message message-info">
-            <p><%= wp.h(wp.localize(null, "login.welcomeMessage")) %></p>
+            <p><%= wp.h(wp.localize("com.psddev.cms.tool.page.LogIn", "message.welcome")) %></p>
         </div>
     <% } %>
 
@@ -168,37 +168,43 @@ body.hasToolBroadcast {
         <% if (user == null) { %>
             <div class="inputContainer">
                 <div class="inputLabel">
-                    <label for="<%= wp.createId() %>"><%= wp.h(wp.localize(null, "login.username")) %></label>
+                    <label for="<%= wp.createId() %>"><%= wp.h(wp.localize("com.psddev.cms.tool.page.LogIn", "label.username")) %></label>
                 </div>
                 <div class="inputSmall">
-                    <input class="autoFocus" id="<%= wp.getId() %>" name="username" type="text" value="<%= wp.h(username) %>" placeholder="<%= wp.h(wp.localize(null, "login.usernamePlaceholder")) %>">
+                    <input class="autoFocus" id="<%= wp.getId() %>" name="username" type="text" value="<%= wp.h(username) %>" placeholder="<%= wp.h(wp.localize("com.psddev.cms.tool.page.LogIn", "placeholder.username")) %>">
                 </div>
             </div>
 
             <div class="inputContainer">
                 <div class="inputLabel">
-                    <label for="<%= wp.createId() %>"><%= wp.h(wp.localize(null, "login.password")) %></label>
+                    <label for="<%= wp.createId() %>">
+                        <%= wp.h(wp.localize("com.psddev.cms.tool.page.LogIn", "label.password")) %>
+                    </label>
                 </div>
                 <div class="inputSmall">
-                    <input id="<%= wp.getId() %>" name="password" type="password" placeholder="<%= wp.h(wp.localize(null, "login.password")) %>">
+                    <input id="<%= wp.getId() %>" name="password" type="password" placeholder="<%= wp.h(wp.localize("com.psddev.cms.tool.page.LogIn", "placeholder.password")) %>">
                 </div>
             </div>
 
         <% } else { %>
             <div class="inputContainer">
                 <div class="inputLabel">
-                    <label for="<%= wp.createId() %>"><%= wp.h(wp.localize(null, "login.code")) %></label>
+                    <label for="<%= wp.createId() %>">
+                        <%= wp.h(wp.localize("com.psddev.cms.tool.page.LogIn", "label.code")) %>
+                    </label>
                 </div>
                 <div class="inputSmall">
-                    <input class="autoFocus" id="<%= wp.getId() %>" name="totpCode" type="text" placeholder="<%= wp.h(wp.localize(null, "login.codePlaceholder")) %>">
+                    <input class="autoFocus" id="<%= wp.getId() %>" name="totpCode" type="text" placeholder="<%= wp.h(wp.localize("com.psddev.cms.tool.page.LogIn", "placeholder.code")) %>">
                 </div>
             </div>
         <% } %>
 
         <div class="buttons">
-            <button class="action action-logIn"><%= wp.h(wp.localize(null, "login.loginButton")) %></button>
+            <button class="action action-logIn"><%= wp.h(wp.localize("com.psddev.cms.tool.page.LogIn", "action.login")) %></button>
             <% if (!StringUtils.isBlank(Settings.get(String.class, "cms/tool/forgotPasswordEmailSender")) && user == null) {%>
-            <a href="<%= wp.url("forgot-password.jsp", AuthenticationFilter.RETURN_PATH_PARAMETER, returnPath) %>"><%= wp.h(wp.localize(null, "login.forgotPassword")) %></a>
+            <a href="<%= wp.url("forgot-password.jsp", AuthenticationFilter.RETURN_PATH_PARAMETER, returnPath) %>">
+                <%= wp.h(wp.localize("com.psddev.cms.tool.page.LogIn", "action.forgotPassword")) %>
+            </a>
             <% } %>
         </div>
     </form>

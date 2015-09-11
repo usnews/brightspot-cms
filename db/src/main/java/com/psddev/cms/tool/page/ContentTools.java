@@ -301,7 +301,7 @@ public class ContentTools extends PageServlet {
                         }
 
                         page.writeStart("h2");
-                            page.writeHtml(page.localize(ContentTools.class, "settings"));
+                            page.writeHtml(page.localize(ContentTools.class, "subtitle.settings"));
                         page.writeEnd();
 
                         if (page.isFormPost()
