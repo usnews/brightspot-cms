@@ -202,7 +202,7 @@ public class ImageFileType implements FileContentType {
                             if (usingJavaImageEditor) {
                                 page.writeStart("tr");
                                     page.writeStart("th");
-                                        page.writeHtml(page.localize(ImageFileType.class, "heading.blur"));
+                                        page.writeHtml(page.localize(ImageFileType.class, "label.blur"));
                                     page.writeEnd();
 
                                     page.writeStart("td");
