@@ -17,7 +17,7 @@ import java.util.ListResourceBundle;
 import java.util.Map;
 import java.util.Set;
 
-class ObjectTypeResourceBundle extends ListResourceBundle {
+final class ObjectTypeResourceBundle extends ListResourceBundle {
 
     private static final LoadingCache<ObjectType, ObjectTypeResourceBundle> BUNDLES = CacheBuilder
             .newBuilder()
