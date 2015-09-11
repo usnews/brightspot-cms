@@ -45,7 +45,7 @@ java.util.Set,
 java.util.UUID,
 
 org.joda.time.DateTime
-" %><%
+, com.google.common.collect.ImmutableMap" %><%
 
 // --- Logic ---
 
@@ -276,7 +276,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                         }
 
                         wp.write(": " );
-                        wp.write(wp.getObjectLabelOrDefault(editing, "<em>Untitled</em>"));
+                        wp.write(wp.getObjectLabelOrDefault(editing, "<em>" + wp.localize(null, "label.untitled") + "</em>"));
                     wp.writeEnd();
 
                     if (selected instanceof Page &&
@@ -300,7 +300,9 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                 %></h1>
 
                 <div class="widgetControls">
-                    <a class="icon icon-action-edit widgetControlsEditInFull" target="_blank" href="<%= wp.url("") %>">Edit In Full</a>
+                    <a class="icon icon-action-edit widgetControlsEditInFull" target="_blank" href="<%= wp.url("") %>">
+                        <%= wp.h(wp.localize("com.psddev.cms.tool.page.content.Edit", "action.editFull"))%>
+                    </a>
                     <% if (wp.getCmsTool().isEnableAbTesting()) { %>
                         <a class="icon icon-beaker" href="<%= wp.url("", "ab", !wp.param(boolean.class, "ab")) %>">A/B</a>
                     <% } %>
@@ -315,18 +317,31 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                 <% if (!State.getInstance(editing).isNew() &&
                         !(editing instanceof com.psddev.dari.db.Singleton)) { %>
                     <div class="widget-contentCreate">
-                        <div class="action action-create">New</div>
+                        <div class="action action-create">
+                            <%= wp.h(wp.localize("com.psddev.cms.tool.page.content.Edit", "action.new"))%>
+                        </div>
                         <ul>
-                            <li><a class="action action-create" href="<%= wp.url("/content/edit.jsp",
+                            <li>
+                                <a class="action action-create" href="<%= wp.url("/content/edit.jsp",
                                     "typeId", State.getInstance(editing).getTypeId(),
-                                    "templateId", template != null ? template.getId() : null)
-                                    %>">New <%= wp.typeLabel(editing) %></a></li>
-                            <li><a class="action action-copy" href="<%= wp.url("/content/edit.jsp",
+                                    "templateId", template != null ? template.getId() : null)%>">
+                                    <%= wp.h(wp.localize(
+                                            ImmutableMap.of("displayName", wp.typeLabel(editing)),
+                                            "action.new.type"))%>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="action action-copy" href="<%= wp.url("/content/edit.jsp",
                                     "typeId", State.getInstance(editing).getTypeId(),
                                     "templateId", template != null ? template.getId() : null,
                                     "copyId", State.getInstance(editing).getId())
-                                    %>" target="_top">Copy This <%= wp.typeLabel(editing) %></a></li>
-
+                                    %>" target="_top">
+                                    <%= wp.h(wp.localize(
+                                            "com.psddev.cms.tool.page.content.Edit",
+                                            ImmutableMap.of("displayName", wp.typeLabel(editing)),
+                                            "action.copy"))%>
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 <% } %>
@@ -348,7 +363,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                     wp.writeStart("div", "class", "message message-info");
                         wp.writeStart("a",
                                 "href", wp.url("", "compare", null));
-                            wp.writeHtml("Stop Comparison");
+                            wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Edit", "action.stopCompare"));
                         wp.writeEnd();
                     wp.writeEnd();
 
@@ -364,7 +379,9 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                             wp.disableFormFields();
 
                             wp.writeStart("div", "class", "contentDiffCurrent contentDiffRight");
-                                wp.writeStart("h2").writeHtml("Current").writeEnd();
+                                wp.writeStart("h2");
+                                    wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Edit", "subtitle.current"));
+                                wp.writeEnd();
                                 wp.writeSomeFormFields(editing, true, null, null);
                             wp.writeEnd();
 
@@ -396,7 +413,9 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
 
                                 wp.writeStart("div", "class", "contentDiffCurrent " + (history != null ? "contentDiffRight" : "contentDiffLeft"));
                                     wp.writeStart("h2");
-                                        wp.writeHtml(!visible ? "Initial Draft" : "Live");
+                                        wp.writeHtml(wp.localize(
+                                                "com.psddev.cms.tool.page.content.Edit",
+                                                !visible ? "subtitle.initialDraft" : "subtitle.live"));
                                     wp.writeEnd();
                                     wp.writeSomeFormFields(original.getOriginalObject(), true, null, null);
                                 wp.writeEnd();
@@ -438,7 +457,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                         wp.writeStart("a",
                                 "class", "icon icon-only icon-" + (optInLock ? "lock" : "unlock"),
                                 "href", wp.url("", "lock", !optInLock));
-                            wp.writeHtml("Lock");
+                            wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Edit", "action.lock"));
                         wp.writeEnd();
                     }
 
@@ -446,7 +465,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                             "class", "widget-publishing-tools",
                             "href", wp.objectUrl("/contentTools", editing, "returnUrl", wp.url("")),
                             "target", "contentTools");
-                        wp.writeHtml("Tools");
+                        wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Edit", "action.tools"));
                     wp.writeEnd();
                 wp.writeEnd();
 
@@ -611,14 +630,14 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                         "class", "link icon icon-action-save",
                                         "name", "action-draft",
                                         "value", "true");
-                                    wp.writeHtml("Save");
+                                    wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Edit", "action.save"));
                                 wp.writeEnd();
 
                                 wp.writeStart("button",
                                         "class", "link icon icon-action-delete",
                                         "name", "action-delete",
                                         "value", "true");
-                                    wp.writeHtml("Delete");
+                                    wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Edit", "action.delete"));
                                 wp.writeEnd();
                             wp.writeEnd();
                         wp.writeEnd();
@@ -681,7 +700,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                     wp.writeStart("a",
                                             "class", "icon icon-unlock",
                                             "href", wp.url("", "editAnyway", true));
-                                        wp.writeHtml("Ignore Lock");
+                                        wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Edit", "action.ignoreLock"));
                                     wp.writeEnd();
                                 wp.writeEnd();
                             }
@@ -797,7 +816,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                                                 "class", "link icon icon-action-save",
                                                                 "name", "action-draft",
                                                                 "value", "true");
-                                                            wp.writeHtml("Save");
+                                                            wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Edit", "action.save"));
                                                         wp.writeEnd();
                                                     wp.writeEnd();
                                                 }
@@ -831,7 +850,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                                 wp.writeStart("button",
                                                         "name", "action-merge",
                                                         "value", "true");
-                                                    wp.writeHtml("Merge with Initial Draft");
+                                                    wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Edit", "action.merge"));
                                                 wp.writeEnd();
                                             }
 
@@ -867,13 +886,13 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                                 wp.writeStart("option",
                                                         "selected", newSchedule ? null : "selected",
                                                         "value", "");
-                                                    wp.writeHtml("Update Existing Schedule");
+                                                    wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Edit", "option.updateExistingSchedule"));
                                                 wp.writeEnd();
 
                                                 wp.writeStart("option",
                                                         "selected", newSchedule ? "selected" : null,
                                                         "value", "true");
-                                                    wp.writeHtml("Create New Schedule");
+                                                    wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Edit", "option.createNewSchedule"));
                                                 wp.writeEnd();
                                             wp.writeEnd();
                                         wp.writeEnd();
@@ -928,7 +947,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                             "class", "link icon icon-action-trash",
                                             "name", "action-trash",
                                             "value", "true");
-                                        wp.writeHtml("Archive");
+                                        wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Edit", "action.archive"));
                                     wp.writeEnd();
                                 }
                             wp.writeEnd();
@@ -945,11 +964,10 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                     "value", "true");
 
                                 if (editingState.isNew()) {
-                                    wp.writeHtml("Save Draft");
+                                    wp.writeHtml(wp.localize(Draft.class, "action.save.type"));
 
                                 } else {
-                                    wp.writeHtml("New ");
-                                    wp.writeObjectLabel(ObjectType.getInstance(Draft.class));
+                                    wp.writeHtml(wp.localize(Draft.class, "action.new.type"));
                                 }
 
                             wp.writeEnd();
@@ -967,7 +985,9 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
 <% if (wp.isPreviewable(selected)) { %>
     <div class="contentPreview">
         <div class="widget widget-preview">
-            <h1>Preview</h1>
+            <h1>
+                <%= wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Edit", "preview.title"))%>
+            </h1>
 
             <%
             String previewFormId = wp.createId();
@@ -984,7 +1004,9 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                     <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
                     <input type="hidden" name="scheduleId" value="<%= user.getCurrentSchedule() != null ? user.getCurrentSchedule().getId() : "" %>">
                     <input name="previewDate" type="hidden">
-                    <button class="action-share">Share</button>
+                    <button class="action-share">
+                        <%= wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Edit", "action.share"))%>
+                    </button>
                 </form>
 
                 <%
