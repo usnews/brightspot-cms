@@ -317,6 +317,17 @@ public class ToolPageContext extends WebPageContext {
         }
 
         if (localized == null) {
+            Locale usLocale = Locale.US;
+            String usLanguage = usLocale.getLanguage();
+
+            if (!usLanguage.equals(defaultLocale.getLanguage())
+                    && !usLanguage.equals(userLocale.getLanguage())) {
+
+                localized = createLocalizedString(usLocale, userLocale, baseName, key, state, contextOverrides);
+            }
+        }
+
+        if (localized == null) {
             throw new MissingResourceException(
                     String.format("Can't find [%s] key in [%s] resource bundle!", key, baseName),
                     baseName,
@@ -386,15 +397,12 @@ public class ToolPageContext extends WebPageContext {
 
         if (Locale.getDefault().equals(source)) {
             ObjectType type = ObjectType.getInstance(baseName);
+            ObjectTypeResourceBundle bundle = ObjectTypeResourceBundle.getInstance(type);
 
-            if (type != null) {
-                ObjectTypeResourceBundle typeBundle = ObjectTypeResourceBundle.getInstance(type);
+            argumentsSources.add(bundle.getMap());
 
-                argumentsSources.add(typeBundle.getMap());
-
-                if (pattern == null) {
-                    pattern = findBundleString(typeBundle, key);
-                }
+            if (pattern == null) {
+                pattern = findBundleString(bundle, key);
             }
         }
 
