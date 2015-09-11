@@ -13,7 +13,7 @@
     com.psddev.dari.db.State,
     java.util.ArrayList,
     java.util.List
-    "%>
+    , com.google.common.collect.ImmutableMap"%>
 <%
 
 // --- Logic ---
@@ -52,13 +52,19 @@ wp.include("/WEB-INF/header.jsp"); %>
     <div class="leftNav">
         <div class="widget">
 
-            <h1 class="icon icon-object-guide">Production Guides</h1>
+            <h1 class="icon icon-object-guide">
+                <%= wp.h(wp.localize("com.psddev.cms.tool.page.admin.Guides", "title"))%>
+            </h1>
 
-            <h2>Overall Guides</h2>
+            <h2>
+                <%= wp.h(wp.localize("com.psddev.cms.tool.page.admin.Guides", "subtitle.overall"))%>
+            </h2>
             <ul class="links">
                 <li
                     class="new<%= selectedClass == Guide.class && selectedState.isNew() ? " selected" : "" %>">
-                    <a href="<%= wp.typeUrl(null, Guide.class) %>">New Guide</a>
+                    <a href="<%= wp.typeUrl(null, Guide.class) %>">
+                        <%= wp.h(wp.localize(Guide.class, "action.new.type"))%>
+                    </a>
                 </li>
                 <% for (Guide guide : guides) {
                      String label = wp.objectLabel(guide);
@@ -72,11 +78,15 @@ wp.include("/WEB-INF/header.jsp"); %>
                 <% } %>
             </ul>
 
-            <h2>Template/Page Guides</h2>
+            <h2>
+                <%= wp.h(wp.localize("com.psddev.cms.tool.page.admin.Guides", "subtitle.templateAndPage"))%>
+            </h2>
             <ul class="links">
                 <li
                     class="new<%= selectedClass == GuidePage.class && selectedState.isNew() ? " selected" : "" %>">
-                    <a href="<%= wp.typeUrl(null, GuidePage.class) %>">New Guide</a>
+                    <a href="<%= wp.typeUrl(null, GuidePage.class) %>">
+                        <%= wp.h(wp.localize(Guide.class, "action.new.type"))%>
+                    </a>
                 </li>
                 <% for (GuidePage guide : pageGuides) {
                     String templateLabel = wp.objectLabel(guide);
@@ -90,11 +100,15 @@ wp.include("/WEB-INF/header.jsp"); %>
                 <% } %>
             </ul>
 
-            <h2>Content Type Guides</h2>
+            <h2>
+                <%= wp.h(wp.localize("com.psddev.cms.tool.page.admin.Guides", "subtitle.contentType"))%>
+            </h2>
             <ul class="links">
                 <li
                     class="new<%= selectedClass == GuideType.class && selectedState.isNew() ? " selected" : "" %>">
-                    <a href="<%= wp.typeUrl(null, GuideType.class) %>">New Guide</a>
+                    <a href="<%= wp.typeUrl(null, GuideType.class) %>">
+                    <%= wp.h(wp.localize(Guide.class, "action.new.type"))%>
+                    </a>
                 </li>
                 <% for (GuideType guide : typeGuides) { %>
                 <li <%= guide.equals(selected) ? " class=\"selected\"" : "" %>>
@@ -103,7 +117,12 @@ wp.include("/WEB-INF/header.jsp"); %>
                 <% } %>
             </ul>
 
-            <div class="guideFootnote"><%=incompleteIndicator%> indicates minimum information is missing from Guide </div>
+            <div class="guideFootnote">
+                <%= wp.h(wp.localize(
+                        "com.psddev.cms.tool.page.admin.Guides",
+                        ImmutableMap.of("indicator", (Object) incompleteIndicator),
+                        "message.footnote"))%>
+            </div>
 
         </div>
     </div>

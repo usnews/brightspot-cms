@@ -47,7 +47,9 @@ for (Iterator<Site> i = sites.iterator(); i.hasNext(); ) {
 
 <% } else { %>
     <div class="message message-warning">
-        <p>No matching items!</p>
+        <p>
+            <%= wp.h(wp.localize("com.psddev.cms.tool.page.admin.SitesResult", "message.noMatches"))%>
+        </p>
     </div>
 <% } %>
 

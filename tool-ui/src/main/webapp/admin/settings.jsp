@@ -48,9 +48,13 @@ List<StandardImageSize> standardImageSizes = Query.from(StandardImageSize.class)
     <div class="leftNav">
 
         <div class="widget">
-            <h1 class="icon icon-cogs">Settings</h1>
+            <h1 class="icon icon-cogs">
+                <%= wp.h(wp.localize("com.psddev.cms.tool.page.admin.Settings", "title"))%>
+            </h1>
 
-            <h2>Applications</h2>
+            <h2>
+                <%= wp.h(wp.localize("com.psddev.cms.tool.page.admin.Settings", "subtitle.applications"))%>
+            </h2>
             <ul class="links">
                 <% for (Object app : Query
                         .from(Application.class)
@@ -62,10 +66,14 @@ List<StandardImageSize> standardImageSizes = Query.from(StandardImageSize.class)
                 <% } %>
             </ul>
 
-            <h2>Standard Image Sizes</h2>
+            <h2>
+                <%= wp.h(wp.localize("com.psddev.cms.tool.page.admin.Settings", "subtitle.imageSizes"))%>
+            </h2>
             <ul class="links">
                 <li class="new<%= selected instanceof StandardImageSize && selectedState.isNew() ? " selected" : "" %>">
-                    <a href="<%= wp.typeUrl(null, StandardImageSize.class) %>">New Standard Image Size</a>
+                    <a href="<%= wp.typeUrl(null, StandardImageSize.class) %>">
+                        <%= wp.h(wp.localize(StandardImageSize.class, "action.new.type"))%>
+                    </a>
                 </li>
                 <% for (StandardImageSize size : standardImageSizes) { %>
                     <li<%= size.equals(selected) ? " class=\"selected\"" : "" %>>
@@ -74,10 +82,14 @@ List<StandardImageSize> standardImageSizes = Query.from(StandardImageSize.class)
                 <% } %>
             </ul>
 
-            <h2>Referential Text Markers</h2>
+            <h2>
+                <%= wp.h(wp.localize("com.psddev.cms.tool.page.admin.Settings", "subtitle.refTextMarkers"))%>
+            </h2>
             <ul class="links">
                 <li class="new<%= selected instanceof ReferentialTextMarker && selectedState.isNew() ? " selected" : "" %>">
-                    <a href="<%= wp.typeUrl(null, ReferentialTextMarker.class) %>">New Referential Text Marker</a>
+                    <a href="<%= wp.typeUrl(null, ReferentialTextMarker.class) %>">
+                        <%= wp.h(wp.localize(ReferentialTextMarker.class, "action.new.type"))%>
+                    </a>
                 </li>
                 <% for (ReferentialTextMarker marker : Query.
                         from(ReferentialTextMarker.class).
@@ -89,10 +101,14 @@ List<StandardImageSize> standardImageSizes = Query.from(StandardImageSize.class)
                 <% } %>
             </ul>
 
-            <h2>Web Resource Overrides</h2>
+            <h2>
+                <%= wp.h(wp.localize("com.psddev.cms.tool.page.admin.Settings", "subtitle.webResourceOverrides"))%>
+            </h2>
             <ul class="links">
                 <li class="new<%= selected instanceof WebResourceOverride && selectedState.isNew() ? " selected" : "" %>">
-                    <a href="<%= wp.typeUrl(null, WebResourceOverride.class) %>">New Web Resource Override</a>
+                    <a href="<%= wp.typeUrl(null, WebResourceOverride.class) %>">
+                        <%= wp.h(wp.localize(WebResourceOverride.class, "action.new.type"))%>
+                    </a>
                 </li>
                 <% for (WebResourceOverride override : Query.
                         from(WebResourceOverride.class).

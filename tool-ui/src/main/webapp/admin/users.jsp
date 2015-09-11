@@ -37,11 +37,15 @@ if (wp.tryStandardUpdate(selected)) {
     <div class="leftNav">
 
         <div class="widget">
-            <h1 class="icon icon-object-toolUser">Users</h1>
+            <h1 class="icon icon-object-toolUser">
+                <%= wp.h(wp.localize("com.psddev.cms.tool.page.admin.Users", "title.users"))%>
+            </h1>
 
             <ul class="links">
                 <li class="new<%= selected.getClass() == ToolUser.class && selectedState.isNew() ? " selected" : "" %>">
-                    <a href="<%= wp.typeUrl(null, ToolUser.class) %>">New User</a>
+                    <a href="<%= wp.typeUrl(null, ToolUser.class) %>">
+                        <%= wp.h(wp.localize(ToolUser.class, "action.new.type"))%>
+                    </a>
                 </li>
             </ul>
 
@@ -49,7 +53,9 @@ if (wp.tryStandardUpdate(selected)) {
                 <input name="id" type="hidden" value="<%= selectedState.getId() %>">
                 <input name="offset" type="hidden" value="<%= wp.longParam("offset", 0L) %>">
                 <div class="searchInput">
-                    <label for="<%= wp.createId() %>">Search</label>
+                    <label for="<%= wp.createId() %>">
+                        <%= wp.h(wp.localize("com.psddev.cms.tool.page.admin.Users", "label.search"))%>
+                    </label>
                     <input id="<%= wp.getId() %>" class="autoFocus" name="query" type="text" value="<%= wp.h(queryString) %>">
                     <input type="submit" value="Go">
                 </div>
@@ -60,10 +66,14 @@ if (wp.tryStandardUpdate(selected)) {
         </div>
 
         <div class="widget">
-            <h1 class="icon icon-object-toolRole">Roles</h1>
+            <h1 class="icon icon-object-toolRole">
+                <%= wp.h(wp.localize("com.psddev.cms.tool.page.admin.Users", "title.roles"))%>
+            </h1>
             <ul class="links">
                 <li class="new<%= selected.getClass() == ToolRole.class && selectedState.isNew() ? " selected" : "" %>">
-                    <a href="<%= wp.typeUrl(null, ToolRole.class) %>">New Role</a>
+                    <a href="<%= wp.typeUrl(null, ToolRole.class) %>">
+                        <%= wp.h(wp.localize(ToolRole.class, "action.new.type"))%>
+                    </a>
                 </li>
                 <% for (ToolRole role : Query
                         .from(ToolRole.class)

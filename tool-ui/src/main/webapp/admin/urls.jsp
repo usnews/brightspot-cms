@@ -9,7 +9,7 @@ com.psddev.dari.db.State,
 com.psddev.dari.util.PaginatedResult,
 
 java.util.UUID
-" %><%
+, com.google.common.collect.ImmutableMap" %><%
 
 // --- Logic ---
 
@@ -55,7 +55,9 @@ PaginatedResult<Object> items = Query
             <h1 class="icon icon-object-directory">URLs</h1>
             <ul class="links">
                 <li class="new<%= State.getInstance(selected).isNew() ? " selected" : "" %>">
-                    <a href="<%= wp.url(null) %>">New Directory</a>
+                    <a href="<%= wp.url(null) %>">
+                        <%= wp.h(wp.localize(Directory.class, "action.new.type"))%>
+                    </a>
                 </li>
                 <% for (Directory directory : Query
                         .from(Directory.class)
@@ -84,14 +86,24 @@ PaginatedResult<Object> items = Query
 
                 <ul class="pagination">
                     <% if (items.hasPrevious()) { %>
-                        <li class="previous"><a href="<%= wp.url("",
-                                "offset", items.getPreviousOffset())
-                                %>">Previous <%= items.getLimit() %></a></li>
+                        <li class="previous">
+                            <a href="<%= wp.url("",
+                                "offset", items.getPreviousOffset())%>">
+                                <%= wp.h(wp.localize(
+                                        ImmutableMap.of("count", (Object) items.getLimit()),
+                                        "pagination.previous.count"))%>
+                            </a>
+                        </li>
                     <% } %>
                     <% if (items.hasNext()) { %>
-                        <li class="next"><a href="<%= wp.url("",
-                                "offset", items.getNextOffset())
-                                %>">Next <%= items.getLimit() %></a></li>
+                        <li class="next">
+                            <a href="<%= wp.url("",
+                                "offset", items.getNextOffset())%>">
+                                <%= wp.h(wp.localize(
+                                        ImmutableMap.of("count", (Object) items.getLimit()),
+                                        "pagination.next.count"))%>
+                            </a>
+                        </li>
                     <% } %>
                 </ul>
 
