@@ -386,15 +386,12 @@ public class ToolPageContext extends WebPageContext {
 
         if (Locale.getDefault().equals(source)) {
             ObjectType type = ObjectType.getInstance(baseName);
+            ObjectTypeResourceBundle bundle = ObjectTypeResourceBundle.getInstance(type);
 
-            if (type != null) {
-                ObjectTypeResourceBundle typeBundle = ObjectTypeResourceBundle.getInstance(type);
+            argumentsSources.add(bundle.getMap());
 
-                argumentsSources.add(typeBundle.getMap());
-
-                if (pattern == null) {
-                    pattern = findBundleString(typeBundle, key);
-                }
+            if (pattern == null) {
+                pattern = findBundleString(bundle, key);
             }
         }
 
