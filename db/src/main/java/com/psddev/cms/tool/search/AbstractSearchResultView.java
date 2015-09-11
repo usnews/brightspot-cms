@@ -223,7 +223,7 @@ public abstract class AbstractSearchResultView implements SearchResultView {
                 if (result.hasPrevious()) {
                     page.writeStart("li", "class", "previous");
                         page.writeStart("a", "href", page.url("", Search.OFFSET_PARAMETER, result.getPreviousOffset()));
-                            page.writeHtml(page.localize(ImmutableMap.of("count", result.getLimit()), "action.previous.count"));
+                            page.writeHtml(page.localize(ImmutableMap.of("count", result.getLimit()), "pagination.previous.count"));
                         page.writeEnd();
                     page.writeEnd();
                 }
@@ -240,7 +240,7 @@ public abstract class AbstractSearchResultView implements SearchResultView {
                 if (result.hasNext()) {
                     page.writeStart("li", "class", "next");
                         page.writeStart("a", "href", page.url("", Search.OFFSET_PARAMETER, result.getNextOffset()));
-                            page.writeHtml(page.localize(ImmutableMap.of("count", result.getLimit()), "action.next.count"));
+                            page.writeHtml(page.localize(ImmutableMap.of("count", result.getLimit()), "pagination.next.count"));
                         page.writeEnd();
                     page.writeEnd();
                 }

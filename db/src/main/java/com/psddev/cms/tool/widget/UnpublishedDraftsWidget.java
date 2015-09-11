@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Draft;
@@ -120,7 +121,7 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
 
         page.writeStart("div", "class", "widget widget-unpublishedDrafts");
             page.writeStart("h1", "class", "icon icon-object-draft");
-                page.writeHtml(page.localize(null, "unpublishedDrafts.title"));
+                page.writeHtml(page.localize(UnpublishedDraftsWidget.class, "title"));
             page.writeEnd();
 
             page.writeStart("div", "class", "widget-filters");
@@ -137,7 +138,9 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                                 "data-bsp-autosubmit", "",
                                 "name", "state");
                             page.writeStart("option", "value", "");
-                                page.writeHtml(page.localize(null, "unpublishedDrafts.anyStatuses"));
+                                page.writeHtml(page.localize(
+                                        UnpublishedDraftsWidget.class,
+                                        "option.anyStatuses"));
                             page.writeEnd();
 
                             for (Map.Entry<String, String> entry : workflowStateLabels.entrySet()) {
@@ -158,7 +161,7 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                                     .filter(page.createTypeDisplayPredicate(ImmutableSet.of("read")))
                                     .collect(Collectors.toList()),
                             type,
-                            page.localize(null, "anyTypes"),
+                            page.localize(UnpublishedDraftsWidget.class, "label.anyTypes"),
                             "name", "typeId",
                             "data-bsp-autosubmit", "",
                             "data-searchable", true);
@@ -171,7 +174,7 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                                 page.writeStart("option",
                                         "selected", t.equals(userType) ? "selected" : null,
                                         "value", t.name());
-                                    page.writeHtml(page.localize(null, t.getResourceKey()));
+                                    page.writeHtml(page.localize(UnpublishedDraftsWidget.class, t.getResourceKey()));
                                 page.writeEnd();
                             }
                         }
@@ -230,9 +233,12 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
 
                 page.writeStart("div", "class", "message message-info");
                     page.writeHtml(page.localize(
-                            null,
-                            "unpublishedDrafts.noDraftsMessage",
-                            label != null ? label.toLowerCase(Locale.ENGLISH) : page.localize(null, "unpublishedDrafts.matching")));
+                            UnpublishedDraftsWidget.class,
+                            ImmutableMap.of(
+                                    "label", label != null
+                                            ? label.toLowerCase(Locale.ENGLISH)
+                                            : page.localize(null, "label.matching")),
+                            "message.noDrafts"));
                 page.writeEnd();
 
             } else {
@@ -240,13 +246,16 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                     if (drafts.hasPrevious()) {
                         page.writeStart("li", "class", "first");
                             page.writeStart("a", "href", page.url("", "offset", drafts.getFirstOffset()));
-                                page.writeHtml(page.localize(null, "newest"));
+                                page.writeHtml(page.localize(UnpublishedDraftsWidget.class, "pagination.newest"));
                             page.writeEnd();
                         page.writeEnd();
 
                         page.writeStart("li", "class", "previous");
                             page.writeStart("a", "href", page.url("", "offset", drafts.getPreviousOffset()));
-                                page.writeHtml(page.localize(null, "newer.count", drafts.getLimit()));
+                                page.writeHtml(page.localize(
+                                        UnpublishedDraftsWidget.class,
+                                        ImmutableMap.of("count", drafts.getLimit()),
+                                        "pagination.newer.count"));
                             page.writeEnd();
                         page.writeEnd();
                     }
@@ -261,7 +270,10 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                                     page.writeStart("option",
                                             "value", l,
                                             "selected", limit == l ? "selected" : null);
-                                        page.writeHtml(page.localize(null, "show.count", l));
+                                        page.writeHtml(page.localize(
+                                                UnpublishedDraftsWidget.class,
+                                                ImmutableMap.of("count", l),
+                                                "option.showCount"));
                                     page.writeEnd();
                                 }
                             page.writeEnd();
@@ -271,7 +283,10 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                     if (drafts.hasNext()) {
                         page.writeStart("li", "class", "next");
                             page.writeStart("a", "href", page.url("", "offset", drafts.getNextOffset()));
-                                page.writeHtml(page.localize(null, "older.count", drafts.getLimit()));
+                                page.writeHtml(page.localize(
+                                        UnpublishedDraftsWidget.class,
+                                        ImmutableMap.of("count", drafts.getLimit()),
+                                        "pagination.older.count"));
                             page.writeEnd();
                         page.writeEnd();
                     }
@@ -308,8 +323,9 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                                                 "href", page.url("/content/edit.jsp",
                                                         "id", itemState.getId(),
                                                         "draftId", draftId));
+                                            // TODO: LOCALIZE
                                             page.writeStart("span", "class", "visibilityLabel");
-                                                page.writeHtml(page.localize(null, "unpublishedDrafts.contentUpdate"));
+                                                page.writeHtml("Content Update");
                                             page.writeEnd();
 
                                             page.writeHtml(" ");
@@ -352,10 +368,10 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
 
     private enum UserType {
 
-        ANYONE("anyone"),
-        ME("me"),
-        ROLE("role"),
-        USER("user");
+        ANYONE("label.anyone"),
+        ME("label.me"),
+        ROLE("label.role"),
+        USER("label.user");
 
         private String resourceKey;
 

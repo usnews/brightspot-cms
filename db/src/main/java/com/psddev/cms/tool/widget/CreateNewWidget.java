@@ -175,7 +175,7 @@ public class CreateNewWidget extends DefaultDashboardWidget {
 
         page.writeStart("div", "class", "widget p-commonContent", "id", widgetId);
             page.writeStart("h1", "class", "icon icon-file");
-                page.writeHtml(page.localize(null, "createNew.title"));
+                page.writeHtml(page.localize(CreateNewWidget.class, "title"));
             page.writeEnd();
 
             if (page.param(boolean.class, "customize")) {
@@ -188,7 +188,7 @@ public class CreateNewWidget extends DefaultDashboardWidget {
                             page.writeStart("tr");
                                 page.writeStart("th").writeEnd();
                                 page.writeStart("th", "class", "p-commonContent-favorite");
-                                    page.writeHtml(page.localize(null, "createNew.favorite"));
+                                    page.writeHtml(page.localize(CreateNewWidget.class, "label.favorite"));
                                 page.writeEnd();
                             page.writeEnd();
                         page.writeEnd();
@@ -231,7 +231,7 @@ public class CreateNewWidget extends DefaultDashboardWidget {
                     page.writeStart("a",
                             "class", "action action-customize",
                             "href", page.url("", "customize", "true"));
-                        page.writeHtml(page.localize(null, "createNew.customize"));
+                        page.writeHtml(page.localize(CreateNewWidget.class, "action.customize"));
                     page.writeEnd();
                 page.writeEnd();
 
@@ -261,7 +261,7 @@ public class CreateNewWidget extends DefaultDashboardWidget {
 
                     if (!automaticallySavedDrafts.isEmpty()) {
                         page.writeStart("h2");
-                            page.writeHtml(page.localize(null, "createNew.savedDrafts"));
+                            page.writeHtml(page.localize(CreateNewWidget.class, "subtitle.savedDrafts"));
                         page.writeEnd();
 
                         page.writeStart("ul", "class", "links");
@@ -286,7 +286,7 @@ public class CreateNewWidget extends DefaultDashboardWidget {
                         "padding-right", "5px",
                         "width", "50%"));
                     page.writeStart("h2");
-                            page.writeHtml(page.localize(null, "createNew.createNew"));
+                            page.writeHtml(page.localize(CreateNewWidget.class, "subtitle.createNew"));
                     page.writeEnd();
 
                     page.writeStart("ul", "class", "links pageThumbnails");
@@ -354,7 +354,7 @@ public class CreateNewWidget extends DefaultDashboardWidget {
                             "padding-left", "5px",
                             "width", "50%"));
                         page.writeStart("h2");
-                            page.writeHtml(page.localize(null, "createNew.editExisting"));
+                            page.writeHtml(page.localize(CreateNewWidget.class, "subtitle.editExisting"));
                         page.writeEnd();
 
                         page.writeStart("ul", "class", "links pageThumbnails");

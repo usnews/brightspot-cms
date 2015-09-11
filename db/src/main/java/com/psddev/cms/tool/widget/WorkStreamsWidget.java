@@ -43,12 +43,12 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
         page.writeHeader();
             page.writeStart("div", "class", "widget p-workStreams");
                 page.writeStart("h1", "class", "icon icon-object-workStream");
-                    page.writeHtml(page.localize(null, "workStreams.title"));
+                    page.writeHtml(page.localize(WorkStreamsWidget.class, "title"));
                 page.writeEnd();
 
                 if (workStreams.isEmpty()) {
                     page.writeStart("div", "class", "message message-info");
-                        page.writeHtml(page.localize(null, "workStreams.noWorkStreamsMessage"));
+                        page.writeHtml(page.localize(WorkStreamsWidget.class, "message.noWorkStreams"));
                     page.writeEnd();
 
                 } else {
@@ -98,7 +98,7 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
                                                 "right", "70px",
                                                 "text-align", "center",
                                                 "width", "90px"));
-                                page.writeHtml(page.localize(null, "continue"));
+                                page.writeHtml(page.localize(WorkStreamsWidget.class, "continue"));
                                 page.writeEnd();
 
                                 page.writeStart("a",
@@ -110,7 +110,7 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
                                                 "right", 0,
                                                 "text-align", "center",
                                                 "width", "65px"));
-                                    page.writeHtml(page.localize(null, "stop"));
+                                    page.writeHtml(page.localize(WorkStreamsWidget.class, "stop"));
                                 page.writeEnd();
 
                             } else {
@@ -124,7 +124,7 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
                                                 "right", 0,
                                                 "text-align", "center",
                                                 "width", "70px"));
-                                    page.writeHtml(page.localize(null, "start"));
+                                    page.writeHtml(page.localize(WorkStreamsWidget.class, "start"));
                                 page.writeEnd();
                             }
 

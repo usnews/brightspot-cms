@@ -57,7 +57,7 @@ public class AdminTrash extends PageServlet {
                                     if (trashes.hasPrevious()) {
                                         page.writeStart("li", "class", "paginationPrevious");
                                             page.writeStart("a", "href", page.url("", "offset", trashes.getPreviousOffset()));
-                                                page.writeHtml(page.localize(AdminTrash.class, "action.pagination.newer"));
+                                                page.writeHtml(page.localize(AdminTrash.class, "pagination.newer"));
                                             page.writeEnd();
                                         page.writeEnd();
                                     }
@@ -65,7 +65,7 @@ public class AdminTrash extends PageServlet {
                                     if (trashes.hasNext()) {
                                         page.writeStart("li", "class", "paginationNext");
                                             page.writeStart("a", "href", page.url("", "offset", trashes.getNextOffset()));
-                                                page.writeHtml(page.localize(AdminTrash.class, "action.pagination.older"));
+                                                page.writeHtml(page.localize(AdminTrash.class, "pagination.older"));
                                             page.writeEnd();
                                         page.writeEnd();
                                     }
@@ -78,7 +78,7 @@ public class AdminTrash extends PageServlet {
 
                                     page.writeStart("li", "class", item.equals(trash) ? "selected" : null);
                                         page.writeStart("a", "href", page.url(null, "id", itemState.getId()));
-                                            page.writeHtml(page.getObjectLabelOrDefault(itemState, page.localize(null, "untitled")));
+                                            page.writeHtml(page.getObjectLabelOrDefault(itemState, page.localize(null, "label.untitled")));
                                         page.writeEnd();
                                     page.writeEnd();
                                 }

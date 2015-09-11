@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import javax.servlet.ServletException;
 
 import org.joda.time.DateTime;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
@@ -100,7 +101,7 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
 
         page.writeStart("div", "class", "widget");
             page.writeStart("h1", "class", "icon icon-list");
-                page.writeHtml(page.localize(null, "recentActivity.title"));
+                page.writeHtml(page.localize(RecentActivityWidget.class, "title"));
             page.writeEnd();
 
             page.writeStart("div", "class", "widget-filters");
@@ -118,7 +119,7 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
                                     .filter(page.createTypeDisplayPredicate(ImmutableSet.of("read")))
                                     .collect(Collectors.toList()),
                             itemType,
-                            page.localize(null, "anyTypes"),
+                            page.localize(RecentActivityWidget.class, "label.anyTypes"),
                             "data-bsp-autosubmit", "",
                             "name", "itemType",
                             "data-searchable", "true");
@@ -192,16 +193,16 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
                 page.writeStart("div", "class", "message message-warning");
                     page.writeStart("p");
                         page.writeHtml(page.localize(
-                                null,
-                                "recentActivity.typeSelectMessage",
-                                page.localize(null, type.getResourceKey())));
+                                RecentActivityWidget.class,
+                                ImmutableMap.of("type", page.localize(RecentActivityWidget.class, type.getResourceKey())),
+                                "warn.typeSelect"));
                     page.writeEnd();
                 page.writeEnd();
 
             } else if (!result.hasPages()) {
                 page.writeStart("div", "class", "message message-info");
                     page.writeStart("p");
-                        page.writeHtml(page.localize(null, "recentActivity.noActivity"));
+                        page.writeHtml(page.localize(RecentActivityWidget.class, "message.noActivity"));
                     page.writeEnd();
                 page.writeEnd();
 
@@ -212,14 +213,18 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
                         page.writeStart("li", "class", "first");
                             page.writeStart("a",
                                     "href", page.url("", "offset", result.getFirstOffset()));
-                                page.writeHtml(page.localize(null, "recentActivity.newest"));
+                                page.writeHtml(page.localize(
+                                        RecentActivityWidget.class,
+                                        "pagination.newest"));
                             page.writeEnd();
                         page.writeEnd();
 
                         page.writeStart("li", "class", "previous");
                             page.writeStart("a",
                                     "href", page.url("", "offset", result.getPreviousOffset()));
-                                page.writeHtml(page.localize(null, "recentActivity.newer", limit));
+                                page.writeHtml(page.localize(
+                                        ImmutableMap.of("count", limit),
+                                        "pagination.newer.count"));
                             page.writeEnd();
                         page.writeEnd();
                     }
@@ -237,7 +242,9 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
                                         page.writeStart("option",
                                                 "value", l,
                                                 "selected", limit == l ? "selected" : null);
-                                            page.writeHtml(page.localize(null, "recentActivity.show", l));
+                                            page.writeHtml(page.localize(
+                                                    ImmutableMap.of("count", l),
+                                                    "option.show"));
                                         page.writeEnd();
                                     }
                                 page.writeEnd();
@@ -249,7 +256,9 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
                         page.writeStart("li", "class", "next");
                             page.writeStart("a",
                                     "href", page.url("", "offset", result.getNextOffset()));
-                                page.writeHtml(page.localize(null, "recentActivity.older", limit));
+                                page.writeHtml(page.localize(
+                                        ImmutableMap.of("count", limit),
+                                        "pagination.older.count"));
                             page.writeEnd();
                         page.writeEnd();
                     }
@@ -306,10 +315,10 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
 
     private enum Type {
 
-        ANYONE("anyone"),
-        ME("me"),
-        ROLE("role"),
-        USER("user");
+        ANYONE("label.anyone"),
+        ME("label.me"),
+        ROLE("label.role"),
+        USER("label.user");
 
         private String resourceKey;
 

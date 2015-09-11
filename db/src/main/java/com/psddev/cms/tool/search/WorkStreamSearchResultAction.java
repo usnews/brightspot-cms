@@ -3,6 +3,7 @@ package com.psddev.cms.tool.search;
 import java.io.IOException;
 import java.util.Map;
 
+import com.psddev.cms.db.WorkStream;
 import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.SearchResultAction;
 import com.psddev.cms.tool.SearchResultSelection;
@@ -28,7 +29,7 @@ public class WorkStreamSearchResultAction implements SearchResultAction {
                                     "query", ObjectUtils.toJson(selection.createItemsQuery().getState().getSimpleValues()),
                                     "selectionId", selection.getId()),
                             "target", "newWorkStream");
-                        page.writeHtml(page.localize(WorkStreamSearchResultAction.class, "action.newWorkStream"));
+                        page.writeHtml(page.localize(WorkStream.class, "action.new.type"));
                     page.writeEnd();
                 page.writeEnd();
             return;
@@ -50,7 +51,7 @@ public class WorkStreamSearchResultAction implements SearchResultAction {
                             "search", ObjectUtils.toJson(search.getState().getSimpleValues()),
                             "incompleteIfMatching", hasMissing),
                     "target", "newWorkStream");
-                page.writeHtml(page.localize(WorkStreamSearchResultAction.class, "action.newWorkStream"));
+                page.writeHtml(page.localize(WorkStreamSearchResultAction.class, "action.new.type"));
             page.writeEnd();
         page.writeEnd();
     }

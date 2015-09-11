@@ -54,12 +54,12 @@ public class BulkUploadWidget extends DefaultDashboardWidget {
 
         page.writeStart("div", "class", "widget uploadable");
             page.writeStart("h1", "class", "icon icon-action-upload");
-                page.writeHtml(page.localize(null, "bulkUpload.title"));
+                page.writeHtml(page.localize(BulkUploadWidget.class, "title"));
             page.writeEnd();
             page.writeStart("div", "class", "message message-info");
 
                 if (!hasUploadable) {
-                    page.writeHtml(page.localize(null, "bulkUpload.noTypes"));
+                    page.writeHtml(page.localize(BulkUploadWidget.class, "message.noTypes"));
 
                 } else {
                     //TODO: LOCALIZE

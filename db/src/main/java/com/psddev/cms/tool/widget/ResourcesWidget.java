@@ -38,12 +38,12 @@ public class ResourcesWidget extends DashboardWidget {
 
         page.writeStart("div", "class", "widget");
             page.writeStart("h1", "class", "icon icon-globe");
-                page.writeHtml(page.localize(null, "resources.title"));
+                page.writeHtml(page.localize(ResourcesWidget.class, "title"));
             page.writeEnd();
 
             if (resources == null || resources.isEmpty()) {
                 page.writeStart("div", "class", "message message-info");
-                    page.writeHtml(page.localize(null, "resources.noResourcesMessage"));
+                    page.writeHtml(page.localize(ResourcesWidget.class, "message.noResources"));
                 page.writeEnd();
 
             } else {

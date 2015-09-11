@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.ToolUi;
@@ -137,7 +138,7 @@ public class SiteMapWidget extends DashboardWidget {
 
         page.writeStart("div", "class", "widget");
             page.writeStart("h1", "class", "icon icon-sitemap");
-                page.writeHtml(page.localize(null, "siteMap.title"));
+                page.writeHtml(page.localize(SiteMapWidget.class, "title"));
             page.writeEnd();
 
             page.writeStart("div", "class", "widget-filters");
@@ -151,7 +152,7 @@ public class SiteMapWidget extends DashboardWidget {
                                     .filter(page.createTypeDisplayPredicate(ImmutableSet.of("read")))
                                     .collect(Collectors.toList()),
                             itemType,
-                            page.localize(null, "anyTypes"),
+                            page.localize(null, "label.anyTypes"),
                             "name", "itemType",
                             "data-bsp-autosubmit", "",
                             "data-searchable", "true");
@@ -280,13 +281,16 @@ public class SiteMapWidget extends DashboardWidget {
                     if (result.hasPrevious()) {
                         page.writeStart("li", "class", "first");
                             page.writeStart("a", "href", page.url("", "offset", result.getFirstOffset()));
-                                    page.writeHtml(page.localize(null, "first"));
+                                    page.writeHtml(page.localize(SiteMapWidget.class, "pagination.first"));
                             page.writeEnd();
                         page.writeEnd();
 
                         page.writeStart("li", "class", "previous");
                             page.writeStart("a", "href", page.url("", "offset", result.getPreviousOffset()));
-                                page.writeHtml(page.localize(null, "prev.count", result.getLimit()));
+                                page.writeHtml(page.localize(
+                                        SiteMapWidget.class,
+                                        ImmutableMap.of("count", result.getLimit()),
+                                        "pagination.previous.count"));
                             page.writeEnd();
                         page.writeEnd();
                     }
@@ -304,7 +308,10 @@ public class SiteMapWidget extends DashboardWidget {
                                         page.writeStart("option",
                                                 "value", l,
                                                 "selected", limit == l ? "selected" : null);
-                                            page.writeHtml(page.localize(null, "show.count", l));
+                                            page.writeHtml(page.localize(
+                                                    SiteMapWidget.class,
+                                                    ImmutableMap.of("count", l),
+                                                    "option.showCount"));
                                         page.writeEnd();
                                     }
                                 page.writeEnd();
@@ -326,7 +333,10 @@ public class SiteMapWidget extends DashboardWidget {
                     if (result.hasNext()) {
                         page.writeStart("li", "class", "next");
                             page.writeStart("a", "href", page.url("", "offset", result.getNextOffset()));
-                                page.writeHtml(page.localize(null, "next.count", result.getLimit()));
+                                page.writeHtml(page.localize(
+                                        SiteMapWidget.class,
+                                        ImmutableMap.of("count", result.getLimit()),
+                                        "pagination.next.count"));
                             page.writeEnd();
                         page.writeEnd();
                     }

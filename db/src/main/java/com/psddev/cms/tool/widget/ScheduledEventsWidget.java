@@ -10,6 +10,7 @@ import java.util.TreeMap;
 import javax.servlet.ServletException;
 
 import org.joda.time.DateTime;
+import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.Schedule;
 import com.psddev.cms.db.Site;
@@ -68,7 +69,7 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
         page.writeStart("div", "class", "widget widget-scheduledEvents" + (hasSchedules ? "" : " widget-scheduledEvents-empty"));
             page.writeStart("h1", "class", "icon icon-action-schedule");
 
-                page.writeHtml(page.localize(null, "scheduledEvents.title"));
+                page.writeHtml(page.localize(ScheduledEventsWidget.class, "title"));
 
             page.writeEnd();
 
@@ -79,7 +80,7 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
                                 "class", "icon icon-action-create",
                                 "href", page.cmsUrl("/scheduleEdit"),
                                 "target", "scheduleEdit");
-                            page.writeHtml(page.localize(null, "new"));
+                            page.writeHtml(page.localize(ScheduledEventsWidget.class, "action.new"));
                         page.writeEnd();
                     page.writeEnd();
 
@@ -88,7 +89,7 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
                                 "class", "icon icon-action-search",
                                 "href", page.cmsUrl("/scheduleList"),
                                 "target", "scheduleList");
-                            page.writeHtml(page.localize(null, "viewAll"));
+                            page.writeHtml(page.localize(ScheduledEventsWidget.class, "action.viewAll"));
                         page.writeEnd();
                     page.writeEnd();
                 page.writeEnd();
@@ -98,7 +99,7 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
                         page.writeStart("li", "class", (m.equals(mode) ? "selected" : ""));
                             page.writeStart("a",
                                     "href", page.url("", "mode", m.name()));
-                                page.writeHtml(page.localize(null, m.resourceKey));
+                                page.writeHtml(page.localize(ScheduledEventsWidget.class, m.resourceKey));
                             page.writeEnd();
                         page.writeEnd();
                     }
@@ -145,7 +146,10 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
                         page.writeStart("li", "class", "previous");
                             page.writeStart("a",
                                     "href", page.url("", "date", previous.getMillis()));
-                                page.writeHtml(page.localize(null, "prev.count", mode));
+                                page.writeHtml(page.localize(
+                                        ScheduledEventsWidget.class,
+                                        ImmutableMap.of("mode", mode),
+                                        "pagination.previous"));
                             page.writeEnd();
                         page.writeEnd();
                     }
@@ -153,14 +157,17 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
                     page.writeStart("li");
                         page.writeStart("a",
                                 "href", page.url("", "date", System.currentTimeMillis()));
-                            page.writeHtml(page.localize(null, "scheduledEvents.today"));
+                            page.writeHtml(page.localize(ScheduledEventsWidget.class, "option.today"));
                         page.writeEnd();
                     page.writeEnd();
 
                     page.writeStart("li", "class", "next");
                         page.writeStart("a",
                                 "href", page.url("", "date", mode.getNext(date).getMillis()));
-                            page.writeHtml(page.localize(null, "next.count", mode));
+                            page.writeHtml(page.localize(
+                                    ScheduledEventsWidget.class,
+                                    ImmutableMap.of("mode", mode),
+                                    "pagination.next"));
                         page.writeEnd();
                     page.writeEnd();
 
@@ -172,7 +179,7 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
     }
 
     private enum Mode {
-        DAY("scheduledEvents.day") {
+        DAY("option.day") {
 
             @Override
             public DateTime getBegin(DateTime date) {
@@ -199,7 +206,7 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
                 displayAgendaView(page, schedulesByDate);
             }
         },
-        WEEK("scheduledEvents.week") {
+        WEEK("option.week") {
 
             @Override
             public DateTime getBegin(DateTime date) {
@@ -227,7 +234,7 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
             }
         },
 
-        MONTH("scheduledEvents.month") {
+        MONTH("option.month") {
 
             @Override
             public DateTime getBegin(DateTime date) {
