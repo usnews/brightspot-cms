@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import javax.servlet.ServletException;
 
+import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.SearchResultField;
@@ -60,6 +61,7 @@ public class SearchResultFields extends PageServlet {
 
         page.writeStart("div", "class", "widget");
             page.writeStart("h1");
+                //TODO: localize using SearchResultFieldsDefault title
                 if (type != null) {
                     page.writeObjectLabel(type);
                     page.writeHtml(' ');
@@ -81,7 +83,7 @@ public class SearchResultFields extends PageServlet {
                             "checked", fieldNames == null ? "checked" : null);
 
                     page.writeStart("label", "for", page.getId());
-                        page.writeHtml("Default");
+                        page.writeHtml(page.localize(SearchResultFields.class, "label.default"));
                     page.writeEnd();
                 page.writeEnd();
 
@@ -94,7 +96,7 @@ public class SearchResultFields extends PageServlet {
                             "checked", fieldNames != null ? "checked" : null);
 
                     page.writeStart("label", "for", page.getId());
-                        page.writeHtml("Custom");
+                        page.writeHtml(page.localize(SearchResultFields.class, "label.custom"));
                     page.writeEnd();
 
                     page.writeStart("select",
@@ -107,7 +109,7 @@ public class SearchResultFields extends PageServlet {
                             page.writeEnd();
                         }
 
-                        page.writeStart("optgroup", "label", "Custom");
+                        page.writeStart("optgroup", "label", page.localize(SearchResultFields.class, "label.custom"));
                             for (Class<? extends SearchResultField> c : ClassFinder.Static.findClasses(SearchResultField.class)) {
                                 if (!c.isInterface() && !Modifier.isAbstract(c.getModifiers())) {
                                     SearchResultField field = TypeDefinition.getInstance(c).newInstance();
@@ -126,7 +128,7 @@ public class SearchResultFields extends PageServlet {
                             }
                         page.writeEnd();
 
-                        page.writeStart("optgroup", "label", "Global");
+                        page.writeStart("optgroup", "label", page.localize(SearchResultFields.class, "label.global"));
                             writeObjectFieldOptions(page, fieldNames, Database.Static.getDefault().getEnvironment().getFields());
                         page.writeEnd();
                     page.writeEnd();
@@ -134,7 +136,7 @@ public class SearchResultFields extends PageServlet {
 
                 page.writeStart("div", "class", "actions");
                     page.writeStart("button");
-                        page.writeHtml("Update");
+                        page.writeHtml(page.localize(SearchResultFields.class, "action.update"));
                     page.writeEnd();
                 page.writeEnd();
             page.writeEnd();
