@@ -55,7 +55,7 @@ public class ToolUserSaveSearch extends PageServlet {
         page.writeHeader();
             page.writeStart("div", "class", "widget");
                 page.writeStart("h1", "class", "icon icon-action-search");
-                    page.writeHtml(page.localize(null, "toolUserSaveSearch.title"));
+                    page.writeHtml(page.localize(ToolUserSaveSearch.class, "title"));
                 page.writeEnd();
 
                 page.writeStart("form",
