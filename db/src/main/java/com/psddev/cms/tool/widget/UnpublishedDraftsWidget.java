@@ -237,7 +237,7 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                             ImmutableMap.of(
                                     "label", label != null
                                             ? label.toLowerCase(Locale.ENGLISH)
-                                            : page.localize(null, "label.matching")),
+                                            : page.localize(UnpublishedDraftsWidget.class, "label.matching")),
                             "message.noDrafts"));
                 page.writeEnd();
 
