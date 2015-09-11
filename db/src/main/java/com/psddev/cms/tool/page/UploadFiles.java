@@ -301,7 +301,7 @@ public class UploadFiles extends PageServlet {
         Uploader uploader = Uploader.getUploader(Optional.empty());
 
         page.writeStart("h1");
-            page.writeHtml(page.localize(null, "uploadFiles.title"));
+            page.writeHtml(page.localize(UploadFiles.class, "title"));
         page.writeEnd();
 
         page.writeStart("form",
@@ -334,7 +334,7 @@ public class UploadFiles extends PageServlet {
             page.writeStart("div", "class", "inputContainer bulk-upload-files");
                 page.writeStart("div", "class", "inputLabel");
                     page.writeStart("label", "for", page.createId());
-                        page.writeHtml(page.localize(null, "uploadFiles.files"));
+                        page.writeHtml(page.localize(UploadFiles.class, "label.files"));
                     page.writeEnd();
                 page.writeEnd();
                 page.writeStart("div", "class", "inputSmall");
@@ -353,7 +353,7 @@ public class UploadFiles extends PageServlet {
             page.writeStart("div", "class", "inputContainer");
                 page.writeStart("div", "class", "inputLabel");
                     page.writeStart("label", "for", page.createId());
-                        page.writeHtml(page.localize(null, "type"));
+                        page.writeHtml(page.localize(UploadFiles.class, "label.type"));
                     page.writeEnd();
                 page.writeEnd();
                 page.writeStart("div", "class", "inputSmall");
@@ -398,7 +398,7 @@ public class UploadFiles extends PageServlet {
 
             page.writeStart("div", "class", "buttons");
                 page.writeStart("button", "name", "action-upload");
-                    page.writeHtml(page.localize(null, "uploadFiles.upload"));
+                    page.writeHtml(page.localize(UploadFiles.class, "action.upload"));
                 page.writeEnd();
             page.writeEnd();
 
