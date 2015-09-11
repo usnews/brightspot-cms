@@ -243,8 +243,9 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
                                                 "value", l,
                                                 "selected", limit == l ? "selected" : null);
                                             page.writeHtml(page.localize(
+                                                    RecentActivityWidget.class,
                                                     ImmutableMap.of("count", l),
-                                                    "option.show"));
+                                                    "option.showCount"));
                                         page.writeEnd();
                                     }
                                 page.writeEnd();
@@ -257,6 +258,7 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
                             page.writeStart("a",
                                     "href", page.url("", "offset", result.getNextOffset()));
                                 page.writeHtml(page.localize(
+                                        RecentActivityWidget.class,
                                         ImmutableMap.of("count", limit),
                                         "pagination.older.count"));
                             page.writeEnd();

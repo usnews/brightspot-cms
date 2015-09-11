@@ -144,7 +144,9 @@ body.hasToolBroadcast {
 </style>
 
 <div class="widget widget-logIn">
-    <h1>Log In</h1>
+    <h1>
+        <%= wp.h(wp.localize("com.psddev.cms.tool.page.LogIn", "title")) %>
+    </h1>
 
     <%
     if (wp.param(boolean.class, "forced")) {
