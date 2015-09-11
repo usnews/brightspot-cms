@@ -308,11 +308,12 @@ public class ToolPageContext extends WebPageContext {
             }
         }
 
-        Locale locale = MoreObjects.firstNonNull(getUser().getLocale(), Locale.getDefault());
-        String localized = createLocalizedString(locale, locale, baseName, key, null, null, state, contextOverrides);
+        Locale defaultLocale = Locale.getDefault();
+        Locale userLocale = MoreObjects.firstNonNull(getUser().getLocale(), defaultLocale);
+        String localized = createLocalizedString(userLocale, userLocale, baseName, key, state, contextOverrides);
 
-        if (localized == null) {
-            localized = createLocalizedString(Locale.US, locale, baseName, key, field, type, state, contextOverrides);
+        if (localized == null && !defaultLocale.equals(userLocale)) {
+            localized = createLocalizedString(defaultLocale, userLocale, baseName, key, state, contextOverrides);
         }
 
         if (localized == null) {
@@ -331,8 +332,6 @@ public class ToolPageContext extends WebPageContext {
             Locale target,
             String baseName,
             String key,
-            ObjectField field,
-            ObjectType type,
             State state,
             Map<String, Object> contextOverrides)
             throws IOException {
@@ -385,18 +384,16 @@ public class ToolPageContext extends WebPageContext {
             }
         }
 
-        if (pattern == null) {
-            if (field != null) {
-                if (key.startsWith("tab.")) {
-                    pattern = key.substring(4);
+        if (Locale.getDefault().equals(source)) {
+            ObjectType type = ObjectType.getInstance(baseName);
 
-                } else if (key.startsWith("field.")) {
-                    pattern = field.getDisplayName();
-                }
+            if (type != null) {
+                ObjectTypeResourceBundle typeBundle = ObjectTypeResourceBundle.getInstance(type);
 
-            } else if (type != null) {
-                if (key.equals("displayName")) {
-                    pattern = type.getDisplayName();
+                argumentsSources.add(typeBundle.getMap());
+
+                if (pattern == null) {
+                    pattern = findBundleString(typeBundle, key);
                 }
             }
         }

@@ -70,19 +70,10 @@ if (ObjectUtils.isBlank(tab)) {
     tab = "Main";
 }
 
-try {
-    tab = wp.localize(field, "tab." + tab);
-
-} catch (MissingResourceException error) {
-}
+tab = wp.localize(field, "tab." + tab);
 
 if (ObjectUtils.isBlank(label)) {
-    try {
-        label = wp.localize(field, "field." + field.getInternalName());
-
-    } catch (MissingResourceException error) {
-        label = field.getDisplayName();
-    }
+    label = wp.localize(field, "field." + field.getInternalName());
 }
 
 List<String> errors = state.getErrors(field);
