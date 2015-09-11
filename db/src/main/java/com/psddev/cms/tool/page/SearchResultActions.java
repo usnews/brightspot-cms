@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 
+import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.db.ImageTag;
 import com.psddev.cms.db.ResizeOption;
 import com.psddev.cms.db.ToolUser;
@@ -136,7 +137,9 @@ public class SearchResultActions extends PageServlet {
                         "name", SELECTION_ID_PARAMETER);
 
                 page.writeStart("option", "value", "");
-                    page.writeHtml(page.localize(null, "searchResultActions.newSelection"));
+                    page.writeHtml(page.localize(
+                            SearchResultActions.class,
+                            "option.newSelection"));
                 page.writeEnd();
 
                 for (SearchResultSelection ownSelection : own) {
@@ -160,7 +163,7 @@ public class SearchResultActions extends PageServlet {
         } else if (count > 0) {
 
             page.writeStart("h2");
-            page.writeHtml(page.localize(null, "searchResultActions.selection"));
+            page.writeHtml(page.localize(SearchResultActions.class, "subtitle.selection"));
             writeDeleteAction(page);
             page.writeEnd();
         }
@@ -179,7 +182,7 @@ public class SearchResultActions extends PageServlet {
 
         if (count == 0) {
             page.writeStart("h2");
-                page.writeHtml(page.localize(null, "searchResultActions.all"));
+                page.writeHtml(page.localize(SearchResultActions.class, "subtitle.all"));
             page.writeEnd();
         }
 
@@ -208,7 +211,7 @@ public class SearchResultActions extends PageServlet {
             page.writeStart("a",
                     "class", "searchResult-selectionReset action action-cancel",
                     "href", page.url("", ACTION_PARAMETER, ACTION_CLEAR, SELECTION_ID_PARAMETER, null));
-            page.writeHtml(page.localize(null, "searchResultActions.clear"));
+            page.writeHtml(page.localize(SearchResultActions.class, "action.clear"));
             page.writeEnd();
         }
     }
@@ -267,10 +270,16 @@ public class SearchResultActions extends PageServlet {
             page.writeStart("p");
 
             if (count > 0) {
-                page.writeHtml(page.localize(items, "searchResultActions.moreItemsSelected"));
+                page.writeHtml(page.localize(
+                        SearchResultActions.class,
+                        ImmutableMap.of("size", items.size()),
+                        "message.moreItemsSelected"));
 
             } else {
-                page.writeHtml(page.localize(items, "searchResultActions.itemsSelected"));
+                page.writeHtml(page.localize(
+                        SearchResultActions.class,
+                        ImmutableMap.of("size", items.size()),
+                        "message.itemsSelected"));
             }
 
             page.writeEnd();
