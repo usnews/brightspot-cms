@@ -94,7 +94,7 @@ public class ToolUserHistory extends PageServlet {
         page.writeHeader();
             page.writeStart("div", "class", "widget", "style", "overflow: hidden;");
                 page.writeStart("h1", "class", "icon icon-object-history");
-                    page.writeHtml(page.localize(null, "toolUserHistory.title"));
+                    page.writeHtml(page.localize(ToolUserHistory.class, "title"));
                 page.writeEnd();
 
                 page.writeStart("div", "class", "tabbed");
@@ -110,7 +110,7 @@ public class ToolUserHistory extends PageServlet {
                                         "class", "icon icon-facetime-video",
                                         "target", "_blank",
                                         "href", lookingGlassUrl);
-                                    page.writeHtml(page.localize(null, "toolUserHistory.lookingGlass"));
+                                    page.writeHtml(page.localize(ToolUserHistory.class, "subtitle.lookingGlass"));
                                 page.writeEnd();
 
                                 page.writeElement("br");
