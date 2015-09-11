@@ -479,7 +479,7 @@ public class BulkWorkflow extends PageServlet {
                                 BulkWorkflow.class,
                                 ImmutableMap.of("id", selectionId),
                                 "error.noSelectionExists"));
-                    } catch(IOException exception) {
+                    } catch (IOException exception) {
                         throw new IllegalArgumentException("No SearchResultSelection exists for id " + selectionId);
                     }
                 }

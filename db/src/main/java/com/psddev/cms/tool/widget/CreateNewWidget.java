@@ -25,7 +25,6 @@ import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.Dashboard;
 import com.psddev.cms.tool.DefaultDashboardWidget;
 import com.psddev.cms.tool.ToolPageContext;
-import com.psddev.cms.tool.page.CreateNew;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectType;

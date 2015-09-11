@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import javax.servlet.ServletException;
 
-import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.SearchResultField;
