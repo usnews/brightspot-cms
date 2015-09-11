@@ -19,7 +19,9 @@ if (wp.requireUser()) {
 
 // --- Presentation ---
 
-%><h1>Select a Marker</h1>
+%><h1>
+    <%= wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Marker", "title"))%>
+</h1>
 
 <ul class="links">
     <% for (ReferentialTextMarker marker : wp
