@@ -40,7 +40,7 @@ public class WorkStreamUsers extends PageServlet {
             if (users.isEmpty()) {
                 page.writeStart("div", "class", "message message-info");
                     page.writeStart("p");
-                        page.writeHtml(page.localize(null, "workStreamUsers.noUsersMessage"));
+                        page.writeHtml(page.localize(WorkStreamUsers.class, "message.noUsers"));
                     page.writeEnd();
                 page.writeEnd();
 
@@ -49,13 +49,13 @@ public class WorkStreamUsers extends PageServlet {
                     page.writeStart("thead");
                         page.writeStart("tr");
                             page.writeStart("th");
-                                page.writeHtml(page.localize(null, "user"));
+                                page.writeHtml(page.localize(WorkStreamUsers.class, "label.user"));
                             page.writeEnd();
                             page.writeStart("th");
-                                page.writeHtml(page.localize(null, "workStreamUsers.currentlyOn"));
+                                page.writeHtml(page.localize(WorkStreamUsers.class, "label.currentlyOn"));
                             page.writeEnd();
                             page.writeStart("th");
-                                page.writeHtml(page.localize(null, "workStreamUsers.completed"));
+                                page.writeHtml(page.localize(WorkStreamUsers.class, "label.completed"));
                             page.writeEnd();
                         page.writeEnd();
                     page.writeEnd();

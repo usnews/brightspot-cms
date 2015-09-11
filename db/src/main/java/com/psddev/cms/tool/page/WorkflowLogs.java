@@ -32,7 +32,7 @@ public class WorkflowLogs extends PageServlet {
         page.writeHeader();
             page.writeStart("div", "class", "widget");
                 page.writeStart("h1", "class", "icon icon-object-workflow");
-                    page.writeHtml(page.localize(null, "workflowLogs.title"));
+                    page.writeHtml(page.localize(WorkflowLogs.class, "title"));
                 page.writeEnd();
 
                 if (!logs.isEmpty()) {
@@ -40,19 +40,19 @@ public class WorkflowLogs extends PageServlet {
                         page.writeStart("thead");
                             page.writeStart("tr");
                                 page.writeStart("th");
-                                    page.writeHtml(page.localize(null, "workflowLogs.state"));
+                                    page.writeHtml(page.localize(WorkflowLogs.class, "label.state"));
                                 page.writeEnd();
 
                                 page.writeStart("th");
-                                    page.writeHtml(page.localize(null, "workflowLogs.comment"));
+                                    page.writeHtml(page.localize(WorkflowLogs.class, "label.comment"));
                                 page.writeEnd();
 
                                 page.writeStart("th");
-                                    page.writeHtml(page.localize(null, "user"));
+                                    page.writeHtml(page.localize(WorkflowLogs.class, "label.user"));
                                 page.writeEnd();
 
                                 page.writeStart("th");
-                                    page.writeHtml(page.localize(null, "workflowLogs.time"));
+                                    page.writeHtml(page.localize(WorkflowLogs.class, "label.time"));
                                 page.writeEnd();
                             page.writeEnd();
                         page.writeEnd();
