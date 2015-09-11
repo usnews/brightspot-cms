@@ -206,7 +206,7 @@ public abstract class AbstractSearchResultView implements SearchResultView {
                         page.writeStart("option",
                                 "selected", limit == resultLimit ? "selected" : null,
                                 "value", limit);
-                        page.writeHtml(page.localize(ImmutableMap.of("count", limit), "option.showCount"));
+                        page.writeHtml(page.localize(null, ImmutableMap.of("count", limit), "option.showCount"));
                         page.writeEnd();
                     }
                 }
