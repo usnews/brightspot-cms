@@ -64,7 +64,7 @@ public class ToolUserTfa extends PageServlet {
                     "class", "widget",
                     "style", "overflow: hidden;");
                 page.writeStart("h1", "class", "icon icon-key");
-                    page.writeHtml(page.localize(null, user.isTfaEnabled() ? "toolUserTfa.disableTitle" : "toolUserTfa.enableTitle"));
+                    page.writeHtml(page.localize(ToolUserTfa.class, user.isTfaEnabled() ? "title.disableTfa" : "title.enableTfa"));
                 page.writeEnd();
 
                 StringBuilder keyUri = new StringBuilder("otpauth://totp/");
@@ -86,7 +86,7 @@ public class ToolUserTfa extends PageServlet {
                             "src", page.cmsUrl("/qrCode", "data", keyUri),
                             "style", "margin-left: 30px;");
                     page.writeStart("div");
-                        page.writeHtml(page.localize(null, "toolUserTfa.secretKey"));
+                        page.writeHtml(page.localize(ToolUserTfa.class, "label.secretKey"));
                         page.writeHtml(": ");
                         page.writeTag("br");
                         page.writeRaw(user.getTotpSecret().replaceAll("(.{4})", "$1 "));
@@ -96,16 +96,16 @@ public class ToolUserTfa extends PageServlet {
                 page.writeStart("div", "style", "margin-right: 280px;");
                     if (verifyError) {
                         page.writeStart("div", "class", "message message-error");
-                            page.writeHtml(page.localize(null, "toolUserTfa.invalidCodeMessage"));
+                            page.writeHtml(page.localize(ToolUserTfa.class, "message.invalidCode"));
                         page.writeEnd();
 
                     } else {
                         page.writeStart("div", "class", "message message-info");
                             if (user.isTfaEnabled()) {
-                                page.writeHtml(page.localize(null, "toolUserTfa.tfaEnabledInstructions"));
+                                page.writeHtml(page.localize(ToolUserTfa.class, "message.enabledInstructions"));
 
                             } else {
-                                page.writeHtml(page.localize(null, "toolUserTfa.tfaDisabledInstructions"));
+                                page.writeHtml(page.localize(ToolUserTfa.class, "message.disabledInstructions"));
                             }
                         page.writeEnd();
                     }
@@ -117,7 +117,7 @@ public class ToolUserTfa extends PageServlet {
                     page.writeStart("div", "class", "inputContainer");
                         page.writeStart("div", "class", "inputLabel");
                             page.writeStart("label", "for", page.createId());
-                                page.writeHtml(page.localize(null, "toolUserTfa.code"));
+                                page.writeHtml(page.localize(ToolUserTfa.class, "label.code"));
                             page.writeEnd();
                         page.writeEnd();
 
@@ -134,7 +134,7 @@ public class ToolUserTfa extends PageServlet {
                                 "class", "action icon icon-action-save",
                                 "name", "action-verify",
                                 "value", true);
-                            page.writeHtml(page.localize(null, "toolUserTfa.verify"));
+                            page.writeHtml(page.localize(ToolUserTfa.class, "action.verify"));
                         page.writeEnd();
                     page.writeEnd();
                     page.writeElement("input",
