@@ -20,7 +20,7 @@ java.util.Date,
 java.util.List,
 
 org.joda.time.DateTime
-" %><%
+, com.google.common.collect.ImmutableMap" %><%
 
 // --- Presentation ---
 
@@ -94,20 +94,19 @@ if (wp.getUser().equals(contentData.getUpdateUser())) {
 
         wp.write("<div class=\"message message-success\"><p>");
             if (log != null && !ObjectUtils.isBlank(log.getNewWorkflowState())) {
-                wp.write("Transitioned to ");
-                wp.writeHtml(log.getNewWorkflowState());
-                wp.writeHtml(" at ");
-                wp.writeHtml(wp.formatUserDateTime(log.getDate()));
+                wp.writeHtml(wp.localize(
+                        "com.psddev.cms.tool.page.content.ObjectMessage",
+                        ImmutableMap.of(
+                                "state", log.getNewWorkflowState(),
+                                "date", wp.formatUserDateTime(log.getDate())),
+                        "message.transition"));
 
             } else {
-                if (draft != null || !state.isVisible()) {
-                    wp.write("Saved ");
 
-                } else {
-                    wp.write("Published ");
-                }
-
-                wp.writeHtml(wp.formatUserDateTime(updateDate));
+                wp.writeHtml(wp.localize(
+                        "com.psddev.cms.tool.page.content.ObjectMessage",
+                        ImmutableMap.of("date", wp.formatUserDateTime(updateDate)),
+                        draft != null || !state.isVisible() ? "message.saved" : "message.published"));
             }
         wp.write(".</p>");
         wp.write("</div>");
@@ -119,7 +118,10 @@ if (wp.getUser().equals(contentData.getUpdateUser())) {
 Date saved = wp.dateParam("saved");
 if (saved != null) {
     wp.write("<div class=\"message message-success\"><p>");
-    wp.write("Saved ", saved);
+    wp.writeHtml(wp.localize(
+            "com.psddev.cms.tool.page.content.ObjectMessage",
+            ImmutableMap.of("date", saved),
+            "message.saved"));
     wp.write(".</p></div>");
     return;
 }
