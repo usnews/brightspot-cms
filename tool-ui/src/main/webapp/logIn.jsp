@@ -43,6 +43,7 @@ ToolUser user = ToolUser.Static.getByTotpToken(wp.param(String.class, "totpToken
 String siteUrl = Query.from(CmsTool.class).first().getDefaultSiteUrl();
 String domain = LogUtils.getDomain(siteUrl);
 String ipAddress  = LogUtils.getIpAddress(request.getHeader("X-FORWARDED-FOR"), request.getRemoteAddr());  
+boolean logAuthRequests = false;
 
 if (wp.isFormPost()) {
     try {
@@ -59,9 +60,11 @@ if (wp.isFormPost()) {
                 authPolicy = new ToolAuthenticationPolicy();
             }
 
+            logAuthRequests = ((ToolAuthenticationPolicy) authPolicy).logAuthRequests();
+
             user = (ToolUser) authPolicy.authenticate(username, wp.param(String.class, "password"));
 
-            LogUtils.authenticate("ToolAuthentication", username, domain, ipAddress, true);
+            LogUtils.logAuthRequest("ToolAuthentication", username, domain, ipAddress, true, logAuthRequests);
 
             if (user.isTfaEnabled()) {
                 String totpToken = UUID.randomUUID().toString();
@@ -101,7 +104,7 @@ if (wp.isFormPost()) {
         return;
 
     } catch (AuthenticationException error) {
-        LogUtils.authenticate("ToolAuthentication", username, domain, ipAddress, false);
+        LogUtils.logAuthRequest("ToolAuthentication", username, domain, ipAddress, true, logAuthRequests);
         authError = error;
     }
 }

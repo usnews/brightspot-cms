@@ -23,8 +23,7 @@ public class ToolAuthenticationPolicy implements AuthenticationPolicy {
         ToolUser user = Query.from(ToolUser.class).where("email = ? or username = ?", username, username).first();
         LdapContext context = LdapUtils.createContext();
 
-        if (context != null
-                && LdapUtils.authenticate(context, username, password)) {
+        if (context != null && LdapUtils.authenticate(context, username, password)) {
             if (user == null) {
                 user = new ToolUser();
                 user.setName(username);
@@ -42,7 +41,8 @@ public class ToolAuthenticationPolicy implements AuthenticationPolicy {
                 if (passwordExpirationInDays > 0L) {
                     long passwordExpiration = passwordExpirationInDays * 24 * 60 * 60 * 1000;
                     Date passwordChangedDate = user.getPasswordChangedDate();
-                    if (passwordChangedDate == null || System.currentTimeMillis() - passwordExpiration > passwordChangedDate.getTime()) {
+                    if (passwordChangedDate == null
+                            || System.currentTimeMillis() - passwordExpiration > passwordChangedDate.getTime()) {
                         user.setChangePasswordOnLogIn(true);
                         user.save();
                     }
@@ -51,10 +51,8 @@ public class ToolAuthenticationPolicy implements AuthenticationPolicy {
             }
 
         } else if (!ObjectUtils.isBlank(username)
-                && (ObjectUtils.firstNonNull(
-                        Settings.get(Boolean.class, "cms/tool/autoCreateUser"),
-                        Settings.get(boolean.class, "cms/tool/isAutoCreateUser"))
-                || !Query.from(ToolUser.class).hasMoreThan(0))) {
+                && (ObjectUtils.firstNonNull(Settings.get(Boolean.class, "cms/tool/autoCreateUser"), Settings.get(
+                        boolean.class, "cms/tool/isAutoCreateUser")) || !Query.from(ToolUser.class).hasMoreThan(0))) {
             String name = username;
             int atAt = username.indexOf("@");
 
@@ -63,11 +61,13 @@ public class ToolAuthenticationPolicy implements AuthenticationPolicy {
             }
 
             user = new ToolUser();
-            UserPasswordPolicy userPasswordPolicy = UserPasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/userPasswordPolicy"));
+            UserPasswordPolicy userPasswordPolicy = UserPasswordPolicy.Static.getInstance(Settings.get(String.class,
+                    "cms/tool/userPasswordPolicy"));
             PasswordPolicy passwordPolicy = null;
             Password hashedPassword;
             if (userPasswordPolicy == null) {
-                passwordPolicy = PasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/passwordPolicy"));
+                passwordPolicy = PasswordPolicy.Static.getInstance(Settings
+                        .get(String.class, "cms/tool/passwordPolicy"));
             }
             try {
                 if (userPasswordPolicy != null || (userPasswordPolicy == null && passwordPolicy == null)) {
@@ -94,11 +94,19 @@ public class ToolAuthenticationPolicy implements AuthenticationPolicy {
             return user;
         }
 
-        throw new AuthenticationException(
-                "Oops! No user with that username and password.");
+        throw new AuthenticationException("Oops! No user with that username and password.");
     }
 
     @Override
     public void initialize(String settingsKey, Map<String, Object> settings) {
+    }
+
+    /**
+     * override this method if you want to log authentication requests on logIn to the CMS tool
+     *
+     * @return
+     */
+    public boolean logAuthRequests() {
+        return false;
     }
 }
