@@ -1886,7 +1886,6 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          *
          * @param Object [options]
          * @param Object [options.block=false]
-         * @param Object [options.above=false]
          * @param Function [options.toHTML]
          * Function to return HTML content to be placed at the point of the enhancement.
          * If not provided then the enhancement will not appear in the output.
@@ -2151,7 +2150,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
         enhancementFromHTML: function($content, line) {
             var self;
             self = this;
-            self.enhancementAdd($content, line, {above:true, toHTML: function(){
+            self.enhancementAdd($content, line, {toHTML: function(){
                 return $content.html();
             }});
         },
@@ -3302,12 +3301,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         }
 
                         if (enhancementHTML) {
-
-                            if (mark.above) {
-                                html += enhancementHTML;
-                            } else {
-                                htmlEndOfLine += enhancementHTML;
-                            }
+                            html += enhancementHTML;
                         }
                     });
                 }
