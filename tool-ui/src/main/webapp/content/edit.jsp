@@ -326,7 +326,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                     "typeId", State.getInstance(editing).getTypeId(),
                                     "templateId", template != null ? template.getId() : null)%>">
                                     <%= wp.h(wp.localize(
-                                            ImmutableMap.of("displayName", wp.typeLabel(editing)),
+                                            editingState.getType(),
                                             "action.new.type"))%>
                                 </a>
                             </li>
@@ -337,8 +337,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                     "copyId", State.getInstance(editing).getId())
                                     %>" target="_top">
                                     <%= wp.h(wp.localize(
-                                            "com.psddev.cms.tool.page.content.Edit",
-                                            ImmutableMap.of("displayName", wp.typeLabel(editing)),
+                                            editingState.getType(),
                                             "action.copy"))%>
                                 </a>
                             </li>
