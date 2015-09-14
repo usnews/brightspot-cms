@@ -84,7 +84,9 @@ String access = siteData.isGlobal() ? "all" :
     <% } %>
 </select>
 
-<label for="<%= wp.createId() %>">Access:</label><br>
+<label for="<%= wp.createId() %>">
+    <%= wp.writeHtml(wp.localize("com.psddev.cms.tool.widget.Sites", "label.access")) %>
+</label><br>
 <select class="toggleable" id="<%= wp.getId() %>" name="<%= accessName %>" style="width: 100%;">
     <option<%= "no".equals(access) ? " selected" : "" %> data-hide="#<%= sitesContainerId %>" value="no">
         <%= wp.writeHtml(wp.localize("com.psddev.cms.tool.widget.Sites", "option.none")) %>
