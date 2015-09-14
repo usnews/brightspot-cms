@@ -51,7 +51,7 @@ public class WorkStreamSearchResultAction implements SearchResultAction {
                             "search", ObjectUtils.toJson(search.getState().getSimpleValues()),
                             "incompleteIfMatching", hasMissing),
                     "target", "newWorkStream");
-                page.writeHtml(page.localize(WorkStreamSearchResultAction.class, "action.new.type"));
+                page.writeHtml(page.localize(WorkStream.class, "action.new.type"));
             page.writeEnd();
         page.writeEnd();
     }
