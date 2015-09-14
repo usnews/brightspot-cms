@@ -143,7 +143,7 @@ if (object == null) {
         <%-- Object Preview --%>
         <p id="<%= editObjectFormId %>">
             <a target="_top" class="action action-edit" href="javascript:;">
-                <%= wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Enhancement", "action.edit"))%>
+                <% wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Enhancement", "action.edit")); %>
             </a>
         </p>
         <div id="<%= objectPreviewId %>">
@@ -164,7 +164,7 @@ if (object == null) {
         <%-- Object Edit Form --%>
         <p id="<%= viewObjectPreviewId %>" style="display:none;">
             <a target="_top" class="action action-cancel" href="javascript:;">
-                <%= wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Enhancement", "action.cancel"))%>
+                <% wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Enhancement", "action.cancel")); %>
             </a>
         </p>
         <div id="<%= objectFormId %>" style="display:none;">
@@ -173,7 +173,7 @@ if (object == null) {
 
         <div class="buttons">
             <button class="action action-save">
-                <%= wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Enhancement", "action.save"))%>
+                <% wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Enhancement", "action.save")); %>
             </button>
         </div>
     </form>

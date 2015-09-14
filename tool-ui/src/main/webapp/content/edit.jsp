@@ -985,7 +985,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
     <div class="contentPreview">
         <div class="widget widget-preview">
             <h1>
-                <%= wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Edit", "preview.title"))%>
+                <% wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Edit", "preview.title")); %>
             </h1>
 
             <%
@@ -1004,7 +1004,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                     <input type="hidden" name="scheduleId" value="<%= user.getCurrentSchedule() != null ? user.getCurrentSchedule().getId() : "" %>">
                     <input name="previewDate" type="hidden">
                     <button class="action-share">
-                        <%= wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Edit", "action.share"))%>
+                        <% wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Edit", "action.share")); %>
                     </button>
                 </form>
 

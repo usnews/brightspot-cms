@@ -42,12 +42,12 @@ if (object != null) {
 %><% wp.include("/WEB-INF/header.jsp"); %>
 
 <h1>
-    <%= wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.ImageMetadata", "title"))%>
+    <% wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.ImageMetadata", "title")); %>
 </h1>
 
 <% if (metadata == null) { %>
     <p>
-        <%= wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.ImageMetadata", "message.noMetadata"))%>
+        <% wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.ImageMetadata", "message.noMetadata")); %>
     </p>
 
 <% } else { %>

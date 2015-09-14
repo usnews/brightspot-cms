@@ -20,7 +20,7 @@ if (wp.requireUser()) {
 // --- Presentation ---
 
 %><h1>
-    <%= wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Marker", "title"))%>
+    <% wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Marker", "title")); %>
 </h1>
 
 <ul class="links">
