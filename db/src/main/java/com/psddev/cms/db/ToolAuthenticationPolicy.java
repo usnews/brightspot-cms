@@ -23,7 +23,8 @@ public class ToolAuthenticationPolicy implements AuthenticationPolicy {
         ToolUser user = Query.from(ToolUser.class).where("email = ? or username = ?", username, username).first();
         LdapContext context = LdapUtils.createContext();
 
-        if (context != null && LdapUtils.authenticate(context, username, password)) {
+        if (context != null 
+                && LdapUtils.authenticate(context, username, password)) {
             if (user == null) {
                 user = new ToolUser();
                 user.setName(username);
@@ -99,14 +100,5 @@ public class ToolAuthenticationPolicy implements AuthenticationPolicy {
 
     @Override
     public void initialize(String settingsKey, Map<String, Object> settings) {
-    }
-
-    /**
-     * override this method if you want to log authentication requests on logIn to the CMS tool
-     *
-     * @return
-     */
-    public boolean logAuthRequests() {
-        return false;
     }
 }

@@ -1,5 +1,6 @@
 <%@ page session="false" import="
 
+com.psddev.cms.db.LogUtils,
 com.psddev.cms.db.ToolAuthenticationPolicy,
 com.psddev.cms.db.ToolUser,
 com.psddev.cms.tool.CmsTool,
@@ -11,7 +12,6 @@ com.psddev.dari.util.AuthenticationException,
 com.psddev.dari.util.AuthenticationPolicy,
 com.psddev.dari.util.HtmlWriter,
 com.psddev.dari.util.JspUtils,
-com.psddev.dari.util.LogUtils,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.Settings,
 com.psddev.dari.util.StringUtils,
@@ -42,8 +42,9 @@ ToolUser user = ToolUser.Static.getByTotpToken(wp.param(String.class, "totpToken
 
 String siteUrl = Query.from(CmsTool.class).first().getDefaultSiteUrl();
 String domain = LogUtils.getDomain(siteUrl);
-String ipAddress  = LogUtils.getIpAddress(request.getHeader("X-FORWARDED-FOR"), request.getRemoteAddr());  
-boolean logAuthRequests = false;
+String ipAddress  = LogUtils.getIpAddress(request.getHeader("X-FORWARDED-FOR"), request.getRemoteAddr());
+String isAuthLoggedString = Settings.get(String.class, "cms/tool/isAuthenticationLogged");
+boolean logAuthRequests = !StringUtils.isBlank(isAuthLoggedString) && isAuthLoggedString.equals("true") ? true : false;
 
 if (wp.isFormPost()) {
     try {
@@ -59,8 +60,6 @@ if (wp.isFormPost()) {
             if (authPolicy == null) {
                 authPolicy = new ToolAuthenticationPolicy();
             }
-
-            logAuthRequests = ((ToolAuthenticationPolicy) authPolicy).logAuthRequests();
 
             user = (ToolUser) authPolicy.authenticate(username, wp.param(String.class, "password"));
 
