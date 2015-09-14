@@ -73,6 +73,13 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Defaults")
     private List<CommonTime> commonTimes;
 
+    @ToolUi.Tab("Defaults")
+    @DisplayName("Two Factor Authentication Required?")
+    private boolean tfaRequired;
+
+    @ToolUi.Tab("Dashboard")
+    private Dashboard defaultDashboard;
+
     @ToolUi.Tab("RTE")
     @ToolUi.CodeType("text/css")
     private String defaultTextOverlayCss;
@@ -90,6 +97,9 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Integrations")
     private String dropboxApplicationKey;
 
+    @ToolUi.Tab("Integrations")
+    private String googleServerApiKey;
+
     @ToolUi.Tab("Dashboard")
     private CommonContentSettings commonContentSettings;
 
@@ -106,6 +116,9 @@ public class CmsTool extends Tool {
     private boolean disableAutomaticallySavingDrafts;
 
     @ToolUi.Tab("Debug")
+    private boolean enableFrontEndUploader;
+
+    @ToolUi.Tab("Debug")
     private boolean displayTypesNotAssociatedWithJavaClasses;
 
     @ToolUi.Tab("RTE")
@@ -116,6 +129,9 @@ public class CmsTool extends Tool {
 
     @ToolUi.Tab("Debug")
     private boolean disableContentLocking;
+
+    @ToolUi.Tab("Debug")
+    private boolean optInContentLocking;
 
     @ToolUi.Tab("Debug")
     private boolean removeTrailingSlashes;
@@ -138,12 +154,20 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Debug")
     private List<DariSetting> dariSettings;
 
+    @Deprecated
     @ToolUi.Placeholder("v2")
     @ToolUi.Tab("Debug")
     @ToolUi.Values({ "v3" })
     private String theme;
 
+    @ToolUi.Tab("Debug")
+    @ToolUi.Note("Restrict grid css file lookup to these paths")
+    private List<String> gridCssPaths;
+
     private boolean enableCrossDomainInlineEditing;
+
+    @ToolUi.Tab("Debug")
+    private boolean disableCodeMirrorRichTextEditor;
 
     @Embedded
     public static class CommonTime extends Record {
@@ -457,8 +481,24 @@ public class CmsTool extends Tool {
         return commonTimes;
     }
 
+    public Dashboard getDefaultDashboard() {
+        return defaultDashboard;
+    }
+
+    public void setDefaultDashboard(Dashboard defaultDashboard) {
+        this.defaultDashboard = defaultDashboard;
+    }
+
     public void setCommonTimes(List<CommonTime> commonTimes) {
         this.commonTimes = commonTimes;
+    }
+
+    public boolean isTfaRequired() {
+        return tfaRequired;
+    }
+
+    public void setTfaRequired(boolean tfaRequired) {
+        this.tfaRequired = tfaRequired;
     }
 
     public String getDefaultTextOverlayCss() {
@@ -507,6 +547,14 @@ public class CmsTool extends Tool {
         this.dropboxApplicationKey = dropboxApplicationKey;
     }
 
+    public String getGoogleServerApiKey() {
+        return googleServerApiKey;
+    }
+
+    public void setGoogleServerApiKey(String googleServerApiKey) {
+        this.googleServerApiKey = googleServerApiKey;
+    }
+
     public CommonContentSettings getCommonContentSettings() {
         if (commonContentSettings == null) {
             commonContentSettings = new CommonContentSettings();
@@ -550,8 +598,8 @@ public class CmsTool extends Tool {
      */
     @Deprecated
     public boolean isUseNonMinified() {
-        return isUseNonMinifiedCss() &&
-                isUseNonMinifiedJavaScript();
+        return isUseNonMinifiedCss()
+                && isUseNonMinifiedJavaScript();
     }
 
     /**
@@ -570,6 +618,14 @@ public class CmsTool extends Tool {
 
     public void setDisableAutomaticallySavingDrafts(boolean disableAutomaticallySavingDrafts) {
         this.disableAutomaticallySavingDrafts = disableAutomaticallySavingDrafts;
+    }
+
+    public boolean isEnableFrontEndUploader() {
+        return enableFrontEndUploader;
+    }
+
+    public void setEnableFrontEndUploader(boolean enableFrontEndUploader) {
+        this.enableFrontEndUploader = enableFrontEndUploader;
     }
 
     public boolean isDisplayTypesNotAssociatedWithJavaClasses() {
@@ -602,6 +658,14 @@ public class CmsTool extends Tool {
 
     public void setDisableContentLocking(boolean disableContentLocking) {
         this.disableContentLocking = disableContentLocking;
+    }
+
+    public boolean isOptInContentLocking() {
+        return optInContentLocking;
+    }
+
+    public void setOptInContentLocking(boolean optInContentLocking) {
+        this.optInContentLocking = optInContentLocking;
     }
 
     public boolean isRemoveTrailingSlashes() {
@@ -664,12 +728,22 @@ public class CmsTool extends Tool {
         this.dariSettings = dariSettings;
     }
 
+    @Deprecated
     public String getTheme() {
         return theme;
     }
 
+    @Deprecated
     public void setTheme(String theme) {
         this.theme = theme;
+    }
+
+    public List<String> getGridCssPaths() {
+        return gridCssPaths;
+    }
+
+    public void setGridCssPaths(List<String> gridCssPaths) {
+        this.gridCssPaths = gridCssPaths;
     }
 
     public boolean isEnableCrossDomainInlineEditing() {
@@ -678,6 +752,14 @@ public class CmsTool extends Tool {
 
     public void setEnableCrossDomainInlineEditing(boolean enableCrossDomainInlineEditing) {
         this.enableCrossDomainInlineEditing = enableCrossDomainInlineEditing;
+    }
+
+    public boolean isDisableCodeMirrorRichTextEditor() {
+        return disableCodeMirrorRichTextEditor;
+    }
+
+    public void setDisableCodeMirrorRichTextEditor(boolean disableCodeMirrorRichTextEditor) {
+        this.disableCodeMirrorRichTextEditor = disableCodeMirrorRichTextEditor;
     }
 
     /** Returns the preview URL. */
@@ -753,23 +835,6 @@ public class CmsTool extends Tool {
         plugins.add(createArea2("Variations & Profiles", "adminVariations", "admin/adminVariations", "/admin/variations.jsp"));
         plugins.add(createArea2("Workflows", "adminWorkflows", "admin/adminWorkflows", "/admin/workflows.jsp"));
 
-        // Dashboard widgets.
-        double dashboardColumn = 0.0;
-        double dashboardRow = 0.0;
-
-        plugins.add(createJspWidget("Work Streams", "dashboard.workStreams", "/workStreams", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
-        plugins.add(createJspWidget("Site Map", "dashboard.siteMap", "/misc/siteMap.jsp", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
-        plugins.add(createJspWidget("Recent Activity", "dashboard.recentActivity", "/misc/recentActivity.jsp", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
-
-        dashboardColumn ++;
-        dashboardRow = 0.0;
-
-        plugins.add(createJspWidget("Create New", "dashboard.createNew", "/createNew", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
-        plugins.add(createJspWidget("Bulk Upload", "dashboard.bulkUpload", "/bulkUpload", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
-        plugins.add(createJspWidget("Schedules", "dashboard.scheduledEvents", "/misc/scheduledEvents.jsp", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
-        plugins.add(createPageWidget("Drafts", "dashboard.unpublishedDrafts", "/unpublishedDrafts", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
-        plugins.add(createJspWidget("Resources", "dashboard.resources", "/resources", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
-
         // Content right widgets.
         double rightColumn = 0.0;
         double rightRow = 0.0;
@@ -788,12 +853,6 @@ public class CmsTool extends Tool {
         plugins.add(createPageWidget("References", "references", "/content/references", CONTENT_RIGHT_WIDGET_POSITION, rightColumn, rightRow ++));
 
         urls.getUpdateDependencies().add(template);
-
-        // Content bottom widgets.
-        double bottomColumn = 0.0;
-        double bottomRow = 0.0;
-
-        plugins.add(createJspWidget("Search Engine Optimization", "seo", "/WEB-INF/widget/seo.jsp", CONTENT_BOTTOM_WIDGET_POSITION, bottomColumn, bottomRow ++));
 
         return plugins;
     }
@@ -849,6 +908,7 @@ public class CmsTool extends Tool {
             this.file = file;
         }
 
+        @Override
         public String getUrl() {
             StorageItem file = getFile();
             return file != null ? file.getPublicUrl() : null;
@@ -934,9 +994,9 @@ public class CmsTool extends Tool {
         protected void doRepeatingTask(DateTime runTime) {
             Date newLastUpdate = Query.from(CmsTool.class).lastUpdate();
 
-            if (newLastUpdate != null &&
-                    (oldLastUpdate == null ||
-                    !newLastUpdate.equals(oldLastUpdate))) {
+            if (newLastUpdate != null
+                    && (oldLastUpdate == null
+                    || !newLastUpdate.equals(oldLastUpdate))) {
                 oldLastUpdate = newLastUpdate;
                 Map<String, Object> settings = new CompactMap<String, Object>();
 
@@ -950,4 +1010,5 @@ public class CmsTool extends Tool {
             }
         }
     }
+
 }

@@ -39,16 +39,7 @@ if (fieldValue == null) {
 }
 
 List<ObjectType> validTypes = field.as(ToolUi.class).findDisplayTypes();
-boolean isValueExternal = !field.isEmbedded();
-if (isValueExternal && validTypes != null && validTypes.size() > 0) {
-    isValueExternal = false;
-    for (ObjectType type : validTypes) {
-        if (!type.isEmbedded()) {
-            isValueExternal = true;
-            break;
-        }
-    }
-}
+boolean isValueExternal = ToolUi.isValueExternal(field);
 
 Collections.sort(validTypes, new ObjectFieldComparator("_label", false));
 
@@ -82,12 +73,13 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 ObjectType type = ObjectType.getInstance(typeIds[i]);
                 item = type.createObject(null);
                 itemState = State.getInstance(item);
+                itemState.setResolveInvisible(true);
                 itemState.setId(ids[i]);
             }
 
             wp.updateUsingParameters(item);
-            itemState.putValue(Content.PUBLISH_DATE_FIELD, publishDates[i] != null ? publishDates[i] : new Date());
-            itemState.putValue(Content.UPDATE_DATE_FIELD, new Date());
+            itemState.remove(Content.PUBLISH_DATE_FIELD);
+            itemState.remove(Content.UPDATE_DATE_FIELD);
             fieldValue.add(item);
 
             if (field.isEmbedded() && !itemState.isNew()) {
@@ -100,7 +92,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         fieldValue.clear();
 
         for (UUID id : wp.uuidParams(inputName)) {
-            Object item = Query.findById(Object.class, id);
+            Object item = Query.fromAll().where("_id = ?", id).resolveInvisible().first();
             if (item != null) {
                 fieldValue.add(item);
             }
@@ -171,7 +163,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         }
 
         writer.start("div", "class", "inputSmall");
-            List<?> items = new Search(field).toQuery().selectAll();
+            List<?> items = wp.findDropDownItems(field, new Search(field));
             Collections.sort(items, new ObjectFieldComparator("_label", false));
 
             writer.start("select",
@@ -179,6 +171,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     "data-searchable", "true",
                     "placeholder", placeholder,
                     "data-dynamic-placeholder", dynamicPlaceholder,
+                    "data-dynamic-field-name", field.getInternalName(),
                     "name", inputName);
                 for (Object item : items) {
                     State itemState = State.getInstance(item);

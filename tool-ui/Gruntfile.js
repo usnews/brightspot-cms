@@ -2,6 +2,10 @@ module.exports = function(grunt) {
     require('bsp-grunt')(grunt, {
         bsp: {
             bower: {
+                'atmosphere': [
+                    'modules/javascript/src/main/webapp/javascript/atmosphere.js'
+                ],
+
                 'codemirror': [
                     {
                         dest: 'codemirror',
@@ -15,6 +19,7 @@ module.exports = function(grunt) {
                         src: [
                             'mode/clike/clike.js',
                             'mode/css/css.js',
+                            'addon/mode/multiplex.js', // needed by htmlembedded
                             'mode/htmlembedded/htmlembedded.js',
                             'mode/htmlmixed/htmlmixed.js',
                             'mode/javascript/javascript.js',
@@ -40,8 +45,9 @@ module.exports = function(grunt) {
                     'diff.js'
                 ],
 
-                'leaflet-dist': [
+                'leaflet': [
                     {
+                        cwd: 'dist',
                         dest: 'leaflet',
                         expand: true,
                         src: [
@@ -52,7 +58,7 @@ module.exports = function(grunt) {
 
                     {
                         dest: 'leaflet.js',
-                        src: 'leaflet-src.js'
+                        src: 'dist/leaflet-src.js'
                     }
                 ],
 
@@ -86,25 +92,46 @@ module.exports = function(grunt) {
                         expand: true,
                         src: '**/*.js'
                     }
+                ],
+
+                'leaflet.locatecontrol': [
+                    {
+                        cwd: 'dist',
+                        dest: 'leaflet',
+                        expand: true,
+                        src: '*.css'
+                    },
+
+                    {
+                        cwd: 'src',
+                        expand: true,
+                        src: '*.js'
+                    }
                 ]
+
             },
 
             styles: {
                 dir: 'style',
-                less: [ 'cms.less', 'v3.less' ]
+                less: [ 'v3.less' ]
             },
 
             scripts: {
                 dir: 'script',
                 rjsModules: [
                     {
-                        name: 'cms'
-                    },
-                    {
                         name: 'v3'
                     }
                 ]
             }
-        }
+        },
+
+        less: {
+            compile: {
+                options: {
+                    relativeUrls: true
+                }
+            }
+        },
     });
 };

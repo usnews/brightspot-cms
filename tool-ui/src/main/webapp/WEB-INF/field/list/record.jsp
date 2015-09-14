@@ -14,6 +14,7 @@ com.psddev.dari.db.ObjectFieldComparator,
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.State,
 
+com.psddev.dari.util.CompactMap,
 com.psddev.dari.util.CssUnit,
 com.psddev.dari.util.HtmlGrid,
 com.psddev.dari.util.HtmlObject,
@@ -32,7 +33,8 @@ java.util.Iterator,
 java.util.List,
 java.util.Map,
 java.util.Set,
-java.util.UUID
+java.util.UUID,
+java.util.stream.Collectors
 " %><%
 
 // --- Logic ---
@@ -49,16 +51,7 @@ if (fieldValue == null) {
 }
 
 final List<ObjectType> validTypes = field.as(ToolUi.class).findDisplayTypes();
-boolean isValueExternal = !field.isEmbedded();
-if (isValueExternal && validTypes != null && validTypes.size() > 0) {
-    isValueExternal = false;
-    for (ObjectType type : validTypes) {
-        if (!type.isEmbedded()) {
-            isValueExternal = true;
-            break;
-        }
-    }
-}
+boolean isValueExternal = ToolUi.isValueExternal(field);
 
 Collections.sort(validTypes, new ObjectFieldComparator("_label", false));
 
@@ -95,6 +88,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 ObjectType type = ObjectType.getInstance(typeIds[i]);
                 item = type.createObject(null);
                 itemState = State.getInstance(item);
+                itemState.setResolveInvisible(true);
                 itemState.setId(ids[i]);
             }
 
@@ -107,8 +101,8 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 wp.updateUsingParameters(item);
             }
 
-            itemState.putValue(Content.PUBLISH_DATE_FIELD, publishDates[i] != null ? publishDates[i] : new Date());
-            itemState.putValue(Content.UPDATE_DATE_FIELD, new Date());
+            itemState.remove(Content.PUBLISH_DATE_FIELD);
+            itemState.remove(Content.UPDATE_DATE_FIELD);
             fieldValue.add(item);
 
             if (field.isEmbedded() && !itemState.isNew()) {
@@ -121,7 +115,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         fieldValue.clear();
 
         for (UUID id : wp.uuidParams(inputName)) {
-            Object item = Query.findById(Object.class, id);
+            Object item = Query.fromAll().where("_id = ?", id).resolveInvisible().first();
             if (item != null) {
                 fieldValue.add(item);
             }
@@ -145,7 +139,7 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
     Set<ObjectType> types = field.getTypes();
     final StringBuilder typeIdsCsv = new StringBuilder();
     StringBuilder typeIdsQuery = new StringBuilder();
-    boolean previewable = false;
+    boolean previewable = field.as(ToolUi.class).isDisplayGrid();
 
     if (types != null && !types.isEmpty()) {
         for (ObjectType type : types) {
@@ -294,7 +288,9 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                                                     validObjects.add(itemState.getOriginalObject());
 
                                                                 } else {
-                                                                    validObjects.add(type.createObject(null));
+                                                                    Object itemObj = type.createObject(null);
+                                                                    State.getInstance(itemObj).setResolveInvisible(true);
+                                                                    validObjects.add(itemObj);
                                                                 }
                                                             }
 
@@ -375,7 +371,7 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                                                     "data-label", itemState != null ? itemState.getLabel() : null,
                                                                     "data-typeIds", itemTypeIdsCsv,
                                                                     "data-pathed", ToolUi.isOnlyPathed(field),
-                                                                    "data-additional-query", field.getPredicate(),
+                                                                    "data-dynamic-predicate", field.getPredicate(),
                                                                     "data-preview", preview != null ? preview.getUrl() : null,
                                                                     "name", inputName,
                                                                     "value", itemState != null ? itemState.getId() : null);
@@ -455,7 +451,9 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                                         List<Object> validObjects = new ArrayList<Object>();
 
                                                         for (ObjectType type : itemTypes) {
-                                                            validObjects.add(type.createObject(null));
+                                                            Object itemObj = type.createObject(null);
+                                                            State.getInstance(itemObj).setResolveInvisible(true);
+                                                            validObjects.add(itemObj);
                                                         }
 
                                                         Collections.sort(validObjects, new ObjectFieldComparator("_type/_label", false));
@@ -523,7 +521,7 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                                                 "data-searcher-path", field.as(ToolUi.class).getInputSearcherPath(),
                                                                 "data-typeIds", itemTypeIdsCsv,
                                                                 "data-pathed", ToolUi.isOnlyPathed(field),
-                                                                "data-additional-query", field.getPredicate(),
+                                                                "data-dynamic-predicate", field.getPredicate(),
                                                                 "name", inputName);
                                                     }
                                                 writer.end();
@@ -560,6 +558,8 @@ if (!isValueExternal) {
         }
     }
 
+    boolean displayGrid = field.as(ToolUi.class).isDisplayGrid();
+
     StringBuilder genericArgumentsString = new StringBuilder();
     List<ObjectType> genericArguments = field.getGenericArguments();
 
@@ -573,18 +573,33 @@ if (!isValueExternal) {
     }
 
     wp.writeStart("div",
-            "class", "inputLarge repeatableForm" + (!bulkUploadTypes.isEmpty() ? " repeatableForm-previewable" : ""),
+            "class", "inputLarge repeatableForm" + (displayGrid ? " repeatableForm-previewable" : ""),
             "foo", "bar",
             "data-generic-arguments", genericArgumentsString);
-        wp.writeStart("ol");
+
+        wp.writeStart("ol",
+                "data-sortable-input-name", inputName,
+                "data-sortable-valid-item-types", validTypes.stream()
+                        .map(ObjectType::getId)
+                        .map(UUID::toString)
+                        .collect(Collectors.joining(" ")));
+
             for (Object item : fieldValue) {
                 State itemState = State.getInstance(item);
                 ObjectType itemType = itemState.getType();
                 Date itemPublishDate = itemState.as(Content.ObjectModification.class).getPublishDate();
 
                 wp.writeStart("li",
+                        "data-sortable-item-type", itemType.getId(),
                         "data-type", wp.getObjectLabel(itemType),
-                        "data-label", wp.getObjectLabel(item));
+                        "data-label", wp.getObjectLabel(item),
+                        
+                        // Add the image url for the preview thumbnail, plus the field name that provided the thumbnail
+                        // so if that field is changed the front-end knows that the thumbnail should also be updated
+                        "data-preview", wp.getPreviewThumbnailUrl(item),
+                        "data-preview-field", itemType.getPreviewField()
+                        
+                        );
                     wp.writeElement("input",
                             "type", "hidden",
                             "name", idName,
@@ -600,22 +615,31 @@ if (!isValueExternal) {
                             "name", publishDateName,
                             "value", itemPublishDate != null ? itemPublishDate.getTime() : null);
 
-                    wp.writeElement("input",
-                            "type", "hidden",
-                            "name", dataName,
-                            "value", ObjectUtils.toJson(itemState.getSimpleValues()),
-                            "data-form-fields-url", wp.cmsUrl(
-                                    "/contentFormFields",
-                                    "typeId", itemType.getId(),
-                                    "id", itemState.getId()));
+                    if (!itemState.hasAnyErrors()) {
+                        wp.writeElement("input",
+                                "type", "hidden",
+                                "name", dataName,
+                                "value", ObjectUtils.toJson(itemState.getSimpleValues()),
+                                "data-form-fields-url", wp.cmsUrl(
+                                        "/contentFormFields",
+                                        "typeId", itemType.getId(),
+                                        "id", itemState.getId()));
+
+                    } else {
+                        wp.writeFormFields(item);
+                    }
                 wp.writeEnd();
             }
 
             for (ObjectType type : validTypes) {
                 wp.writeStart("script", "type", "text/template");
                     wp.writeStart("li",
-                            "class", !bulkUploadTypes.isEmpty() ? "collapsed" : null,
-                            "data-type", wp.getObjectLabel(type));
+                            "class", displayGrid ? "collapsed" : null,
+                            "data-sortable-item-type", type.getId(),
+                            "data-type", wp.getObjectLabel(type),
+                            // Add the name of the preview field so the front end knows
+                            // if that field is updated it should update the thumbnail
+                            "data-preview-field", type.getPreviewField());
                         wp.writeStart("a",
                                 "href", wp.cmsUrl("/content/repeatableObject.jsp",
                                         "inputName", inputName,
@@ -626,7 +650,7 @@ if (!isValueExternal) {
             }
         wp.writeEnd();
 
-        if (!bulkUploadTypes.isEmpty()) {
+        if (!bulkUploadTypes.isEmpty() && !field.as(ToolUi.class).isReadOnly()) {
             StringBuilder typeIdsQuery = new StringBuilder();
 
             for (ObjectType type : bulkUploadTypes) {
@@ -645,28 +669,25 @@ if (!isValueExternal) {
     wp.writeEnd();
 
 } else {
-    Set<ObjectType> types = field.getTypes();
+    Set<ObjectType> valueTypes = field.getTypes();
     final StringBuilder typeIdsCsv = new StringBuilder();
     StringBuilder typeIdsQuery = new StringBuilder();
-    boolean previewable = false;
 
-    if (types != null && !types.isEmpty()) {
-        for (ObjectType type : types) {
-            typeIdsCsv.append(type.getId()).append(",");
-            typeIdsQuery.append("typeId=").append(type.getId()).append("&");
-
-            if (!ObjectUtils.isBlank(type.getPreviewField())) {
-                previewable = true;
-            }
+    if (valueTypes != null && !valueTypes.isEmpty()) {
+        for (ObjectType valueType : valueTypes) {
+            typeIdsCsv.append(valueType.getId()).append(",");
+            typeIdsQuery.append("typeId=").append(valueType.getId()).append("&");
         }
 
         typeIdsCsv.setLength(typeIdsCsv.length() - 1);
         typeIdsQuery.setLength(typeIdsQuery.length() - 1);
     }
 
+    boolean displayGrid = field.as(ToolUi.class).isDisplayGrid();
+
     PageWriter writer = wp.getWriter();
 
-    writer.start("div", "class", "inputSmall repeatableObjectId" + (previewable ? " repeatableObjectId-previewable" : ""));
+    writer.start("div", "class", "inputSmall repeatableObjectId" + (displayGrid ? " repeatableObjectId-previewable" : ""));
 
         if (fieldValue == null || fieldValue.isEmpty()) {
 
@@ -682,10 +703,18 @@ if (!isValueExternal) {
             }
         }
 
-        writer.start("ol");
+        writer.start("ol",
+                    "data-sortable-input-name", inputName,
+                    "data-sortable-valid-item-types", validTypes.stream()
+                            .map(ObjectType::getId)
+                            .map(UUID::toString)
+                            .collect(Collectors.joining(" ")));
+
             if (fieldValue != null) {
                 for (Object item : fieldValue) {
-                    writer.start("li");
+                    writer.start("li",
+                            "data-sortable-item-type", State.getInstance(item).getTypeId());
+
                         wp.writeObjectSelect(field, item, "name", inputName);
                     writer.end();
                 }
@@ -697,7 +726,7 @@ if (!isValueExternal) {
             writer.writeEnd();
         writer.end();
 
-        if (previewable) {
+        if (displayGrid && !field.as(ToolUi.class).isReadOnly()) {
             writer.start("a",
                     "class", "action-upload",
                     "href", wp.url("/content/uploadFiles?" + typeIdsQuery, "containerId", containerObjectId),

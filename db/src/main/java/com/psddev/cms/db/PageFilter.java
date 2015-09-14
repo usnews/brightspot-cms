@@ -31,12 +31,18 @@ import com.psddev.cms.tool.AuthenticationFilter;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.RemoteWidgetFilter;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.cms.view.JsonViewRenderer;
+import com.psddev.cms.view.PageViewClass;
+import com.psddev.cms.view.ViewOutput;
+import com.psddev.cms.view.ViewRequest;
+import com.psddev.cms.view.ViewRenderer;
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.ApplicationFilter;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
+import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.AbstractFilter;
 import com.psddev.dari.util.ErrorUtils;
@@ -97,6 +103,9 @@ public class PageFilter extends AbstractFilter {
     public static final String SITE_ATTRIBUTE = ATTRIBUTE_PREFIX + ".site";
     public static final String SITE_CHECKED_ATTRIBUTE = ATTRIBUTE_PREFIX + ".siteChecked";
     public static final String SUBSTITUTIONS_ATTRIBUTE = ATTRIBUTE_PREFIX + ".substitutions";
+
+    public static final String MAIN_OBJECT_RENDERER_CONTEXT = "_main";
+    public static final String EMBED_OBJECT_RENDERER_CONTEXT = "_embed";
 
     /**
      * Returns {@code true} if rendering the given {@code request} has
@@ -268,7 +277,13 @@ public class PageFilter extends AbstractFilter {
             response = new LazyWriterResponse(request, response);
         }
 
-        super.doInclude(request, response, chain);
+        try {
+            super.doInclude(request, response, chain);
+        } finally {
+            if (response instanceof LazyWriterResponse) {
+                ((LazyWriterResponse) response).getLazyWriter().writePending();
+            }
+        }
     }
 
     @Override
@@ -278,8 +293,8 @@ public class PageFilter extends AbstractFilter {
             FilterChain chain)
             throws IOException, ServletException {
 
-        if (request.getMethod().equalsIgnoreCase("HEAD") &&
-                ObjectUtils.to(boolean.class, request.getHeader("Brightspot-Main-Object-Id-Query"))) {
+        if (request.getMethod().equalsIgnoreCase("HEAD")
+                && ObjectUtils.to(boolean.class, request.getHeader("Brightspot-Main-Object-Id-Query"))) {
             Object mainObject = Static.getMainObject(request);
 
             if (mainObject != null) {
@@ -330,6 +345,12 @@ public class PageFilter extends AbstractFilter {
 
         try {
             String servletPath = request.getServletPath();
+            String externalUrl = Directory.extractExternalUrl(servletPath);
+
+            if (externalUrl != null) {
+                response.sendRedirect(externalUrl);
+                return;
+            }
 
             // Serve a special robots.txt file for non-production.
             if (servletPath.equals("/robots.txt") && !Settings.isProduction()) {
@@ -384,26 +405,60 @@ public class PageFilter extends AbstractFilter {
             // If mainObject has a redirect path AND a permalink and the
             // current request is the redirect path, then redirect to the
             // permalink.
-            String path = Static.getPath(request);
             Directory.Path redirectPath = null;
             boolean isRedirect = false;
 
             for (Directory.Path p : State.getInstance(mainObject).as(Directory.Data.class).getPaths()) {
-                if (p.getType() == Directory.PathType.REDIRECT &&
-                        ObjectUtils.equals(p.getSite(), site) &&
-                        path.equalsIgnoreCase(p.getPath())) {
-                    isRedirect = true;
 
-                } else if (p.getType() == Directory.PathType.PERMALINK &&
-                        ObjectUtils.equals(p.getSite(), site)) {
+                if (p.getType() == Directory.PathType.REDIRECT
+                        && ObjectUtils.equals(p.getSite(), site)) {
+                    String path = p.getPath();
+                    String requestPath = Static.getPath(request);
+
+                    if (requestPath.equalsIgnoreCase(path)) {
+                        isRedirect = true;
+
+                    } else {
+                        // handle wildcards
+                        int wildcardIndex = path.indexOf("/*");
+
+                        if (wildcardIndex > -1) {
+                            String purePath = path.substring(0, wildcardIndex);
+
+                            if (requestPath.length() >= purePath.length()) {
+                                String requestPurePath = requestPath.substring(0, wildcardIndex);
+
+                                if (requestPurePath.equalsIgnoreCase(purePath)) {
+                                    String requestPathLeftover = requestPath.substring(wildcardIndex, requestPath.length());
+
+                                    if (requestPathLeftover.isEmpty()) {
+                                        isRedirect = true;
+
+                                    } else {
+                                        String wildcard = path.substring(wildcardIndex, path.length());
+
+                                        if (wildcard.equals("/**")
+                                                || (wildcard.equals("/*") && requestPathLeftover.split("/").length < 3)) {
+                                            isRedirect = true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                } else if (p.getType() == Directory.PathType.PERMALINK
+                        && ObjectUtils.equals(p.getSite(), site)) {
                     redirectPath = p;
                 }
             }
 
             if (isRedirect && redirectPath != null) {
-                JspUtils.redirectPermanently(request, response, site != null ?
-                        site.getPrimaryUrl() + redirectPath.getPath() :
-                        redirectPath.getPath());
+                String rp = StringUtils.removeEnd(redirectPath.getPath(), "*");
+
+                JspUtils.redirectPermanently(request, response, site != null
+                        ? site.getPrimaryUrl() + rp
+                        : rp);
                 return;
             }
 
@@ -419,21 +474,25 @@ public class PageFilter extends AbstractFilter {
             // Fake the request path in preview mode in case the servlets
             // depend on it.
             if (Static.isPreview(request)) {
-                final String previewPath = request.getParameter("_previewPath");
+                String previewPath = request.getParameter("_previewPath");
 
                 if (!ObjectUtils.isBlank(previewPath)) {
                     int colonAt = previewPath.indexOf(':');
 
                     if (colonAt > -1) {
-                        Site previewSite = Query.
-                                from(Site.class).
-                                where("_id = ?", ObjectUtils.to(UUID.class, previewPath.substring(0, colonAt))).
-                                first();
+                        Site previewSite = Query
+                                .from(Site.class)
+                                .where("_id = ?", ObjectUtils.to(UUID.class, previewPath.substring(0, colonAt)))
+                                .first();
 
                         if (previewSite != null) {
                             Static.setSite(request, previewSite);
                         }
+
+                        previewPath = previewPath.substring(colonAt + 1);
                     }
+
+                    final String finalPreviewPath = previewPath;
 
                     request = new HttpServletRequestWrapper(request) {
 
@@ -449,20 +508,20 @@ public class PageFilter extends AbstractFilter {
 
                         @Override
                         public String getServletPath() {
-                            return previewPath;
+                            return finalPreviewPath;
                         }
                     };
                 }
             }
 
-            if (!Static.isPreview(request) &&
-                    !mainState.isVisible()) {
+            if (!Static.isPreview(request)
+                    && !mainState.isVisible()) {
                 SCHEDULED: {
                     if (user != null) {
                         Schedule currentSchedule = user.getCurrentSchedule();
 
-                        if (currentSchedule != null &&
-                                Query.from(Draft.class).where("schedule = ? and objectId = ?", currentSchedule, mainState.getId()).first() != null) {
+                        if (currentSchedule != null
+                                && Query.from(Draft.class).where("schedule = ? and objectId = ?", currentSchedule, mainState.getId()).first() != null) {
                             break SCHEDULED;
                         }
 
@@ -488,9 +547,9 @@ public class PageFilter extends AbstractFilter {
             ObjectType mainType = mainState.getType();
             Page page = Static.getPage(request);
 
-            if (page == null &&
-                    mainType != null &&
-                    !ObjectUtils.isBlank(mainType.as(Renderer.TypeModification.class).getPath())) {
+            if (page == null
+                    && mainType != null
+                    && !ObjectUtils.isBlank(mainType.as(Renderer.TypeModification.class).getPath())) {
                 page = Application.Static.getInstance(CmsTool.class).getModulePreviewTemplate();
             }
 
@@ -520,13 +579,13 @@ public class PageFilter extends AbstractFilter {
             request.setAttribute("stage", stage);
             stage.setMetaProperty("og:type", mainType.as(Seo.TypeModification.class).getOpenGraphType());
 
-            if (mainType != null &&
-                    !ObjectUtils.isBlank(mainType.as(Renderer.TypeModification.class).getEmbedPath())) {
+            if (mainType != null
+                    && !ObjectUtils.isBlank(mainType.as(Renderer.TypeModification.class).getEmbedPath())) {
                 stage.findOrCreateHeadElement("link",
                         "rel", "alternate",
-                        "type", "application/json+oembed").
-                        getAttributes().
-                        put("href", JspUtils.getAbsoluteUrl(request, "",
+                        "type", "application/json+oembed")
+                        .getAttributes()
+                        .put("href", JspUtils.getAbsoluteUrl(request, "",
                                 "_embed", true,
                                 "_format", "oembed"));
             }
@@ -585,8 +644,8 @@ public class PageFilter extends AbstractFilter {
                 }
             }
 
-            if (ObjectUtils.isBlank(layoutPath) &&
-                    Static.isPreview(request)) {
+            if (ObjectUtils.isBlank(layoutPath)
+                    && Static.isPreview(request)) {
                 layoutPath = findLayoutPath(mainObject, true);
             }
 
@@ -594,9 +653,8 @@ public class PageFilter extends AbstractFilter {
             boolean rendered = false;
 
             try {
-                if (contextNotBlank) {
-                    ContextTag.Static.pushContext(request, context);
-                }
+                ContextTag.Static.pushContext(request, contextNotBlank ? context
+                        : (embed ? EMBED_OBJECT_RENDERER_CONTEXT : MAIN_OBJECT_RENDERER_CONTEXT));
 
                 if (!ObjectUtils.isBlank(layoutPath)) {
                     rendered = true;
@@ -621,10 +679,12 @@ public class PageFilter extends AbstractFilter {
                     ((Renderer) mainObject).renderObject(request, response, (HtmlWriter) writer);
                 }
 
-            } finally {
-                if (contextNotBlank) {
-                    ContextTag.Static.popContext(request);
+                if (!rendered && tryRenderView(request, response, writer, mainObject)) {
+                    rendered = true;
                 }
+
+            } finally {
+                ContextTag.Static.popContext(request);
             }
 
             if (!rendered) {
@@ -685,16 +745,16 @@ public class PageFilter extends AbstractFilter {
             }
         }
 
-        if (Settings.isDebug() ||
-                (Static.isPreview(request) &&
-                !Boolean.TRUE.equals(request.getAttribute(PERSISTENT_PREVIEW_ATTRIBUTE)))) {
+        if (Settings.isDebug()
+                || (Static.isPreview(request)
+                && !Boolean.TRUE.equals(request.getAttribute(PERSISTENT_PREVIEW_ATTRIBUTE)))) {
             return;
         }
 
         String contentType = response.getContentType();
 
-        if (contentType == null ||
-                !StringUtils.ensureEnd(contentType, ";").startsWith("text/html;")) {
+        if (contentType == null
+                || !StringUtils.ensureEnd(contentType, ";").startsWith("text/html;")) {
             return;
         }
 
@@ -797,16 +857,16 @@ public class PageFilter extends AbstractFilter {
                         "class", "bsp-inlineEditorMain_remove",
                         "href", "#",
                         "onclick",
-                                "var main = this.parentNode," +
-                                        "contents = this.ownerDocument.getElementById('bsp-inlineEditorContents');" +
+                                "var main = this.parentNode,"
+                                        + "contents = this.ownerDocument.getElementById('bsp-inlineEditorContents');"
 
-                                "main.parentNode.removeChild(main);" +
+                                + "main.parentNode.removeChild(main);"
 
-                                "if (contents) {" +
-                                    "contents.parentNode.removeChild(contents);" +
-                                "}" +
+                                + "if (contents) {"
+                                    + "contents.parentNode.removeChild(contents);"
+                                + "}"
 
-                                "return false;");
+                                + "return false;");
                     page.writeHtml("\u00d7");
                 page.writeEnd();
             page.writeEnd();
@@ -984,9 +1044,9 @@ public class PageFilter extends AbstractFilter {
 
         @Override
         public boolean equals(Object other) {
-            return this == other || (
-                    other instanceof SectionCacheKey &&
-                    sectionId.equals(((SectionCacheKey) other).sectionId));
+            return this == other
+                    || (other instanceof SectionCacheKey
+                    && sectionId.equals(((SectionCacheKey) other).sectionId));
         }
 
         @Override
@@ -1019,6 +1079,62 @@ public class PageFilter extends AbstractFilter {
         }
     };
 
+    private static boolean tryRenderView(HttpServletRequest request,
+                                        HttpServletResponse response,
+                                        Writer writer,
+                                        Object object)
+                                        throws IOException, ServletException {
+
+        ViewRequest viewRequest = new ServletViewRequest(request);
+
+        PageViewClass annotation = object.getClass().getAnnotation(PageViewClass.class);
+
+        Class<?> layoutViewClass = annotation != null ? annotation.value() : null;
+        if (layoutViewClass != null) {
+
+            Object view = viewRequest.createView(layoutViewClass, object);
+            if (view != null) {
+
+                ViewRenderer renderer;
+                if ("json".equals(request.getParameter("_renderer"))) {
+
+                    JsonViewRenderer jsonViewRenderer = new JsonViewRenderer();
+                    jsonViewRenderer.setIndented(!Settings.isProduction());
+                    jsonViewRenderer.setIncludeClassNames(!Settings.isProduction());
+                    renderer = jsonViewRenderer;
+
+                    response.setContentType("application/json");
+
+                } else {
+                    renderer = ViewRenderer.createRenderer(view);
+                }
+
+                if (renderer != null) {
+
+                    ViewOutput result = renderer.render(view);
+                    String output = result.get();
+                    if (output != null) {
+                        writer.write(output);
+                    }
+
+                } else {
+                    LOGGER.warn("Could not create renderer for view of type ["
+                            + view.getClass().getName() + "]!");
+                }
+
+            } else {
+                LOGGER.warn("Could not create view of type ["
+                        + layoutViewClass.getName() + "] for object of type ["
+                        + object.getClass() + "]!");
+            }
+
+            return true;
+
+        } else {
+            return false;
+        }
+    }
+
     /** Renders the given {@code object}. */
     public static void renderObject(
             HttpServletRequest request,
@@ -1027,11 +1143,14 @@ public class PageFilter extends AbstractFilter {
             Object object)
             throws IOException, ServletException {
 
-        if (object instanceof Section) {
-            renderSection(request, response, writer, (Section) object);
+        if (!tryRenderView(request, response, writer, object)) {
 
-        } else {
-            renderObjectWithSection(request, response, writer, object, null);
+            if (object instanceof Section) {
+                renderSection(request, response, writer, (Section) object);
+
+            } else {
+                renderObjectWithSection(request, response, writer, object, null);
+            }
         }
     }
 
@@ -1121,7 +1240,6 @@ public class PageFilter extends AbstractFilter {
                 marker.append("<span class=\"cms-objectBegin\" style=\"display: none;\" data-object=\"");
                 marker.append(StringUtils.escapeHtml(ObjectUtils.toJson(map)));
                 marker.append("\"></span>");
-
                 lazyWriter.writeLazily(marker.toString());
             }
 
@@ -1142,6 +1260,7 @@ public class PageFilter extends AbstractFilter {
 
             if (lazyWriter != null) {
                 lazyWriter.writeLazily("<span class=\"cms-objectEnd\" style=\"display: none;\"></span>");
+                lazyWriter.writePending();
             }
         }
     }
@@ -1314,20 +1433,20 @@ public class PageFilter extends AbstractFilter {
                         }
 
                         UUID mainObjectId = ObjectUtils.to(UUID.class, request.getParameter("_mainObjectId"));
-                        Object preview = Query.
-                                fromAll().
-                                where("_id = ?", mainObjectId).
-                                first();
+                        Object preview = Query
+                                .fromAll()
+                                .where("_id = ?", mainObjectId)
+                                .first();
 
                         if (preview == null) {
-                            preview = Query.
-                                    fromAll().
-                                    where("_id = ?", previewId).
-                                    first();
+                            preview = Query
+                                    .fromAll()
+                                    .where("_id = ?", previewId)
+                                    .first();
                         }
 
                         if (preview instanceof Draft) {
-                            mainObject = ((Draft) preview).getObject();
+                            mainObject = ((Draft) preview).recreate();
 
                         } else if (preview instanceof History) {
                             mainObject = ((History) preview).getObject();
@@ -1363,13 +1482,21 @@ public class PageFilter extends AbstractFilter {
                             dirData.addPath(null, "/_preview-" + previewId, Directory.PathType.PERMALINK);
                         }
 
-                        Site previewSite = Query.
-                                from(Site.class).
-                                where("_id = ?", request.getParameter(PREVIEW_SITE_ID_PARAMETER)).
-                                first();
+                        Site previewSite = Query
+                                .from(Site.class)
+                                .where("_id = ?", request.getParameter(PREVIEW_SITE_ID_PARAMETER))
+                                .first();
 
                         if (previewSite != null) {
                             setSite(request, previewSite);
+
+                        } else {
+                            for (Directory.Path p : dirData.getPaths()) {
+                                if (Directory.PathType.PERMALINK.equals(p.getType())) {
+                                    setSite(request, p.getSite());
+                                    break;
+                                }
+                            }
                         }
                     }
 
@@ -1625,7 +1752,7 @@ public class PageFilter extends AbstractFilter {
                 for (int i = objects.size() - 1; i >= 0; -- i) {
                     Object object = objects.get(i);
 
-                    if (!State.getInstance(object).isNew()) {
+                    if (object instanceof Recordable && !State.getInstance(object).isNew()) {
                         return object;
                     }
                 }

@@ -23,20 +23,20 @@ public class AdminTrash extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
-        Object trash = Query.
-                from(Object.class).
-                where("_id = ?", page.param(UUID.class, "id")).
-                first();
+        Object trash = Query
+                .from(Object.class)
+                .where("_id = ?", page.param(UUID.class, "id"))
+                .first();
 
         if (page.tryStandardUpdate(trash)) {
             return;
         }
 
-        PaginatedResult<Object> trashes = Query.
-                from(Object.class).
-                where("cms.content.trashed = true").
-                sortDescending("cms.content.updateDate").
-                select(page.param(long.class, "offset"), page.paramOrDefault(int.class, "limit", 10));
+        PaginatedResult<Object> trashes = Query
+                .from(Object.class)
+                .where("cms.content.trashed = true")
+                .sortDescending("cms.content.updateDate")
+                .select(page.param(long.class, "offset"), page.paramOrDefault(int.class, "limit", 10));
 
         page.writeHeader();
             page.writeStart("div", "class", "withLeftNav");
@@ -78,7 +78,7 @@ public class AdminTrash extends PageServlet {
 
                                     page.writeStart("li", "class", item.equals(trash) ? "selected" : null);
                                         page.writeStart("a", "href", page.url(null, "id", itemState.getId()));
-                                            page.writeHtml(itemState.getLabel());
+                                            page.writeHtml(page.getObjectLabelOrDefault(itemState, "Untitled"));
                                         page.writeEnd();
                                     page.writeEnd();
                                 }

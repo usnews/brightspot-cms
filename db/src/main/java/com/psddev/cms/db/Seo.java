@@ -80,9 +80,9 @@ public final class Seo {
          */
         @Deprecated
         public static String findTitle(Object object) {
-            return object != null ?
-                    State.getInstance(object).as(ObjectModification.class).findTitle() :
-                    null;
+            return object != null
+                    ? State.getInstance(object).as(ObjectModification.class).findTitle()
+                    : null;
         }
 
         /**
@@ -94,9 +94,9 @@ public final class Seo {
          */
         @Deprecated
         public static String findDescription(Object object) {
-            return object != null ?
-                    State.getInstance(object).as(ObjectModification.class).findDescription() :
-                    null;
+            return object != null
+                    ? State.getInstance(object).as(ObjectModification.class).findDescription()
+                    : null;
         }
 
         /**
@@ -108,9 +108,9 @@ public final class Seo {
          */
         @Deprecated
         public static Set<String> findKeywords(Object object) {
-            return object != null ?
-                    State.getInstance(object).as(ObjectModification.class).findKeywords() :
-                    null;
+            return object != null
+                    ? State.getInstance(object).as(ObjectModification.class).findKeywords()
+                    : null;
         }
     }
 
@@ -132,16 +132,27 @@ public final class Seo {
     /**
      * Object modification for specifying SEO-related overrides.
      */
+    @Recordable.BeanProperty("seo")
     @Modification.FieldInternalNamePrefix("cms.seo.")
     public static final class ObjectModification extends Modification<Object> {
 
-        @ToolUi.Placeholder(dynamicText = "${content.label}", editable = true)
+        @ToolUi.Hidden(false)
+        @ToolUi.Placeholder(dynamicText = "${content.seo.findTitlePlaceholder()}", editable = true)
+        @ToolUi.Tab("SEO")
         private String title;
 
+        @ToolUi.Hidden(false)
+        @ToolUi.Placeholder(dynamicText = "${content.seo.findDescriptionPlaceholder()}", editable = true)
+        @ToolUi.Tab("SEO")
         private String description;
+
+        @ToolUi.Hidden(false)
+        @ToolUi.Tab("SEO")
         private Set<String> keywords;
 
+        @ToolUi.Hidden(false)
         @ToolUi.NoteHtml("See <a href=\"https://developers.google.com/webmasters/control-crawl-index/docs/robots_meta_tag\" target=\"_blank\">robots meta tag documentation</a> for more information.")
+        @ToolUi.Tab("SEO")
         private Set<RobotsValue> robots;
 
         public String getTitle() {
@@ -195,6 +206,32 @@ public final class Seo {
         }
 
         /**
+         * Finds the most appropriate page title placeholder.
+         *
+         * @return Never {@code null}.
+         */
+        public String findTitlePlaceholder() {
+            State state = getState();
+            ObjectType type = state.getType();
+
+            if (type != null) {
+                for (String field : type.as(TypeModification.class).getTitleFields()) {
+                    Object fieldTitle = state.getByPath(field);
+
+                    if (fieldTitle != null) {
+                        title = toMetaTagString(fieldTitle);
+
+                        if (title != null) {
+                            return title;
+                        }
+                    }
+                }
+            }
+
+            return getState().getLabel();
+        }
+
+        /**
          * Finds the most appropriate page title.
          *
          * @return Never {@code null}.
@@ -202,7 +239,7 @@ public final class Seo {
         public String findTitle() {
             String title = getTitle();
 
-            return ObjectUtils.isBlank(title) ? getState().getLabel() : title;
+            return ObjectUtils.isBlank(title) ? findTitlePlaceholder() : title;
         }
 
         // Converts the given object into a plain string that's usable
@@ -241,17 +278,11 @@ public final class Seo {
         }
 
         /**
-         * Finds the most appropriate page description.
+         * Finds the most appropriate page description placeholder.
          *
          * @return May be {@code null}.
          */
-        public String findDescription() {
-            String description = getDescription();
-
-            if (!ObjectUtils.isBlank(description)) {
-                return description;
-            }
-
+        public String findDescriptionPlaceholder() {
             State state = getState();
             ObjectType type = state.getType();
 
@@ -270,6 +301,17 @@ public final class Seo {
             }
 
             return null;
+        }
+
+        /**
+         * Finds the most appropriate page description.
+         *
+         * @return May be {@code null}.
+         */
+        public String findDescription() {
+            String description = getDescription();
+
+            return ObjectUtils.isBlank(description) ? findDescriptionPlaceholder() : description;
         }
 
         /**
@@ -349,9 +391,27 @@ public final class Seo {
     @Modification.FieldInternalNamePrefix("cms.seo.")
     public static final class TypeModification extends Modification<ObjectType> {
 
+        private List<String> titleFields;
         private List<String> descriptionFields;
         private List<String> keywordsFields;
         private String openGraphType;
+
+        /**
+         * @return Never {@code null}. Mutable.
+         */
+        public List<String> getTitleFields() {
+            if (titleFields == null) {
+                titleFields = new ArrayList<String>();
+            }
+            return titleFields;
+        }
+
+        /**
+         * @param titleFields May be {@code null} to clear the list.
+         */
+        public void setTitleFields(List<String> titleFields) {
+            this.titleFields = titleFields;
+        }
 
         /**
          * @return Never {@code null}. Mutable.
@@ -393,6 +453,28 @@ public final class Seo {
 
         public void setOpenGraphType(String openGraphType) {
             this.openGraphType = openGraphType;
+        }
+    }
+
+    /**
+     * Specifies an array of field paths that are checked to find the page
+     * title from an instance of the target type.
+     */
+    @Documented
+    @Inherited
+    @ObjectType.AnnotationProcessorClass(TitleFieldsProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface TitleFields {
+        String[] value();
+    }
+
+    private static class TitleFieldsProcessor implements ObjectType.AnnotationProcessor<TitleFields> {
+        @Override
+        public void process(ObjectType type, TitleFields annotation) {
+            Collections.addAll(
+                      type.as(TypeModification.class).getTitleFields(),
+                      annotation.value());
         }
     }
 

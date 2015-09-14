@@ -70,16 +70,32 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
             String subPredicateIndexParam = paramPrefix + ".p";
             int lastSubPredicateIndex = -1;
 
+            for (String paramName : paramNames) {
+                if (paramName.startsWith(subPredicateIndexParam)) {
+                    Integer subPredicateIndex = ObjectUtils.to(Integer.class, paramName.substring(subPredicateIndexParam.length()));
+
+                    if (subPredicateIndex != null) {
+                        if (lastSubPredicateIndex < subPredicateIndex) {
+                            lastSubPredicateIndex = subPredicateIndex;
+                        }
+                    }
+                }
+            }
+
+            page.writeStart("button",
+                    "class", "icon icon-action-add link",
+                    "name", paramPrefix + ".p" + (lastSubPredicateIndex + 1),
+                    "value", 1);
+                page.writeHtml("Add Another ");
+                page.writeHtml(getLabel());
+            page.writeEnd();
+
             page.writeStart("ul");
                 for (String paramName : paramNames) {
                     if (paramName.startsWith(subPredicateIndexParam)) {
                         Integer subPredicateIndex = ObjectUtils.to(Integer.class, paramName.substring(subPredicateIndexParam.length()));
 
                         if (subPredicateIndex != null) {
-                            if (lastSubPredicateIndex < subPredicateIndex) {
-                                lastSubPredicateIndex = subPredicateIndex;
-                            }
-
                             page.writeStart("li");
                                 predicate = CompoundPredicate.combine(
                                         getOperator(),
@@ -89,14 +105,6 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
                         }
                     }
                 }
-            page.writeEnd();
-
-            page.writeStart("button",
-                    "class", "icon icon-action-add link",
-                    "name", paramPrefix + ".p" + (lastSubPredicateIndex + 1),
-                    "value", 1);
-                page.writeHtml("Add Another ");
-                page.writeHtml(getLabel());
             page.writeEnd();
 
             return predicate;
@@ -229,8 +237,8 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
                             for (PathedField pf : pathedFields) {
                                 String path = pf.getPath();
 
-                                if (comparisonField == null &&
-                                        path.equals(comparisonPath)) {
+                                if (comparisonField == null
+                                        && path.equals(comparisonPath)) {
                                     List<ObjectField> pfs = pf.getFields();
 
                                     if (!pfs.isEmpty()) {
@@ -253,8 +261,8 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
                     for (PathedField pf : getPathedFields(environment)) {
                         String path = pf.getPath();
 
-                        if (comparisonField == null &&
-                                path.equals(comparisonPath)) {
+                        if (comparisonField == null
+                                && path.equals(comparisonPath)) {
                             List<ObjectField> pfs = pf.getFields();
 
                             if (!pfs.isEmpty()) {
@@ -277,10 +285,10 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
                     "data-bsp-autosubmit", "",
                     "name", comparisonOperatorParam);
                 for (ComparisonOperator op : ComparisonOperator.values()) {
-                    if ((ObjectUtils.isBlank(comparisonPath) &&
-                            !op.equals(ComparisonOperator.M)) ||
-                            (!ObjectUtils.isBlank(comparisonPath) &&
-                            !op.isDisplayedFor(comparisonField))) {
+                    if ((ObjectUtils.isBlank(comparisonPath)
+                            && !op.equals(ComparisonOperator.M))
+                            || (!ObjectUtils.isBlank(comparisonPath)
+                            && !op.isDisplayedFor(comparisonField))) {
                         if (op.equals(comparisonOperator)) {
                             comparisonOperator = null;
                         }
@@ -329,16 +337,16 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
                 ObjectField field = i.next();
                 String declaring = field.getJavaDeclaringClassName();
 
-                if (declaring != null &&
-                        declaring.startsWith("com.psddev.dari.db.")) {
+                if (declaring != null
+                        && declaring.startsWith("com.psddev.dari.db.")) {
                     continue;
                 }
 
                 String fieldName = field.getInternalName();
                 boolean embedded = field.isEmbedded();
 
-                if (!embedded &&
-                        ObjectField.RECORD_TYPE.equals(field.getInternalItemType())) {
+                if (!embedded
+                        && ObjectField.RECORD_TYPE.equals(field.getInternalItemType())) {
                     embedded = true;
 
                     for (ObjectType t : field.getTypes()) {
@@ -354,9 +362,9 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
                         addPathedFields(pathedFields, copyConcatenate(prefix, field), t);
                     }
 
-                } else if (indexedFields.contains(fieldName) &&
-                        !field.isDeprecated() &&
-                        !field.as(ToolUi.class).isHidden()) {
+                } else if (indexedFields.contains(fieldName)
+                        && !field.isDeprecated()
+                        && !field.as(ToolUi.class).isHidden()) {
                     pathedFields.add(new PathedField(copyConcatenate(prefix, field)));
                 }
             }
@@ -460,8 +468,8 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
                 public boolean isDisplayedFor(ObjectField field) {
                     String t = field.getInternalItemType();
 
-                    return ObjectField.REFERENTIAL_TEXT_TYPE.equals(t) ||
-                            ObjectField.TEXT_TYPE.equals(t);
+                    return ObjectField.REFERENTIAL_TEXT_TYPE.equals(t)
+                            || ObjectField.TEXT_TYPE.equals(t);
                 }
 
                 @Override
@@ -496,9 +504,9 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
                 public boolean isDisplayedFor(ObjectField field) {
                     String t = field.getInternalItemType();
 
-                    return ObjectField.NUMBER_TYPE.equals(t) ||
-                            ObjectField.RECORD_TYPE.equals(t) ||
-                            ObjectField.TEXT_TYPE.equals(t);
+                    return ObjectField.NUMBER_TYPE.equals(t)
+                            || ObjectField.RECORD_TYPE.equals(t)
+                            || ObjectField.TEXT_TYPE.equals(t);
                 }
 
                 @Override
@@ -509,10 +517,10 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
                         throws IOException {
 
                     if (ObjectField.RECORD_TYPE.equals(field.getInternalItemType())) {
-                        List<Object> selected = Query.
-                                fromAll().
-                                where("_id = ?", page.params(UUID.class, valueParam)).
-                                selectAll();
+                        List<Object> selected = Query
+                                .fromAll()
+                                .where("_id = ?", page.params(UUID.class, valueParam))
+                                .selectAll();
 
                         if (page.isObjectSelectDropDown(field)) {
                             List<?> items = new Search(field).toQuery(page.getSite()).selectAll();
@@ -816,8 +824,8 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
                 public boolean isDisplayedFor(ObjectField field) {
                     String t = field.getInternalItemType();
 
-                    return ObjectField.DATE_TYPE.equals(t) ||
-                            ObjectField.NUMBER_TYPE.equals(t);
+                    return ObjectField.DATE_TYPE.equals(t)
+                            || ObjectField.NUMBER_TYPE.equals(t);
                 }
 
                 @Override

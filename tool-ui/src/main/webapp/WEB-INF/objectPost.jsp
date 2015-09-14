@@ -11,6 +11,7 @@ com.psddev.dari.db.State,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.TypeReference,
 
+java.util.ArrayList,
 java.util.Collection,
 java.util.Date,
 java.util.List,
@@ -25,7 +26,19 @@ Collection<String> includeFields = ObjectUtils.to(new TypeReference<Collection<S
 Collection<String> excludeFields = ObjectUtils.to(new TypeReference<Collection<String>>() { }, request.getAttribute("excludeFields"));
 State state = State.getInstance(object);
 ObjectType type = state.getType();
-List<ObjectField> fields = type != null ? type.getFields() : null;
+List<ObjectField> fields = new ArrayList<>();
+
+if (type != null) {
+    fields.addAll(type.getFields());
+}
+
+if (wp.param(boolean.class, state.getId() + "/_includeGlobals") && !fields.isEmpty()) {
+    for (ObjectField field : state.getDatabase().getEnvironment().getFields()) {
+        if (Boolean.FALSE.equals(field.getState().get("cms.ui.hidden"))) {
+            fields.add(field);
+        }
+    }
+}
 
 if (object instanceof Query) {
     state.clear();
@@ -60,27 +73,6 @@ if (object instanceof Query) {
     } finally {
         if (oldContainer == null) {
             request.setAttribute("containerObject", null);
-
-            Date oldUpdateDate = wp.param(Date.class, state.getId() + "/_updateDate");
-
-            if (oldUpdateDate != null) {
-                Object newObject = Query.fromAll().where("_id = ?", state.getId()).master().noCache().first();
-
-                if (newObject != null) {
-                    Content.ObjectModification newContentData = State.getInstance(newObject).as(Content.ObjectModification.class);
-                    Date newUpdateDate = newContentData.getUpdateDate();
-
-                    if (!oldUpdateDate.equals(newUpdateDate)) {
-                        ToolUser newUpdateUser = newContentData.getUpdateUser();
-
-                        throw new IllegalArgumentException(
-                                (newUpdateUser != null ? newUpdateUser.getLabel() : "Unknown user") +
-                                " has updated this content at " +
-                                newUpdateDate +
-                                " since you've seen it last. Click on publish button again to override the changes with your own.");
-                    }
-                }
-            }
         }
 
         if (draftCheck) {

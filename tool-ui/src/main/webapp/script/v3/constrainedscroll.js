@@ -1,147 +1,99 @@
 define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
-  var ORIGINAL_OFFSET_DATA = 'originalData';
-  var CURRENT_CSS_DATA = 'currentCss';
-  var FIXED_DATA = 'fixed';
-  var FIXED_BOTTOM = 'bottom';
-  var FIXED_TOP = 'top';
-  var BOTTOM_OFFSET = 60;
+  var SELECTOR = '.withLeftNav > .leftNav, .withLeftNav > .main, .contentForm-main, .contentForm-aside';
+  var VISIBLE_DATA_KEY = 'cs-visible';
+  var TOP_ORIGINAL_DATA_KEY = 'cs-topOriginal';
+  var HEIGHT_DATA_KEY = 'cs-height';
 
-  var $window = $(window);
-  var oldScrollTop = 0;
-  var windowHeight;
-  var $elements = $();
-
-  function resetCss() {
-    $(this).css({
-      'bottom': '',
-      'left': '',
-      'position': '',
-      'top': ''
-    });
-  }
-
-  function updateOriginalOffset() {
-    var $element = $(this);
-    var offset = $element.offset();
-    offset.marginLeft = parseInt($element.css('margin-left'), 10);
-
-    $.data(this, ORIGINAL_OFFSET_DATA, offset);
-    return offset;
-  }
-
-  function restoreCurrentCss() {
-    var currentCss = $.data(this, CURRENT_CSS_DATA);
-
-    if (currentCss) {
-      $(this).css(currentCss);
-    }
-  }
-
-  function getOriginalOffset($element) {
-    var element = $element[0];
-    var offset = $.data(element, ORIGINAL_OFFSET_DATA);
-
-    if (!offset) {
-      resetCss.call(element);
-      offset = updateOriginalOffset.call(element);
-      restoreCurrentCss.call(element);
-    }
-
-    return offset;
-  }
-
-  function updateElements() {
-    windowHeight = $window.height() - BOTTOM_OFFSET;
-
-    $elements.each(resetCss);
-    $elements.each(updateOriginalOffset);
-
-    $.each([
-      [ '.withLeftNav', '> .leftNav', '> .main' ],
-      [ '.contentForm', '> .contentForm-main', '> .contentForm-aside' ]
-
-    ], function(i, selectors) {
-      $(selectors[0]).each(function() {
-        var $container = $(this);
-
-        if ($container.closest('.popup').length === 0) {
-          var $left = $container.find(selectors[1]);
-          var $right = $container.find(selectors[2]);
-          var leftBottom = getOriginalOffset($left).top + $left.outerHeight(true);
-          var rightBottom = getOriginalOffset($right).top + $right.outerHeight(true);
-          $elements = $elements[leftBottom > windowHeight && leftBottom < rightBottom ? 'add' : 'not']($left);
-          $elements = $elements[rightBottom > windowHeight && rightBottom < leftBottom ? 'add' : 'not']($right);
-        }
+  // Set up all the elements so that they can be moved.
+  bsp_utils.onDomInsert(document, SELECTOR, {
+    'insert': function(element) {
+      $(element).css({
+        'margin-bottom': 0,
+        'position': 'relative',
+        'top': 0
       });
+    }
+  });
+
+  // Update the current state of the elements every so often. This is
+  // throttled heavily so that the actual scroll events can run fast
+  // using the cached information.
+  var bodyHeight = 0;
+  var toolHeaderHeight = 0;
+  var $window = $(window);
+
+  $window.scroll(bsp_utils.throttle(1000, function() {
+    bodyHeight = $(document.body).height();
+    toolHeaderHeight = $('.toolHeader').outerHeight(true);
+
+    $(SELECTOR).each(function() {
+      var element = this;
+      var $element = $(element);
+
+      $.data(element, VISIBLE_DATA_KEY, $element.is(':visible'));
+      $.data(element, TOP_ORIGINAL_DATA_KEY, $element.offset().top - (parseInt($element.css('top'), 10) || 0));
+      $.data(element, HEIGHT_DATA_KEY, $element.outerHeight());
     });
+  }));
 
-    $elements.each(restoreCurrentCss);
-  }
+  // Move the elements on scroll.
+  var lastWindowScrollTop = $window.scrollTop();
 
-  updateElements();
-  setTimeout(updateElements, 1000);
-  $window.resize(bsp_utils.throttle(100, updateElements));
+  $window.scroll(function() {
+    var windowScrollTop = $window.scrollTop();
+    var windowHeight = $window.height();
 
-  function updateCss($element, css) {
-    $.data($element[0], CURRENT_CSS_DATA, css);
-    $element.css(css);
-  }
+    $(SELECTOR).each(function() {
+      var element = this;
+      var $element = $(element);
 
-  function positionElements() {
-    var newScrollTop = $window.scrollTop();
+      // Skip the move if not visible.
+      if (!$.data(element, VISIBLE_DATA_KEY) ||
+          $element.closest('.popup-objectId-edit-loaded').length > 0) {
+        return;
+      }
 
-    $elements.each(function() {
-      var $element = $(this);
-      var fixed = $.data($element[0], FIXED_DATA);
+      var elementTopOriginal = $.data(element, TOP_ORIGINAL_DATA_KEY);
+      var elementHeight = $.data(element, HEIGHT_DATA_KEY);
+      var elementTop = $element.offset().top;
 
-      if (!fixed) {
-        var originalOffset = getOriginalOffset($element);
-        var elementOffset = $element.offset();
+      function moveToTop(offset) {
+        var top = Math.max(windowScrollTop - (offset || 0), 0);
 
-        if (newScrollTop > oldScrollTop) {
-          var windowBottom = newScrollTop + windowHeight;
-          var elementBottom = elementOffset.top + $element.outerHeight(true);
+        $element.css({
+          'margin-bottom': top,
+          'top': top
+        });
+      }
 
-          if (windowBottom > elementBottom) {
-            $.data($element[0], FIXED_DATA, FIXED_BOTTOM);
-            updateCss($element, {
-              'bottom': BOTTOM_OFFSET,
-              'left': elementOffset.left - originalOffset.marginLeft,
-              'position': 'fixed',
-              'top': ''
-            });
-          }
+      // The element height is less than the window height,
+      // so there's no need to account for being fixed at the bottom.
+      if (elementTopOriginal + elementHeight < windowHeight) {
+        moveToTop();
 
-        } else {
-          var originalTop = originalOffset.top;
-          var elementTop = elementOffset.top - originalTop;
+      // The user is scrolling down.
+      } else if (lastWindowScrollTop < windowScrollTop) {
+        var windowBottom = windowScrollTop + windowHeight;
 
-          if (newScrollTop < elementTop) {
-            $.data($element[0], FIXED_DATA, FIXED_TOP);
-            updateCss($element, {
-              'bottom': '',
-              'left': elementOffset.left - originalOffset.marginLeft,
-              'position': 'fixed',
-              'top': originalTop
-            });
-          }
+        // The bottom of the element is about to be hidden, so move it up.
+        if (windowBottom > elementTop + elementHeight) {
+          var top = Math.max(Math.min(windowBottom - elementHeight - elementTopOriginal, bodyHeight - elementHeight - elementTopOriginal), 0);
+
+          $element.css({
+            'margin-bottom': top,
+            'top': top
+          });
         }
 
-      } else if ((newScrollTop > oldScrollTop && fixed === FIXED_TOP) ||
-          (newScrollTop <= oldScrollTop && fixed === FIXED_BOTTOM)) {
-        $.data($element[0], FIXED_DATA, null);
-        updateCss($element, {
-          'bottom': '',
-          'left': '',
-          'position': 'relative',
-          'top': $element.offset().top - getOriginalOffset($element).top
-        });
+      // The user is scrolling up, and the top of the element is about to
+      // be hidden, so move it down.
+      } else if (lastWindowScrollTop > windowScrollTop &&
+          elementTop > windowScrollTop + toolHeaderHeight) {
+
+        moveToTop(elementTopOriginal - toolHeaderHeight);
       }
     });
 
-    oldScrollTop = newScrollTop;
-  }
-
-  positionElements();
-  $window.scroll(bsp_utils.throttle(50, positionElements));
+    lastWindowScrollTop = windowScrollTop;
+  });
 });

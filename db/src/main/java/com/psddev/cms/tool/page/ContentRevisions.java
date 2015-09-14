@@ -70,10 +70,10 @@ public class ContentRevisions extends Widget {
             }
         }
 
-        for (Draft d : Query.
-                from(Draft.class).
-                where("objectId = ?", state.getId()).
-                selectAll()) {
+        for (Draft d : Query
+                .from(Draft.class)
+                .where("objectId = ?", state.getId())
+                .selectAll()) {
             if (d.getSchedule() != null) {
                 scheduled.add(d);
 
@@ -99,19 +99,19 @@ public class ContentRevisions extends Widget {
             }
         });
 
-        for (History h : Query.
-                from(History.class).
-                where("name != missing and objectId = ?", state.getId()).
-                sortAscending("name").
-                selectAll()) {
+        for (History h : Query
+                .from(History.class)
+                .where("name != missing and objectId = ?", state.getId())
+                .sortAscending("name")
+                .selectAll()) {
             namedHistories.add(h);
         }
 
-        PaginatedResult<History> historiesResult = Query.
-                from(History.class).
-                where("name = missing and objectId = ?", state.getId()).
-                sortDescending("updateDate").
-                select(0, 10);
+        PaginatedResult<History> historiesResult = Query
+                .from(History.class)
+                .where("name = missing and objectId = ?", state.getId())
+                .sortDescending("updateDate")
+                .select(0, 10);
 
         for (History h : historiesResult.getItems()) {
             histories.add(h);
@@ -122,16 +122,13 @@ public class ContentRevisions extends Widget {
                 page.writeHtml("Revisions");
             page.writeEnd();
 
-            if (!(selected instanceof Draft &&
-                    state.as(Content.ObjectModification.class).isDraft())) {
-                page.writeStart("ul", "class", "links");
-                    page.writeStart("li", "class", object.equals(selected) ? "selected" : null);
-                        page.writeStart("a", "href", page.originalUrl(null, object));
-                            page.writeHtml("Current");
-                        page.writeEnd();
+            page.writeStart("ul", "class", "links");
+                page.writeStart("li", "class", object.equals(selected) ? "selected" : null);
+                    page.writeStart("a", "href", page.originalUrl(null, object));
+                        page.writeHtml("Live");
                     page.writeEnd();
                 page.writeEnd();
-            }
+            page.writeEnd();
 
             if (!scheduled.isEmpty()) {
                 page.writeStart("h2").writeHtml("Scheduled").writeEnd();
@@ -160,7 +157,10 @@ public class ContentRevisions extends Widget {
             }
 
             if (!drafts.isEmpty()) {
-                page.writeStart("h2").writeHtml("Drafts").writeEnd();
+                page.writeStart("h2");
+                    page.writeObjectLabel(ObjectType.getInstance(Draft.class));
+                    page.writeHtml(" Items");
+                page.writeEnd();
 
                 page.writeStart("ul", "class", "links pageThumbnails");
                     for (Draft d : drafts) {
@@ -225,36 +225,38 @@ public class ContentRevisions extends Widget {
                                 "class", h.equals(selected) ? "selected" : null,
                                 "data-preview-url", "/_preview?_cms.db.previewId=" + h.getId());
 
-                            if (ObjectUtils.to(boolean.class, originals.get("cms.content.draft"))) {
-                                page.writeStart("span", "class", "visibilityLabel");
-                                    page.writeHtml("Draft");
-                                page.writeEnd();
+                            page.writeStart("a", "href", page.objectUrl(null, h));
+                                if (ObjectUtils.to(boolean.class, originals.get("cms.content.draft"))) {
+                                    page.writeStart("span", "class", "visibilityLabel");
+                                        page.writeHtml("Initial Draft");
+                                    page.writeEnd();
+                                    page.writeHtml(" ");
 
-                            } else {
-                                String workflowState = ObjectUtils.to(String.class, originals.get("cms.workflow.currentState"));
+                                } else {
+                                    String workflowState = ObjectUtils.to(String.class, originals.get("cms.workflow.currentState"));
 
-                                if (workflowState != null) {
-                                    Workflow workflow = Query.
-                                            from(Workflow.class).
-                                            where("contentTypes = ?", h.getState().get("objectType")).
-                                            first();
+                                    if (workflowState != null) {
+                                        Workflow workflow = Query
+                                                .from(Workflow.class)
+                                                .where("contentTypes = ?", h.getState().get("objectType"))
+                                                .first();
 
-                                    if (workflow != null) {
-                                        for (WorkflowState s : workflow.getStates()) {
-                                            if (workflowState.equals(s.getName())) {
-                                                workflowState = s.getDisplayName();
-                                                break;
+                                        if (workflow != null) {
+                                            for (WorkflowState s : workflow.getStates()) {
+                                                if (workflowState.equals(s.getName())) {
+                                                    workflowState = s.getDisplayName();
+                                                    break;
+                                                }
                                             }
                                         }
+
+                                        page.writeStart("span", "class", "visibilityLabel");
+                                            page.writeHtml(workflowState);
+                                        page.writeEnd();
+                                        page.writeHtml(" ");
                                     }
-
-                                    page.writeStart("span", "class", "visibilityLabel");
-                                        page.writeHtml(workflowState);
-                                    page.writeEnd();
                                 }
-                            }
 
-                            page.writeStart("a", "href", page.objectUrl(null, h));
                                 page.writeHtml(page.formatUserDateTime(h.getUpdateDate()));
                                 page.writeHtml(" by ");
                                 page.writeObjectLabel(h.getUpdateUser());

@@ -37,6 +37,8 @@ public class Directory extends Record {
     public static final String PATHS_FIELD = FIELD_PREFIX + "paths";
     public static final String PATH_TYPES_FIELD = FIELD_PREFIX + "pathTypes";
 
+    private static final Pattern EXTERNAL_URL_PATTERN = Pattern.compile("(?i)/(https?:)/(.*)");
+
     @Indexed(unique = true)
     @Required
     private String path;
@@ -52,6 +54,25 @@ public class Directory extends Record {
         path = "/" + path + "/";
         path = StringUtils.replaceAll(path, "/(?:/+|\\./)", "/");
         return path;
+    }
+
+    /**
+     * Extracts a valid external URL from the given {@code path} if possible.
+     *
+     * @param path If {@code null}, returns {@code null}.
+     * @return May be {@code null} if the path doesn't look like an external
+     * url.
+     */
+    public static String extractExternalUrl(String path) {
+        if (path != null) {
+            Matcher externalUrlMatcher = EXTERNAL_URL_PATTERN.matcher(path);
+
+            if (externalUrlMatcher.matches()) {
+                return externalUrlMatcher.group(1) + "//" + externalUrlMatcher.group(2);
+            }
+        }
+
+        return null;
     }
 
     /** Returns the path. */
@@ -176,17 +197,17 @@ public class Directory extends Record {
 
                 if (rawPathMatcher.matches()) {
                     UUID directoryId = ObjectUtils.to(UUID.class, rawPathMatcher.group(2));
-                    Directory directory = Query.
-                            from(Directory.class).
-                            where("_id = ?", directoryId).
-                            first();
+                    Directory directory = Query
+                            .from(Directory.class)
+                            .where("_id = ?", directoryId)
+                            .first();
 
                     if (directory != null) {
                         String path = directory.getPath() + rawPathMatcher.group(3);
-                        Site site = Query.
-                                from(Site.class).
-                                where("_id = ?", ObjectUtils.to(UUID.class, rawPathMatcher.group(1))).
-                                first();
+                        Site site = Query
+                                .from(Site.class)
+                                .where("_id = ?", ObjectUtils.to(UUID.class, rawPathMatcher.group(1)))
+                                .first();
 
                         if (path.endsWith("/index")) {
                             path = path.substring(0, path.length() - 5);
@@ -270,7 +291,7 @@ public class Directory extends Record {
 
         public Path(Site site, String path, PathType type) {
             this.site = site;
-            this.path = path;
+            this.path = path != null ? path.trim() : null;
             this.type = type != null ? type : PathType.PERMALINK;
         }
 
@@ -279,7 +300,7 @@ public class Directory extends Record {
         }
 
         public String getPath() {
-            return path;
+            return path != null ? path.trim() : null;
         }
 
         public PathType getType() {
@@ -295,8 +316,8 @@ public class Directory extends Record {
 
             } else if (other instanceof Path) {
                 Path otherPath = (Path) other;
-                return ObjectUtils.equals(getSite(), otherPath.getSite()) &&
-                        ObjectUtils.equals(getPath(), otherPath.getPath());
+                return ObjectUtils.equals(getSite(), otherPath.getSite())
+                        && ObjectUtils.equals(getPath(), otherPath.getPath());
 
             } else {
                 return false;
@@ -412,12 +433,12 @@ public class Directory extends Record {
             pathMatcher.find();
             path = pathMatcher.group(1);
 
-            Directory dir = Query.
-                    from(Directory.class).
-                    where("path = ?", path).
-                    master().
-                    noCache().
-                    first();
+            Directory dir = Query
+                    .from(Directory.class)
+                    .where("path = ?", path)
+                    .master()
+                    .noCache()
+                    .first();
 
             if (dir == null) {
                 dir = new Directory();
@@ -451,8 +472,8 @@ public class Directory extends Record {
                 if (rawPathMatcher.matches()) {
 
                     UUID siteId = ObjectUtils.to(UUID.class, rawPathMatcher.group(1));
-                    if ((siteId == null && site == null) ||
-                            (site != null && site.getId().equals(siteId))) {
+                    if ((siteId == null && site == null)
+                            || (site != null && site.getId().equals(siteId))) {
 
                         UUID directoryId = ObjectUtils.to(UUID.class, rawPathMatcher.group(2));
                         if (directoryId != null) {
@@ -462,10 +483,10 @@ public class Directory extends Record {
                                 directoryPath = DIRECTORY_PATHS.getUnchecked(directoryId);
 
                             } catch (UncheckedExecutionException error) {
-                                Directory directory = Query.
-                                        from(Directory.class).
-                                        where("_id = ?", directoryId).
-                                        first();
+                                Directory directory = Query
+                                        .from(Directory.class)
+                                        .where("_id = ?", directoryId)
+                                        .first();
 
                                 if (directory != null) {
                                     directoryPath = directory.getPath();
@@ -489,17 +510,17 @@ public class Directory extends Record {
 
         private static final RuntimeException DIRECTORY_NOT_FOUND = new RuntimeException();
 
-        private static final LoadingCache<UUID, String> DIRECTORY_PATHS = CacheBuilder.
-                newBuilder().
-                maximumSize(1000).
-                build(new CacheLoader<UUID, String>() {
+        private static final LoadingCache<UUID, String> DIRECTORY_PATHS = CacheBuilder
+                .newBuilder()
+                .maximumSize(1000)
+                .build(new CacheLoader<UUID, String>() {
 
                     @Override
                     public String load(UUID directoryId) {
-                        Directory directory = Query.
-                                from(Directory.class).
-                                where("_id = ?", directoryId).
-                                first();
+                        Directory directory = Query
+                                .from(Directory.class)
+                                .where("_id = ?", directoryId)
+                                .first();
 
                         if (directory != null) {
                             return directory.getPath();
@@ -542,8 +563,8 @@ public class Directory extends Record {
             Map<String, PathType> types = getPathTypes();
             for (Iterator<String> i = getRawPaths().iterator(); i.hasNext();) {
                 String rawPath = i.next();
-                if ((sitePrefix == null && !rawPath.contains(":")) ||
-                        (sitePrefix != null && rawPath.startsWith(sitePrefix))) {
+                if ((sitePrefix == null && !rawPath.contains(":"))
+                        || (sitePrefix != null && rawPath.startsWith(sitePrefix))) {
                     i.remove();
                     types.remove(rawPath);
                 }
@@ -738,10 +759,10 @@ public class Directory extends Record {
             if (slashAt > -1) {
                 String name = path.substring(slashAt + 1);
                 path = path.substring(0, slashAt + 1);
-                Directory directory = Query.
-                        from(Directory.class).
-                        where("path = ?", path).
-                        first();
+                Directory directory = Query
+                        .from(Directory.class)
+                        .where("path = ?", path)
+                        .first();
 
                 if (directory != null) {
                     String rawPath = directory.getRawPath() + name;
@@ -766,9 +787,9 @@ public class Directory extends Record {
             Set<Object> invisibles = null;
 
             while (true) {
-                Query<Object> query = Query.
-                        fromAll().
-                        and("cms.directory.paths = ?", rawPath);
+                Query<Object> query = Query
+                        .fromAll()
+                        .and("cms.directory.paths = ?", rawPath);
 
                 if (invisibles != null) {
                     query.and("_id != ?", invisibles);
@@ -811,10 +832,10 @@ public class Directory extends Record {
                 return null;
             }
 
-            Directory directory = Query.
-                    from(Directory.class).
-                    where("path = ?", path).
-                    first();
+            Directory directory = Query
+                    .from(Directory.class)
+                    .where("path = ?", path)
+                    .first();
 
             if (directory != null) {
                 return directory;
@@ -825,10 +846,10 @@ public class Directory extends Record {
             if (slashAt > -1) {
                 String name = path.substring(slashAt + 1);
                 path = path.substring(0, slashAt + 1);
-                directory = Query.
-                        from(Directory.class).
-                        where("path = ?", path).
-                        first();
+                directory = Query
+                        .from(Directory.class)
+                        .where("path = ?", path)
+                        .first();
 
                 if (directory != null) {
                     String rawPath = directory.getRawPath() + name;

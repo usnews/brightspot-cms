@@ -72,12 +72,14 @@ if ((Boolean) request.getAttribute("isFormPost") && fieldValue != null && !State
 if (fieldValue == null && isEmbedded) {
     if (fieldValueType != null) {
         fieldValue = fieldValueType.createObject(null);
+        State.getInstance(fieldValue).setResolveInvisible(true);
         fieldValueNew = true;
 
     } else {
         for (ObjectType type : validTypes) {
             if (type.getId().equals(typeId)) {
                 fieldValue = type.createObject(null);
+                State.getInstance(fieldValue).setResolveInvisible(true);
                 break;
             }
         }
@@ -94,8 +96,8 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             State fieldValueState = State.getInstance(fieldValue);
             fieldValueState.setId(id);
             wp.updateUsingParameters(fieldValue);
-            fieldValueState.putValue(Content.PUBLISH_DATE_FIELD, publishDate != null ? publishDate : new Date());
-            fieldValueState.putValue(Content.UPDATE_DATE_FIELD, new Date());
+            fieldValueState.remove(Content.PUBLISH_DATE_FIELD);
+            fieldValueState.remove(Content.UPDATE_DATE_FIELD);
 
             if (field.isEmbedded() && !fieldValueState.isNew()) {
                 fieldValueState.setId(null);
@@ -103,7 +105,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             }
         }
     } else {
-        fieldValue = Query.findById(Object.class, wp.uuidParam(inputName));
+        fieldValue = Query.fromAll().where("_id = ?", wp.uuidParam(inputName)).resolveInvisible().first();
     }
 
     if ("none".equals(wp.param(String.class, setName))) {
@@ -175,7 +177,9 @@ if (isEmbedded) {
             if (fieldValue != null && type.equals(State.getInstance(fieldValue).getType())) {
                 validObjects.add(fieldValue);
             } else {
-                validObjects.add(type.createObject(null));
+                Object itemObj = type.createObject(null);
+                State.getInstance(itemObj).setResolveInvisible(true);
+                validObjects.add(itemObj);
             }
         }
 
@@ -213,7 +217,18 @@ if (isEmbedded) {
             wp.write("<div class=\"inputLarge ", validObjectClass, " ", showClasses.get(validState.getId()), "\">");
             wp.write("<input name=\"", wp.h(typeIdName), "\" type=\"hidden\" value=\"", validState.getTypeId(), "\">");
             wp.write("<input name=\"", wp.h(publishDateName), "\" type=\"hidden\" value=\"", wp.h(validObjectPublishDate != null ? validObjectPublishDate.getTime() : null), "\">");
-            wp.writeFormFields(validObject);
+            if (!validState.hasAnyErrors()) {
+                wp.writeStart("div",
+                        "class", "toggleable-form",
+                        "data-form-fields-data", ObjectUtils.toJson(validState.getSimpleValues()),
+                        "data-form-fields-url", wp.cmsUrl(
+                                "/contentFormFields",
+                                "typeId", validState.getTypeId(),
+                                "id", validState.getId()));
+                wp.writeEnd();
+            } else {
+                wp.writeFormFields(validObject);
+            }
             wp.write("</div>");
         }
     }

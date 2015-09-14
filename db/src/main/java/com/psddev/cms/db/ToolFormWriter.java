@@ -7,6 +7,7 @@ import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.FormInputProcessor;
 import com.psddev.dari.db.FormLabelRenderer;
@@ -51,7 +52,7 @@ public class ToolFormWriter extends FormWriter {
                         page.getRequest(),
                         page.getResponse(),
                         html,
-                        page.cmsUrl("/WEB-INF/field.jsp"),
+                        page.toolPath(CmsTool.class, "/WEB-INF/field.jsp"),
                         "object", state.getOriginalObject(),
                         "field", field,
                         "inputName", id + "/" + field.getInternalName(),
@@ -85,7 +86,7 @@ public class ToolFormWriter extends FormWriter {
                         page.getRequest(),
                         page.getResponse(),
                         html,
-                        page.cmsUrl("/WEB-INF/field.jsp"),
+                        page.toolPath(CmsTool.class, "/WEB-INF/field.jsp"),
                         "object", state.getOriginalObject(),
                         "field", field,
                         "inputName", state.getId() + "/" + field.getInternalName(),
@@ -96,9 +97,9 @@ public class ToolFormWriter extends FormWriter {
 
             } catch (ServletException ex) {
                 Throwable cause = ex.getCause();
-                throw cause instanceof RuntimeException ?
-                        (RuntimeException) cause :
-                        new RuntimeException(cause);
+                throw cause instanceof RuntimeException
+                        ? (RuntimeException) cause
+                        : new RuntimeException(cause);
             }
         }
     }

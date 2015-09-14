@@ -29,6 +29,7 @@ import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.PredicateParser;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.CompactMap;
@@ -38,9 +39,13 @@ import com.psddev.dari.util.ObjectToIterable;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.Settings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RoutingFilter.Path(application = "cms", value = "/contentState")
 public class ContentState extends PageServlet {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContentState.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -60,10 +65,10 @@ public class ContentState extends PageServlet {
         // Pretend to update the object.
         State state = State.getInstance(object);
 
-        if (state.isNew() ||
-                object instanceof Draft ||
-                state.as(Content.ObjectModification.class).isDraft() ||
-                state.as(Workflow.Data.class).getCurrentState() != null) {
+        if (state.isNew()
+                || object instanceof Draft
+                || state.as(Content.ObjectModification.class).isDraft()
+                || state.as(Workflow.Data.class).getCurrentState() != null) {
             page.setContentFormScheduleDate(object);
         }
 
@@ -99,9 +104,9 @@ public class ContentState extends PageServlet {
             Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
             ToolUser user = page.getUser();
 
-            if (idle &&
-                    (state.isNew() || contentData.isDraft()) &&
-                    !page.getCmsTool().isDisableAutomaticallySavingDrafts()) {
+            if (idle
+                    && (state.isNew() || contentData.isDraft())
+                    && !page.getCmsTool().isDisableAutomaticallySavingDrafts()) {
                 contentData.setDraft(true);
                 contentData.setUpdateDate(new Date());
                 contentData.setUpdateUser(user);
@@ -185,6 +190,7 @@ public class ContentState extends PageServlet {
 
         // Evaluate all dynamic texts.
         List<String> dynamicTexts = new ArrayList<String>();
+        List<String> dynamicPredicates = new ArrayList<>();
         JspFactory jspFactory = JspFactory.getDefaultFactory();
         PageContext pageContext = jspFactory.getPageContext(this, page.getRequest(), page.getResponse(), null, false, 0, false);
 
@@ -194,30 +200,65 @@ public class ContentState extends PageServlet {
             List<UUID> contentIds = page.params(UUID.class, "_dti");
             int contentIdsSize = contentIds.size();
             List<String> templates = page.params(String.class, "_dtt");
+            List<String> contentFieldNames = page.params(String.class, "_dtf");
+            List<String> predicates = page.params(String.class, "_dtq");
+            int contentFieldNamesSize = contentFieldNames.size();
 
             for (int i = 0, size = templates.size(); i < size; ++ i) {
+
+                Object content = null;
+
                 try {
-                    Object content = i < contentIdsSize ? findContent(object, contentIds.get(i)) : null;
+                    content = i < contentIdsSize ? findContent(object, contentIds.get(i)) : null;
+                } catch (RuntimeException e) {
+                    // Ignore.
+                }
 
-                    if (content != null) {
+                String dynamicText = "";
+                String dynamicPredicate = "";
+
+                if (content != null) {
+
+                    try {
+
                         pageContext.setAttribute("content", content);
-                        dynamicTexts.add(((String) expressionFactory.createValueExpression(elContext, templates.get(i), String.class).getValue(elContext)));
 
-                    } else {
-                        dynamicTexts.add(null);
+                        ObjectField field = null;
+
+                        String contentFieldName = i < contentFieldNamesSize ? contentFieldNames.get(i) : null;
+                        if (contentFieldName != null) {
+                            field = State.getInstance(content).getField(contentFieldName);
+                        }
+                        pageContext.setAttribute("field", field);
+
+                        dynamicText = ((String) expressionFactory.createValueExpression(elContext, templates.get(i), String.class).getValue(elContext));
+
+                    } catch (RuntimeException error) {
+                        if (Settings.isProduction()) {
+                            LOGGER.warn("Could not generate dynamic text!", error);
+
+                        } else {
+                            StringWriter string = new StringWriter();
+
+                            error.printStackTrace(new PrintWriter(string));
+                            dynamicText = string.toString();
+                        }
                     }
 
-                } catch (RuntimeException error) {
-                    if (Settings.isProduction()) {
-                        dynamicTexts.add("");
+                    try {
 
-                    } else {
-                        StringWriter string = new StringWriter();
+                        if (!ObjectUtils.isBlank(predicates.get(i))) {
+                            dynamicPredicate = PredicateParser.Static.parse(predicates.get(i), content).toString();
+                        }
 
-                        error.printStackTrace(new PrintWriter(string));
-                        dynamicTexts.add(string.toString());
+                    } catch (RuntimeException error) {
+
+                        LOGGER.warn("Could not generate dynamic predicate!", error);
                     }
                 }
+
+                dynamicTexts.add(dynamicText);
+                dynamicPredicates.add(dynamicPredicate);
             }
 
         } finally {
@@ -225,6 +266,7 @@ public class ContentState extends PageServlet {
         }
 
         jsonResponse.put("_dynamicTexts", dynamicTexts);
+        jsonResponse.put("_dynamicPredicates", dynamicPredicates);
 
         // Write the JSON response.
         HttpServletResponse response = page.getResponse();
@@ -264,9 +306,9 @@ public class ContentState extends PageServlet {
                 if (valueState.isNew()) {
                     ObjectType type;
 
-                    if (embedded ||
-                            ((type = valueState.getType()) != null &&
-                            type.isEmbedded())) {
+                    if (embedded
+                            || ((type = valueState.getType()) != null
+                            && type.isEmbedded())) {
                         Object found = findContent(value, id);
 
                         if (found != null) {
@@ -276,9 +318,9 @@ public class ContentState extends PageServlet {
                 }
 
             } else {
-                Iterable<?> valueIterable = value instanceof Map ?
-                        ((Map<?, ?>) value).values() :
-                        ObjectToIterable.iterable(value);
+                Iterable<?> valueIterable = value instanceof Map
+                        ? ((Map<?, ?>) value).values()
+                        : ObjectToIterable.iterable(value);
 
                 if (valueIterable != null) {
                     for (Object item : valueIterable) {

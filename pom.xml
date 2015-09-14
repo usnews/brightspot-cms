@@ -9,24 +9,22 @@
     <parent>
         <groupId>com.psddev</groupId>
         <artifactId>dari-parent</artifactId>
-        <version>2.4-SNAPSHOT</version>
+        <version>3.1-SNAPSHOT</version>
     </parent>
 
     <properties>
-        <dari.version>2.4-SNAPSHOT</dari.version>
+        <dari.version>3.1-SNAPSHOT</dari.version>
     </properties>
 
     <groupId>com.psddev</groupId>
     <artifactId>cms</artifactId>
-    <version>2.4-SNAPSHOT</version>
+    <version>3.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>BrightSpot CMS</name>
 
     <modules>
         <module>archetypes/app</module>
-        <module>archetypes/content-article</module>
-        <module>archetypes/content-common</module>
         <module>db</module>
         <module>tool-ui</module>
     </modules>
@@ -46,9 +44,15 @@
             </dependency>
 
             <dependency>
+                <groupId>com.ibm.icu</groupId>
+                <artifactId>icu4j</artifactId>
+                <version>55.1</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.psddev</groupId>
                 <artifactId>cms-db</artifactId>
-                <version>2.4-SNAPSHOT</version>
+                <version>3.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -64,15 +68,27 @@
             </dependency>
 
             <dependency>
+                <groupId>javax.el</groupId>
+                <artifactId>javax.el-api</artifactId>
+                <version>3.0.0</version>
+            </dependency>
+
+            <dependency>
                 <groupId>javax.servlet</groupId>
-                <artifactId>servlet-api</artifactId>
-                <version>2.5</version>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>3.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>javax.servlet.jsp</groupId>
-                <artifactId>jsp-api</artifactId>
-                <version>2.1</version>
+                <artifactId>javax.servlet.jsp-api</artifactId>
+                <version>2.3.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.atmosphere</groupId>
+                <artifactId>atmosphere-runtime</artifactId>
+                <version>2.3.3</version>
             </dependency>
 
             <dependency>

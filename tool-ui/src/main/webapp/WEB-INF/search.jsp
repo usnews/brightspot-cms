@@ -32,7 +32,7 @@ java.util.List,
 java.util.Map,
 java.util.Set,
 java.util.UUID
-" %><%
+, java.util.Arrays, java.util.stream.Collectors, com.google.common.collect.ImmutableSet" %><%
 
 ToolPageContext wp = new ToolPageContext(pageContext);
 PageWriter writer = wp.getWriter();
@@ -103,6 +103,52 @@ addFieldFilters(fieldFilters, "", environment);
 
 if (selectedType != null) {
     addFieldFilters(fieldFilters, "", selectedType);
+
+    if (selectedType.isAbstract()) {
+        Map<String, List<ObjectField>> commonFieldsByName = new LinkedHashMap<>();
+
+        for (ObjectType t : selectedType.as(ToolUi.class).findDisplayTypes()) {
+            Map<String, ObjectField> ff = new LinkedHashMap<>();
+
+            addFieldFilters(ff, "", t);
+
+            for (Map.Entry<String, ObjectField> entry : ff.entrySet()) {
+                String n = entry.getKey();
+                List<ObjectField> commonFields = commonFieldsByName.get(n);
+
+                if (commonFields == null) {
+                    commonFields = new ArrayList<>();
+                    commonFieldsByName.put(n, commonFields);
+                }
+
+                commonFields.add(entry.getValue());
+            }
+        }
+
+        for (Map.Entry<String, List<ObjectField>> entry : commonFieldsByName.entrySet()) {
+            List<ObjectField> commonFields = entry.getValue();
+
+            if (commonFields.size() > 1) {
+                ObjectField first = commonFields.get(0);
+                String declaringClassName = first.getJavaDeclaringClassName();
+
+                if (declaringClassName != null) {
+                    boolean same = true;
+
+                    for (ObjectField f : commonFields) {
+                        if (!declaringClassName.equals(f.getJavaDeclaringClassName())) {
+                            same = false;
+                            break;
+                        }
+                    }
+
+                    if (same) {
+                        fieldFilters.put(declaringClassName + "/" + entry.getKey(), first);
+                    }
+                }
+            }
+        }
+    }
 }
 
 if (wp.isFormPost()) {
@@ -124,6 +170,11 @@ if (wp.isFormPost()) {
 
 writer.writeStart("h1", "class", "icon icon-action-search");
     writer.writeHtml("Search");
+
+    if (singleType && selectedType != null) {
+        writer.writeHtml(' ');
+        writer.writeHtml(wp.getObjectLabel(selectedType));
+    }
 writer.writeEnd();
 
 ToolUser user = wp.getUser();
@@ -161,7 +212,9 @@ writer.start("div", "class", "searchForm");
             if ((!singleType && !validTypes.isEmpty()) ||
                     !globalFilters.isEmpty() ||
                     !fieldFilters.isEmpty()) {
-                writer.start("h2").html("Filters").end();
+                writer.writeStart("h2");
+                writer.writeHtml(wp.localize(null, "search.filters"));
+                writer.writeEnd();
             }
 
             writer.start("form",
@@ -190,7 +243,9 @@ writer.start("div", "class", "searchForm");
 
                 if (!singleType && !validTypes.isEmpty()) {
                     wp.writeTypeSelect(
-                            validTypes,
+                            validTypes.stream()
+                                .filter(wp.createTypeDisplayPredicate(ImmutableSet.of("read")))
+                                .collect(Collectors.<ObjectType>toSet()),
                             selectedType,
                             "Any Types",
                             "name", Search.SELECTED_TYPE_PARAMETER,
@@ -201,7 +256,7 @@ writer.start("div", "class", "searchForm");
             writer.end();
 
             writer.start("form",
-                    "class", "searchFiltersRest",
+                    "class", "searchFiltersRest" + (singleType || validTypes.isEmpty() ? " searchFiltersRest-single" : ""),
                     "data-bsp-autosubmit", "",
                     "method", "get",
                     "action", ObjectUtils.firstNonNull(request.getAttribute("resultPath"), wp.url(request.getAttribute("resultJsp"))),
@@ -235,7 +290,7 @@ writer.start("div", "class", "searchForm");
                     writer.start("button").html("Go").end();
                 writer.end();
 
-                if (selectedType == null) {
+                if (selectedType == null || selectedType.as(ToolUi.class).isDisplayGlobalFilters()) {
                     writer.start("div", "class", "searchFiltersGlobal");
                         for (ObjectType filter : globalFilters) {
                             String filterId = filter.getId().toString();
@@ -257,21 +312,23 @@ writer.start("div", "class", "searchForm");
                     writer.end();
                 }
 
-                if (selectedType != null) {
-                    if (selectedType.getGroups().contains(ColorImage.class.getName())) {
-                        writer.writeElement("input",
-                                "type", "text",
-                                "class", "color",
-                                "name", Search.COLOR_PARAMETER,
-                                "value", search.getColor());
-                    }
-                }
-
                 writer.start("div", "class", "searchFiltersLocal");
                     if (!fieldFilters.isEmpty()) {
                         writer.start("div", "class", "searchMissing");
                             writer.html("Missing?");
                         writer.end();
+                    }
+
+                    if (selectedType != null) {
+                        if (selectedType.getGroups().contains(ColorImage.class.getName())) {
+                            writer.writeStart("div", "class", "searchFilter");
+                                writer.writeElement("input",
+                                        "type", "text",
+                                        "class", "color",
+                                        "name", Search.COLOR_PARAMETER,
+                                        "value", search.getColor());
+                            writer.writeEnd();
+                        }
                     }
 
                     for (Map.Entry<String, ObjectField> entry : fieldFilters.entrySet()) {
@@ -378,8 +435,8 @@ writer.start("div", "class", "searchForm");
                                             "value", "t");
 
                                 } else {
-                                    writer.writeStart("select", "name", inputName);
-                                        writer.writeStart("option", "value", "").writeHtml(displayName).writeEnd();
+                                    writer.writeStart("select", "name", inputName, "data-searchable", "true", "placeholder", displayName);
+                                        writer.writeStart("option", "value", "").writeEnd();
 
                                         for (ObjectField.Value v : field.getValues()) {
                                             writer.writeStart("option",
@@ -400,19 +457,13 @@ writer.start("div", "class", "searchForm");
                             } else {
                                 State fieldState = State.getInstance(Query.from(Object.class).where("_id = ?", fieldValue).first());
 
-                                writer.writeElement("input",
-                                        "type", "text",
-                                        "class", "objectId",
+                                wp.writeObjectSelect(field, fieldState,
                                         "name", inputName,
                                         "placeholder", displayName,
-                                        "data-additional-query", field.getPredicate(),
+                                        "data-dynamic-placeholder", "",
                                         "data-editable", false,
-                                        "data-label", fieldState != null ? fieldState.getLabel() : null,
-                                        "data-pathed", ToolUi.isOnlyPathed(field),
-                                        "data-restorable", false,
-                                        "data-searcher-path", fieldUi.getInputSearcherPath(),
-                                        "data-typeIds", fieldTypeIds,
-                                        "value", fieldValue);
+                                        "data-restorable", false);
+
                                 writer.writeElement("input",
                                         "type", "checkbox",
                                         "name", inputName + ".m",
@@ -470,7 +521,7 @@ writer.start("div", "class", "searchForm");
 
         writer.end();
 
-        if (!ObjectUtils.isBlank(newJsp)) {
+        if (!ObjectUtils.isBlank(newJsp) && (selectedType == null || !selectedType.isAbstract())) {
             writer.start("div", "class", "searchCreate");
                 writer.start("h2").html("Create").end();
 
@@ -498,7 +549,9 @@ writer.start("div", "class", "searchForm");
                         }
 
                         wp.writeTypeSelect(
-                                creatableTypes,
+                                creatableTypes.stream()
+                                    .filter(wp.createTypeDisplayPredicate(ImmutableSet.of("write", "read")))
+                                    .collect(Collectors.<ObjectType>toSet()),
                                 selectedType,
                                 null,
                                 "name", "typeId",

@@ -11,9 +11,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.psddev.dari.db.PredicateParser;
 import org.joda.time.DateTime;
-
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Renderer;
 import com.psddev.cms.db.Site;
@@ -25,6 +23,7 @@ import com.psddev.dari.db.MetricInterval;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Predicate;
+import com.psddev.dari.db.PredicateParser;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.State;
@@ -42,7 +41,6 @@ public class SearchResultRenderer {
     private static final String MAX_SUM_ATTRIBUTE = ATTRIBUTE_PREFIX + ".maximumSum";
     private static final String TAXON_PARENT_ID_PARAMETER = "taxonParentId";
     private static final String SORT_SETTING_PREFIX = "sort/";
-    private static final String SORT_SHOW_MISSING_SETTING_PREFIX = "sortShowMissing/";
 
     protected final ToolPageContext page;
 
@@ -54,6 +52,7 @@ public class SearchResultRenderer {
     protected final boolean showSiteLabel;
     protected final boolean showTypeLabel;
     protected final PaginatedResult<?> result;
+    protected final Exception queryError;
 
     @SuppressWarnings("deprecation")
     public SearchResultRenderer(ToolPageContext page, Search search) throws IOException {
@@ -65,27 +64,7 @@ public class SearchResultRenderer {
         ToolUi ui = selectedType == null ? null : selectedType.as(ToolUi.class);
         PaginatedResult<?> result = null;
 
-        if (selectedType != null) {
-            if (search.getSort() != null) {
-                AuthenticationFilter.Static.putUserSetting(page.getRequest(), SORT_SETTING_PREFIX + selectedType.getId(), search.getSort());
-                AuthenticationFilter.Static.putUserSetting(page.getRequest(), SORT_SHOW_MISSING_SETTING_PREFIX + selectedType.getId(), ObjectUtils.to(String.class, search.isShowMissing()));
-
-            } else {
-                Object sortSetting = AuthenticationFilter.Static.getUserSetting(page.getRequest(), SORT_SETTING_PREFIX + selectedType.getId());
-
-                if (!ObjectUtils.isBlank(sortSetting)) {
-                    search.setSort(sortSetting.toString());
-                    Object showMissingSetting = AuthenticationFilter.Static.getUserSetting(page.getRequest(), SORT_SHOW_MISSING_SETTING_PREFIX + selectedType.getId());
-                    if (!ObjectUtils.isBlank(showMissingSetting)) {
-                        search.setShowMissing(ObjectUtils.to(Boolean.class, showMissingSetting));
-                    }
-                }
-            }
-        }
-
         if (search.getSort() == null) {
-            search.setShowMissing(true);
-
             if (ui != null && ui.getDefaultSortField() != null) {
                 search.setSort(ui.getDefaultSortField());
 
@@ -95,9 +74,9 @@ public class SearchResultRenderer {
             } else {
                 Map<String, String> f = search.getFieldFilters().get("cms.content.publishDate");
 
-                if (f != null &&
-                        (f.get("") != null ||
-                        f.get("x") != null)) {
+                if (f != null
+                        && (f.get("") != null
+                        || f.get("x") != null)) {
                     search.setSort("cms.content.publishDate");
 
                 } else {
@@ -106,9 +85,9 @@ public class SearchResultRenderer {
             }
         }
 
-        showSiteLabel = Query.from(CmsTool.class).first().isDisplaySiteInSearchResult() &&
-                page.getSite() == null &&
-                Query.from(Site.class).hasMoreThan(0);
+        showSiteLabel = Query.from(CmsTool.class).first().isDisplaySiteInSearchResult()
+                && page.getSite() == null
+                && Query.from(Site.class).hasMoreThan(0);
 
         if (selectedType != null) {
             this.sortField = selectedType.getFieldGlobally(search.getSort());
@@ -132,11 +111,31 @@ public class SearchResultRenderer {
             this.showTypeLabel = search.findValidTypes().size() != 1;
         }
 
-        this.result = result != null ? result : search.toQuery(page.getSite()).select(search.getOffset(), search.getLimit());
+        Exception queryError = null;
+
+        if (result == null) {
+            try {
+                result = search.toQuery(page.getSite()).select(search.getOffset(), search.getLimit());
+
+            } catch (IllegalArgumentException | Query.NoFieldException error) {
+                queryError = error;
+            }
+        }
+
+        this.result = result;
+        this.queryError = queryError;
     }
 
     @SuppressWarnings("unchecked")
     public void render() throws IOException {
+        if (queryError != null) {
+            page.writeStart("div", "class", "message message-error");
+            page.writeHtml("Invalid advanced query: ");
+            page.writeHtml(queryError.getMessage());
+            page.writeEnd();
+            return;
+        }
+
         boolean resultsDisplayed = false;
         int level = page.paramOrDefault(int.class, TAXON_LEVEL_PARAMETER, 1);
 
@@ -146,8 +145,8 @@ public class SearchResultRenderer {
 
         // check if the Taxon UI should be displayed
         ObjectType taxonType = null;
-        if (ObjectUtils.isBlank(search.getQueryString()) &&
-                search.getVisibilities().isEmpty()) {
+        if (ObjectUtils.isBlank(search.getQueryString())
+                && search.getVisibilities().isEmpty()) {
 
             if (search.getSelectedType() != null) {
 
@@ -247,7 +246,7 @@ public class SearchResultRenderer {
             page.writeStart("form",
                     "class", "searchSuggestionsForm",
                     "method", "post",
-                    "action", page.url("/content/suggestions.jsp"),
+                    "action", page.url("/content/suggestions"),
                     "target", frameName);
                 page.writeElement("input",
                         "type", "hidden",
@@ -329,23 +328,6 @@ public class SearchResultRenderer {
                     page.writeEnd();
                 }
             page.writeEnd();
-
-            if (sortField != null) {
-                page.writeHtml(" ");
-
-                page.writeElement("input",
-                        "id", page.createId(),
-                        "type", "checkbox",
-                        "name", Search.SHOW_MISSING_PARAMETER,
-                        "value", "true",
-                        "checked", search.isShowMissing() ? "checked" : null);
-
-                page.writeHtml(" ");
-
-                page.writeStart("label", "for", page.getId());
-                    page.writeHtml("Show Missing");
-                page.writeEnd();
-            }
 
         page.writeEnd();
     }
@@ -448,9 +430,9 @@ public class SearchResultRenderer {
             page.writeElement("img",
                     "src", page.getPreviewThumbnailUrl(item),
                     "alt",
-                            (showSiteLabel ? page.getObjectLabel(State.getInstance(item).as(Site.ObjectModification.class).getOwner()) + ": " : "") +
-                            (showTypeLabel ? page.getTypeLabel(item) + ": " : "") +
-                            page.getObjectLabel(item));
+                            (showSiteLabel ? page.getObjectLabel(State.getInstance(item).as(Site.ObjectModification.class).getOwner()) + ": " : "")
+                                    + (showTypeLabel ? page.getTypeLabel(item) + ": " : "")
+                                    + page.getObjectLabel(item));
 
             page.writeStart("figcaption");
                 if (showSiteLabel) {
@@ -483,8 +465,8 @@ public class SearchResultRenderer {
                 Renderer.TypeModification rendererData = type.as(Renderer.TypeModification.class);
                 int previewWidth = rendererData.getEmbedPreviewWidth();
 
-                if (previewWidth > 0 &&
-                        !ObjectUtils.isBlank(rendererData.getEmbedPath())) {
+                if (previewWidth > 0
+                        && !ObjectUtils.isBlank(rendererData.getEmbedPath())) {
                     permalink = "/_preview?_embed=true&_cms.db.previewId=" + itemState.getId();
                     embedWidth = 320;
                 }
@@ -496,9 +478,9 @@ public class SearchResultRenderer {
                 "data-preview-embed-width", embedWidth,
                 "class", State.getInstance(item).getId().equals(page.param(UUID.class, "id")) ? "selected" : null);
 
-            if (sortField != null &&
-                    ObjectField.DATE_TYPE.equals(sortField.getInternalType())) {
-                DateTime dateTime = page.toUserDateTime(itemState.get(sortField.getInternalName()));
+            if (sortField != null
+                    && ObjectField.DATE_TYPE.equals(sortField.getInternalType())) {
+                DateTime dateTime = page.toUserDateTime(itemState.getByPath(sortField.getInternalName()));
 
                 if (dateTime == null) {
                     page.writeStart("td", "colspan", 2);
@@ -539,10 +521,10 @@ public class SearchResultRenderer {
                 renderAfterItem(item);
             page.writeEnd();
 
-            if (sortField != null &&
-                    !ObjectField.DATE_TYPE.equals(sortField.getInternalType())) {
+            if (sortField != null
+                    && !ObjectField.DATE_TYPE.equals(sortField.getInternalType())) {
                 String sortFieldName = sortField.getInternalName();
-                Object value = itemState.get(sortFieldName);
+                Object value = itemState.getByPath(sortFieldName);
 
                 page.writeStart("td");
                     if (value instanceof Metric) {
@@ -551,9 +533,9 @@ public class SearchResultRenderer {
 
                             if (maxSum == null) {
                                 Object maxObject = search.toQuery(page.getSite()).sortDescending(sortFieldName).first();
-                                maxSum = maxObject != null ?
-                                        ((Metric) State.getInstance(maxObject).get(sortFieldName)).getSum() :
-                                        1.0;
+                                maxSum = maxObject != null
+                                        ? ((Metric) State.getInstance(maxObject).get(sortFieldName)).getSum()
+                                        : 1.0;
 
                                 request.setAttribute(MAX_SUM_ATTRIBUTE, maxSum);
                             }

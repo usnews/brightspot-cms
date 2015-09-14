@@ -40,14 +40,16 @@ public class UpdateUserSettings extends PageServlet {
                 userState.put("liveContentPreview", false);
 
             } else if ("dashboardWidgets-position".equals(action)) {
-                userState.put("dashboardWidgets", ObjectUtils.fromJson(page.param(String.class, "widgets")));
-                userState.put("dashboardWidgetsCollapse", ObjectUtils.fromJson(page.param(String.class, "widgetsCollapse")));
+                String settingsPrefix = page.paramOrDefault(String.class, "settingsPrefix", "");
+
+                userState.put(settingsPrefix + "dashboardWidgets", ObjectUtils.fromJson(page.param(String.class, "widgets")));
+                userState.put(settingsPrefix + "dashboardWidgetsCollapse", ObjectUtils.fromJson(page.param(String.class, "widgetsCollapse")));
 
             } else if ("scheduleSet".equals(action)) {
-                user.setCurrentSchedule(Query.
-                        from(Schedule.class).
-                        where("_id = ?", page.param(UUID.class, "scheduleId")).
-                        first());
+                user.setCurrentSchedule(Query
+                        .from(Schedule.class)
+                        .where("_id = ?", page.param(UUID.class, "scheduleId"))
+                        .first());
             }
         }
 

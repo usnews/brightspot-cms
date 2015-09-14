@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import javax.servlet.ServletException;
 
+import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.util.JspUtils;
@@ -22,13 +23,14 @@ public class SearchAdvancedFull extends PageServlet {
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
         page.writeHeader();
-            page.writeStart("div", "class", "widget");
+            page.writeStart("div", "class", "widget", "name", "searchAdvancedFull");
                 JspUtils.include(
                         page.getRequest(),
                         page.getResponse(),
                         page,
-                        page.cmsUrl("/WEB-INF/search.jsp"),
-                        "resultJsp", "/searchAdvancedFullResult");
+                        page.toolPath(CmsTool.class, "/WEB-INF/search.jsp"),
+                        "name", "fullScreen",
+                        "resultJsp", "/misc/searchResult.jsp");
             page.writeEnd();
         page.writeFooter();
     }

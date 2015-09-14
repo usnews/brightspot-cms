@@ -3,6 +3,7 @@ package com.psddev.cms.tool;
 import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Modifier;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -25,9 +26,12 @@ import java.util.UUID;
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Site;
+import com.psddev.cms.db.ToolEntity;
 import com.psddev.cms.db.ToolUi;
+import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.db.Workflow;
 import com.psddev.cms.db.WorkflowState;
+import com.psddev.cms.tool.search.ListSearchResultView;
 import com.psddev.dari.db.CompoundPredicate;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.DatabaseEnvironment;
@@ -41,10 +45,12 @@ import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Singleton;
 import com.psddev.dari.db.Sorter;
+import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.HuslColorSpace;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PaginatedResult;
 import com.psddev.dari.util.StringUtils;
+import com.psddev.dari.util.TypeDefinition;
 import com.psddev.dari.util.UuidUtils;
 
 public class Search extends Record {
@@ -166,7 +172,6 @@ public class Search extends Record {
         setSort(page.param(String.class, SORT_PARAMETER));
         setShowDrafts(page.param(boolean.class, SHOW_DRAFTS_PARAMETER));
         setVisibilities(page.params(String.class, VISIBILITIES_PARAMETER));
-        setShowMissing(page.param(boolean.class, SHOW_MISSING_PARAMETER));
         setSuggestions(page.param(boolean.class, SUGGESTIONS_PARAMETER));
         setOffset(page.param(long.class, OFFSET_PARAMETER));
         setLimit(page.paramOrDefault(int.class, LIMIT_PARAMETER, 10));
@@ -312,10 +317,12 @@ public class Search extends Record {
         this.visibilities = visibilities;
     }
 
+    @Deprecated
     public boolean isShowMissing() {
         return showMissing;
     }
 
+    @Deprecated
     public void setShowMissing(boolean showMissing) {
         this.showMissing = showMissing;
     }
@@ -445,10 +452,9 @@ public class Search extends Record {
             } else if ("w".equals(visibility)) {
                 Set<String> ss = new HashSet<String>();
 
-                for (Workflow w : (selectedType == null ?
-                        Query.from(Workflow.class) :
-                        Query.from(Workflow.class).where("contentTypes = ?", selectedType)).
-                        selectAll()) {
+                for (Workflow w : (selectedType == null
+                        ? Query.from(Workflow.class)
+                        : Query.from(Workflow.class).where("contentTypes = ?", selectedType)).selectAll()) {
                     for (WorkflowState s : w.getStates()) {
                         String value = s.getName();
 
@@ -529,11 +535,10 @@ public class Search extends Record {
                         UUID mainObjectId = ObjectUtils.to(UUID.class, qsHttp.getHeaderField("Brightspot-Main-Object-Id"));
 
                         if (mainObjectId != null) {
-                            return Query.
-                                    fromAll().
-                                    or("_id = ?", mainObjectId).
-                                    or("* matches ?", mainObjectId).
-                                    sortRelevant(100.0, "_id = ?", mainObjectId);
+                            return Query.fromAll()
+                                    .or("_id = ?", mainObjectId)
+                                    .or("* matches ?", mainObjectId)
+                                    .sortRelevant(100.0, "_id = ?", mainObjectId);
                         }
 
                     } finally {
@@ -555,12 +560,31 @@ public class Search extends Record {
         boolean isAllSearchable = true;
 
         if (selectedType != null) {
-            isAllSearchable = Content.Static.isSearchableType(selectedType);
+            if (selectedType.isAbstract()) {
+                for (ObjectType t : selectedType.findConcreteTypes()) {
+                    if (!Content.Static.isSearchableType(t)) {
+                        isAllSearchable = false;
+                        break;
+                    }
+                }
+
+            } else {
+                isAllSearchable = Content.Static.isSearchableType(selectedType);
+            }
+
             query = Query.fromType(selectedType);
 
         } else {
             for (ObjectType type : validTypes) {
-                if (!Content.Static.isSearchableType(type)) {
+                if (type.isAbstract()) {
+                    for (ObjectType t : type.findConcreteTypes()) {
+                        if (!Content.Static.isSearchableType(t)) {
+                            isAllSearchable = false;
+                            break;
+                        }
+                    }
+
+                } else if (!Content.Static.isSearchableType(type)) {
                     isAllSearchable = false;
                 }
             }
@@ -594,28 +618,24 @@ public class Search extends Record {
             }
 
         } else if (sort != null) {
-            ObjectField sortField = selectedType != null ?
-                    selectedType.getFieldGlobally(sort) :
-                    Database.Static.getDefault().getEnvironment().getField(sort);
+            ObjectField sortField = selectedType != null
+                    ? selectedType.getFieldGlobally(sort)
+                    : Database.Static.getDefault().getEnvironment().getField(sort);
 
             if (sortField != null) {
                 if (sortField.isMetric()) {
                     metricSort = true;
                 }
 
-                String sortName = selectedType != null ?
-                        selectedType.getInternalName() + "/" + sort :
-                        sort;
+                String sortName = selectedType != null
+                        ? selectedType.getInternalName() + "/" + sort
+                        : sort;
 
                 if (ObjectField.TEXT_TYPE.equals(sortField.getInternalType())) {
                     query.sortAscending(sortName);
 
                 } else {
                     query.sortDescending(sortName);
-                }
-
-                if (!isShowMissing()) {
-                    query.and(sortName + " != missing");
                 }
             }
         }
@@ -631,8 +651,8 @@ public class Search extends Record {
         } else {
 
             // Strip http: or https: from the query for search by path below.
-            if (queryString.length() > 8 &&
-                    StringUtils.matches(queryString, "(?i)https?://.*")) {
+            if (queryString.length() > 8
+                    && StringUtils.matches(queryString, "(?i)https?://.*")) {
                 int slashAt = queryString.indexOf("/", 8);
 
                 if (slashAt > -1) {
@@ -644,20 +664,20 @@ public class Search extends Record {
             if (isAllSearchable && queryString.startsWith("/") && queryString.length() > 1) {
                 List<String> paths = new ArrayList<String>();
 
-                for (Directory directory : Query.
-                        from(Directory.class).
-                        where("path ^=[c] ?", queryString).
-                        selectAll()) {
+                for (Directory directory : Query
+                        .from(Directory.class)
+                        .where("path ^=[c] ?", queryString)
+                        .selectAll()) {
                     paths.add(directory.getRawPath());
                 }
 
                 int lastSlashAt = queryString.lastIndexOf("/");
 
                 if (lastSlashAt > 0) {
-                    for (Directory directory : Query.
-                            from(Directory.class).
-                            where("path ^=[c] ?", queryString.substring(0, lastSlashAt)).
-                            selectAll()) {
+                    for (Directory directory : Query
+                            .from(Directory.class)
+                            .where("path ^=[c] ?", queryString.substring(0, lastSlashAt))
+                            .selectAll()) {
                         paths.add(directory.getRawPath() + queryString.substring(lastSlashAt + 1));
                     }
                 }
@@ -718,8 +738,8 @@ public class Search extends Record {
                 for (ObjectType t : environment.getTypes()) {
                     String name = t.getDisplayName();
 
-                    if (!ObjectUtils.isBlank(name) &&
-                            q.contains(name.replaceAll("\\s+", "").toLowerCase(Locale.ENGLISH))) {
+                    if (!ObjectUtils.isBlank(name)
+                            && q.contains(name.replaceAll("\\s+", "").toLowerCase(Locale.ENGLISH))) {
                         query.sortRelevant(20.0, "_type = ?", t.as(ToolUi.class).findDisplayTypes());
                     }
                 }
@@ -731,10 +751,10 @@ public class Search extends Record {
         String additionalPredicate = getAdditionalPredicate();
 
         if (!ObjectUtils.isBlank(additionalPredicate)) {
-            Object parent = Query.
-                    from(Object.class).
-                    where("_id = ?", getParentId()).
-                    first();
+            Object parent = Query
+                    .from(Object.class)
+                    .where("_id = ?", getParentId())
+                    .first();
             if (parent == null && getParentTypeId() != null) {
                 ObjectType parentType = ObjectType.getInstance(getParentTypeId());
                 parent = parentType.createObject(null);
@@ -761,9 +781,11 @@ public class Search extends Record {
                 continue;
             }
 
-            String fieldName = selectedType != null ?
-                    selectedType.getInternalName() + "/" + entry.getKey() :
-                    entry.getKey();
+            String fieldName = entry.getKey();
+
+            if (selectedType != null && !fieldName.contains("/")) {
+                fieldName = selectedType.getInternalName() + "/" + fieldName;
+            }
 
             if (ObjectUtils.to(boolean.class, value.get("m"))) {
                 query.and(fieldName + " = missing");
@@ -814,8 +836,8 @@ public class Search extends Record {
             }
         }
 
-        if (site != null &&
-                !site.isAllSitesAccessible()) {
+        if (site != null
+                && !site.isAllSitesAccessible()) {
             Set<ObjectType> globalTypes = new HashSet<ObjectType>();
 
             if (selectedType != null) {
@@ -841,8 +863,8 @@ public class Search extends Record {
 
             query.and(visibilitiesPredicate);
 
-        } else if (selectedType == null &&
-                isAllSearchable) {
+        } else if (selectedType == null
+                && isAllSearchable) {
             Set<String> comparisonKeys = new HashSet<String>();
             DatabaseEnvironment environment = Database.Static.getDefault().getEnvironment();
 
@@ -904,13 +926,13 @@ public class Search extends Record {
                         int s = normalized[1] + j * binSizes[1];
                         int l = normalized[2] + k * binSizes[2];
 
-                        if ((i != 0 || j != 0 || k != 0) &&
-                                (h >= 0 && h < 360) &&
-                                (s >= 0 && s <= 100) &&
-                                s != 20 &&
-                                (s != 0 || h == 0) &&
-                                (l >= 0 && l <= 100) &&
-                                (l < 100 && l > 0 || s == 0)) {
+                        if ((i != 0 || j != 0 || k != 0)
+                                && (h >= 0 && h < 360)
+                                && (s >= 0 && s <= 100)
+                                && s != 20
+                                && (s != 0 || h == 0)
+                                && (l >= 0 && l <= 100)
+                                && (l < 100 && l > 0 || s == 0)) {
 
                             fieldNames.add("color.distribution/n_" + h + "_" + s + "_" + l);
                         }
@@ -919,9 +941,9 @@ public class Search extends Record {
             }
 
             String originFieldName =
-                    "color.distribution/n_" + normalized[0] +
-                    "_" + normalized[1] +
-                    "_" + normalized[2];
+                    "color.distribution/n_" + normalized[0]
+                            + "_" + normalized[1]
+                            + "_" + normalized[2];
 
             fieldNames.add(originFieldName);
             query.and(StringUtils.join(new ArrayList<String>(fieldNames), " > 0 || ") + " > 0");
@@ -934,6 +956,10 @@ public class Search extends Record {
 
         for (Tool tool : Query.from(Tool.class).selectAll()) {
             tool.updateSearchQuery(this, query);
+        }
+
+        if (page != null) {
+            QueryRestriction.updateQueryUsingAll(query, page);
         }
 
         return query;
@@ -958,8 +984,13 @@ public class Search extends Record {
     }
 
     private void addGlobalTypes(Set<ObjectType> globalTypes, ObjectType type) {
-        if (type != null && type.getGroups().contains(ObjectType.class.getName())) {
-            globalTypes.add(type);
+        if (type != null) {
+            Set<String> groups = type.getGroups();
+
+            if (groups.contains(ObjectType.class.getName())
+                    || groups.contains(ToolEntity.class.getName())) {
+                globalTypes.add(type);
+            }
         }
     }
 
@@ -981,6 +1012,108 @@ public class Search extends Record {
         }
     }
 
+    /**
+     * @param itemWriter May be {@code null}.
+     * @throws IOException if unable to write to the given {@code page}.
+     */
+    public void writeResultHtml(SearchResultItem itemWriter) throws IOException {
+        List<SearchResultView> views = new ArrayList<>();
+
+        for (Class<? extends SearchResultView> viewClass : ClassFinder.Static.findClasses(SearchResultView.class)) {
+            if (!viewClass.isInterface() && !Modifier.isAbstract(viewClass.getModifiers())) {
+                SearchResultView view = TypeDefinition.getInstance(viewClass).newInstance();
+
+                if (view.isSupported(this)) {
+                    views.add(view);
+                }
+            }
+        }
+
+        String selectedViewClassName = page.param(String.class, "view");
+        ToolUser user = page.getUser();
+
+        if (user != null) {
+            Map<String, String> userViews = user.getSearchViews();
+            ObjectType selectedType = getSelectedType();
+            String userViewKey = selectedType != null ? selectedType.getId().toString() : "";
+            String userViewClassName = userViews.get(userViewKey);
+
+            if (selectedViewClassName == null) {
+                selectedViewClassName = userViewClassName;
+
+            } else if (!ObjectUtils.equals(userViewClassName, selectedViewClassName)) {
+                userViews.put(userViewKey, selectedViewClassName);
+                user.save();
+            }
+        }
+
+        SearchResultView selectedView = null;
+
+        for (SearchResultView view : views) {
+            if (view.getClass().getName().equals(selectedViewClassName)) {
+                selectedView = view;
+                break;
+            }
+        }
+
+        if (selectedView == null) {
+            for (SearchResultView view : views) {
+                if (view.isPreferred(this)) {
+                    selectedView = view;
+                    break;
+                }
+            }
+        }
+
+        if (selectedView == null) {
+            selectedView = new ListSearchResultView();
+        }
+
+        if (selectedView.isHtmlWrapped(this, page, itemWriter)) {
+            page.writeStart("div", "class", "searchResult-container");
+                page.writeStart("div", "class", "searchResult-views");
+                    page.writeStart("ul", "class", "piped");
+                        for (SearchResultView view : views) {
+                            page.writeStart("li", "class", view.equals(selectedView) ? "selected" : null);
+                                page.writeStart("a",
+                                        "class", "icon icon-" + view.getIconName(),
+                                        "href", page.url("", "view", view.getClass().getName()));
+                                    page.writeHtml(view.getDisplayName());
+                                page.writeEnd();
+                            page.writeEnd();
+                        }
+                    page.writeEnd();
+                page.writeEnd();
+
+                page.writeStart("div", "class", "searchResult-view");
+                    writeViewHtml(itemWriter, selectedView);
+                page.writeEnd();
+
+                page.writeStart("div", "class", "frame searchResult-actions", "name", "searchResultActions");
+                    page.writeStart("a",
+                            "href", page.toolUrl(CmsTool.class, "/searchResultActions",
+                                    "search", ObjectUtils.toJson(getState().getSimpleValues())));
+                    page.writeEnd();
+                page.writeEnd();
+            page.writeEnd();
+
+        } else {
+            writeViewHtml(itemWriter, selectedView);
+        }
+    }
+
+    private void writeViewHtml(SearchResultItem itemWriter, SearchResultView view) throws IOException {
+        try {
+            view.writeHtml(this, page, itemWriter != null ? itemWriter : new SearchResultItem());
+
+        } catch (IllegalArgumentException | Query.NoFieldException error) {
+            page.writeStart("div", "class", "message message-error");
+            page.writeHtml("Invalid advanced query: ");
+            page.writeHtml(error.getMessage());
+            page.writeEnd();
+        }
+    }
+
     /** @deprecated Use {@link #toQuery(Site)} instead. */
     @Deprecated
     public Query<?> toQuery() {
@@ -989,7 +1122,7 @@ public class Search extends Record {
 
     // --- Deprecated ---
 
-    /** @deprecated Use {@link #ADDITIONA_PREDICATE_PARAMETER} instead. */
+    /** @deprecated Use {@link #ADDITIONAL_PREDICATE_PARAMETER} instead. */
     @Deprecated
     public static final String ADDITIONAL_QUERY_PARAMETER = ADDITIONAL_PREDICATE_PARAMETER;
 
@@ -1001,7 +1134,7 @@ public class Search extends Record {
     @Deprecated
     public static final String REQUESTED_TYPES_PARAMETER = TYPES_PARAMETER;
 
-    /** @deprecated Use {@link #Search(ToolPageContext, Collection)} instead. */
+    /** @deprecated Use {@link Search(ToolPageContext, Collection)} instead. */
     @Deprecated
     public Search(ToolPageContext page, UUID... typeIds) {
         this(page, typeIds != null ? Arrays.asList(typeIds) : null);

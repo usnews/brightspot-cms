@@ -11,6 +11,7 @@ import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.util.CollectionUtils;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -203,18 +204,26 @@ public class SearchQueryBuilder extends Record {
 
                         String word = termString.substring(lastEnd, end);
                         lastEnd = i;
-                        normalized.add(word);
+                        if (!StringUtils.isBlank(word)) {
+                            normalized.add(word);
+                        }
                     }
                 }
-                normalized.add(termString.substring(lastEnd));
+                if (!StringUtils.isBlank(termString.substring(lastEnd))) {
+                    normalized.add(termString.substring(lastEnd));
+                }
             }
         }
         return normalized;
     }
 
-    public Query toQuery(Object... terms) {
+    public Query toQuery(Site site, Object... terms) {
         List<String> queryTerms = normalizeTerms(terms);
         Query query = Query.from(Object.class);
+
+        if (site != null) {
+            query.and(site.itemsPredicate());
+        }
 
         for (Rule rule : getRules()) {
             rule.apply(this, query, queryTerms);
@@ -231,6 +240,11 @@ public class SearchQueryBuilder extends Record {
         query.and("_type = ?", allTypes);
 
         return query;
+    }
+
+    @Deprecated
+    public Query toQuery(Object... terms) {
+        return toQuery(null, terms);
     }
 
     public abstract static class Rule extends Record {
@@ -300,7 +314,7 @@ public class SearchQueryBuilder extends Record {
 
         public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
             Set<String> stopWords = getStopWords();
-            List<String> updatedQueryTerms = new ArrayList<String>();
+            List<String> removeQueryTerms = new ArrayList<String>();
 
             if (ObjectUtils.isBlank(queryTerms)) {
                 return;
@@ -309,12 +323,13 @@ public class SearchQueryBuilder extends Record {
             for (Iterator<String> qt = queryTerms.iterator(); qt.hasNext();) {
                 String term = qt.next();
                 for (Iterator<String> sw = stopWords.iterator(); sw.hasNext();) {
-                    if (!term.equals(sw.next())) {
-                        updatedQueryTerms.add(term);
+                    String stopWordString = sw.next();
+                    if (term.equals(stopWordString)) {
+                        removeQueryTerms.add(term);
                     }
                 }
             }
-            queryTerms = updatedQueryTerms;
+            queryTerms.removeAll(removeQueryTerms);
         }
     }
 
@@ -377,7 +392,8 @@ public class SearchQueryBuilder extends Record {
                     }
                 }
             }
-            queryTerms = new ArrayList<String>(newTerms);
+            queryTerms.clear();
+            queryTerms.addAll(new ArrayList<String>(newTerms));
         }
 
         public static class Synonym extends Record {

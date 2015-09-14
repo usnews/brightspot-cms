@@ -36,6 +36,10 @@ function($, bsp_utils) {
                 var $columns;
                 var widgets = [ ];
                 var widgetsCollapse = [ ];
+                var settingsPrefix = $dashboard.attr('data-settings-prefix');
+                if (typeof settingsPrefix === 'undefined') {
+                    settingsPrefix = '';
+                }
 
                 $dashboard.find('.dashboardColumn:empty').remove();
                 $columns = $dashboard.find('.dashboardColumn');
@@ -61,6 +65,7 @@ function($, bsp_utils) {
                     'url': CONTEXT_PATH + '/misc/updateUserSettings',
                     'data': {
                         'action': 'dashboardWidgets-position',
+                        'settingsPrefix': settingsPrefix,
                         'widgets': JSON.stringify(widgets),
                         'widgetsCollapse': JSON.stringify(widgetsCollapse)
                     }

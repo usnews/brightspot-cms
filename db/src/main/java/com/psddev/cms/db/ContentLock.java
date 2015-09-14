@@ -47,9 +47,26 @@ public class ContentLock extends Record {
 
         private static UUID createLockId(Object content, String aspect) {
             return UuidUtils.createVersion3Uuid(
-                    "cms.contentLock/" +
-                    State.getInstance(content).getId() + "/" +
-                    ObjectUtils.firstNonNull(aspect, ""));
+                    "cms.contentLock/"
+                            + State.getInstance(content).getId() + "/"
+                            + ObjectUtils.firstNonNull(aspect, ""));
+        }
+
+        /**
+         * Returns the lock associated with the given {@code aspect} of the
+         * given {@code content}.
+         *
+         * @param content Can't be {@code null}.
+         * @param aspect If {@code null}, it's equivalent to an empty string.
+         * @return May be {@code null}.
+         */
+        public static ContentLock findLock(Object content, String aspect) {
+            return Query
+                    .from(ContentLock.class)
+                    .where("_id = ?", createLockId(content, aspect))
+                    .master()
+                    .noCache()
+                    .first();
         }
 
         /**
@@ -65,12 +82,12 @@ public class ContentLock extends Record {
             UUID lockId = createLockId(content, aspect);
 
             while (true) {
-                ContentLock lock = Query.
-                        from(ContentLock.class).
-                        where("_id = ?", lockId).
-                        master().
-                        noCache().
-                        first();
+                ContentLock lock = Query
+                        .from(ContentLock.class)
+                        .where("_id = ?", lockId)
+                        .master()
+                        .noCache()
+                        .first();
 
                 if (lock != null) {
                     return lock;
@@ -96,14 +113,14 @@ public class ContentLock extends Record {
          * @param owner If {@code null}, always unlocks.
          */
         public static void unlock(Object content, String aspect, Object owner) {
-            ContentLock lock = Query.
-                    from(ContentLock.class).
-                    where("_id = ?", createLockId(content, aspect)).
-                    first();
+            ContentLock lock = Query
+                    .from(ContentLock.class)
+                    .where("_id = ?", createLockId(content, aspect))
+                    .first();
 
-            if (lock != null &&
-                    (owner == null ||
-                    owner.equals(lock.getOwner()))) {
+            if (lock != null
+                    && (owner == null
+                    || owner.equals(lock.getOwner()))) {
                 lock.delete();
             }
         }

@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.psddev.dari.db.Modification;
+import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
@@ -98,9 +99,9 @@ public class WorkStream extends Record {
      * @return Never {@code null} but may be empty.
      */
     public List<ToolUser> getUsers() {
-        return currentItems != null ?
-                Query.from(ToolUser.class).where("_id = ?", currentItems.keySet()).selectAll() :
-                new ArrayList<ToolUser>();
+        return currentItems != null
+                ? Query.from(ToolUser.class).where("_id = ?", currentItems.keySet()).selectAll()
+                : new ArrayList<ToolUser>();
     }
 
     /**
@@ -113,23 +114,23 @@ public class WorkStream extends Record {
     public Object getCurrentItem(ToolUser user) {
         ErrorUtils.errorIfNull(user, "user");
 
-        return currentItems != null ?
-                Query.from(Object.class).where("_id = ?", currentItems.get(user.getId().toString())).first() :
-                null;
+        return currentItems != null
+                ? Query.from(Object.class).where("_id = ?", currentItems.get(user.getId().toString())).first()
+                : null;
     }
 
     /** Returns the number of remaining items to be worked on. */
     public long countIncomplete() {
-        return getQuery().clone().
-                not("cms.workstream.completeIds ^= ?", getId().toString() + ",").
-                count();
+        return getQuery().clone()
+                .not("cms.workstream.completeIds ^= ?", getId().toString() + ",")
+                .count();
     }
 
     /** Returns the number of items completed. */
     public long countComplete() {
-        return Query.fromAll().
-                where("cms.workstream.completeIds ^= ?", getId().toString() + ",").
-                count();
+        return Query.fromAll()
+                .where("cms.workstream.completeIds ^= ?", getId().toString() + ",")
+                .count();
     }
 
     /** Returns the total number of items, complete and incomplete */
@@ -145,10 +146,10 @@ public class WorkStream extends Record {
     public long countComplete(ToolUser user) {
         ErrorUtils.errorIfNull(user, "user");
 
-        return Query.
-                from(Object.class).
-                where("cms.workstream.completeIds = ?", getId().toString() + "," + user.getId().toString()).
-                count();
+        return Query
+                .from(Object.class)
+                .where("cms.workstream.completeIds = ?", getId().toString() + "," + user.getId().toString())
+                .count();
     }
 
     /**
@@ -175,9 +176,9 @@ public class WorkStream extends Record {
     public boolean isWorking(ToolUser user) {
         ErrorUtils.errorIfNull(user, "user");
 
-        return currentItems != null ?
-                currentItems.get(user.getId().toString()) != null :
-                false;
+        return currentItems != null
+                ? currentItems.get(user.getId().toString()) != null
+                : false;
     }
 
     /**
@@ -189,19 +190,39 @@ public class WorkStream extends Record {
         ErrorUtils.errorIfNull(user, "user");
 
         String userId = user.getId().toString();
-        State next = currentItems != null ?
-                State.getInstance(Query.from(Object.class).where("_id = ?", currentItems.get(userId)).first()) :
-                null;
+        Site site = user.getCurrentSite();
+        Predicate siteItemsPredicate = null;
 
-        if (next != null &&
-                (next.as(Data.class).isComplete(this) ||
-                (skippedItems != null && skippedItems.get(userId) != null && skippedItems.get(userId).contains(next.getId())))) {
+        if (site != null) {
+            siteItemsPredicate = site.itemsPredicate();
+        }
+
+        State next = null;
+
+        if (currentItems != null) {
+            Query nextQuery = Query.from(Object.class)
+                    .where("_id = ?", currentItems.get(userId));
+
+            if (siteItemsPredicate != null) {
+                nextQuery.and(siteItemsPredicate);
+            }
+
+            next = State.getInstance(nextQuery.first());
+        }
+
+        if (next != null
+                && (next.as(Data.class).isComplete(this)
+                || (skippedItems != null && skippedItems.get(userId) != null && skippedItems.get(userId).contains(next.getId())))) {
             next = null;
         }
 
         if (next == null) {
-            Query<?> query = getQuery().clone().
-                    not("cms.workstream.completeIds ^= ?", getId().toString() + ",");
+            Query<?> query = getQuery().clone()
+                    .not("cms.workstream.completeIds ^= ?", getId().toString() + ",");
+
+            if (siteItemsPredicate != null) {
+                query.and(siteItemsPredicate);
+            }
 
             if (currentItems != null) {
                 query.and("_id != ?", currentItems.values());

@@ -2,8 +2,11 @@ package com.psddev.cms.db;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -18,10 +21,10 @@ import com.psddev.dari.util.PaginatedResult;
 
 public class RichTextDatabase extends ForwardingDatabase {
 
-    private static final LoadingCache<String, String> PUBLISHABLES = CacheBuilder.
-            newBuilder().
-            maximumSize(10000).
-            build(new CacheLoader<String, String>() {
+    private static final LoadingCache<String, String> PUBLISHABLES = CacheBuilder
+            .newBuilder()
+            .maximumSize(10000)
+            .build(new CacheLoader<String, String>() {
 
                 @Override
                 public String load(String value) {
@@ -31,6 +34,8 @@ public class RichTextDatabase extends ForwardingDatabase {
                 }
             });
 
+    private final Set<UUID> cleaned = new HashSet<UUID>();
+
     // --- ForwardingDatabase support ---
 
     public <T> T clean(T object) {
@@ -39,6 +44,11 @@ public class RichTextDatabase extends ForwardingDatabase {
         }
 
         State state = State.getInstance(object);
+
+        if (!cleaned.add(state.getId())) {
+            return object;
+        }
+
         ObjectType type = state.getType();
 
         if (type != null) {
@@ -48,7 +58,14 @@ public class RichTextDatabase extends ForwardingDatabase {
                     Object value = state.get(fieldName);
 
                     if (value instanceof String) {
-                        state.put(fieldName, PUBLISHABLES.getUnchecked((String) value));
+                        try {
+                            state.put(fieldName, PUBLISHABLES.getUnchecked((String) value));
+
+                        } catch (IllegalStateException error) {
+                            List<Object> publishables = new ReferentialText((String) value, true).toPublishables(true, new RichTextCleaner());
+
+                            state.put(fieldName, publishables.isEmpty() ? "" : (String) publishables.get(0));
+                        }
                     }
                 }
             }

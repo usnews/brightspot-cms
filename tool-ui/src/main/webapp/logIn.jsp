@@ -200,7 +200,7 @@ body.hasToolBroadcast {
                     <label for="<%= wp.createId() %>">Code</label>
                 </div>
                 <div class="inputSmall">
-                    <input class="autoFocus" id="<%= wp.getId() %>" name="totpCode" type="text">
+                    <input class="autoFocus" id="<%= wp.getId() %>" name="totpCode" type="text" placeholder="Two Factor Authentication Code">
                 </div>
             </div>
         <% } %>

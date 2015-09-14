@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.psddev.dari.db.DatabaseEnvironment;
 import com.psddev.dari.db.ForwardingDatabase;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
@@ -17,7 +18,7 @@ import com.psddev.dari.util.PaginatedResult;
 public class PreviewDatabase extends ForwardingDatabase {
 
     private Date date;
-    private final Map<UUID, Map<String, Object>> changesById = new HashMap<UUID, Map<String, Object>>();
+    private final Map<UUID, Map<String, Map<String, Object>>> differencesById = new HashMap<>();
 
     private Date getDate() {
         return date;
@@ -28,11 +29,11 @@ public class PreviewDatabase extends ForwardingDatabase {
     }
 
     public void addChanges(Schedule schedule) {
-        for (Draft draft : Query.
-                from(Draft.class).
-                where("schedule = ?", schedule).
-                selectAll()) {
-            changesById.put(draft.getObjectId(), draft.getObjectChanges());
+        for (Draft draft : Query
+                .from(Draft.class)
+                .where("schedule = ?", schedule)
+                .selectAll()) {
+            differencesById.put(draft.getObjectId(), draft.getDifferences());
         }
     }
 
@@ -42,16 +43,17 @@ public class PreviewDatabase extends ForwardingDatabase {
         if (object != null) {
             State state = State.getInstance(object);
             Date date = getDate();
+            DatabaseEnvironment environment = state.getDatabase().getEnvironment();
 
             if (date != null) {
                 Draft draft = null;
                 Date draftDate = null;
 
-                for (Object dObject : Query.
-                        fromAll().
-                        and("com.psddev.cms.db.Draft/schedule != missing").
-                        and("com.psddev.cms.db.Draft/objectId = ?", object).
-                        iterable(0)) {
+                for (Object dObject : Query
+                        .fromAll()
+                        .and("com.psddev.cms.db.Draft/schedule != missing")
+                        .and("com.psddev.cms.db.Draft/objectId = ?", object)
+                        .iterable(0)) {
                     if (!(dObject instanceof Draft)) {
                         continue;
                     }
@@ -59,10 +61,10 @@ public class PreviewDatabase extends ForwardingDatabase {
                     Draft d = (Draft) dObject;
                     Date triggerDate = d.getSchedule().getTriggerDate();
 
-                    if (triggerDate != null &&
-                            triggerDate.before(date) &&
-                            (draftDate == null ||
-                            triggerDate.after(draftDate))) {
+                    if (triggerDate != null
+                            && triggerDate.before(date)
+                            && (draftDate == null
+                            || triggerDate.after(draftDate))) {
 
                         draft = d;
                         draftDate = triggerDate;
@@ -70,14 +72,20 @@ public class PreviewDatabase extends ForwardingDatabase {
                 }
 
                 if (draft != null) {
-                    state.putAll(draft.getObjectChanges());
+                    state.setValues(Draft.mergeDifferences(
+                            environment,
+                            state.getSimpleValues(),
+                            draft.getDifferences()));
                 }
 
             } else {
-                Map<String, Object> changes = changesById.get(state.getId());
+                Map<String, Map<String, Object>> differences = differencesById.get(state.getId());
 
-                if (changes != null) {
-                    state.putAll(changes);
+                if (differences != null) {
+                    state.setValues(Draft.mergeDifferences(
+                            environment,
+                            state.getSimpleValues(),
+                            differences));
                 }
             }
         }

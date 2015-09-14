@@ -9,6 +9,7 @@ requirejs.config({
     'leaflet.draw': [ 'leaflet' ],
     'l.control.geosearch': [ 'leaflet' ],
     'l.geosearch.provider.openstreetmap': [ 'l.control.geosearch' ],
+    'L.Control.Locate': [ 'leaflet' ],
     'nv.d3': [ 'd3' ],
     'pixastic/actions/blurfast': [ 'pixastic/pixastic.core' ],
     'pixastic/actions/brightness': [ 'pixastic/pixastic.core' ],
@@ -31,39 +32,54 @@ require([
   'bsp-autosubmit',
   'bsp-utils',
   'jquery.mousewheel',
+  'velocity',
 
+  'v3/input/carousel',
   'input/change',
   'input/code',
   'input/color',
   'input/focus',
   'input/grid',
-  'input/image',
+  'v3/input/image',
   'input/location',
-  'input/object',
+  'v3/input/object',
   'input/query',
   'input/region',
   'v3/input/richtext',
+  'v3/input/richtext2',
   'input/table',
   'input/workflow',
 
   'jquery.calendar',
-  'jquery.dropdown',
+  'v3/jquery.dropdown',
   'jquery.editableplaceholder',
-  'jquery.popup',
-  'jquery.fixedscrollable',
-  'jquery.frame',
+  'evaporate',
+  'v3/plugin/popup',
+  'v3/plugin/fixed-scrollable',
+  'v3/jquery.frame',
+  'v3/infinitescroll',
   'jquery.lazyload',
   'jquery.pagelayout',
   'jquery.pagethumbnails',
-  'jquery.repeatable',
+  'v3/jquery.repeatable',
   'jquery.sortable',
+  'v3/searchcarousel',
   'jquery.tabbed',
+  'v3/taxonomy',
   'jquery.toggleable',
-  'jquery.widthaware',
+  'v3/upload',
   'nv.d3',
 
-  'dashboard',
-  'content' ],
+  'v3/dashboard',
+  'v3/constrainedscroll',
+  'v3/content/diff',
+  'v3/content/edit',
+  'content/lock',
+  'v3/content/publish',
+  'content/layout-element',
+  'v3/content/state',
+  'v3/search-result-check-all',
+  'v3/tabs' ],
 
 function() {
   var $ = arguments[0];
@@ -74,28 +90,10 @@ function() {
   var undef;
   var $win = $(win),
       doc = win.document,
-      $doc = $(doc),
-      toolChecks = [ ],
-      toolCheckActionCallbacks = [ ];
+      $doc = $(doc);
 
-  $.addToolCheck = function(check) {
-    toolCheckActionCallbacks.push(check.actions);
-    delete check.actions;
-    toolChecks.push(check);
+  $.addToolCheck = function() {
   };
-
-  $.addToolCheck({
-    'check': 'kick',
-    'actions': {
-      'kickIn': function(parameters) {
-        win.location = win.location.protocol + '//' + win.location.host + parameters.returnPath;
-      },
-
-      'kickOut': function() {
-        win.location = CONTEXT_PATH + '/logIn.jsp?forced=true&returnPath=' + encodeURIComponent(win.location.pathname + win.location.search);
-      }
-    }
-  });
 
   // Standard behaviors.
   $doc.repeatable('live', '.repeatableForm, .repeatableInputs, .repeatableLayout, .repeatableObjectId');
@@ -111,7 +109,8 @@ function() {
   $doc.calendar('live', ':text.date');
   $doc.dropDown('live', 'select[multiple], select[data-searchable="true"]');
   $doc.editablePlaceholder('live', ':input[data-editable-placeholder]');
-  $doc.fixedScrollable('live', '.fixedScrollable, .searchResult > .searchResultList, .popup[name="miscSearch"] .searchFiltersRest');
+
+  bsp_fixedScrollable.live(document, '.fixedScrollable, .searchResult-list, .popup[name="miscSearch"] .searchFiltersRest');
 
   $doc.frame({
     'frameClassName': 'frame',
@@ -136,10 +135,16 @@ function() {
   $doc.pageLayout('live', '.pageLayout');
   $doc.pageThumbnails('live', '.pageThumbnails');
   $doc.regionMap('live', '.regionMap');
-  $doc.rte('live', '.richtext');
+
+  if (window.DISABLE_CODE_MIRROR_RICH_TEXT_EDITOR) {
+    $doc.rte('live', '.richtext');
+
+  } else {
+    $doc.rte2('live', '.richtext');
+  }
+
   $doc.tabbed('live', '.tabbed, .objectInputs');
   $doc.toggleable('live', '.toggleable');
-  $doc.widthAware('live', '[data-widths]');
 
   // Remove placeholder text over search input when there's text.
   $doc.onCreate('.searchInput', function() {
@@ -173,7 +178,7 @@ function() {
 
     search = win.location.search;
     search += search.indexOf('?') > -1 ? '&' : '?';
-    search += 'id=' + $contentForm.attr('data-object-id');
+    search += 'id=' + $contentForm.attr('data-content-id');
 
     $.ajax({
       'data': $contentForm.serialize(),
@@ -269,7 +274,18 @@ function() {
       cc = value.length;
       wc = value ? value.split(WHITESPACE_RE).length : 0;
 
-      $container.attr('data-wc-message',
+      var $wordCount = $container.find('> .inputWordCount');
+
+      if ($wordCount.length === 0) {
+        $wordCount = $('<div/>', {
+          'class': 'inputWordCount'
+        });
+
+        $container.append($wordCount);
+      }
+
+      $wordCount.toggleClass('inputWordCount-warning', cc < minimum || cc > maximum);
+      $wordCount.text(
           cc < minimum ? 'Too Short' :
           cc > maximum ? 'Too Long' :
           wc + 'w ' + cc + 'c');
@@ -282,12 +298,16 @@ function() {
 
       var $input = $(this);
 
+      // Skip textarea created inside CodeMirror editor
+      if ($input.closest('.CodeMirror').length) { return; }
+            
       updateWordCount(
           $input.closest('.inputContainer'),
           $input,
           $input.val());
     }));
 
+    // For original rich text editor, special handling for the word count
     $doc.onCreate('.wysihtml5-sandbox', function() {
       var iframe = this,
           $iframe = $(iframe),
@@ -307,73 +327,26 @@ function() {
         }
       }));
     });
-  })();
 
-  // Make sure that most elements are always in view.
-  (function() {
-      var lastScrollTop = $win.scrollTop();
+    // For new rich text editor, special handling for the word count.
+    // Note this counts only the text content not the final output which includes extra HTML elements.
+    $doc.on('rteChange', $.throttle(1000, function(event, rte) {
+          
+        var $input, $container, html, $html, text;
 
-      $win.scroll($.throttle(100, function() {
-          var scrollTop = $win.scrollTop();
+        $input = rte.$el;
+        $container = $input.closest('.inputContainer');
+        
+        html = rte.toHTML();
+        $html = $(new DOMParser().parseFromString(html, "text/html").body);
+        $html.find('del,.rte-comment').remove();
+        $html.find('br,p,div,ul,ol,li').after('\n');
+        text = $html.text();
 
-          $('.leftNav, .withLeftNav > .main, .contentForm-aside').each(function() {
-              var $element = $(this),
-                      elementTop = $element.offset().top,
-                      initialElementTop = $element.data('initialElementTop'),
-                      windowHeight,
-                      elementHeight,
-                      alignToTop;
+        updateWordCount($container, $input, text);
 
-              if ($element.closest('.popup').length > 0) {
-                  return;
-              }
+    }));
 
-              if (!initialElementTop) {
-                  initialElementTop = elementTop;
-                  $element.data('initialElementTop', initialElementTop);
-                  $element.css({
-                      'position': 'relative',
-                      'top': 0
-                  });
-              }
-
-              windowHeight = $win.height();
-              elementHeight = $element.outerHeight();
-              alignToTop = function() {
-                  $element.stop(true);
-                  $element.animate({
-                      'top': Math.max(scrollTop, 0)
-                  }, 'fast');
-              };
-
-              // The element height is less than the window height,
-              // so there's no need to account for the bottom alignment.
-              if (initialElementTop + elementHeight < windowHeight) {
-                  alignToTop();
-
-              // The user is scrolling down.
-              } else {
-                  if (lastScrollTop < scrollTop) {
-                      var windowBottom = scrollTop + windowHeight;
-                      var elementBottom = elementTop + elementHeight;
-                      if (windowBottom > elementBottom) {
-                          $element.stop(true);
-                          $element.animate({
-                              'top': Math.min(windowBottom, $('body').height()) - elementHeight - initialElementTop
-                          }, 'fast');
-                      }
-
-                  // The user is scrolling up.
-                  } else if (lastScrollTop > scrollTop) {
-                      if (elementTop > scrollTop + initialElementTop) {
-                          alignToTop();
-                      }
-                  }
-              }
-          });
-
-          lastScrollTop = scrollTop;
-      }));
   })();
 
   // Handle file uploads from drag-and-drop.
@@ -531,14 +504,6 @@ function() {
     return confirm('Are you sure you want to archive this item?');
   });
 
-  $doc.on('input-disable', ':input', function(event, disable) {
-    $(this).prop('disabled', disable);
-  });
-
-  $doc.onCreate('.inputContainer-readOnly', function() {
-    $(this).find(":input, div").trigger('input-disable', [ true ]);
-  });
-
   (function() {
     function sync() {
       var $input = $(this),
@@ -623,28 +588,269 @@ function() {
     $(document.body).removeClass('toolSearchOpen');
   });
 
-  $doc.ready(function() {
-    $(this).trigger('create');
+  $doc.on('open', '.popup[data-popup-source-class~="objectId-select"]', function(event) {
+    var $popup = $(event.target);
+    var $input = $popup.popup('source');
+    var $container = $input;
+    var fieldsLabel = '';
 
-    // Add the name of the sub-selected item on the main nav.
-    $('.toolNav .selected').each(function() {
-      var $selected = $(this),
-          $subList = $selected.find('> ul'),
-          $subSelected = $subList.find('> .selected > a'),
-          $selectedLink;
+    while (true) {
+      $container = $container.parent().closest('.inputContainer');
 
-      if ($subSelected.length > 0) {
-        $selectedLink = $selected.find('> a');
-        $selectedLink.text($selectedLink.text() + ' \u2192 ' + $subSelected.text());
+      if ($container.length > 0) {
+        fieldsLabel = $container.find('> .inputLabel > label').text() + (fieldsLabel ? ' \u2192 ' + fieldsLabel : '');
+
+      } else {
+        break;
       }
+    }
 
-      $subList.css('min-width', $selected.outerWidth());
+    var label = 'Select ' + fieldsLabel;
+    var objectLabel = $input.closest('.contentForm').attr('data-o-label');
+
+    if (objectLabel) {
+      label += ' for ';
+      label += objectLabel;
+    }
+
+    $popup.find('> .content > .frame > h1').text(label);
+  });
+
+  $doc.on('open', '.popup[data-popup-source-class~="objectId-edit"]', function(event) {
+    var $frame = $(event.target);
+    var $parent = $frame.popup('source').closest('.popup, .toolContent');
+
+    $frame.popup('container').removeClass('popup-objectId-edit-hide');
+    $parent.addClass('popup-objectId-edit popup-objectId-edit-loading');
+    $win.resize();
+  });
+
+  var scrollTops = [ ];
+
+  $doc.on('frame-load', '.popup[data-popup-source-class~="objectId-edit"] > .content > .frame', function(event) {
+    var $frame = $(event.target);
+    var frameName = $frame.attr('name');
+
+    if (!frameName || frameName.indexOf('objectId-') !== 0) {
+      return;
+    }
+
+    var $parent = $frame.popup('source').closest('.popup, .toolContent');
+
+    $frame.css('opacity', 0);
+
+    // Move the close button to the publishing widget.
+    var $publishingControls = $frame.find('.widget-publishing > .widget-controls');
+
+    if ($publishingControls.length > 0) {
+      $publishingControls.append($('<a/>', {
+        'class': 'widget-publishing-close',
+        'click': function() {
+          $frame.popup('close');
+          return false;
+        }
+      }));
+    }
+
+    // Move the frame into view.
+    var scrollTop = $win.scrollTop();
+
+    scrollTops.push(scrollTop);
+
+    scrollTop += $('.toolHeader').outerHeight(true);
+
+    setTimeout(function() {
+      var sourceOffset = $(event.target).popup('source').offset();
+
+      $frame.popup('container').css({
+        'top': scrollTop
+      });
+
+      $parent.removeClass('popup-objectId-edit-loading');
+      $parent.addClass('popup-objectId-edit-loaded');
+
+      $frame.prepend($('<a/>', {
+        'class': 'popup-objectId-edit-heading',
+        'text': 'Back to ' + $parent.find('.contentForm-main > .widget > h1').text(),
+        'click': function() {
+          $frame.popup('close');
+          return false;
+        }
+      }));
+
+      $frame.css({
+        'transform-origin': (sourceOffset.left / $win.width() * 100) + '% ' + ((sourceOffset.top - scrollTop) / $frame.outerHeight(true) * 100) + '%'
+      });
+
+      $frame.velocity({
+        'opacity': 0.5,
+        'scale': 0.01
+
+      }, {
+        'duration': 1,
+        'complete': function() {
+          $frame.velocity({
+            'opacity': 1,
+            'scale': 1
+
+          }, {
+            'duration': 300,
+            'easing': [ 0.175, 0.885, 0.32, 1.275 ],
+            'complete': function () {
+               $frame.css({
+                 'opacity': '',
+                 'transform': '',
+                 'transform-origin': ''
+               });
+            }
+          });
+        }
+      });
+    }, 1500);
+  });
+
+  $doc.on('close', '.popup[data-popup-source-class~="objectId-edit"]', function(event) {
+    scrollTops.pop();
+
+    var $frame = $(event.target);
+    var $source = $frame.popup('source');
+    var $popup = $frame.popup('container');
+
+    if ($.data($popup[0], 'popup-close-cancelled')) {
+      return;
+    }
+
+    var sourceOffset = $source.offset();
+    var $parent = $source.closest('.popup, .toolContent');
+
+    $popup.addClass('popup-objectId-edit-hiding');
+    $parent.removeClass('popup-objectId-edit-loading');
+    $parent.removeClass('popup-objectId-edit-loaded');
+
+    $frame.css({
+      'transform-origin': (sourceOffset.left / $win.width() * 100) + '% ' + ((sourceOffset.top - $win.scrollTop() - $('.toolHeader').outerHeight(true)) / $frame.outerHeight(true) * 100) + '%'
     });
 
-    // Don't allow main nav links to be clickable if they have any children.
-    $('.toolNav li.isNested > a').click(function(event) {
+    $frame.velocity({
+      'scale': 1
+
+    }, {
+      'duration': 1,
+      'complete': function() {
+        $frame.velocity({
+          'opacity': 0.5,
+          'scale': 0.01
+
+        }, {
+          'duration': 300,
+          'easing': [ 0.6, -0.28, 0.735, 0.045 ],
+          'complete': function() {
+            $popup.removeClass('popup-objectId-edit-hiding');
+            $popup.addClass('popup-objectId-edit-hide');
+            $frame.css({
+              'opacity': '',
+              'transform': '',
+              'transform-origin': ''
+            });
+            $popup.remove();
+          }
+        })
+      }
+    })
+  });
+
+  $win.on('mousewheel', function(event, delta, deltaX, deltaY) {
+    if (scrollTops.length === 0) {
+      return;
+    }
+
+    if (deltaY > 0 && $win.scrollTop() - deltaY < scrollTops[scrollTops.length - 1]) {
       event.preventDefault();
-    });
+    }
+  });
+
+  $doc.ready(function() {
+    (function() {
+      var $nav = $('.toolNav');
+
+      var $split = $('<div/>', {
+        'class': 'toolNav-split',
+      });
+
+      var $left = $('<ul/>', {
+        'class': 'toolNav-splitLeft'
+      });
+
+      var $right = $('<div/>', {
+        'class': 'toolNav-splitRight'
+      });
+
+      $split.append($left);
+      $split.append($right);
+
+      $nav.find('> li').each(function() {
+        var $item = $(this);
+
+        if ($item.is(':first-child')) {
+          $item.find('> ul > li').each(function() {
+            var $subItem = $(this).find('> a');
+
+            $left.append($('<li/>', {
+              'html': $('<a/>', {
+                'href': $subItem.attr('href'),
+                'text': $subItem.text(),
+              }),
+
+              'mouseover': function() {
+                $left.find('> li').removeClass('state-hover');
+                $(this).addClass('state-hover');
+                $right.hide();
+              }
+            }));
+          });
+
+        } else {
+          var $sub = $item.find('> ul');
+
+          $right.append($sub);
+          $sub.hide();
+
+          $left.append($('<li/>', {
+            'class': 'toolNav-splitLeft-nested',
+            'text': $item.text(),
+            'mouseover': function() {
+              $left.find('> li').removeClass('state-hover');
+              $(this).addClass('state-hover');
+              $right.show();
+              $right.find('> ul').hide();
+              $sub.show();
+            }
+          }));
+        }
+      });
+
+      var $toggle = $('<div/>', {
+        'class': 'toolNav-toggle',
+        'click': function() {
+          if ($split.is(':visible')) {
+            $split.popup('close');
+
+          } else {
+            $split.popup('source', $toggle);
+            $split.popup('open');
+            $left.find('> li:first-child').trigger('mouseover');
+          }
+        }
+      });
+
+      $nav.before($toggle);
+
+      $split.popup();
+      $split.popup('close');
+      $split.popup('container').addClass('toolNav-popup');
+    })();
+
+    $(this).trigger('create');
 
     // Sync the search input in the tool header with the one in the popup.
     (function() {
@@ -681,42 +887,5 @@ function() {
         return false;
       });
     }());
-
-    // Starts all server-side tool checks.
-    if (!DISABLE_TOOL_CHECKS) {
-      (function() {
-        var toolCheckPoll = function() {
-          $.ajax({
-            'method': 'post',
-            'url': CONTEXT_PATH + '/toolCheckStream',
-            'cache': false,
-            'dataType': 'json',
-            'data': {
-              'url': win.location.href,
-              'r': JSON.stringify(toolChecks)
-            }
-
-          }).done(function(responses) {
-            if (!responses) {
-              return;
-            }
-
-            $.each(responses, function(i, response) {
-              if (response) {
-                toolCheckActionCallbacks[i][response.action].call(toolChecks[i], response);
-              }
-            });
-
-          }).done(function() {
-            setTimeout(toolCheckPoll, 100);
-
-          }).fail(function() {
-            setTimeout(toolCheckPoll, 10000);
-          });
-        };
-
-        toolCheckPoll();
-      })();
-    }
   });
 });

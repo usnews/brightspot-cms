@@ -3,15 +3,14 @@
 com.psddev.cms.db.AbVariation,
 com.psddev.cms.db.AbVariationField,
 com.psddev.cms.db.AbVariationObject,
-com.psddev.cms.db.Content,
 com.psddev.cms.db.ContentField,
 com.psddev.cms.db.ContentType,
-com.psddev.cms.db.GuideType,
 com.psddev.cms.db.ToolUi,
+com.psddev.cms.db.ToolUiLayoutElement,
+com.psddev.cms.tool.CmsTool,
 com.psddev.cms.tool.ToolPageContext,
 com.psddev.cms.tool.page.ContentEditBulk,
 
-com.psddev.dari.db.Modification,
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
@@ -25,10 +24,9 @@ java.io.IOException,
 java.io.Writer,
 java.net.MalformedURLException,
 java.net.URL,
-java.util.ArrayList,
 java.util.List,
 java.util.Map,
-java.util.Set,
+java.util.MissingResourceException,
 java.util.UUID,
 
 javax.servlet.ServletException
@@ -58,10 +56,24 @@ if (ct != null) {
             break;
         }
     }
+}
 
-} else {
+if (ObjectUtils.isBlank(tab)) {
     tab = ui.getTab();
-    label = field.getLabel();
+}
+
+if (!isHidden && (!ObjectUtils.isBlank(tab) && !ContentField.DEFAULT_TAB_VALUE.equals(tab)) && !wp.hasPermission("tab/" + StringUtils.toNormalized(tab))) {
+    isHidden = true;
+}
+
+if (ObjectUtils.isBlank(tab)) {
+    tab = "Main";
+}
+
+tab = wp.localize(field, "tab." + tab);
+
+if (ObjectUtils.isBlank(label)) {
+    label = wp.localize(field, "field." + field.getInternalName());
 }
 
 List<String> errors = state.getErrors(field);
@@ -146,6 +158,8 @@ try {
         wp.write(wp.h(state.getId()));
         wp.write("/");
         wp.write(wp.h(fieldName));
+        wp.write("\" data-field-name=\"");
+        wp.write(wp.h(fieldName));
         wp.write("\" data-standard-image-sizes=\"");
         for (String size : ui.getStandardImageSizes()) {
             wp.write(" ");
@@ -154,6 +168,21 @@ try {
 
         wp.write("\" data-tab=\"");
         wp.writeHtml(ObjectUtils.isBlank(tab) ? "Main" : tab);
+
+        ToolUiLayoutElement layoutField = ui.getLayoutField();
+
+        if (layoutField != null) {
+            wp.write("\" data-layout-field=\"");
+            wp.writeHtml(ObjectUtils.toJson(layoutField.toMap()));
+        }
+
+        String languageTag = ui.getLanguageTag();
+
+        if (languageTag != null) {
+            wp.write("\" lang=\"");
+            wp.writeHtml(languageTag);
+        }
+
         wp.write("\">");
 
         String heading = ui.getHeading();
@@ -188,6 +217,11 @@ try {
                     for (ContentEditBulk.Operation op : (field.isInternalCollectionType() ?
                             ContentEditBulk.COLLECTION_OPERATIONS :
                             ContentEditBulk.NON_COLLECTION_OPERATIONS)) {
+
+                        if (field.isRequired() && op.equals(ContentEditBulk.Operation.CLEAR)) {
+                            continue;
+                        }
+
                         wp.writeStart("option",
                                 (ContentEditBulk.Operation.CLEAR.equals(op) ? "data-hide" : "data-show"), "> .inputNote, > .inputSmall, > .inputLarge",
                                 "value", op.name());
@@ -384,7 +418,7 @@ public static void writeInput(
 
     // Look for class/field-specific handler.
     // TODO - There should be some type of a hook for external plugins.
-    String prefix = wp.cmsUrl("/WEB-INF/field/");
+    String prefix = wp.toolPath(CmsTool.class, "/WEB-INF/field/");
     String path = prefix + field.getJavaDeclaringClassName() + "." + fieldName + ".jsp";
     if (getResource(application, request, path) != null) {
         JspUtils.include(request, response, out, path);

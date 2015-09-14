@@ -6,7 +6,9 @@ import com.psddev.dari.util.ObjectUtils;
 @ContentField.Embedded
 public class ContentField extends Record {
 
-    @ToolUi.Placeholder("Main")
+    public static final String DEFAULT_TAB_VALUE = "Main";
+
+    @ToolUi.Placeholder(value = DEFAULT_TAB_VALUE, editable = true)
     private String tab;
 
     @Required
@@ -37,6 +39,13 @@ public class ContentField extends Record {
 
     public void setInternalName(String internalName) {
         this.internalName = internalName;
+    }
+
+    @Override
+    public void beforeSave() {
+        if (DEFAULT_TAB_VALUE.equals(tab)) {
+            tab = null;
+        }
     }
 
     @Override

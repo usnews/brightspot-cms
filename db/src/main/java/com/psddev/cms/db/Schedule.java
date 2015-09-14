@@ -70,14 +70,20 @@ public class Schedule extends Record {
         this.triggerUser = triggerUser;
     }
 
+    protected void beforeSave() {
+        if (ObjectUtils.isBlank(getName()) && getTriggerDate() == null) {
+            throw new IllegalArgumentException("Must provide either the name or the trigger date!");
+        }
+    }
+
     /**
      * @return {@code true} if this schedule was triggered.
      */
     public boolean trigger() {
         Date triggerDate = getTriggerDate();
 
-        if (triggerDate == null ||
-                !triggerDate.before(new Date())) {
+        if (triggerDate == null
+                || !triggerDate.before(new Date())) {
             return false;
         }
 
@@ -86,19 +92,19 @@ public class Schedule extends Record {
         try {
             beginWrites();
 
-            for (Object draftObject : Query.
-                    fromAll().
-                    where("com.psddev.cms.db.Draft/schedule = ?", this).
-                    master().
-                    noCache().
-                    resolveInvisible().
-                    selectAll()) {
+            for (Object draftObject : Query
+                    .fromAll()
+                    .where("com.psddev.cms.db.Draft/schedule = ?", this)
+                    .master()
+                    .noCache()
+                    .resolveInvisible()
+                    .selectAll()) {
                 if (!(draftObject instanceof Draft)) {
                     continue;
                 }
 
                 Draft draft = (Draft) draftObject;
-                Object object = draft.getObject();
+                Object object = draft.recreate();
 
                 LOGGER.debug("Processing [{}] draft in [{}] schedule", draft.getLabel(), getLabel());
 
@@ -147,18 +153,18 @@ public class Schedule extends Record {
         if (ObjectUtils.isBlank(name)) {
             Date triggerDate = getTriggerDate();
 
-            label.append(triggerDate != null ?
-                    triggerDate.toString() :
-                    getId().toString());
+            label.append(triggerDate != null
+                    ? triggerDate.toString()
+                    : getId().toString());
 
         } else {
             label.append(name);
         }
 
-        long draftCount = Query.
-                from(Draft.class).
-                where("schedule = ?", this).
-                count();
+        long draftCount = Query
+                .from(Draft.class)
+                .where("schedule = ?", this)
+                .count();
 
         if (draftCount > 1) {
             label.append(" (");

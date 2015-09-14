@@ -1,18 +1,23 @@
 {
   "dependencies": {
-    "bsp-autoexpand": "1.0.1",
+    "atmosphere": "Atmosphere/atmosphere-javascript#javascript-project-2.2.11",
+    "bsp-autoexpand": "1.0.2",
     "bsp-autosubmit": "1.0.0",
-    "bsp-utils": "2.0.1",
-    "codemirror": "4.2.0",
+    "bsp-utils": "2.0.2",
+    "codemirror": "5.2.0",
+    "css-element-queries": "4250c87c5ab2efd467f99d901252c73eb6bb80ea",
     "d3": "3.4.6",
+    "evaporate": "ttlabs/evaporatejs",
     "handsontable": "0.8.23",
     "husl": "4.0.0",
     "jquery": "1.8.3+1",
-    "jsdiff": "kpdecker/jsdiff#1.0.8",
-    "leaflet-dist": "0.6.4",
-    "leaflet.draw": "0.2.2",
+    "jsdiff": "2.0.2",
+    "leaflet": "0.7.3",
+    "leaflet.draw": "0.2.3",
+    "leaflet.locatecontrol": "0.34.0",
     "L.GeoSearch": "*",
-    "spectrum": "1.3.4"
+    "spectrum": "1.3.4",
+    "velocity": "1.1.0"
   },
   "name": "brightspot-cms"
 }

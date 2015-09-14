@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<differences>
+
+    <difference>
+        <className>com/psddev/cms/db/ToolUi$DropDown</className>
+        <differenceType>7012</differenceType>
+        <method>boolean sortDescending()</method>
+    </difference>
+
+    <difference>
+        <className>com/psddev/cms/db/ToolUi$DropDown</className>
+        <differenceType>7012</differenceType>
+        <method>java.lang.String sortField()</method>
+    </difference>
+
+</differences>

@@ -3,6 +3,7 @@ package com.psddev.cms.db;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -10,10 +11,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -21,20 +24,27 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.io.BaseEncoding;
 import com.psddev.cms.tool.CmsTool;
+import com.psddev.cms.tool.Dashboard;
+import com.psddev.cms.tool.SearchResultSelection;
+import com.psddev.cms.tool.ToolEntityTfaRequired;
+import com.psddev.dari.db.Application;
+import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.Password;
-import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.Settings;
+import com.psddev.dari.util.StorageItem;
 
 /** User that uses the CMS and other related tools. */
 @ToolUi.IconName("object-toolUser")
 @Record.BootstrapPackages("Users and Roles")
 @Record.BootstrapTypeMappable(groups = Content.class, uniqueKey = "email")
 public class ToolUser extends Record implements ToolEntity {
+
+    private static final long TOKEN_CHECK_EXPIRE_MILLISECONDS = 30000L;
 
     @Indexed
     @ToolUi.Note("If left blank, the user will have full access to everything.")
@@ -55,6 +65,9 @@ public class ToolUser extends Record implements ToolEntity {
     private String password;
 
     private StorageItem avatar;
+
+    @ToolUi.Tab("Dashboard")
+    private Dashboard dashboard;
 
     @ToolUi.Hidden
     private Date passwordChangedDate;
@@ -78,6 +91,11 @@ public class ToolUser extends Record implements ToolEntity {
 
     @ToolUi.Hidden
     private Schedule currentSchedule;
+
+    @ToolUi.Tab("Advanced")
+    @DisplayName("Two Factor Authentication Required?")
+    @ToolUi.Placeholder("Default")
+    private ToolEntityTfaRequired tfaRequired;
 
     @ToolUi.Hidden
     private boolean tfaEnabled;
@@ -128,10 +146,28 @@ public class ToolUser extends Record implements ToolEntity {
     @ToolUi.Hidden
     private long changePasswordTokenTime;
 
+    @Deprecated
     @ToolUi.Placeholder("Default")
     @ToolUi.Tab("Advanced")
     @ToolUi.Values({ "v2", "v3" })
     private String theme;
+
+    @ToolUi.Hidden
+    private SearchResultSelection currentSearchResultSelection;
+
+    @ToolUi.Hidden
+    private Map<String, String> searchViews;
+
+    @ToolUi.Hidden
+    private Map<String, List<String>> searchResultFieldsByTypeId;
+
+    @Indexed
+    @Embedded
+    @ToolUi.Hidden
+    private List<LoginToken> loginTokens;
+
+    @ToolUi.Hidden
+    private UUID compareId;
 
     /** Returns the role. */
     public ToolRole getRole() {
@@ -194,6 +230,14 @@ public class ToolUser extends Record implements ToolEntity {
         this.avatar = avatar;
     }
 
+    public Dashboard getDashboard() {
+        return dashboard;
+    }
+
+    public void setDashboard(Dashboard dashboard) {
+        this.dashboard = dashboard;
+    }
+
     /**
      * @return the user's locale.
      */
@@ -238,10 +282,10 @@ public class ToolUser extends Record implements ToolEntity {
 
         ToolUserDevice device = null;
 
-        for (ToolUserDevice d : Query.
-                from(ToolUserDevice.class).
-                where("user = ?", this).
-                selectAll()) {
+        for (ToolUserDevice d : Query
+                .from(ToolUserDevice.class)
+                .where("user = ?", this)
+                .selectAll()) {
             if (userAgent.equals(d.getUserAgent())) {
                 device = d;
                 break;
@@ -266,14 +310,14 @@ public class ToolUser extends Record implements ToolEntity {
     public ToolUserDevice findRecentDevice() {
         ToolUserDevice device = null;
 
-        for (ToolUserDevice d : Query.
-                from(ToolUserDevice.class).
-                where("user = ?").
-                selectAll()) {
-            if (device == null ||
-                    device.findLastAction() == null ||
-                    (d.findLastAction() != null &&
-                    d.findLastAction().getTime() > device.findLastAction().getTime())) {
+        for (ToolUserDevice d : Query
+                .from(ToolUserDevice.class)
+                .where("user = ?")
+                .selectAll()) {
+            if (device == null
+                    || device.findLastAction() == null
+                    || (d.findLastAction() != null
+                    && d.findLastAction().getTime() > device.findLastAction().getTime())) {
                 device = d;
             }
         }
@@ -289,8 +333,8 @@ public class ToolUser extends Record implements ToolEntity {
      * @param content If {@code null}, does nothing.
      */
     public void saveAction(HttpServletRequest request, Object content) {
-        if (content == null ||
-                ObjectUtils.to(boolean.class, request.getParameter("_mirror"))) {
+        if (content == null
+                || ObjectUtils.to(boolean.class, request.getParameter("_mirror"))) {
             return;
         }
 
@@ -371,11 +415,16 @@ public class ToolUser extends Record implements ToolEntity {
         this.settings = settings;
     }
 
+    /**
+     * Returns the ToolUser's current {@link Site} or the first accessible Site.
+     * @throws IllegalStateException if the user doesn't have access to any Sites.
+     * @return the ToolUser's current Site or null if the ToolUser is using the Global Site.
+     */
     public Site getCurrentSite() {
-        if ((currentSite == null &&
-                hasPermission("site/global")) ||
-                (currentSite != null &&
-                hasPermission(currentSite.getPermissionId()))) {
+        if ((currentSite == null
+                && hasPermission("site/global"))
+                || (currentSite != null
+                && hasPermission(currentSite.getPermissionId()))) {
             return currentSite;
 
         } else {
@@ -385,8 +434,28 @@ public class ToolUser extends Record implements ToolEntity {
                 }
             }
 
+            if (hasPermission("site/global")) {
+                return null;
+            }
+
             throw new IllegalStateException("No accessible site!");
         }
+    }
+
+    /**
+     * Returns a {@code List<Site>} to which the ToolUser has access.  The ToolUser's
+     * {@link #getCurrentSite() current Site} and the Global Site are excluded from
+     * this list.
+     * @return a {@code List<Site>} to which the ToolUser has access.
+     */
+    public List<Site> findOtherAccessibleSites() {
+
+        Site currentSite = getCurrentSite();
+
+        return Site.Static.findAll()
+            .stream()
+            .filter((Site site) -> hasPermission(site.getPermissionId()) && !ObjectUtils.equals(currentSite, site))
+            .collect(Collectors.toList());
     }
 
     public void setCurrentSite(Site site) {
@@ -407,6 +476,20 @@ public class ToolUser extends Record implements ToolEntity {
 
     public void setTfaEnabled(boolean tfaEnabled) {
         this.tfaEnabled = tfaEnabled;
+    }
+
+    public boolean isTfaRequired() {
+        if (tfaRequired != null) {
+            return ToolEntityTfaRequired.REQUIRED.equals(tfaRequired);
+        } else if (getRole() != null) {
+            return getRole().isTfaRequired();
+        } else {
+            return Application.Static.getInstance(CmsTool.class).isTfaRequired();
+        }
+    }
+
+    public void setTfaRequired(ToolEntityTfaRequired tfaRequired) {
+        this.tfaRequired = tfaRequired;
     }
 
     public String getTotpSecret() {
@@ -441,11 +524,10 @@ public class ToolUser extends Record implements ToolEntity {
 
             byte[] hash = mac.doFinal(ByteBuffer.allocate(8).putLong(counter).array());
             int offset = hash[hash.length - 1] & 0xf;
-            int binary =
-                    ((hash[offset] & 0x7f) << 24) |
-                    ((hash[offset + 1] & 0xff) << 16) |
-                    ((hash[offset + 2] & 0xff) << 8) |
-                    (hash[offset + 3] & 0xff);
+            int binary = ((hash[offset] & 0x7f) << 24)
+                    | ((hash[offset + 1] & 0xff) << 16)
+                    | ((hash[offset + 2] & 0xff) << 8)
+                    | (hash[offset + 3] & 0xff);
 
             return binary % 1000000;
 
@@ -461,8 +543,8 @@ public class ToolUser extends Record implements ToolEntity {
         long counter = System.currentTimeMillis() / TOTP_INTERVAL - 2;
 
         for (long end = counter + 5; counter < end; ++ counter) {
-            if (counter > lastTotpCounter &&
-                    code == getTotpCode(counter)) {
+            if (counter > lastTotpCounter
+                    && code == getTotpCode(counter)) {
                 lastTotpCounter = counter;
                 save();
                 return true;
@@ -500,11 +582,11 @@ public class ToolUser extends Record implements ToolEntity {
         String nextCounter = String.valueOf(counter + 1);
         String currentLock = idPrefix + currentCounter;
         String nextLock = idPrefix + nextCounter;
-        ToolUser user = Query.
-                from(ToolUser.class).
-                where("_id != ?", this).
-                and("contentLocks = ?", Arrays.asList(currentLock, nextLock)).
-                first();
+        ToolUser user = Query
+                .from(ToolUser.class)
+                .where("_id != ?", this)
+                .and("contentLocks = ?", Arrays.asList(currentLock, nextLock))
+                .first();
 
         if (user != null) {
             return user;
@@ -516,9 +598,9 @@ public class ToolUser extends Record implements ToolEntity {
         for (Iterator<String> i = newLocks.iterator(); i.hasNext();) {
             String lock = i.next();
 
-            if (lock.startsWith(idPrefix) ||
-                    !(lock.endsWith(currentCounter) ||
-                    lock.endsWith(nextCounter))) {
+            if (lock.startsWith(idPrefix)
+                    || !(lock.endsWith(currentCounter)
+                    || lock.endsWith(nextCounter))) {
                 i.remove();
             }
         }
@@ -543,11 +625,11 @@ public class ToolUser extends Record implements ToolEntity {
     public void unlockContent(UUID id) {
         String idPrefix = id.toString() + '/';
         Set<String> locks = createLocks(idPrefix);
-        ToolUser user = Query.
-                from(ToolUser.class).
-                where("_id != ?", this).
-                and("contentLocks = ?", locks).
-                first();
+        ToolUser user = Query
+                .from(ToolUser.class)
+                .where("_id != ?", this)
+                .and("contentLocks = ?", locks)
+                .first();
 
         if (user != null) {
             for (Iterator<String> i = user.contentLocks.iterator(); i.hasNext();) {
@@ -558,6 +640,95 @@ public class ToolUser extends Record implements ToolEntity {
 
             user.save();
         }
+    }
+
+    /**
+     * Sets the specified {@link SearchResultSelection} as the {@link ToolUser}'s current selection.  The current selection
+     * is used to provide contextual {@link com.psddev.cms.tool.SearchResultAction}s.  If the ToolUser already has a current selection,
+     * the selection will replaced and if the user has not saved the existing selection, it will be cleared and deleted.
+     * @param selection the {@link SearchResultSelection} to set as current for this {@link ToolUser}
+     * @return the current selection for this {@link ToolUser} after the deactivation of the specified selection.
+     */
+    public SearchResultSelection activateSelection(SearchResultSelection selection) {
+
+        SearchResultSelection currentSelection = getCurrentSearchResultSelection();
+
+        // If the current selection is not saved, clear it.
+        if (currentSelection != null && !isSavedSearchResultSelection(currentSelection)) {
+
+            currentSelection.clear();
+            currentSelection.delete();
+        }
+
+        // Set the current selection
+        setCurrentSearchResultSelection(selection);
+
+        save();
+
+        return selection;
+    }
+
+    /**
+     * Resets this {@link ToolUser}s current {@link SearchResultSelection} to a new instance.  If the specified SearchResultSelection
+     * is saved for this ToolUser, it is replaced with a new SearchResultSelection, otherwise, the existing one is cleared.
+     * @param selection the SearchResultSelection to deactivate
+     * @return the current selection for this {@link ToolUser} after the deactivation of the specified selection.
+     */
+    public SearchResultSelection deactivateSelection(SearchResultSelection selection) {
+
+        return deactivateSelection(selection, false);
+    }
+
+    /**
+     * Resets this {@link ToolUser}s current {@link SearchResultSelection} to a new instance.  If the specified SearchResultSelection
+     * is saved for this ToolUser, it is replaced with a new SearchResultSelection, otherwise, the existing one is cleared.
+     * If checked is true, the specified SearchResultSelection must be the same as the ToolUser's current selection, otherwise an
+     * {@link IllegalStateException} will be thrown.
+     * @param selection the SearchResultSelection to deactivate
+     * @param checked indicates whether to require that the specified {@link SearchResultSelection} is the same as the {@link ToolUser}'s current selection.  default: {@code false}
+     * @return the current selection for this {@link ToolUser} after the deactivation of the specified selection.
+     */
+    public SearchResultSelection deactivateSelection(SearchResultSelection selection, boolean checked) {
+
+        // Throw an exception if this is a checked invocation.
+        if (checked && selection != null && getCurrentSearchResultSelection() != null && !selection.equals(getCurrentSearchResultSelection())) {
+            throw new IllegalStateException("The specified selection is not active for this user!");
+        }
+
+        // Reset the current selection.
+        return resetCurrentSelection();
+    }
+
+    /**
+     * Returns {@code true} if the specified {@link SearchResultSelection} is saved for this {@link ToolUser}.
+     * @param selection the {@link SearchResultSelection} to check
+     * @return {@code true} if the specified {@link SearchResultSelection} is saved for this {@link ToolUser}.
+     */
+    public boolean isSavedSearchResultSelection(SearchResultSelection selection) {
+
+        return selection != null && !ObjectUtils.isBlank(selection.getName())
+                && (selection.getEntities().contains(this)
+                || (getRole() != null && selection.getEntities().contains(getRole())));
+    }
+
+    /**
+     * Clears the {@link ToolUser}'s current {@link SearchResultSelection} if it is not saved, otherwise creates a new one with
+     * this {@link ToolUser} as the default accessible {@link ToolEntity}.
+     * @return the {@link ToolUser}'s current {@link SearchResultSelection} after the reset has been performed.
+     */
+    public SearchResultSelection resetCurrentSelection() {
+
+        if (getCurrentSearchResultSelection() != null && !isSavedSearchResultSelection(getCurrentSearchResultSelection())) {
+            getCurrentSearchResultSelection().clear();
+        } else {
+            SearchResultSelection selection = new SearchResultSelection();
+            selection.getEntities().add(this);
+            selection.save();
+            setCurrentSearchResultSelection(selection);
+            save();
+        }
+
+        return getCurrentSearchResultSelection();
     }
 
     public Set<UUID> getAutomaticallySavedDraftIds() {
@@ -637,12 +808,44 @@ public class ToolUser extends Record implements ToolEntity {
         this.changePasswordTokenTime = changePasswordToken == null ? 0L : System.currentTimeMillis();
     }
 
+    @Deprecated
     public String getTheme() {
         return theme;
     }
 
+    @Deprecated
     public void setTheme(String theme) {
         this.theme = theme;
+    }
+
+    public SearchResultSelection getCurrentSearchResultSelection() {
+        return currentSearchResultSelection;
+    }
+
+    public void setCurrentSearchResultSelection(SearchResultSelection currentSearchResultSelection) {
+        this.currentSearchResultSelection = currentSearchResultSelection;
+    }
+
+    public Map<String, String> getSearchViews() {
+        if (searchViews == null) {
+            searchViews = new CompactMap<>();
+        }
+        return searchViews;
+    }
+
+    public void setSearchViews(Map<String, String> searchViews) {
+        this.searchViews = searchViews;
+    }
+
+    public Map<String, List<String>> getSearchResultFieldsByTypeId() {
+        if (searchResultFieldsByTypeId == null) {
+            searchResultFieldsByTypeId = new CompactMap<>();
+        }
+        return searchResultFieldsByTypeId;
+    }
+
+    public void setSearchResultFieldsByTypeId(Map<String, List<String>> searchResultFieldsByTypeId) {
+        this.searchResultFieldsByTypeId = searchResultFieldsByTypeId;
     }
 
     public void updatePassword(Password password) {
@@ -657,6 +860,14 @@ public class ToolUser extends Record implements ToolEntity {
     public boolean hasPermission(String permissionId) {
         ToolRole role = getRole();
         return role != null ? role.hasPermission(permissionId) : true;
+    }
+
+    /**
+     * Returns {@code true} if forgot paassword email was never sent
+     * or was sent before the given {@code interval} in minutes.
+     */
+    public boolean isAllowedToRequestForgotPassword(long interval) {
+        return changePasswordTokenTime + interval * 60L * 1000L < System.currentTimeMillis();
     }
 
     @Override
@@ -680,20 +891,164 @@ public class ToolUser extends Record implements ToolEntity {
         return Collections.singleton(this);
     }
 
+    public String generateLoginToken() {
+        LoginToken loginToken = new LoginToken();
+        getLoginTokens().add(loginToken);
+        save();
+
+        return loginToken.getToken();
+    }
+
+    public void refreshLoginToken(String token) {
+        Iterator<LoginToken> iter = getLoginTokens().iterator();
+        while (iter.hasNext()) {
+            LoginToken loginToken = iter.next();
+            if (loginToken.getToken().equals(token)) {
+                loginToken.refreshToken();
+            } else if (!loginToken.isValid()) {
+                iter.remove();
+            }
+        }
+
+        save();
+    }
+
+    public void removeLoginToken(String token) {
+        LoginToken loginToken = getLoginToken(token);
+        if (loginToken != null) {
+            getLoginTokens().remove(loginToken);
+            save();
+        }
+    }
+
+    public LoginToken getLoginToken(String token) {
+        for (LoginToken loginToken : getLoginTokens()) {
+            if (loginToken.getToken().equals(token) && loginToken.isValid()) {
+                return loginToken;
+            }
+        }
+
+        return null;
+    }
+
+    public List<LoginToken> getLoginTokens() {
+        if (loginTokens == null) {
+            loginTokens = new ArrayList<LoginToken>();
+        }
+
+        return loginTokens;
+    }
+
+    public void setLoginTokens(List<LoginToken> loginTokens) {
+        this.loginTokens = loginTokens;
+    }
+
+    public UUID getCompareId() {
+        return compareId;
+    }
+
+    public void setCompareId(UUID compareId) {
+        this.compareId = compareId;
+    }
+
+    public Object createCompareObject() {
+        UUID compareId = getCompareId();
+
+        if (compareId != null) {
+            Object compareObject = Query.fromAll().where("_id = ?", compareId).first();
+
+            if (compareObject != null) {
+                if (compareObject instanceof Draft) {
+                    return ((Draft) compareObject).recreate();
+
+                } else if (compareObject instanceof History) {
+                    return ((History) compareObject).getObject();
+
+                } else {
+                    return compareObject;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public static class LoginToken extends Record {
+
+        @Indexed
+        private String token;
+        private Long expireTimestamp;
+
+        public LoginToken() {
+            this.token = UUID.randomUUID().toString();
+
+            refreshToken();
+        }
+
+        public String getToken() {
+            return token;
+        }
+
+        public Long getExpireTimestamp() {
+            return expireTimestamp;
+        }
+
+        public void refreshToken() {
+            refreshTokenIfNecessary();
+        }
+
+        public boolean refreshTokenIfNecessary() {
+            long sessionTimeout = Settings.getOrDefault(long.class, "cms/tool/sessionTimeout", 0L);
+
+            if (sessionTimeout == 0L && (this.expireTimestamp == null || this.expireTimestamp != 0L)) {
+                this.expireTimestamp = 0L;
+                return true;
+            }
+
+            // Only refresh if the expireTimestamp is empty or token was issued over TOKEN_CHECK_EXPIRE_MILLISECONDS ago.
+            if (sessionTimeout != 0L
+                    && (this.expireTimestamp == null
+                    || this.expireTimestamp == 0L
+                    || (this.expireTimestamp - sessionTimeout) + TOKEN_CHECK_EXPIRE_MILLISECONDS < System.currentTimeMillis())) {
+                this.expireTimestamp = System.currentTimeMillis() + sessionTimeout;
+                return true;
+            }
+
+            return false;
+        }
+
+        public boolean isValid() {
+            if (getExpireTimestamp() == null) {
+                return false;
+            }
+
+            if (getExpireTimestamp() == 0L) {
+                return true;
+            }
+
+            return getExpireTimestamp() > System.currentTimeMillis();
+        }
+    }
+
     public static final class Static {
 
         private Static() {
         }
 
         public static ToolUser getByTotpToken(String totpToken) {
-            ToolUser user = Query.from(ToolUser.class).where("totpToken = ?", totpToken).first();
+            ToolUser user = Query.from(ToolUser.class).option(Database.DISABLE_FUNNEL_CACHE_QUERY_OPTION, true).where("totpToken = ?", totpToken).first();
             return user != null && user.totpTokenTime + 60000 > System.currentTimeMillis() ? user : null;
         }
 
         public static ToolUser getByChangePasswordToken(String changePasswordToken) {
-            ToolUser user = Query.from(ToolUser.class).where("changePasswordToken = ?", changePasswordToken).first();
+            ToolUser user = Query.from(ToolUser.class).option(Database.DISABLE_FUNNEL_CACHE_QUERY_OPTION, true).where("changePasswordToken = ?", changePasswordToken).first();
             long expiration = Settings.getOrDefault(long.class, "cms/tool/changePasswordTokenExpirationInHours", 24L) * 60L * 60L * 1000L;
             return user != null && user.changePasswordTokenTime + expiration > System.currentTimeMillis() ? user : null;
+        }
+
+        public static ToolUser getByToken(String token) {
+            ToolUser user = Query.from(ToolUser.class).option(Database.DISABLE_FUNNEL_CACHE_QUERY_OPTION, true).where("loginTokens/token = ?", token).first();
+            return user != null && user.getLoginToken(token) != null ? user : null;
         }
     }
 

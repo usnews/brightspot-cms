@@ -21,17 +21,21 @@ public class ScheduleList extends PageServlet {
 
     @Override
     protected void doService(final ToolPageContext page) throws IOException, ServletException {
+        reallyDoService(page);
+    }
+
+    public static void reallyDoService(ToolPageContext page) throws IOException, ServletException {
         page.writeStart("div", "class", "widget");
             page.writeStart("h1", "class", "icon icon-object-schedule");
                 page.writeHtml("Available Schedules");
             page.writeEnd();
 
             page.writeStart("ul");
-                for (Schedule schedule : Query.
-                        from(Schedule.class).
-                        where("name != missing").
-                        sortAscending("name").
-                        selectAll()) {
+                for (Schedule schedule : Query
+                        .from(Schedule.class)
+                        .where("name != missing")
+                        .sortAscending("name")
+                        .selectAll()) {
                     page.writeStart("li");
                         page.writeStart("form",
                                 "method", "post",

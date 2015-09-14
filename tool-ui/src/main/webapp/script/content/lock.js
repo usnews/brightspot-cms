@@ -3,16 +3,13 @@ define([
     'bsp-utils' ],
 
 function($, bsp_utils) {
-    bsp_utils.onDomInsert(document, '.contentLock', {
-        'insert': function(container) {
-            var $container = $(container);
-
-            if ($container.attr('data-content-locked-out') === 'true') {
-                $container.find(':input, button, .event-input-disable').trigger('input-disable', [ true ]);
-                $win.resize();
-            }
-        }
+  $(window).load(function() {
+    bsp_utils.onDomInsert(document, '.contentLock[data-content-locked-out = "true"] :input', {
+      'insert': function (input) {
+        $(input).trigger('input-disable', [ true ]);
+      }
     });
+  });
 
     var KEY_PREFIX = "cms.contentLock.";
     var STORAGE = window.localStorage;
@@ -38,16 +35,24 @@ function($, bsp_utils) {
         var key;
         var now = +new Date();
         var contentId;
+        var contentIdsToUnlock = [];
 
         for (itemIndex = 0; itemIndex < itemLength; ++ itemIndex) {
             key = STORAGE.key(itemIndex);
 
-            if (key.indexOf(KEY_PREFIX, 0) === 0 &&
+            if (key &&
+                    key.indexOf(KEY_PREFIX, 0) === 0 &&
                     parseInt(STORAGE.getItem(key), 10) + 5000 < now) {
                 contentId = key.substring(KEY_PREFIX.length);
 
-                unlock(contentId);
+                contentIdsToUnlock.push(contentId);
             }
+        }
+
+        itemLength = contentIdsToUnlock.length;
+
+        for (itemIndex = 0; itemIndex < itemLength; ++ itemIndex) {
+            unlock(contentIdsToUnlock[itemIndex]);
         }
     }, 1000);
 

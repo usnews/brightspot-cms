@@ -85,10 +85,10 @@ public class ContentSearchAdvanced extends PageServlet {
         Collections.sort(fields);
 
         List<UUID> ids = page.params(UUID.class, ITEMS_PARAMETER);
-        Query<Object> query = (type != null ?
-                Query.fromType(type) :
-                Query.fromGroup(Content.SEARCHABLE_GROUP)).
-                where(predicate);
+        Query<Object> query = (type != null
+                ? Query.fromType(type)
+                : Query.fromGroup(Content.SEARCHABLE_GROUP))
+                .where(predicate);
 
         if (page.param(String.class, "action-download") != null) {
             HttpServletResponse response = page.getResponse();
@@ -134,7 +134,7 @@ public class ContentSearchAdvanced extends PageServlet {
 
             page.write("\r\n");
 
-            for (Object item : query.iterable(0)) {
+            for (Object item : query.noCache().iterable(0)) {
                 State itemState = State.getInstance(item);
 
                 if (!ids.isEmpty() && !ids.contains(itemState.getId())) {
@@ -166,7 +166,7 @@ public class ContentSearchAdvanced extends PageServlet {
                         }
 
                     } else {
-                        for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(field.getInternalName())).iterator(); i.hasNext();) {
+                        for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.getByPath(field.getInternalName())).iterator(); i.hasNext();) {
                             Object value = i.next();
                             page.writeObject(value);
                             if (i.hasNext()) {
@@ -184,7 +184,7 @@ public class ContentSearchAdvanced extends PageServlet {
             return;
 
         } else if (page.param(String.class, "action-trash") != null) {
-            Iterator<Object> queryIterator = query.iterable(0).iterator();
+            Iterator<Object> queryIterator = query.noCache().iterable(0).iterator();
 
             try {
                 while (queryIterator.hasNext()) {
@@ -251,9 +251,9 @@ public class ContentSearchAdvanced extends PageServlet {
                 ToolPageContext page = (ToolPageContext) writer;
                 page.writeElement("img",
                         "height", 100,
-                        "src", ImageEditor.Static.getDefault() != null ?
-                                new ImageTag.Builder(item).setHeight(100).toUrl() :
-                                item.getPublicUrl());
+                        "src", ImageEditor.Static.getDefault() != null
+                                ? new ImageTag.Builder(item).setHeight(100).toUrl()
+                                : item.getPublicUrl());
             }
         });
 
@@ -378,9 +378,9 @@ public class ContentSearchAdvanced extends PageServlet {
                                 page.writeEnd();
                             }
 
-                            if (result.getOffset() > 0 ||
-                                    result.hasNext() ||
-                                    result.getItems().size() > LIMITS[0]) {
+                            if (result.getOffset() > 0
+                                    || result.hasNext()
+                                    || result.getItems().size() > LIMITS[0]) {
                                 page.writeStart("li");
                                     for (String fieldName : fieldNames) {
                                         page.writeElement("input", "type", "hidden", "name", FIELDS_PARAMETER, "value", fieldName);
@@ -486,7 +486,7 @@ public class ContentSearchAdvanced extends PageServlet {
                                                     }
 
                                                 } else {
-                                                    for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(field.getInternalName())).iterator(); i.hasNext();) {
+                                                    for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.getByPath(field.getInternalName())).iterator(); i.hasNext();) {
                                                         Object value = i.next();
                                                         page.writeObject(value);
                                                         if (i.hasNext()) {
@@ -520,7 +520,7 @@ public class ContentSearchAdvanced extends PageServlet {
                             page.writeStart("a",
                                     "class", "action button icon icon-object-workStream",
                                     "target", "workStreamCreate",
-                                    "href", page.cmsUrl("/content/newWorkStream.jsp",
+                                    "href", page.cmsUrl("/createWorkStream",
                                             "query", ObjectUtils.toJson(query.getState().getSimpleValues())));
                                 page.writeHtml("New Work Stream");
                             page.writeEnd();

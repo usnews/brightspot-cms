@@ -30,16 +30,7 @@ if(fieldValue == null) {
 }
 
 List<ObjectType> validTypes = field.as(ToolUi.class).findDisplayTypes();
-boolean isValueExternal = true;
-if (validTypes != null && validTypes.size() > 0) {
-    isValueExternal = false;
-    for (ObjectType type : validTypes) {
-        if (!type.isEmbedded()) {
-            isValueExternal = true;
-            break;
-        }
-    }
-}
+boolean isValueExternal = ToolUi.isValueExternal(field);
 
 String inputName = (String) request.getAttribute("inputName");
 String idName = inputName + ".id";
@@ -66,7 +57,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         UUID[] ids = wp.uuidParams(inputName);
         String[] keys = wp.params(keyName);
         for(int i = 0, s = Math.min(ids.length, keys.length); i < s; ++ i) {
-            Object item = Query.findById(Object.class, ids[i]);
+            Object item = Query.fromAll().where("_id = ?", ids[i]).resolveInvisible().first();
             if (item != null) {
                 fieldValue.put(keys[i], item);
             }
