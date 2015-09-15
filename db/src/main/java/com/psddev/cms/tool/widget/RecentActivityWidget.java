@@ -224,7 +224,7 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
                                     "href", page.url("", "offset", result.getPreviousOffset()));
                                 page.writeHtml(page.localize(
                                         ImmutableMap.of("count", limit),
-                                        "pagination.newer.count"));
+                                        "pagination.newerCount"));
                             page.writeEnd();
                         page.writeEnd();
                     }
@@ -260,7 +260,7 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
                                 page.writeHtml(page.localize(
                                         RecentActivityWidget.class,
                                         ImmutableMap.of("count", limit),
-                                        "pagination.older.count"));
+                                        "pagination.olderCount"));
                             page.writeEnd();
                         page.writeEnd();
                     }

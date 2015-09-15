@@ -91,7 +91,7 @@ PaginatedResult<Object> items = Query
                                 "offset", items.getPreviousOffset())%>">
                                 <%= wp.h(wp.localize(
                                         ImmutableMap.of("count", (Object) items.getLimit()),
-                                        "pagination.previous.count"))%>
+                                        "pagination.previousCount"))%>
                             </a>
                         </li>
                     <% } %>
@@ -101,7 +101,7 @@ PaginatedResult<Object> items = Query
                                 "offset", items.getNextOffset())%>">
                                 <%= wp.h(wp.localize(
                                         ImmutableMap.of("count", (Object) items.getLimit()),
-                                        "pagination.next.count"))%>
+                                        "pagination.nextCount"))%>
                             </a>
                         </li>
                     <% } %>

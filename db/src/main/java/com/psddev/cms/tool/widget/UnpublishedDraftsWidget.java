@@ -255,7 +255,7 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                                 page.writeHtml(page.localize(
                                         UnpublishedDraftsWidget.class,
                                         ImmutableMap.of("count", drafts.getLimit()),
-                                        "pagination.newer.count"));
+                                        "pagination.newerCount"));
                             page.writeEnd();
                         page.writeEnd();
                     }
@@ -286,7 +286,7 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                                 page.writeHtml(page.localize(
                                         UnpublishedDraftsWidget.class,
                                         ImmutableMap.of("count", drafts.getLimit()),
-                                        "pagination.older.count"));
+                                        "pagination.olderCount"));
                             page.writeEnd();
                         page.writeEnd();
                     }

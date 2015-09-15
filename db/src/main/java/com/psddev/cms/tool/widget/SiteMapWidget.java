@@ -290,7 +290,7 @@ public class SiteMapWidget extends DashboardWidget {
                                 page.writeHtml(page.localize(
                                         SiteMapWidget.class,
                                         ImmutableMap.of("count", result.getLimit()),
-                                        "pagination.previous.count"));
+                                        "pagination.previousCount"));
                             page.writeEnd();
                         page.writeEnd();
                     }
@@ -336,7 +336,7 @@ public class SiteMapWidget extends DashboardWidget {
                                 page.writeHtml(page.localize(
                                         SiteMapWidget.class,
                                         ImmutableMap.of("count", result.getLimit()),
-                                        "pagination.next.count"));
+                                        "pagination.nextCount"));
                             page.writeEnd();
                         page.writeEnd();
                     }
