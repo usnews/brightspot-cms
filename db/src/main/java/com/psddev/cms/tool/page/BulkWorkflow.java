@@ -85,7 +85,7 @@ public class BulkWorkflow extends PageServlet {
                         "href", getActionUrl(page, null, null, null, WidgetState.DETAIL));
                     page.writeHtml(page.localize(
                             BulkWorkflow.class,
-                            ImmutableMap.of("extra", page.getSelection() != null ? " Selected" : ""),
+                            ImmutableMap.of("extra", page.getSelection() != null ? "Selected" : ""),
                             "action.bulkWorfklow"));
                 page.writeEnd();
             page.writeEnd();
