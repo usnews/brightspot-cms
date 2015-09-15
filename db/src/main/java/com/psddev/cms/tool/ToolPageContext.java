@@ -468,6 +468,8 @@ public class ToolPageContext extends WebPageContext {
                     lastEnd = numberedArgumentMatcher.end();
                 }
 
+                namedArgumentPattern.append(Pattern.quote(numberedPattern.substring(lastEnd)));
+
                 // Map all numbered argument to the named ones.
                 // e.g. {0} = {name}
                 Matcher namedArgumentMatcher = Pattern.compile(namedArgumentPattern.toString()).matcher(pattern);
