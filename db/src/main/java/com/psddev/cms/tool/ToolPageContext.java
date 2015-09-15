@@ -395,15 +395,13 @@ public class ToolPageContext extends WebPageContext {
             }
         }
 
-        if (Locale.getDefault().equals(source)) {
-            ObjectType type = ObjectType.getInstance(baseName);
-            ObjectTypeResourceBundle bundle = ObjectTypeResourceBundle.getInstance(type);
+        ObjectType type = ObjectType.getInstance(baseName);
+        ObjectTypeResourceBundle bundle = ObjectTypeResourceBundle.getInstance(type);
 
-            argumentsSources.add(bundle.getMap());
+        argumentsSources.add(bundle.getMap());
 
-            if (pattern == null) {
-                pattern = findBundleString(bundle, key);
-            }
+        if (pattern == null && Locale.getDefault().equals(source)) {
+            pattern = findBundleString(bundle, key);
         }
 
         if (pattern == null) {
