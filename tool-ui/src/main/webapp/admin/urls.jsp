@@ -56,7 +56,7 @@ PaginatedResult<Object> items = Query
             <ul class="links">
                 <li class="new<%= State.getInstance(selected).isNew() ? " selected" : "" %>">
                     <a href="<%= wp.url(null) %>">
-                        <%= wp.h(wp.localize(Directory.class, "action.new.type"))%>
+                        <%= wp.h(wp.localize(Directory.class, "action.newType"))%>
                     </a>
                 </li>
                 <% for (Directory directory : Query

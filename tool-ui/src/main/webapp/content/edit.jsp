@@ -327,7 +327,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                     "templateId", template != null ? template.getId() : null)%>">
                                     <%= wp.h(wp.localize(
                                             editingState.getType(),
-                                            "action.new.type"))%>
+                                            "action.newType"))%>
                                 </a>
                             </li>
                             <li>
@@ -966,7 +966,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                     wp.writeHtml(wp.localize(Draft.class, "action.save.type"));
 
                                 } else {
-                                    wp.writeHtml(wp.localize(Draft.class, "action.new.type"));
+                                    wp.writeHtml(wp.localize(Draft.class, "action.newType"));
                                 }
 
                             wp.writeEnd();

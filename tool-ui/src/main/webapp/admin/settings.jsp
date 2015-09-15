@@ -72,7 +72,7 @@ List<StandardImageSize> standardImageSizes = Query.from(StandardImageSize.class)
             <ul class="links">
                 <li class="new<%= selected instanceof StandardImageSize && selectedState.isNew() ? " selected" : "" %>">
                     <a href="<%= wp.typeUrl(null, StandardImageSize.class) %>">
-                        <%= wp.h(wp.localize(StandardImageSize.class, "action.new.type"))%>
+                        <%= wp.h(wp.localize(StandardImageSize.class, "action.newType"))%>
                     </a>
                 </li>
                 <% for (StandardImageSize size : standardImageSizes) { %>
@@ -88,7 +88,7 @@ List<StandardImageSize> standardImageSizes = Query.from(StandardImageSize.class)
             <ul class="links">
                 <li class="new<%= selected instanceof ReferentialTextMarker && selectedState.isNew() ? " selected" : "" %>">
                     <a href="<%= wp.typeUrl(null, ReferentialTextMarker.class) %>">
-                        <%= wp.h(wp.localize(ReferentialTextMarker.class, "action.new.type"))%>
+                        <%= wp.h(wp.localize(ReferentialTextMarker.class, "action.newType"))%>
                     </a>
                 </li>
                 <% for (ReferentialTextMarker marker : Query.
@@ -107,7 +107,7 @@ List<StandardImageSize> standardImageSizes = Query.from(StandardImageSize.class)
             <ul class="links">
                 <li class="new<%= selected instanceof WebResourceOverride && selectedState.isNew() ? " selected" : "" %>">
                     <a href="<%= wp.typeUrl(null, WebResourceOverride.class) %>">
-                        <%= wp.h(wp.localize(WebResourceOverride.class, "action.new.type"))%>
+                        <%= wp.h(wp.localize(WebResourceOverride.class, "action.newType"))%>
                     </a>
                 </li>
                 <% for (WebResourceOverride override : Query.

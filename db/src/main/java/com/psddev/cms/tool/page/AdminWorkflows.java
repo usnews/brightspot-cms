@@ -40,7 +40,7 @@ public class AdminWorkflows extends PageServlet {
                         page.writeStart("ul", "class", "links");
                             page.writeStart("li", "class", "new " + (selectedState.isNew() ? "selected" : ""));
                                 page.writeStart("a", "href", page.url(null));
-                                    page.writeHtml(page.localize(Workflow.class, "action.new.type"));
+                                    page.writeHtml(page.localize(Workflow.class, "action.newType"));
                                 page.writeEnd();
                             page.writeEnd();
 

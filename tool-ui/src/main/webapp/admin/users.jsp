@@ -44,7 +44,7 @@ if (wp.tryStandardUpdate(selected)) {
             <ul class="links">
                 <li class="new<%= selected.getClass() == ToolUser.class && selectedState.isNew() ? " selected" : "" %>">
                     <a href="<%= wp.typeUrl(null, ToolUser.class) %>">
-                        <%= wp.h(wp.localize(ToolUser.class, "action.new.type"))%>
+                        <%= wp.h(wp.localize(ToolUser.class, "action.newType"))%>
                     </a>
                 </li>
             </ul>
@@ -72,7 +72,7 @@ if (wp.tryStandardUpdate(selected)) {
             <ul class="links">
                 <li class="new<%= selected.getClass() == ToolRole.class && selectedState.isNew() ? " selected" : "" %>">
                     <a href="<%= wp.typeUrl(null, ToolRole.class) %>">
-                        <%= wp.h(wp.localize(ToolRole.class, "action.new.type"))%>
+                        <%= wp.h(wp.localize(ToolRole.class, "action.newType"))%>
                     </a>
                 </li>
                 <% for (ToolRole role : Query

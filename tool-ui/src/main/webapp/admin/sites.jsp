@@ -36,7 +36,7 @@ if (wp.tryStandardUpdate(selected)) {
             </h1>
             <ul class="links">
                 <li class="new<%= selectedState.isNew() ? " selected" : "" %>">
-                    <a href="<%= wp.url(null) %>"><%= wp.h(wp.localize(Site.class, "action.new.type")) %></a>
+                    <a href="<%= wp.url(null) %>"><%= wp.h(wp.localize(Site.class, "action.newType")) %></a>
                 </li>
             </ul>
 

@@ -63,7 +63,7 @@ wp.include("/WEB-INF/header.jsp"); %>
                 <li
                     class="new<%= selectedClass == Guide.class && selectedState.isNew() ? " selected" : "" %>">
                     <a href="<%= wp.typeUrl(null, Guide.class) %>">
-                        <%= wp.h(wp.localize(Guide.class, "action.new.type"))%>
+                        <%= wp.h(wp.localize(Guide.class, "action.newType"))%>
                     </a>
                 </li>
                 <% for (Guide guide : guides) {
@@ -85,7 +85,7 @@ wp.include("/WEB-INF/header.jsp"); %>
                 <li
                     class="new<%= selectedClass == GuidePage.class && selectedState.isNew() ? " selected" : "" %>">
                     <a href="<%= wp.typeUrl(null, GuidePage.class) %>">
-                        <%= wp.h(wp.localize(Guide.class, "action.new.type"))%>
+                        <%= wp.h(wp.localize(Guide.class, "action.newType"))%>
                     </a>
                 </li>
                 <% for (GuidePage guide : pageGuides) {
@@ -107,7 +107,7 @@ wp.include("/WEB-INF/header.jsp"); %>
                 <li
                     class="new<%= selectedClass == GuideType.class && selectedState.isNew() ? " selected" : "" %>">
                     <a href="<%= wp.typeUrl(null, GuideType.class) %>">
-                    <%= wp.h(wp.localize(Guide.class, "action.new.type"))%>
+                    <%= wp.h(wp.localize(Guide.class, "action.newType"))%>
                     </a>
                 </li>
                 <% for (GuideType guide : typeGuides) { %>
