@@ -1603,7 +1603,7 @@ public class ToolPageContext extends WebPageContext {
 
                             writeStart("div", "class", "toolUser");
                                 writeStart("div", "class", "toolUserWelcome");
-                                    writeHtml(localize(user, "welcome"));
+                                    writeHtml(localize(user, "message.welcome"));
                                 writeEnd();
 
                                 writeStart("div", "class", "toolUserControls");
