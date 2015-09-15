@@ -985,7 +985,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
     <div class="contentPreview">
         <div class="widget widget-preview">
             <h1>
-                <% wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Edit", "preview.title")); %>
+                <% wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Edit", "title.preview")); %>
             </h1>
 
             <%
