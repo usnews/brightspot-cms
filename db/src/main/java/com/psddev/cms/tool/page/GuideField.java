@@ -108,14 +108,14 @@ public class GuideField extends PageServlet {
                             constraints.add(page.localize(
                                     GuideField.class,
                                     ImmutableMap.of("min", absMin),
-                                    "label.absoluteMin"));
+                                    "label.absoluteMinimum"));
                         }
 
                         if (absMax != null) {
                             constraints.add(page.localize(
                                     GuideField.class,
                                     ImmutableMap.of("max", absMax),
-                                    "label.absoluteMax"));
+                                    "label.absoluteMaximum"));
                         }
 
                         ToolUi fieldUi = field.as(ToolUi.class);
