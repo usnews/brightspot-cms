@@ -1498,7 +1498,9 @@ public class ToolPageContext extends WebPageContext {
         HtmlGrid.Static.setRestrictGridPaths(cms.getGridCssPaths(), this.getServletContext());
 
         writeTag("!doctype html");
-        writeTag("html", "class", site != null ? site.getCmsCssClass() : null);
+        writeTag("html",
+                "class", site != null ? site.getCmsCssClass() : null,
+                "lang", MoreObjects.firstNonNull(user != null ? user.getLocale() : null, Locale.getDefault()).toLanguageTag());
             writeStart("head");
                 writeStart("title");
                     if (!ObjectUtils.isBlank(title)) {
