@@ -9,6 +9,11 @@ language: java
 jdk:
   - oraclejdk8
 
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
+
 env:
   global:
     - secure: "pfQ0YztDBxyLlRboI1ISk6KhI2zQe5ugFF87akt10Bq5mQh3UVrr1YegpBHY9FUiI9V/reGCSb54fi1OGtWFi9jgvZWn4/xkVZhLxwycBUAqP85OQPWQy5hzkerlwL1BNx0wMqMtgP6yPtMwBWrSTSxs+VVAY6hwVCi086uiM90="
