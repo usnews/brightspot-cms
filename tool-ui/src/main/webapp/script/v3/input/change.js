@@ -1,5 +1,26 @@
-define([ 'jquery' ], function($) {
-  var DEFAULT_SELECTED_DATA = 'bsp-change-defaultSelected';
+define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
+
+  // Make sure that there's at least one defaultSelected option.
+  bsp_utils.onDomInsert(document, 'select:not([multiple])', {
+    'insert': function(select) {
+      var $options = $(select).find('option');
+
+      if ($options.length > 0) {
+        var hasSelected = false;
+
+        $(select).find('option').each(function() {
+          if (this.defaultSelected) {
+            hasSelected = true;
+            return false;
+          }
+        });
+
+        if (!hasSelected) {
+          $options.eq(0).prop('defaultSelected', true);
+        }
+      }
+    }
+  });
 
   // Mark changed inputs.
   $(document).on('change', '.inputContainer', function() {
@@ -15,26 +36,7 @@ define([ 'jquery' ], function($) {
 
     if (!changed) {
       $container.find('option').each(function() {
-        if (this.defaultSelected === this.selected) {
-          return true;
-        }
-
-        var $select = $(this).closest('select');
-        var select = $select[0];
-
-        if (!select) {
-          changed = true;
-          return false;
-        }
-
-        var defaultSelected = $.data(select, DEFAULT_SELECTED_DATA);
-
-        if (!defaultSelected) {
-          defaultSelected = $select.find('> option').eq(0)[0];
-          $.data(select, DEFAULT_SELECTED_DATA, defaultSelected);
-        }
-
-        if (defaultSelected !== this) {
+        if (this.defaultSelected !== this.selected) {
           changed = true;
           return false;
         }
