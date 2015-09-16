@@ -13,6 +13,7 @@
 /archetypes/content-article-archetype/target/
 /db/target/
 /docs/documentation/_site/*
+/hunspell/target/
 /tool-ui/bower_components/
 /tool-ui/node/
 /tool-ui/node_modules/

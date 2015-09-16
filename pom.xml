@@ -26,11 +26,18 @@
     <modules>
         <module>archetypes/app</module>
         <module>db</module>
+        <module>hunspell</module>
         <module>tool-ui</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.atlascopco</groupId>
+                <artifactId>hunspell-bridj</artifactId>
+                <version>1.0.1</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.github.rjeschke</groupId>
                 <artifactId>txtmark</artifactId>
