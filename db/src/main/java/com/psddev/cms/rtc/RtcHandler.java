@@ -56,23 +56,7 @@ class RtcHandler extends AbstractReflectorAtmosphereHandler {
         @Override
         @SuppressWarnings("unchecked")
         public void onDisconnect(AtmosphereResourceEvent event) {
-            UUID sessionId = createSessionId(event.getResource());
-
-            userIds.invalidate(sessionId);
-
-            RtcSession session = Query
-                    .from(RtcSession.class)
-                    .where("_id = ?", sessionId)
-                    .first();
-
-            if (session != null) {
-                session.delete();
-
-                Query.from(RtcEvent.class)
-                        .where("cms.rtc.event.sessionId = ?", sessionId)
-                        .selectAll()
-                        .forEach(RtcEvent::onDisconnect);
-            }
+            disconnectSession(createSessionId(event.getResource()));
         }
     };
 
@@ -85,6 +69,28 @@ class RtcHandler extends AbstractReflectorAtmosphereHandler {
         }
 
         return sessionId;
+    }
+
+    private void disconnectSession(UUID sessionId) {
+        if (sessionId == null) {
+            return;
+        }
+
+        userIds.invalidate(sessionId);
+
+        RtcSession session = Query
+                .from(RtcSession.class)
+                .where("_id = ?", sessionId)
+                .first();
+
+        if (session != null) {
+            session.delete();
+
+            Query.from(RtcEvent.class)
+                    .where("cms.rtc.event.sessionId = ?", sessionId)
+                    .selectAll()
+                    .forEach(RtcEvent::onDisconnect);
+        }
     }
 
     @Override
@@ -112,6 +118,13 @@ class RtcHandler extends AbstractReflectorAtmosphereHandler {
                 try (InputStream requestInput = request.getInputStream()) {
                     String message = IoUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
                     Map<String, Object> messageJson = (Map<String, Object>) ObjectUtils.fromJson(message);
+                    String type = (String) messageJson.get("type");
+
+                    if ("disconnect".equals(type)) {
+                        disconnectSession(ObjectUtils.to(UUID.class, messageJson.get("sessionId")));
+                        return;
+                    }
+
                     String className = (String) messageJson.get("className");
                     Map<String, Object> data = (Map<String, Object>) messageJson.get("data");
                     UUID sessionId = createSessionId(resource);
@@ -121,7 +134,7 @@ class RtcHandler extends AbstractReflectorAtmosphereHandler {
                         return;
                     }
 
-                    switch ((String) messageJson.get("type")) {
+                    switch (type) {
                         case "action" :
                             createInstance(RtcAction.class, className)
                                     .execute(data, userId, sessionId);

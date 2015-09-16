@@ -43,6 +43,30 @@ define([ 'jquery', 'bsp-utils', 'atmosphere' ], function($, bsp_utils, atmospher
     });
 
     offlineMessages = [ ];
+
+    if (localStorage) {
+      var KEY_PREFIX = 'brightspot.rtc.socket.';
+      var INTERVAL = 1000;
+
+      setInterval(function() {
+        localStorage.setItem(KEY_PREFIX + socket.getUUID(), '' + $.now());
+
+        for (var i = 0, length = localStorage.length; i < length; ++ i) {
+          var key = localStorage.key(i);
+
+          if (key &&
+              key.indexOf(KEY_PREFIX) === 0 &&
+              parseInt(localStorage.getItem(key), 10) + (INTERVAL * 5) < $.now()) {
+
+            localStorage.removeItem(key);
+            (isOnline ? onlineMessages : offlineMessages).push({
+              type: 'disconnect',
+              sessionId: key.substring(KEY_PREFIX.length)
+            });
+          }
+        }
+      }, INTERVAL);
+    }
   };
 
   request.onClose = function() {
