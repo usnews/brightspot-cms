@@ -34,7 +34,7 @@ for (Throwable error : errors) {
     wp.write("<li>");
 
     if (error instanceof ValidationException) {
-        wp.write("Please fix the field errors below and try again.");
+        wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Errors", "error.validation"));
 
     } else if (error instanceof IllegalArgumentException) {
         wp.write(wp.h(error.getMessage()));
@@ -46,7 +46,7 @@ for (Throwable error : errors) {
         }
         Collections.reverse(causes);
 
-        wp.write("There was an unexpected error!");
+        wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Errors", "error.general"));
         wp.write("<ul class=\"exception\">");
         for (Throwable cause : causes) {
             wp.write("<li>");

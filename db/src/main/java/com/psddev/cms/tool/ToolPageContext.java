@@ -309,7 +309,7 @@ public class ToolPageContext extends WebPageContext {
         }
 
         Locale defaultLocale = Locale.getDefault();
-        Locale userLocale = MoreObjects.firstNonNull(getUser().getLocale(), defaultLocale);
+        Locale userLocale = MoreObjects.firstNonNull(getUser() != null ? getUser().getLocale() : null, defaultLocale);
         String localized = createLocalizedString(userLocale, userLocale, baseName, key, state, contextOverrides);
 
         if (localized == null && !defaultLocale.equals(userLocale)) {
@@ -1603,7 +1603,7 @@ public class ToolPageContext extends WebPageContext {
 
                             writeStart("div", "class", "toolUser");
                                 writeStart("div", "class", "toolUserWelcome");
-                                    writeHtml(localize(user, "welcome"));
+                                    writeHtml(localize(user, "message.welcome"));
                                 writeEnd();
 
                                 writeStart("div", "class", "toolUserControls");

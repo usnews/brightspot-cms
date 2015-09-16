@@ -41,21 +41,21 @@ if (wp.isFormPost()) {
     try {
         String emailSender = Settings.get(String.class, "cms/tool/forgotPasswordEmailSender");
         if (StringUtils.isBlank(emailSender)) {
-            throw new PasswordException("Please contact administrators.");
+            throw new PasswordException(wp.localize("com.psddev.cms.tool.page.ForgotPassword", "error.noEmailSender"));
         }
         if (StringUtils.isBlank(username)) {
-            throw new PasswordException("Oops! No user with that username");
+            throw new PasswordException(wp.localize("com.psddev.cms.tool.page.ForgotPassword", "error.noUser"));
         }
         ToolUser user = Query.from(ToolUser.class).where("email = ? or username = ?", username, username).first();
         if (user == null) {
-            throw new PasswordException("Oops! No user with that username");
+            throw new PasswordException(wp.localize("com.psddev.cms.tool.page.ForgotPassword", "error.noUser"));
         }
         String email = user.getEmail();
         if (StringUtils.isBlank(email) || email.indexOf("@") < 1) {
-            throw new PasswordException("Oops! No email with that username");
+            throw new PasswordException(wp.localize("com.psddev.cms.tool.page.ForgotPassword", "error.noEmail"));
         }
         if (!user.isAllowedToRequestForgotPassword(Settings.getOrDefault(Long.class, "cms/tool/forgotPasswordIntervalInMinutes", 5L))) {
-            throw new PasswordException("Email regarding password reset has already been sent. Please check your inbox before requesting again.");
+            throw new PasswordException(wp.localize("com.psddev.cms.tool.page.ForgotPassword", "error.emailSent"));
         }
         String baseUrl = Settings.get(String.class, ToolPageContext.TOOL_URL_PREFIX_SETTING);
         if (StringUtils.isBlank(baseUrl)) {
@@ -152,7 +152,9 @@ body.hasToolBroadcast {
 
     <% if (submitted) { %>
         <div class="message message-info">
-            <p>An email regarding your password reset has been sent to your email address.</p>
+            <p>
+                <%= wp.h(wp.localize("com.psddev.cms.tool.page.ForgotPassword", "message.reset"))%>
+            </p>
         </div>
     <% } else { %>
 
@@ -165,7 +167,9 @@ body.hasToolBroadcast {
     <form action="<%= wp.url("") %>" method="post">
         <div class="inputContainer">
             <div class="inputLabel">
-                <label for="<%= wp.createId() %>">Username</label>
+                <label for="<%= wp.createId() %>">
+                    <%= wp.h(wp.localize("com.psddev.cms.tool.page.ForgotPassword", "label.username"))%>
+                </label>
             </div>
             <div class="inputSmall">
                 <input class="autoFocus" id="<%= wp.getId() %>" name="username" type="text" value="<%= wp.h(username) %>">
@@ -173,8 +177,12 @@ body.hasToolBroadcast {
         </div>
 
         <div class="buttons">
-            <button class="action">Submit</button>
-            <a href="<%= wp.url("logIn.jsp", AuthenticationFilter.RETURN_PATH_PARAMETER, wp.param(AuthenticationFilter.RETURN_PATH_PARAMETER)) %>">Go Back To Log In Page</a>
+            <button class="action">
+                <%= wp.h(wp.localize("com.psddev.cms.tool.page.ForgotPassword", "action.submit"))%>
+            </button>
+            <a href="<%= wp.url("logIn.jsp", AuthenticationFilter.RETURN_PATH_PARAMETER, wp.param(AuthenticationFilter.RETURN_PATH_PARAMETER)) %>">
+                <%= wp.h(wp.localize("com.psddev.cms.tool.page.ForgotPassword", "action.back"))%>
+            </a>
         </div>
     </form>
 

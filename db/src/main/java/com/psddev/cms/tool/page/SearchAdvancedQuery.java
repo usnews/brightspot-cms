@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.servlet.ServletException;
 
+import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.CompoundPredicate;
@@ -64,7 +65,7 @@ public class SearchAdvancedQuery extends PageServlet {
         page.writeHeader();
             page.writeStart("div", "class", "widget widget-searchAdvancedQuery");
                 page.writeStart("h1", "class", "icon icon-wrench");
-                    page.writeHtml("Advanced Query Builder");
+                    page.writeHtml(page.localize(SearchAdvancedQuery.class, "title"));
                 page.writeEnd();
 
                 page.writeStart("style", "type", "text/css");
@@ -114,7 +115,10 @@ public class SearchAdvancedQuery extends PageServlet {
                             "name", "p" + (lastIndex + 1),
                             "value", 1);
                         page.writeHtml("Add Another ");
-                        page.writeHtml(globalPredicateType.getLabel());
+                        page.writeHtml(page.localize(
+                                SearchAdvancedQuery.class,
+                                ImmutableMap.of("label", globalPredicateType.getLabel()),
+                                "action.addAnother"));
                     page.writeEnd();
 
                     page.writeStart("div", "class", "fixedScrollable");
@@ -141,7 +145,7 @@ public class SearchAdvancedQuery extends PageServlet {
                                 "class", "icon icon-action-search",
                                 "name", "action-search",
                                 "value", true);
-                            page.writeHtml("Search");
+                            page.writeHtml(page.localize(SearchAdvancedQuery.class, "action.search"));
                         page.writeEnd();
                     page.writeEnd();
                 page.writeEnd();
@@ -194,7 +198,7 @@ public class SearchAdvancedQuery extends PageServlet {
                 "class", "icon icon-action-remove icon-only link",
                 "name", "action-remove-" + paramPrefix,
                 "value", true);
-            page.writeHtml("Remove");
+            page.writeHtml(page.localize(SearchAdvancedQuery.class, "action.remove"));
         page.writeEnd();
 
         page.writeHtml(" ");

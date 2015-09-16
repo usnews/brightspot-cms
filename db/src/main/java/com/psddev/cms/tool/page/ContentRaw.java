@@ -27,7 +27,7 @@ public class ContentRaw extends PageServlet {
         page.writeHeader();
             page.writeStart("div", "class", "widget");
                 page.writeStart("h1", "class", "icon icon-barcode");
-                    page.writeHtml("Raw Data");
+                    page.writeHtml(page.localize(ContentRaw.class, "title"));
                 page.writeEnd();
 
                 page.writeStart("pre");

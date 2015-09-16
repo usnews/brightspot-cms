@@ -195,7 +195,9 @@ public class SolrSearchResultSuggester implements SearchResultSuggester {
         PageWriter writer = page.getWriter();
 
         writer.start("div", "class", "searchSuggestions");
-            writer.start("h2").html("Suggestions").end();
+            writer.start("h2");
+                writer.html(page.localize(SolrSearchResultSuggester.class, "subtitle.suggestions"));
+            writer.end();
             new SearchResultRenderer(page, search).renderList(sortedSuggestions);
         writer.end();
     }

@@ -42,11 +42,13 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
 
         page.writeHeader();
             page.writeStart("div", "class", "widget p-workStreams");
-                page.writeStart("h1", "class", "icon icon-object-workStream").writeHtml("Work Streams").writeEnd();
+                page.writeStart("h1", "class", "icon icon-object-workStream");
+                    page.writeHtml(page.localize(WorkStreamsWidget.class, "title"));
+                page.writeEnd();
 
                 if (workStreams.isEmpty()) {
                     page.writeStart("div", "class", "message message-info");
-                        page.writeHtml("No work streams yet!");
+                        page.writeHtml(page.localize(WorkStreamsWidget.class, "message.noWorkStreams"));
                     page.writeEnd();
 
                 } else {
@@ -63,6 +65,8 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
                                 "style", page.cssString(
                                         "padding-right", working ? "165px" : "75px",
                                         "position", "relative"));
+
+                            //TODO: LOCALIZE
                             if (users.isEmpty()) {
                                 page.writeHtml("No users");
 
@@ -70,8 +74,8 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
                                 page.writeStart("a",
                                         "href", page.url("/workStreamUsers", "id", workStream.getId()),
                                         "target", "workStream");
-                                    page.writeHtml(users.size());
-                                    page.writeHtml(" users");
+                                page.writeHtml(users.size());
+                                page.writeHtml(" users");
                                 page.writeEnd();
                             }
 
@@ -94,7 +98,7 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
                                                 "right", "70px",
                                                 "text-align", "center",
                                                 "width", "90px"));
-                                    page.writeHtml("Continue");
+                                page.writeHtml(page.localize(WorkStreamsWidget.class, "action.continue"));
                                 page.writeEnd();
 
                                 page.writeStart("a",
@@ -106,7 +110,7 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
                                                 "right", 0,
                                                 "text-align", "center",
                                                 "width", "65px"));
-                                    page.writeHtml("Stop");
+                                    page.writeHtml(page.localize(WorkStreamsWidget.class, "action.stop"));
                                 page.writeEnd();
 
                             } else {
@@ -120,7 +124,7 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
                                                 "right", 0,
                                                 "text-align", "center",
                                                 "width", "70px"));
-                                    page.writeHtml("Start");
+                                    page.writeHtml(page.localize(WorkStreamsWidget.class, "action.start"));
                                 page.writeEnd();
                             }
 
@@ -128,6 +132,7 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
                                 page.writeStart("div", "class", "progressBar", "style", "width:" + ((total - incomplete) * 100.0 / total) + "%");
                                 page.writeEnd();
 
+                                //TODO: LOCALIZE
                                 page.writeStart("strong");
                                     page.writeHtml(incomplete);
                                 page.writeEnd();

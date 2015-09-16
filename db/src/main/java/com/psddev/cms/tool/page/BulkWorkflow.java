@@ -1,5 +1,6 @@
 package com.psddev.cms.tool.page;
 
+import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.Workflow;
@@ -78,13 +79,15 @@ public class BulkWorkflow extends PageServlet {
         case BUTTON:
 
             page.writeStart("div", "class", "searchResult-action-simple");
-            page.writeStart("a",
-                    "class", "button",
-                    "target", TARGET,
-                    "href", getActionUrl(page, null, null, null, WidgetState.DETAIL));
-            page.writeHtml("Bulk Workflow");
-            page.writeHtml(page.getSelection() != null ? " Selected" : "");
-            page.writeEnd();
+                page.writeStart("a",
+                        "class", "button",
+                        "target", TARGET,
+                        "href", getActionUrl(page, null, null, null, WidgetState.DETAIL));
+                    page.writeHtml(page.localize(
+                            BulkWorkflow.class,
+                            ImmutableMap.of("extra", page.getSelection() != null ? "Selected" : ""),
+                            "action.bulkWorfklow"));
+                page.writeEnd();
             page.writeEnd();
 
             break;
@@ -182,18 +185,19 @@ public class BulkWorkflow extends PageServlet {
                 if (successCount > 0) {
 
                     page.writeStart("div", "class", "message message-success");
-                    page.writeHtml("Successfully transitioned ");
-                    page.writeHtml(successCount);
-                    page.writeHtml(" items. ");
+                        page.writeHtml(page.localize(
+                                BulkWorkflow.class,
+                                ImmutableMap.of("count", successCount),
+                                "message.success"));
 
-                    String returnUrl = page.param(String.class, "returnUrl");
+                        String returnUrl = page.param(String.class, "returnUrl");
 
-                    if (!ObjectUtils.isBlank(returnUrl)) {
-                        page.writeStart("a",
-                                "href", returnUrl);
-                        page.writeHtml("Return to search.");
-                        page.writeEnd();
-                    }
+                        if (!ObjectUtils.isBlank(returnUrl)) {
+                            page.writeStart("a",
+                                    "href", returnUrl);
+                                page.writeHtml(page.localize(BulkWorkflow.class, "action.returnToSearch"));
+                            page.writeEnd();
+                        }
                     page.writeEnd(); // end .message-success
                 }
 
@@ -241,7 +245,11 @@ public class BulkWorkflow extends PageServlet {
 
         if (!page.hasAnyTransitions()) {
             page.writeStart("p");
-            page.writeHtml("No workflow transitions are available for the specified " + (page.getSelection() != null ? "selection" : "search") + ".");
+            page.writeHtml(page.localize(
+                    BulkWorkflow.class,
+                    page.getSelection() != null
+                            ? "message.noTransitionsForSelection"
+                            : "message.noTransitionsForSearch"));
             page.writeEnd();
         }
 
@@ -292,7 +300,7 @@ public class BulkWorkflow extends PageServlet {
 
         page.writeStart("div", "class", "widget");
         page.writeStart("h1");
-        page.writeHtml("Confirm Bulk Workflow");
+            page.writeHtml(page.localize(BulkWorkflow.class, "title.confirm"));
         page.writeEnd();
 
         ObjectType transitionSourceType = ObjectType.getInstance(page.param(UUID.class, Context.TYPE_ID_PARAMETER));
@@ -322,22 +330,30 @@ public class BulkWorkflow extends PageServlet {
         page.writeStart("table", "class", "table-striped");
 
         page.writeStart("tr");
-        page.writeStart("td").writeHtml("Type").writeEnd();
+        page.writeStart("td");
+            page.writeHtml(page.localize(BulkWorkflow.class, "label.type"));
+        page.writeEnd();
         page.writeStart("td").writeHtml(transitionSourceType.getDisplayName()).writeEnd();
         page.writeEnd(); // end row
 
         page.writeStart("tr");
-        page.writeStart("td").writeHtml("Count").writeEnd();
+        page.writeStart("td");
+            page.writeHtml(page.localize(BulkWorkflow.class, "label.count"));
+        page.writeEnd();
         page.writeStart("td").writeHtml(page.getWorkflowStateCount(transitionSourceType, workflowStateName)).writeEnd();
         page.writeEnd(); // end row
 
         page.writeStart("tr");
-        page.writeStart("td").writeHtml("Current State").writeEnd();
+        page.writeStart("td");
+            page.writeHtml(page.localize(BulkWorkflow.class, "label.currentState"));
+        page.writeEnd();
         page.writeStart("td").writeHtml(workflowTransition.getSource().getDisplayName()).writeEnd();
         page.writeEnd(); // end row
 
         page.writeStart("tr");
-        page.writeStart("td").writeHtml("New State").writeEnd();
+        page.writeStart("td");
+        page.writeHtml(page.localize(BulkWorkflow.class, "label.newState"));
+        page.writeEnd();
         page.writeStart("td").writeHtml(workflowTransition.getTarget().getDisplayName()).writeEnd();
         page.writeEnd(); // end row
 
@@ -355,7 +371,10 @@ public class BulkWorkflow extends PageServlet {
         page.writeEnd();
 
         page.writeStart("button", "name", "action-workflow", "value", workflowTransition.getName());
-        page.writeHtml("Confirm Bulk " + workflowTransition.getDisplayName());
+            page.writeHtml(page.localize(
+                    BulkWorkflow.class,
+                    ImmutableMap.of("name", workflowTransition.getDisplayName()),
+                    "action.confirm"));
         page.writeEnd();
         page.writeEnd();
 
@@ -455,7 +474,14 @@ public class BulkWorkflow extends PageServlet {
                 SearchResultSelection queriedSelection = (SearchResultSelection) Query.fromAll().where("_id = ?", selectionId).first();
 
                 if (queriedSelection == null) {
-                    throw new IllegalArgumentException("No SearchResultSelection exists for id " + selectionId);
+                    try {
+                        throw new IllegalArgumentException(this.localize(
+                                BulkWorkflow.class,
+                                ImmutableMap.of("id", selectionId),
+                                "error.noSelectionExists"));
+                    } catch (IOException exception) {
+                        throw new IllegalArgumentException("No SearchResultSelection exists for id " + selectionId);
+                    }
                 }
 
                 setSelection(queriedSelection);
@@ -830,7 +856,12 @@ public class BulkWorkflow extends PageServlet {
                     if (transition != null) {
 
                         if (!hasPermission("type/" + state.getTypeId() + "/bulkWorkflow") || !hasPermission("type/" + state.getTypeId() + "/" + transition.getName())) {
-                            throw new IllegalAccessException("You do not have permission to " + transition.getDisplayName() + " " + state.getType().getDisplayName());
+                            throw new IllegalAccessException(this.localize(
+                                    BulkWorkflow.class,
+                                    ImmutableMap.of(
+                                            "transitionName", transition.getDisplayName(),
+                                            "typeDisplayName", state.getType().getDisplayName()),
+                                    "error.transitionPermission"));
                         }
 
                         WorkflowLog log = new WorkflowLog();

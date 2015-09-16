@@ -53,13 +53,16 @@ public class BulkUploadWidget extends DefaultDashboardWidget {
         ObjectType defaultType = settings != null ? settings.getDefaultType() : null;
 
         page.writeStart("div", "class", "widget uploadable");
-            page.writeStart("h1", "class", "icon icon-action-upload").writeHtml("Bulk Upload").writeEnd();
+            page.writeStart("h1", "class", "icon icon-action-upload");
+                page.writeHtml(page.localize(BulkUploadWidget.class, "title"));
+            page.writeEnd();
             page.writeStart("div", "class", "message message-info");
 
                 if (!hasUploadable) {
-                    page.writeHtml("There aren't any content types that can be uploaded in bulk.");
+                    page.writeHtml(page.localize(BulkUploadWidget.class, "message.noTypes"));
 
                 } else {
+                    //TODO: LOCALIZE
                     page.writeHtml("Drag and drop or ");
                     page.writeStart("a",
                             "class", "uploadableLink",

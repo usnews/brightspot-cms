@@ -1,5 +1,6 @@
 package com.psddev.cms.tool.page;
 
+import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.SearchResultField;
@@ -88,13 +89,15 @@ public class ExportContent extends PageServlet {
             if (page.getSearch() != null && page.getSearch().getSelectedType() != null) {
 
                 page.writeStart("div", "class", "searchResult-action-simple");
-                page.writeStart("a",
-                        "class", "button",
-                        "target", "_top",
-                        "href", getActionUrl(page, null, Context.ACTION_PARAMETER, true));
-                page.writeHtml("Export");
-                page.writeHtml(page.getSelection() != null ? " Selected" : " All");
-                page.writeEnd();
+                    page.writeStart("a",
+                            "class", "button",
+                            "target", "_top",
+                            "href", getActionUrl(page, null, Context.ACTION_PARAMETER, true));
+                        page.writeHtml(page.localize(
+                                ExportContent.class,
+                                ImmutableMap.of("param", page.getSelection() != null ? " Selected" : " All"),
+                                "action.export"));
+                    page.writeEnd();
                 page.writeEnd();
             }
         }

@@ -36,11 +36,11 @@ public class ContentColors extends PageServlet {
         page.writeHeader();
             page.writeStart("div", "class", "widget");
                 page.writeStart("h1", "class", "icon icon-tint");
-                    page.writeHtml("Colors");
+                    page.writeHtml(page.localize(ContentColors.class, "title"));
                 page.writeEnd();
 
                 page.writeStart("h2");
-                    page.writeHtml("Dominant");
+                    page.writeHtml(page.localize(ContentColors.class, "subtitle.dominant"));
                 page.writeEnd();
 
                 for (Map.Entry<String, Object> entry : distribution.getState().entrySet()) {

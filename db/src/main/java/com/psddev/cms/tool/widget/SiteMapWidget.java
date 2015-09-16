@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.ToolUi;
@@ -137,7 +138,7 @@ public class SiteMapWidget extends DashboardWidget {
 
         page.writeStart("div", "class", "widget");
             page.writeStart("h1", "class", "icon icon-sitemap");
-                page.writeHtml("Sitemap");
+                page.writeHtml(page.localize(SiteMapWidget.class, "title"));
             page.writeEnd();
 
             page.writeStart("div", "class", "widget-filters");
@@ -151,7 +152,7 @@ public class SiteMapWidget extends DashboardWidget {
                                     .filter(page.createTypeDisplayPredicate(ImmutableSet.of("read")))
                                     .collect(Collectors.toList()),
                             itemType,
-                            "Any Types",
+                            page.localize(null, "label.anyTypes"),
                             "name", "itemType",
                             "data-bsp-autosubmit", "",
                             "data-searchable", "true");
@@ -254,6 +255,7 @@ public class SiteMapWidget extends DashboardWidget {
             } else if (!result.hasPages()) {
                 page.writeStart("div", "class", "message message-info");
                     page.writeStart("p");
+                        //TODO: LOCALIZE
                         page.writeHtml("No ");
 
                         if (itemType == null) {
@@ -278,11 +280,18 @@ public class SiteMapWidget extends DashboardWidget {
 
                     if (result.hasPrevious()) {
                         page.writeStart("li", "class", "first");
-                            page.writeStart("a", "href", page.url("", "offset", result.getFirstOffset())).writeHtml("First").writeEnd();
+                            page.writeStart("a", "href", page.url("", "offset", result.getFirstOffset()));
+                                    page.writeHtml(page.localize(SiteMapWidget.class, "pagination.first"));
+                            page.writeEnd();
                         page.writeEnd();
 
                         page.writeStart("li", "class", "previous");
-                            page.writeStart("a", "href", page.url("", "offset", result.getPreviousOffset())).writeHtml("Previous ").writeHtml(result.getLimit()).writeEnd();
+                            page.writeStart("a", "href", page.url("", "offset", result.getPreviousOffset()));
+                                page.writeHtml(page.localize(
+                                        SiteMapWidget.class,
+                                        ImmutableMap.of("count", result.getLimit()),
+                                        "pagination.previousCount"));
+                            page.writeEnd();
                         page.writeEnd();
                     }
 
@@ -299,8 +308,10 @@ public class SiteMapWidget extends DashboardWidget {
                                         page.writeStart("option",
                                                 "value", l,
                                                 "selected", limit == l ? "selected" : null);
-                                            page.writeHtml("Show ");
-                                            page.writeHtml(l);
+                                            page.writeHtml(page.localize(
+                                                    SiteMapWidget.class,
+                                                    ImmutableMap.of("count", l),
+                                                    "option.showCount"));
                                         page.writeEnd();
                                     }
                                 page.writeEnd();
@@ -310,6 +321,7 @@ public class SiteMapWidget extends DashboardWidget {
 
                     if (count != null) {
                         page.writeStart("li");
+                            //TODO: LOCALIZE
                             page.writeHtml(result.getFirstItemIndex());
                             page.writeHtml(" to ");
                             page.writeHtml(result.getLastItemIndex());
@@ -320,7 +332,12 @@ public class SiteMapWidget extends DashboardWidget {
 
                     if (result.hasNext()) {
                         page.writeStart("li", "class", "next");
-                            page.writeStart("a", "href", page.url("", "offset", result.getNextOffset())).writeHtml("Next ").writeHtml(result.getLimit()).writeEnd();
+                            page.writeStart("a", "href", page.url("", "offset", result.getNextOffset()));
+                                page.writeHtml(page.localize(
+                                        SiteMapWidget.class,
+                                        ImmutableMap.of("count", result.getLimit()),
+                                        "pagination.nextCount"));
+                            page.writeEnd();
                         page.writeEnd();
                     }
 

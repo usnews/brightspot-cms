@@ -41,14 +41,18 @@ if (object != null) {
 
 %><% wp.include("/WEB-INF/header.jsp"); %>
 
-<h1>Metadata</h1>
+<h1>
+    <% wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.ImageMetadata", "title")); %>
+</h1>
 
 <% if (metadata == null) { %>
-    <p>Metadata is not available!</p>
+    <p>
+        <% wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.ImageMetadata", "message.noMetadata")); %>
+    </p>
 
 <% } else { %>
     <% for (Map.Entry<String, Map<String, Object>> e1 : metadata.entrySet()) { %>
-        <h2><%= wp.h(e1.getKey()) %></h1>
+        <h2><%= wp.h(e1.getKey()) %></h2>
         <table class="table-striped"><tbody>
             <% for (Map.Entry<String, Object> e2 : e1.getValue().entrySet()) { %>
                 <tr>

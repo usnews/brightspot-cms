@@ -36,7 +36,7 @@ public class EditWorkStream extends PageServlet {
                         "class", "icon icon-action-search",
                         "href", page.cmsUrl("/misc/savedSearch.jsp", "search", ObjectUtils.toJson(object.getSearch().getState().getSimpleValues())),
                         "target", "miscSavedSearch");
-                    page.writeHtml("View Items");
+                    page.writeHtml(page.localize(EditWorkStream.class, "action.viewItems"));
                 page.writeEnd();
             page.writeEnd();
         }
@@ -54,14 +54,14 @@ public class EditWorkStream extends PageServlet {
                         "class", "action action-save",
                         "name", "action-save",
                         "value", true);
-                    page.writeHtml("Save");
+                    page.writeHtml(page.localize(EditWorkStream.class, "action.save"));
                 page.writeEnd();
 
                 page.writeStart("button",
                         "class", "action action-delete action-pullRight link",
                         "name", "action-delete",
                         "value", true);
-                    page.writeHtml("Delete");
+                    page.writeHtml(page.localize(EditWorkStream.class, "action.delete"));
                 page.writeEnd();
             page.writeEnd();
         page.writeEnd();

@@ -74,7 +74,9 @@ String access = siteData.isGlobal() ? "all" :
         "some";
 
 %>
-<label for="<%= wp.createId() %>">Owner:</label><br>
+<label for="<%= wp.createId() %>">
+    <% wp.writeHtml(wp.localize("com.psddev.cms.tool.widget.Sites", "label.owner")); %>
+</label><br>
 <select class="toggleable" data-root=".widget" name="<%= ownerName %>" style="width: 100%;">
     <option<%= owner == null ? " selected" : "" %> value="" data-show=".siteItem">None</option>
     <% for (Site site : allSites) { %>
@@ -82,11 +84,19 @@ String access = siteData.isGlobal() ? "all" :
     <% } %>
 </select>
 
-<label for="<%= wp.createId() %>">Access:</label><br>
+<label for="<%= wp.createId() %>">
+    <% wp.writeHtml(wp.localize("com.psddev.cms.tool.widget.Sites", "label.access")); %>
+</label><br>
 <select class="toggleable" id="<%= wp.getId() %>" name="<%= accessName %>" style="width: 100%;">
-    <option<%= "no".equals(access) ? " selected" : "" %> data-hide="#<%= sitesContainerId %>" value="no">No Others</option>
-    <option<%= "all".equals(access) ? " selected" : "" %> data-hide="#<%= sitesContainerId %>" value="all">All Others</option>
-    <option<%= "some".equals(access) ? " selected" : "" %> data-show="#<%= sitesContainerId %>" value="some">Some Others</option>
+    <option<%= "no".equals(access) ? " selected" : "" %> data-hide="#<%= sitesContainerId %>" value="no">
+        <% wp.writeHtml(wp.localize("com.psddev.cms.tool.widget.Sites", "option.none")); %>
+    </option>
+    <option<%= "all".equals(access) ? " selected" : "" %> data-hide="#<%= sitesContainerId %>" value="all">
+        <% wp.writeHtml(wp.localize("com.psddev.cms.tool.widget.Sites", "option.all")); %>
+    </option>
+    <option<%= "some".equals(access) ? " selected" : "" %> data-show="#<%= sitesContainerId %>" value="some">
+        <% wp.writeHtml(wp.localize("com.psddev.cms.tool.widget.Sites", "option.some")); %>
+    </option>
 </select>
 <ul id="<%= sitesContainerId %>">
     <% for (Site site : allSites) { %>

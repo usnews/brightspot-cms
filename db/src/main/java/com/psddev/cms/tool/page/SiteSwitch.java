@@ -48,7 +48,7 @@ public class SiteSwitch extends PageServlet {
 
                 page.writeStart("div", "class", "widget");
                     page.writeStart("h1");
-                        page.writeHtml("Switch Site");
+                        page.writeHtml(page.localize(SiteSwitch.class, "title"));
                     page.writeEnd();
 
                     page.writeStart("div", "class", "siteSwitch-content fixedScrollable");
@@ -58,7 +58,7 @@ public class SiteSwitch extends PageServlet {
                                     page.writeStart("a",
                                             "href", page.cmsUrl("/siteSwitch", "switch", true),
                                             "target", "_top");
-                                        page.writeHtml("Global");
+                                        page.writeHtml(page.localize(SiteSwitch.class, "label.global"));
                                     page.writeEnd();
                                 page.writeEnd();
                             }

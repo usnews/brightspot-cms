@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 
+import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.db.ImageTag;
 import com.psddev.cms.db.ResizeOption;
 import com.psddev.cms.db.ToolUser;
@@ -136,7 +137,9 @@ public class SearchResultActions extends PageServlet {
                         "name", SELECTION_ID_PARAMETER);
 
                 page.writeStart("option", "value", "");
-                    page.writeHtml("New Selection");
+                    page.writeHtml(page.localize(
+                            SearchResultActions.class,
+                            "option.newSelection"));
                 page.writeEnd();
 
                 for (SearchResultSelection ownSelection : own) {
@@ -160,7 +163,7 @@ public class SearchResultActions extends PageServlet {
         } else if (count > 0) {
 
             page.writeStart("h2");
-            page.writeHtml("Selection");
+            page.writeHtml(page.localize(SearchResultActions.class, "subtitle.selection"));
             writeDeleteAction(page);
             page.writeEnd();
         }
@@ -179,7 +182,7 @@ public class SearchResultActions extends PageServlet {
 
         if (count == 0) {
             page.writeStart("h2");
-                page.writeHtml("All");
+                page.writeHtml(page.localize(SearchResultActions.class, "subtitle.all"));
             page.writeEnd();
         }
 
@@ -201,14 +204,14 @@ public class SearchResultActions extends PageServlet {
             page.writeStart("a",
                     "class", "searchResult-selectionReset action action-delete",
                     "href", page.url("", ACTION_PARAMETER, ACTION_CLEAR, SELECTION_ID_PARAMETER, null));
-            page.writeHtml("Delete");
+            page.writeHtml(page.localize(SearchResultActions.class, "action.delete"));
             page.writeEnd();
 
         } else {
             page.writeStart("a",
                     "class", "searchResult-selectionReset action action-cancel",
                     "href", page.url("", ACTION_PARAMETER, ACTION_CLEAR, SELECTION_ID_PARAMETER, null));
-            page.writeHtml("Clear");
+            page.writeHtml(page.localize(SearchResultActions.class, "action.clear"));
             page.writeEnd();
         }
     }
@@ -267,10 +270,16 @@ public class SearchResultActions extends PageServlet {
             page.writeStart("p");
 
             if (count > 0) {
-                page.writeHtml("+ " + items.size() + " more items selected.");
+                page.writeHtml(page.localize(
+                        SearchResultActions.class,
+                        ImmutableMap.of("size", items.size()),
+                        "message.moreItemsSelected"));
 
             } else {
-                page.writeHtml(items.size() + " items selected.");
+                page.writeHtml(page.localize(
+                        SearchResultActions.class,
+                        ImmutableMap.of("size", items.size()),
+                        "message.itemsSelected"));
             }
 
             page.writeEnd();

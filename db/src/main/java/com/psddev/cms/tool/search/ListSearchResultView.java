@@ -200,18 +200,18 @@ public class ListSearchResultView extends AbstractSearchResultView {
 
                     if (showSiteLabel) {
                         page.writeStart("th");
-                            page.writeHtml("Site");
+                            page.writeHtml(page.localize(ListSearchResultView.class, "label.site"));
                         page.writeEnd();
                     }
 
                     if (showTypeLabel) {
                         page.writeStart("th");
-                            page.writeHtml("Type");
+                            page.writeHtml(page.localize(ListSearchResultView.class, "label.type"));
                         page.writeEnd();
                     }
 
                     page.writeStart("th");
-                        page.writeHtml("Label");
+                        page.writeHtml(page.localize(ListSearchResultView.class, "label.label"));
                     page.writeEnd();
 
                     if (sortField != null
