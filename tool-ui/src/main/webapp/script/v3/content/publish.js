@@ -115,13 +115,17 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
 
               $form.find('input, textarea').each(function() {
                 var $input = $(this);
-                var $container = $input.closest('.inputContainer');
 
-                if ($container.hasClass('state-changed')) {
-                  $input.prop('defaultValue', $input.val());
-                  $container.removeClass('state-changed');
-                }
+                $input.prop('defaultValue', $input.val());
               });
+
+              $form.find('option').each(function() {
+                var $option = $(this);
+
+                $option.prop('defaultSelected', $option.prop('selected'));
+              });
+
+              $form.find('.state-changed').removeClass('state-changed');
 
               $form.removeAttr('target');
               $frame.remove();
