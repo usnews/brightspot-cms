@@ -82,8 +82,8 @@ $.plugin2('tabbed', {
 
                         $tabs.find('> li').removeClass(SELECTED_CLASS);
                         $selected.closest('li').addClass(SELECTED_CLASS);
-                        $items.hide();
-                        $(tab.items).show().trigger('tabbedShow');
+                        $items.toggleClass('tabs-hidden', true);
+                        $(tab.items).toggleClass('tabs-hidden', false).trigger('tabbedShow');
                         $container.resize();
                         return false;
                     }
@@ -93,8 +93,8 @@ $.plugin2('tabbed', {
 
         // Select the first tab.
         $tabs.find('li:first-child').addClass(SELECTED_CLASS);
-        $items.hide();
-        $(tabs[0].items).show();
+        $items.toggleClass('tabs-hidden', true);
+        $(tabs[0].items).toggleClass('tabs-hidden', false);
         $container.prepend($tabs);
         $container.resize();
 
