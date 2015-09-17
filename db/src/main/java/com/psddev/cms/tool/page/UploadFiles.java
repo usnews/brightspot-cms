@@ -24,6 +24,7 @@ import com.psddev.cms.db.BulkUploadDraft;
 import com.psddev.cms.db.ImageTag;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUi;
+import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.db.Variation;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.Search;
@@ -60,6 +61,11 @@ public class UploadFiles extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
+
+        if (page.requireUser()) {
+            return;
+        }
+
         if (page.paramOrDefault(Boolean.class, "writeInputsOnly", false)) {
             writeFileInput(page);
         } else {
@@ -274,9 +280,8 @@ public class UploadFiles extends PageServlet {
                         page.writeEnd();
                     } else {
 
-                        SearchResultSelection selection = new SearchResultSelection();
+                        SearchResultSelection selection = page.getUser().resetCurrentSelection();
                         newObjectIds.forEach(selection::addItem);
-                        page.getUser().activateSelection(selection);
                         database.commitWrites();
 
                         Search search = new Search();
