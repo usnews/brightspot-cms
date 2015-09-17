@@ -26,7 +26,10 @@ import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.db.Variation;
 import com.psddev.cms.tool.PageServlet;
+import com.psddev.cms.tool.Search;
+import com.psddev.cms.tool.SearchResultSelection;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.cms.tool.search.MixedSearchResultView;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.DatabaseEnvironment;
 import com.psddev.dari.db.ObjectField;
@@ -211,6 +214,7 @@ public class UploadFiles extends PageServlet {
                     }
                 }
 
+                List<State> states = new ArrayList<>();
                 if (!ObjectUtils.isBlank(newStorageItems)) {
                     for (StorageItem item : newStorageItems) {
                         if (item == null) {
@@ -236,6 +240,7 @@ public class UploadFiles extends PageServlet {
                         state.put(previewField.getInternalName(), item);
                         state.as(BulkUploadDraft.class).setContainerId(containerId);
                         page.publish(state);
+                        states.add(state);
 
                         js.append("$addButton.repeatable('add', function() {");
                         js.append("var $added = $(this);");
@@ -251,22 +256,47 @@ public class UploadFiles extends PageServlet {
                 }
 
                 if (page.getErrors().isEmpty()) {
-                    page.writeStart("div", "id", page.createId()).writeEnd();
 
-                    page.writeStart("script", "type", "text/javascript");
-                        page.write("if (typeof jQuery !== 'undefined') (function($, win, undef) {");
-                            page.write("var $page = $('#" + page.getId() + "'),");
-                            page.write("$init = $page.popup('source').repeatable('closestInit'),");
-                            page.write("$addButton = $init.find('.addButton').eq(0),");
-                            page.write("$input;");
-                            page.write("if ($addButton.length > 0) {");
-                                page.write(js.toString());
-                                page.write("$page.popup('close');");
-                            page.write("} else {");
-                                page.write("win.location.reload();");
-                            page.write("}");
-                        page.write("})(jQuery, window);");
-                    page.writeEnd();
+                    if (Context.FIELD.equals(page.param(Context.class, "context"))) {
+                        page.writeStart("div", "id", page.createId()).writeEnd();
+
+                        page.writeStart("script", "type", "text/javascript");
+                            page.write("if (typeof jQuery !== 'undefined') (function($, win, undef) {");
+                                page.write("var $page = $('#" + page.getId() + "'),");
+                                page.write("$init = $page.popup('source').repeatable('closestInit'),");
+                                    page.write("$addButton = $init.find('.addButton').eq(0),");
+                                    page.write("$input;");
+                                page.write("if ($addButton.length > 0) {");
+                                    page.write(js.toString());
+                                    page.write("$page.popup('close');");
+                                page.write("}");
+                            page.write("})(jQuery, window);");
+                        page.writeEnd();
+                    } else {
+
+                        SearchResultSelection selection = new SearchResultSelection();
+                        for (State state : states) {
+                            selection.addItem(state.getId());
+                        }
+
+                        page.getUser().activateSelection(selection);
+                        database.commitWrites();
+
+                        Search search = new Search();
+                        search.setAdditionalPredicate(selection.createItemsQuery().getPredicate().toString());
+                        search.setLimit(10);
+
+                        page.writeStart("script", "type", "text/javascript");
+                            page.write("if (typeof jQuery !== 'undefined') (function($, win, undef) {");
+                                page.write("window.location = '");
+                                page.write(page.cmsUrl("/searchAdvancedFull",
+                                        "search", ObjectUtils.toJson(search.getState().getSimpleValues()),
+                                        "view", MixedSearchResultView.class.getCanonicalName()));
+                                page.write("';");
+                            page.write("})(jQuery, window);");
+                        page.writeEnd();
+
+                    }
 
                     return;
                 }
@@ -396,6 +426,8 @@ public class UploadFiles extends PageServlet {
                 page.writeEnd();
             }
 
+            page.writeStart("input", "type", "hidden", "name", "context", "value", page.param(Context.class, "context"));
+
             page.writeStart("div", "class", "buttons");
                 page.writeStart("button", "name", "action-upload");
                     page.writeHtml(page.localize(UploadFiles.class, "action.upload"));
@@ -441,5 +473,10 @@ public class UploadFiles extends PageServlet {
         }
 
         return previewField;
+    }
+
+    public enum Context {
+        FIELD,
+        GLOBAL
     }
 }
