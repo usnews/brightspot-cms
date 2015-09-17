@@ -9,6 +9,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.common.base.MoreObjects;
 import com.psddev.cms.db.Preview;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.dari.db.Database;
@@ -79,6 +80,26 @@ public class AuthenticationFilter extends AbstractFilter {
             HttpServletResponse response,
             FilterChain chain)
             throws Exception {
+
+        Cookie csrfCookie = JspUtils.getCookie(request, "bsp.csrf");
+
+        if (csrfCookie == null) {
+            csrfCookie = new Cookie("bsp.csrf", UUID.randomUUID().toString());
+        }
+
+        csrfCookie.setMaxAge(-1);
+        csrfCookie.setPath("/");
+        csrfCookie.setSecure(JspUtils.isSecure(request));
+        response.addCookie(csrfCookie);
+
+        if (JspUtils.isFormPost(request)
+                && !csrfCookie.getValue().equals(MoreObjects.firstNonNull(
+                        request.getHeader("Brightspot-CSRF"),
+                        request.getParameter("_csrf")))) {
+
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
 
         if (ObjectUtils.to(boolean.class, request.getParameter("_clearPreview"))) {
             Static.removeCurrentPreview(request, response);
