@@ -214,7 +214,7 @@ public class UploadFiles extends PageServlet {
                     }
                 }
 
-                List<State> states = new ArrayList<>();
+                List<UUID> newObjectIds = new ArrayList<>();
                 if (!ObjectUtils.isBlank(newStorageItems)) {
                     for (StorageItem item : newStorageItems) {
                         if (item == null) {
@@ -240,7 +240,7 @@ public class UploadFiles extends PageServlet {
                         state.put(previewField.getInternalName(), item);
                         state.as(BulkUploadDraft.class).setContainerId(containerId);
                         page.publish(state);
-                        states.add(state);
+                        newObjectIds.add(state.getId());
 
                         js.append("$addButton.repeatable('add', function() {");
                         js.append("var $added = $(this);");
@@ -275,10 +275,7 @@ public class UploadFiles extends PageServlet {
                     } else {
 
                         SearchResultSelection selection = new SearchResultSelection();
-                        for (State state : states) {
-                            selection.addItem(state.getId());
-                        }
-
+                        newObjectIds.forEach(selection::addItem);
                         page.getUser().activateSelection(selection);
                         database.commitWrites();
 
