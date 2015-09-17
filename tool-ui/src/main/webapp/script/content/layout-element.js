@@ -11,6 +11,7 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
 
       var maxRight = 0;
       var maxBottom = 0;
+      var tabName = null;
 
       function setMaxes(element) {
         var right = element.left + element.width;
@@ -27,16 +28,20 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
 
       $.each(placeholders, function(i, placeholder) {
         setMaxes(placeholder);
-      })
+      });
 
       $fields.each(function() {
+        if (tabName === null && $(this).attr('data-tab')) {
+            tabName = $(this).attr('data-tab');
+        }
         setMaxes($.parseJSON($(this).attr('data-layout-field')));
       });
 
       var $firstField = $fields.eq(0);
 
       var $wrapper = $('<div/>', {
-        'class': 'inputLayout-wrapper'
+        'class': 'inputLayout-wrapper',
+        'data-tab': tabName
       });
 
       var $constrain = $('<div/>', {
@@ -44,7 +49,7 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
         'css': {
           'padding-bottom': (maxBottom / maxRight * 100) + '%'
         }
-      })
+      });
 
       var $container = $('<div/>', {
         'class': 'inputLayout-container'
@@ -61,9 +66,9 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
             var $label = $(this);
 
             $label.closest('.inputLayout-container').find('.inputLayout-label').removeClass('inputLayout-label-selected');
-            $fields.hide();
+            $fields.toggleClass('inputLayout-hidden', true);
             $label.addClass('inputLayout-label-selected');
-            $field.show();
+            $field.toggleClass('inputLayout-hidden', false);
             $field.trigger('resize');
           }
         });
@@ -106,10 +111,13 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
       $wrapper.append($constrain);
       $constrain.append($container);
       $firstField.before($wrapper);
-      $fields.hide();
+      $fields.toggleClass('inputLayout-hidden', true);
       $container.find('.inputLayout-element-field').eq(0).find('.inputLayout-label').addClass('inputLayout-label-selected');
-      $firstField.show();
+      $firstField.toggleClass('inputLayout-hidden', false);
       $firstField.trigger('input');
     }
   });
 });
+
+// Set filename for debugging tools to allow breakpoints even when using a cache-buster
+//# sourceURL=layout-element.js

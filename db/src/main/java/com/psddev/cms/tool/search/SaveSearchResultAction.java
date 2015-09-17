@@ -16,10 +16,6 @@ public class SaveSearchResultAction implements SearchResultAction {
             SearchResultSelection selection)
             throws IOException {
 
-        if (selection != null) {
-            return;
-        }
-
         page.writeStart("div", "class", "searchResult-action-simple");
             page.writeStart("a",
                     "class", "button",
