@@ -6,8 +6,8 @@ com.psddev.cms.tool.ToolPageContext,
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.State,
 com.psddev.dari.util.ObjectUtils,
-com.psddev.dari.util.StringUtils,
 
+java.util.ArrayList,
 java.util.Arrays,
 java.util.Collections,
 java.util.List,
@@ -41,6 +41,9 @@ if (Boolean.TRUE.equals(request.getAttribute("isFormPost"))) {
     return;
 }
 
+Locale defaultLocale = Locale.getDefault();
+Locale userLocale = ObjectUtils.firstNonNull(wp.getUser().getLocale(), defaultLocale);
+
 wp.writeStart("div", "class", "inputSmall");
 
     wp.writeStart("select",
@@ -50,44 +53,47 @@ wp.writeStart("div", "class", "inputSmall");
             "placeholder", placeholder);
 
         wp.writeStart("option", "value", "");
+            wp.writeHtml("Default (");
+            wp.writeHtml(createLocaleDisplayName(defaultLocale, userLocale));
+            wp.writeHtml(")");
         wp.writeEnd();
 
-        List<Locale> availableLocales = Arrays.<Locale>asList(Locale.getAvailableLocales());
+        List<Locale> availableLocales = new ArrayList<>(Arrays.asList(Locale.getAvailableLocales()));
+
+        availableLocales.remove(Locale.ROOT);
 
         Collections.<Locale>sort(availableLocales, new Comparator<Locale>() {
             @Override
             public int compare(Locale o1, Locale o2) {
-                String dn1 = o1.getDisplayName(o1);
-                String dn2 = o2.getDisplayName(o2);
-
-                if (dn1.length() > 0) {
-                    dn1 = dn1.substring(0, 1).toUpperCase(o1) + dn1.substring(1);
-                }
-
-                if (dn2.length() > 0) {
-                    dn2 = dn2.substring(0, 1).toUpperCase(o2) + dn2.substring(1);
-                }
-
-                return ObjectUtils.compare(dn1, dn2, true);
+                return ObjectUtils.compare(createLocaleDisplayName(o1, userLocale), createLocaleDisplayName(o2, userLocale), true);
             }
         });
 
         for (Locale availableLocale : availableLocales) {
-
-            String displayName = availableLocale.getDisplayName(availableLocale);
-
-            if (!StringUtils.isBlank(displayName)) {
-                displayName = displayName.substring(0, 1).toUpperCase(availableLocale) + displayName.substring(1);
-
-                wp.writeStart("option",
-                        "selected", availableLocale.equals(fieldValue) ? "selected" : null,
-                        "value", availableLocale.toLanguageTag());
-                    wp.writeHtml(displayName);
-                wp.writeEnd();
-            }
+            wp.writeStart("option",
+                    "selected", availableLocale.equals(fieldValue) ? "selected" : null,
+                    "value", availableLocale.toLanguageTag());
+                wp.writeHtml(createLocaleDisplayName(availableLocale, userLocale));
+            wp.writeEnd();
         }
     wp.writeEnd();
 
 wp.writeEnd();
 
+%><%!
+
+private String createLocaleDisplayName(Locale locale, Locale userLocale) {
+    String userDisplayName = locale.getDisplayName(userLocale);
+    String displayName = locale.getDisplayName(locale);
+    StringBuilder combined = new StringBuilder();
+
+    combined.append(userDisplayName);
+
+    if (!userDisplayName.equals(displayName)) {
+        combined.append(" - ");
+        combined.append(displayName);
+    }
+
+    return combined.toString();
+}
 %>
