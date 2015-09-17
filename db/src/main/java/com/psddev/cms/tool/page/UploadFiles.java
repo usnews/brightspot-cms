@@ -24,7 +24,6 @@ import com.psddev.cms.db.BulkUploadDraft;
 import com.psddev.cms.db.ImageTag;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUi;
-import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.db.Variation;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.Search;
