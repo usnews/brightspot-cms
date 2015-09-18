@@ -1297,7 +1297,16 @@ public class ToolPageContext extends WebPageContext {
                 writeHtml(" ");
             }
 
-            writeHtml(getObjectLabelOrDefault(state, DEFAULT_OBJECT_LABEL));
+            String label = getObjectLabelOrDefault(state, DEFAULT_OBJECT_LABEL);
+
+            if (label.length() > 41 && !label.contains(" ")) {
+                writeStart("span", "class", "breakable");
+                writeHtml(label);
+                writeEnd();
+
+            } else {
+                writeHtml(label);
+            }
         }
     }
 
