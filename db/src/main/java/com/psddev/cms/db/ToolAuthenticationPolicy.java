@@ -42,8 +42,7 @@ public class ToolAuthenticationPolicy implements AuthenticationPolicy {
                 if (passwordExpirationInDays > 0L) {
                     long passwordExpiration = passwordExpirationInDays * 24 * 60 * 60 * 1000;
                     Date passwordChangedDate = user.getPasswordChangedDate();
-                    if (passwordChangedDate == null
-                            || System.currentTimeMillis() - passwordExpiration > passwordChangedDate.getTime()) {
+                    if (passwordChangedDate == null || System.currentTimeMillis() - passwordExpiration > passwordChangedDate.getTime()) {
                         user.setChangePasswordOnLogIn(true);
                         user.save();
                     }
@@ -52,8 +51,10 @@ public class ToolAuthenticationPolicy implements AuthenticationPolicy {
             }
 
         } else if (!ObjectUtils.isBlank(username)
-                && (ObjectUtils.firstNonNull(Settings.get(Boolean.class, "cms/tool/autoCreateUser"), Settings.get(
-                        boolean.class, "cms/tool/isAutoCreateUser")) || !Query.from(ToolUser.class).hasMoreThan(0))) {
+                && (ObjectUtils.firstNonNull(
+                        Settings.get(Boolean.class, "cms/tool/autoCreateUser"),
+                        Settings.get(boolean.class, "cms/tool/isAutoCreateUser"))
+                || !Query.from(ToolUser.class).hasMoreThan(0))) {
             String name = username;
             int atAt = username.indexOf("@");
 
@@ -62,8 +63,7 @@ public class ToolAuthenticationPolicy implements AuthenticationPolicy {
             }
 
             user = new ToolUser();
-            UserPasswordPolicy userPasswordPolicy = UserPasswordPolicy.Static.getInstance(Settings.get(String.class,
-                    "cms/tool/userPasswordPolicy"));
+            UserPasswordPolicy userPasswordPolicy = UserPasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/userPasswordPolicy"));
             PasswordPolicy passwordPolicy = null;
             Password hashedPassword;
             if (userPasswordPolicy == null) {
@@ -95,7 +95,8 @@ public class ToolAuthenticationPolicy implements AuthenticationPolicy {
             return user;
         }
 
-        throw new AuthenticationException("Oops! No user with that username and password.");
+        throw new AuthenticationException(
+                "Oops! No user with that username and password.");
     }
 
     @Override

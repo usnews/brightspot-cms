@@ -1,6 +1,5 @@
 <%@ page session="false" import="
 
-com.psddev.cms.db.LogUtils,
 com.psddev.cms.db.ToolAuthenticationPolicy,
 com.psddev.cms.db.ToolUser,
 com.psddev.cms.tool.CmsTool,
@@ -17,10 +16,55 @@ com.psddev.dari.util.Settings,
 com.psddev.dari.util.StringUtils,
 com.psddev.dari.util.UrlBuilder,
 
+org.slf4j.Logger,
+org.slf4j.LoggerFactory,
+
 java.net.MalformedURLException,
 java.net.URL,
 java.util.UUID
-" %><%
+" %><%!
+private Logger LOGGER = LoggerFactory.getLogger("logIn.jsp");
+
+private void logAuthRequest(String context, String userId, String domain, String ipAddress, boolean status, boolean enabled) {
+    if (enabled) {
+        if (status) {
+            LOGGER.info(context + " {userId:" + userId + ", status:success, domain:" + domain + ", ipAddress:"
+                    + ipAddress + "}");
+        } else {
+            LOGGER.info(context + " {userId:" + userId + ", status:fail, domain:" + domain + ", ipAddress:"
+                    + ipAddress + "}");
+        }
+    }
+}
+
+private static String getDomain(String siteUrl) {
+    String domain = siteUrl;
+    if (!ObjectUtils.isBlank(siteUrl)) {
+        domain = siteUrl.replaceFirst("^(?i)(?:https?://)?(?:www\\.)?", "");
+        int slashAt = domain.indexOf('/');
+
+        if (slashAt > -1) {
+            domain = domain.substring(0, slashAt);
+        }
+
+        int colonAt = domain.indexOf(':');
+
+        if (colonAt > -1) {
+            domain = domain.substring(0, colonAt);
+        }
+    }
+    return domain;
+}
+
+private static String getIpAddress(String xForReqParam, String remoteAddrReqParam) {
+    String ipAddress = xForReqParam;
+    if (ipAddress == null) {
+        ipAddress = remoteAddrReqParam;
+    }
+    return ipAddress;
+}
+%>
+<%
 
 // --- Logic ---
 
@@ -40,13 +84,13 @@ String username = wp.param("username");
 String returnPath = wp.param(AuthenticationFilter.RETURN_PATH_PARAMETER);
 ToolUser user = ToolUser.Static.getByTotpToken(wp.param(String.class, "totpToken"));
 
-String siteUrl = Query.from(CmsTool.class).first().getDefaultSiteUrl();
-String domain = LogUtils.getDomain(siteUrl);
-String ipAddress  = LogUtils.getIpAddress(request.getHeader("X-FORWARDED-FOR"), request.getRemoteAddr());
-String isAuthLoggedString = Settings.get(String.class, "cms/tool/isAuthenticationLogged");
-boolean logAuthRequests = !StringUtils.isBlank(isAuthLoggedString) && isAuthLoggedString.equals("true") ? true : false;
-
 if (wp.isFormPost()) {
+    
+    String siteUrl = Query.from(CmsTool.class).first().getDefaultSiteUrl();
+    String domain = getDomain(siteUrl);
+    String ipAddress = getIpAddress(request.getHeader("X-FORWARDED-FOR"), request.getRemoteAddr());
+    Boolean isAuthLogged = Settings.get(Boolean.class, "cms/tool/isAuthenticationLogged");
+
     try {
 
         if (user != null) {
@@ -63,7 +107,7 @@ if (wp.isFormPost()) {
 
             user = (ToolUser) authPolicy.authenticate(username, wp.param(String.class, "password"));
 
-            LogUtils.logAuthRequest("ToolAuthentication", username, domain, ipAddress, true, logAuthRequests);
+            logAuthRequest("ToolAuthentication", username, domain, ipAddress, true, isAuthLogged);
 
             if (user.isTfaEnabled()) {
                 String totpToken = UUID.randomUUID().toString();
@@ -103,7 +147,7 @@ if (wp.isFormPost()) {
         return;
 
     } catch (AuthenticationException error) {
-        LogUtils.logAuthRequest("ToolAuthentication", username, domain, ipAddress, true, logAuthRequests);
+        logAuthRequest("ToolAuthentication", username, domain, ipAddress, false, isAuthLogged);
         authError = error;
     }
 }
