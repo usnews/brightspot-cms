@@ -95,8 +95,7 @@ public class ToolAuthenticationPolicy implements AuthenticationPolicy {
             return user;
         }
 
-        throw new AuthenticationException(
-                "Oops! No user with that username and password.");
+        throw new AuthenticationException("Oops! No user with that username and password.");
     }
 
     @Override
