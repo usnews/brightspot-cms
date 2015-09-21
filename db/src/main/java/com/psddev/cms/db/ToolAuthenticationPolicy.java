@@ -67,8 +67,7 @@ public class ToolAuthenticationPolicy implements AuthenticationPolicy {
             PasswordPolicy passwordPolicy = null;
             Password hashedPassword;
             if (userPasswordPolicy == null) {
-                passwordPolicy = PasswordPolicy.Static.getInstance(Settings
-                        .get(String.class, "cms/tool/passwordPolicy"));
+                passwordPolicy = PasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/passwordPolicy"));
             }
             try {
                 if (userPasswordPolicy != null || (userPasswordPolicy == null && passwordPolicy == null)) {
@@ -95,7 +94,8 @@ public class ToolAuthenticationPolicy implements AuthenticationPolicy {
             return user;
         }
 
-        throw new AuthenticationException("Oops! No user with that username and password.");
+        throw new AuthenticationException(
+                "Oops! No user with that username and password.");
     }
 
     @Override
