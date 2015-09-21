@@ -51,7 +51,7 @@ public class ToolUserSaveSelection extends PageServlet {
         page.writeHeader();
             page.writeStart("div", "class", "widget");
                 page.writeStart("h1", "class", "icon icon-action-search");
-                    page.writeHtml("Save Selection");
+                    page.writeHtml(page.localize(ToolUserSaveSelection.class, "title"));
                 page.writeEnd();
 
             page.writeStart("form",
@@ -63,7 +63,7 @@ public class ToolUserSaveSelection extends PageServlet {
                 page.writeStart("div", "class", "actions");
                     page.writeStart("button",
                         "class", "action icon icon-action-save");
-                        page.writeHtml("Save");
+                        page.writeHtml(page.localize(ToolUserSaveSelection.class, "action.save"));
                     page.writeEnd();
                 page.writeEnd();
             page.writeEnd();

@@ -31,19 +31,23 @@ if (wp.tryStandardUpdate(selected)) {
     <div class="leftNav">
         <div class="widget">
 
-            <h1 class="icon icon-object-site">Sites</h1>
+            <h1 class="icon icon-object-site">
+                <%= wp.h(wp.localize("com.psddev.cms.tool.page.admin.Sites", "title"))%>
+            </h1>
             <ul class="links">
                 <li class="new<%= selectedState.isNew() ? " selected" : "" %>">
-                    <a href="<%= wp.url(null) %>"><%= wp.h(wp.localize(Site.class, "action.new")) %></a>
+                    <a href="<%= wp.url(null) %>"><%= wp.h(wp.localize(Site.class, "action.newType")) %></a>
                 </li>
             </ul>
 
             <form action="<%= wp.url("/admin/sitesResult.jsp") %>" data-bsp-autosubmit="" method="get" target="sitesResult">
                 <input name="id" type="hidden" value="<%= selectedState.getId() %>">
                 <div class="searchInput">
-                    <label for="<%= wp.createId() %>">Search</label>
+                    <label for="<%= wp.createId() %>">
+                        <%= wp.h(wp.localize("com.psddev.cms.tool.page.admin.Sites", "label.search"))%>
+                    </label>
                     <input id="<%= wp.getId() %>" class="autoFocus" name="query" type="text" value="<%= wp.h(queryString) %>">
-                    <input type="submit" value="Go">
+                    <input type="submit" value="<%= wp.h(wp.localize("com.psddev.cms.tool.page.admin.Sites", "action.go"))%>">
                 </div>
             </form>
 

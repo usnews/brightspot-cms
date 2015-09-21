@@ -33,7 +33,7 @@ public class VideoFileType implements FileContentType {
                     "class", "icon icon-action-preview",
                     "href", fieldValue.getPublicUrl(),
                     "target", "_blank");
-                page.writeHtml("View Original");
+                page.writeHtml(page.localize(VideoFileType.class, "action.viewOriginal"));
             page.writeEnd();
         page.writeEnd();
 

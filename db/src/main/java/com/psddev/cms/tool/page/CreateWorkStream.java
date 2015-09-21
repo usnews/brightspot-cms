@@ -60,7 +60,7 @@ public class CreateWorkStream extends PageServlet {
                             "class", "action icon icon-action-save",
                             "name", "action-save",
                             "value", "true");
-                        page.writeHtml("Save");
+                        page.writeHtml(page.localize(CreateWorkStream.class, "action.save"));
                     page.writeEnd();
                 page.writeEnd();
             page.writeEnd();

@@ -64,8 +64,7 @@ public class ToolUserTfa extends PageServlet {
                     "class", "widget",
                     "style", "overflow: hidden;");
                 page.writeStart("h1", "class", "icon icon-key");
-                    page.writeHtml(user.isTfaEnabled() ? "Disable" : "Enable");
-                    page.writeHtml(" Two Factor Authentication");
+                    page.writeHtml(page.localize(ToolUserTfa.class, user.isTfaEnabled() ? "title.disableTfa" : "title.enableTfa"));
                 page.writeEnd();
 
                 StringBuilder keyUri = new StringBuilder("otpauth://totp/");
@@ -87,7 +86,8 @@ public class ToolUserTfa extends PageServlet {
                             "src", page.cmsUrl("/qrCode", "data", keyUri),
                             "style", "margin-left: 30px;");
                     page.writeStart("div");
-                        page.writeHtml("Secret Key: ");
+                        page.writeHtml(page.localize(ToolUserTfa.class, "label.secretKey"));
+                        page.writeHtml(": ");
                         page.writeTag("br");
                         page.writeRaw(user.getTotpSecret().replaceAll("(.{4})", "$1 "));
                     page.writeEnd();
@@ -96,16 +96,16 @@ public class ToolUserTfa extends PageServlet {
                 page.writeStart("div", "style", "margin-right: 280px;");
                     if (verifyError) {
                         page.writeStart("div", "class", "message message-error");
-                            page.writeHtml("Code you've entered isn't valid! Try re-entering the code or re-scan the QR code.");
+                            page.writeHtml(page.localize(ToolUserTfa.class, "message.invalidCode"));
                         page.writeEnd();
 
                     } else {
                         page.writeStart("div", "class", "message message-info");
                             if (user.isTfaEnabled()) {
-                                page.writeHtml("Enter the displayed code from your Google Authenticator to disable two factor authentication.");
+                                page.writeHtml(page.localize(ToolUserTfa.class, "message.enabledInstructions"));
 
                             } else {
-                                page.writeHtml("Use Google Authenticator to scan the QR code or type in the secret key, then enter the displayed code to enable two factor authentication.");
+                                page.writeHtml(page.localize(ToolUserTfa.class, "message.disabledInstructions"));
                             }
                         page.writeEnd();
                     }
@@ -117,7 +117,7 @@ public class ToolUserTfa extends PageServlet {
                     page.writeStart("div", "class", "inputContainer");
                         page.writeStart("div", "class", "inputLabel");
                             page.writeStart("label", "for", page.createId());
-                                page.writeHtml("Code");
+                                page.writeHtml(page.localize(ToolUserTfa.class, "label.code"));
                             page.writeEnd();
                         page.writeEnd();
 
@@ -134,7 +134,7 @@ public class ToolUserTfa extends PageServlet {
                                 "class", "action icon icon-action-save",
                                 "name", "action-verify",
                                 "value", true);
-                            page.writeHtml("Verify");
+                            page.writeHtml(page.localize(ToolUserTfa.class, "action.verify"));
                         page.writeEnd();
                     page.writeEnd();
                     page.writeElement("input",

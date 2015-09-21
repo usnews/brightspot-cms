@@ -309,7 +309,7 @@ public class ToolPageContext extends WebPageContext {
         }
 
         Locale defaultLocale = Locale.getDefault();
-        Locale userLocale = MoreObjects.firstNonNull(getUser().getLocale(), defaultLocale);
+        Locale userLocale = MoreObjects.firstNonNull(getUser() != null ? getUser().getLocale() : null, defaultLocale);
         String localized = createLocalizedString(userLocale, userLocale, baseName, key, state, contextOverrides);
 
         if (localized == null && !defaultLocale.equals(userLocale)) {
@@ -395,15 +395,13 @@ public class ToolPageContext extends WebPageContext {
             }
         }
 
-        if (Locale.getDefault().equals(source)) {
-            ObjectType type = ObjectType.getInstance(baseName);
-            ObjectTypeResourceBundle bundle = ObjectTypeResourceBundle.getInstance(type);
+        ObjectType type = ObjectType.getInstance(baseName);
+        ObjectTypeResourceBundle bundle = ObjectTypeResourceBundle.getInstance(type);
 
-            argumentsSources.add(bundle.getMap());
+        argumentsSources.add(bundle.getMap());
 
-            if (pattern == null) {
-                pattern = findBundleString(bundle, key);
-            }
+        if (pattern == null && Locale.getDefault().equals(source)) {
+            pattern = findBundleString(bundle, key);
         }
 
         if (pattern == null) {
@@ -467,6 +465,8 @@ public class ToolPageContext extends WebPageContext {
 
                     lastEnd = numberedArgumentMatcher.end();
                 }
+
+                namedArgumentPattern.append(Pattern.quote(numberedPattern.substring(lastEnd)));
 
                 // Map all numbered argument to the named ones.
                 // e.g. {0} = {name}
@@ -1297,7 +1297,16 @@ public class ToolPageContext extends WebPageContext {
                 writeHtml(" ");
             }
 
-            writeHtml(getObjectLabelOrDefault(state, DEFAULT_OBJECT_LABEL));
+            String label = getObjectLabelOrDefault(state, DEFAULT_OBJECT_LABEL);
+
+            if (label.length() > 41 && !label.contains(" ")) {
+                writeStart("span", "class", "breakable");
+                writeHtml(label);
+                writeEnd();
+
+            } else {
+                writeHtml(label);
+            }
         }
     }
 
@@ -1498,7 +1507,9 @@ public class ToolPageContext extends WebPageContext {
         HtmlGrid.Static.setRestrictGridPaths(cms.getGridCssPaths(), this.getServletContext());
 
         writeTag("!doctype html");
-        writeTag("html", "class", site != null ? site.getCmsCssClass() : null);
+        writeTag("html",
+                "class", site != null ? site.getCmsCssClass() : null,
+                "lang", MoreObjects.firstNonNull(user != null ? user.getLocale() : null, Locale.getDefault()).toLanguageTag());
             writeStart("head");
                 writeStart("title");
                     if (!ObjectUtils.isBlank(title)) {
@@ -1603,7 +1614,7 @@ public class ToolPageContext extends WebPageContext {
 
                             writeStart("div", "class", "toolUser");
                                 writeStart("div", "class", "toolUserWelcome");
-                                    writeHtml(localize(user, "welcome"));
+                                    writeHtml(localize(user, "message.welcome"));
                                 writeEnd();
 
                                 writeStart("div", "class", "toolUserControls");

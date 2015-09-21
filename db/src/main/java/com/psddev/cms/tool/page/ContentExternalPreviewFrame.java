@@ -32,7 +32,7 @@ public class ContentExternalPreviewFrame extends PageServlet {
             page.writeStart("body");
                 if (content.getResponse() == null) {
                     page.writeStart("div", "class", "message message-error");
-                        page.writeHtml("Preview not available!");
+                        page.writeHtml(page.localize(ContentExternalPreviewFrame.class, "error.noPreview"));
                     page.writeEnd();
 
                 } else {

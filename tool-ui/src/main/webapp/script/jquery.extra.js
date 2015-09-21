@@ -269,6 +269,27 @@ $.throttle = function(interval, throttledFunction) {
     });
 }());
 
+// In some cases we need to handle nested elements and
+// need to access the children before the parents
+// (for example, nested drag-and-drop targets)    
+$.fn.sortDepthFirst = function() {
+    var ar = this.map(function() {
+            return {length: $(this).parents().length, elt: this}
+        }).get(),
+        result = [],
+        i = ar.length;
+
+
+    ar.sort(function(a, b) {
+        return a.length - b.length;
+    });
+
+    while (i--) {
+        result.push(ar[i].elt);
+    }
+    return $(result);
+};
+
 // Returns true if the element should be in fixed CSS position.
 $.fn.isFixedPosition = function() {
     var $parent = this,

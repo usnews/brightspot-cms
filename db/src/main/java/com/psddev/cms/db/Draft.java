@@ -238,12 +238,12 @@ public class Draft extends Content {
 
         if (value instanceof Map) {
             Map<String, Object> valueMap = (Map<String, Object>) value;
+            Map<String, Object> newIdMap = new CompactMap<>();
             String valueId = ObjectUtils.to(String.class, valueMap.get(State.ID_KEY));
 
             if (valueId != null) {
                 Map<String, Object> oldIdMap = oldIdMaps.get(valueId);
                 Map<String, Object> changes = differences.get(valueId);
-                Map<String, Object> newIdMap = new CompactMap<>();
 
                 if (oldIdMap != null) {
                     newIdMap.putAll(oldIdMap);
@@ -257,8 +257,11 @@ public class Draft extends Content {
                     entry.setValue(mergeValue(environment, oldIdMaps, differences, entry.getValue()));
                 }
 
-                return newIdMap;
+            } else {
+                valueMap.forEach((k, v) -> newIdMap.put(k, mergeValue(environment, oldIdMaps, differences, v)));
             }
+
+            return newIdMap;
 
         } else if (value instanceof List) {
             return ((List<Object>) value)

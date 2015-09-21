@@ -8,16 +8,16 @@ import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 
-import com.google.common.collect.ImmutableSet;
-import com.psddev.cms.tool.QueryRestriction;
 import org.joda.time.DateTime;
-
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.ToolRole;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.Dashboard;
 import com.psddev.cms.tool.DefaultDashboardWidget;
+import com.psddev.cms.tool.QueryRestriction;
 import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ObjectType;
@@ -101,7 +101,7 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
 
         page.writeStart("div", "class", "widget");
             page.writeStart("h1", "class", "icon icon-list");
-                page.writeHtml("Recent Activity");
+                page.writeHtml(page.localize(RecentActivityWidget.class, "title"));
             page.writeEnd();
 
             page.writeStart("div", "class", "widget-filters");
@@ -119,7 +119,7 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
                                     .filter(page.createTypeDisplayPredicate(ImmutableSet.of("read")))
                                     .collect(Collectors.toList()),
                             itemType,
-                            "Any Types",
+                            page.localize(RecentActivityWidget.class, "label.anyTypes"),
                             "data-bsp-autosubmit", "",
                             "name", "itemType",
                             "data-searchable", "true");
@@ -130,7 +130,7 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
                                 page.writeStart("option",
                                         "selected", t.equals(type) ? "selected" : null,
                                         "value", t.name());
-                                    page.writeHtml(t.getDisplayName());
+                                    page.writeHtml(page.localize(null, t.getResourceKey()));
                                 page.writeEnd();
                             }
                         }
@@ -192,16 +192,17 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
             if (result == null) {
                 page.writeStart("div", "class", "message message-warning");
                     page.writeStart("p");
-                        page.writeHtml("Please select a ");
-                        page.writeHtml(type.getDisplayName());
-                        page.writeHtml(".");
+                        page.writeHtml(page.localize(
+                                RecentActivityWidget.class,
+                                ImmutableMap.of("type", page.localize(RecentActivityWidget.class, type.getResourceKey())),
+                                "warn.typeSelect"));
                     page.writeEnd();
                 page.writeEnd();
 
             } else if (!result.hasPages()) {
                 page.writeStart("div", "class", "message message-info");
                     page.writeStart("p");
-                        page.writeHtml("No recent activity!");
+                        page.writeHtml(page.localize(RecentActivityWidget.class, "message.noActivity"));
                     page.writeEnd();
                 page.writeEnd();
 
@@ -212,14 +213,18 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
                         page.writeStart("li", "class", "first");
                             page.writeStart("a",
                                     "href", page.url("", "offset", result.getFirstOffset()));
-                                page.writeHtml("Newest");
+                                page.writeHtml(page.localize(
+                                        RecentActivityWidget.class,
+                                        "pagination.newest"));
                             page.writeEnd();
                         page.writeEnd();
 
                         page.writeStart("li", "class", "previous");
                             page.writeStart("a",
                                     "href", page.url("", "offset", result.getPreviousOffset()));
-                                page.writeHtml("Newer ").writeHtml(limit);
+                                page.writeHtml(page.localize(
+                                        ImmutableMap.of("count", limit),
+                                        "pagination.newerCount"));
                             page.writeEnd();
                         page.writeEnd();
                     }
@@ -237,8 +242,10 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
                                         page.writeStart("option",
                                                 "value", l,
                                                 "selected", limit == l ? "selected" : null);
-                                            page.writeHtml("Show ");
-                                            page.writeHtml(l);
+                                            page.writeHtml(page.localize(
+                                                    RecentActivityWidget.class,
+                                                    ImmutableMap.of("count", l),
+                                                    "option.showCount"));
                                         page.writeEnd();
                                     }
                                 page.writeEnd();
@@ -250,7 +257,10 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
                         page.writeStart("li", "class", "next");
                             page.writeStart("a",
                                     "href", page.url("", "offset", result.getNextOffset()));
-                                page.writeHtml("Older ").writeHtml(limit);
+                                page.writeHtml(page.localize(
+                                        RecentActivityWidget.class,
+                                        ImmutableMap.of("count", limit),
+                                        "pagination.olderCount"));
                             page.writeEnd();
                         page.writeEnd();
                     }
@@ -307,19 +317,19 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
 
     private enum Type {
 
-        ANYONE("Anyone"),
-        ME("Me"),
-        ROLE("Role"),
-        USER("User");
+        ANYONE("label.anyone"),
+        ME("label.me"),
+        ROLE("label.role"),
+        USER("label.user");
 
-        private String displayName;
+        private String resourceKey;
 
-        private Type(String displayName) {
-            this.displayName = displayName;
+        Type(String resourceKey) {
+            this.resourceKey = resourceKey;
         }
 
-        public String getDisplayName() {
-            return displayName;
+        public String getResourceKey() {
+            return resourceKey;
         }
     }
 }

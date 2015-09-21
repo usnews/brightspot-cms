@@ -132,13 +132,13 @@ public class ContentTools extends PageServlet {
 
             page.writeStart("div", "class", "widget cms-contentTools");
                 page.writeStart("h1", "class", "icon icon-wrench");
-                    page.writeHtml("Tools");
+                    page.writeHtml(page.localize(ContentTools.class, "title"));
                 page.writeEnd();
 
                 page.writeStart("div", "class", "tabbed");
                     page.writeStart("div",
                             "class", "fixedScrollable",
-                            "data-tab", "For Editors");
+                            "data-tab", page.localize(ContentTools.class, "label.forEditors"));
                         if (object != null) {
                             Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
                             Date publishDate = contentData.getPublishDate();
@@ -151,7 +151,7 @@ public class ContentTools extends PageServlet {
                                     if (publishDate != null || publishUser != null) {
                                         page.writeStart("tr");
                                             page.writeStart("th");
-                                                page.writeHtml("Published");
+                                                page.writeHtml(page.localize(ContentTools.class, "label.published"));
                                             page.writeEnd();
 
                                             page.writeStart("td");
@@ -171,7 +171,7 @@ public class ContentTools extends PageServlet {
                                     if (updateDate != null || updateUser != null) {
                                         page.writeStart("tr");
                                             page.writeStart("th");
-                                                page.writeHtml("Last Updated");
+                                                page.writeHtml(page.localize(ContentTools.class, "label.lastUpdated"));
                                             page.writeEnd();
 
                                             page.writeStart("td");
@@ -207,6 +207,7 @@ public class ContentTools extends PageServlet {
                                                 "href", page.cmsUrl("/content/edit.jsp?",
                                                         "id", state.getId(),
                                                         "compare", true));
+                                            // TODO: LOCALIZE
                                             page.writeHtml("Compare With ");
                                             page.writeTypeObjectLabel(compareObject);
                                         page.writeEnd();
@@ -217,20 +218,20 @@ public class ContentTools extends PageServlet {
                                     page.writeStart("button",
                                             "name", "action-compare",
                                             "value", true);
-                                        page.writeHtml("Start Comparison");
+                                        page.writeHtml(page.localize(ContentTools.class, "action.compare"));
                                     page.writeEnd();
                                 page.writeEnd();
                             page.writeEnd();
 
                             page.writeStart("h2");
-                                page.writeHtml("Advanced Edits");
+                                page.writeHtml(page.localize(ContentTools.class, "subtitle.advancedEdits"));
                             page.writeEnd();
 
                             if (page.isFormPost()
                                     && page.param(String.class, "action-edits") != null) {
                                 if (page.getErrors().isEmpty()) {
                                     page.writeStart("div", "class", "message message-success");
-                                        page.writeHtml("Advanced edits successfully saved.");
+                                        page.writeHtml(page.localize(ContentTools.class, "message.editsSaved"));
                                     page.writeEnd();
 
                                 } else {
@@ -245,7 +246,7 @@ public class ContentTools extends PageServlet {
                                 page.writeStart("div", "class", "inputContainer");
                                     page.writeStart("div", "class", "inputLabel");
                                         page.writeStart("label", "for", page.createId());
-                                            page.writeHtml("New Publish Date");
+                                            page.writeHtml(page.localize(ContentTools.class, "label.newPublishDate"));
                                         page.writeEnd();
                                     page.writeEnd();
 
@@ -263,18 +264,19 @@ public class ContentTools extends PageServlet {
                                             "class", "icon icon-action-save",
                                             "name", "action-edits",
                                             "value", true);
-                                        page.writeHtml("Save");
+                                        page.writeHtml(page.localize(ContentTools.class, "action.save"));
                                     page.writeEnd();
                                 page.writeEnd();
                             page.writeEnd();
 
                             if (page.hasPermission("ui/contentLock") && !user.equals(contentLock.getOwner())) {
                                 page.writeStart("h2");
-                                    page.writeHtml("Content Lock");
+                                    page.writeHtml(page.localize(ContentTools.class, "subtitle.contentLock"));
                                 page.writeEnd();
 
                                 page.writeStart("div", "class", "message message-warning");
                                     page.writeStart("p");
+                                        //TODO: LOCALIZE
                                         page.writeHtml("Locked by ");
                                         page.writeObjectLabel(contentLock.getOwner());
                                         page.writeHtml(" since ");
@@ -291,7 +293,7 @@ public class ContentTools extends PageServlet {
                                                 "class", "icon icon-unlock",
                                                 "name", "action-unlock",
                                                 "value", true);
-                                            page.writeHtml("Unlock");
+                                            page.writeHtml(page.localize(ContentTools.class, "action.unlock"));
                                         page.writeEnd();
                                     page.writeEnd();
                                 page.writeEnd();
@@ -299,14 +301,14 @@ public class ContentTools extends PageServlet {
                         }
 
                         page.writeStart("h2");
-                            page.writeHtml("Settings");
+                            page.writeHtml(page.localize(ContentTools.class, "subtitle.settings"));
                         page.writeEnd();
 
                         if (page.isFormPost()
                                 && page.param(String.class, "action-settings") != null) {
                             if (page.getErrors().isEmpty()) {
                                 page.writeStart("div", "class", "message message-success");
-                                    page.writeHtml("Settings successfully saved.");
+                                    page.writeHtml(page.localize(ContentTools.class, "message.settingsSaved"));
                                 page.writeEnd();
 
                             } else {
@@ -325,7 +327,7 @@ public class ContentTools extends PageServlet {
                                         "class", "icon icon-action-save",
                                         "name", "action-settings",
                                         "value", true);
-                                    page.writeHtml("Save");
+                                    page.writeHtml(page.localize(ContentTools.class, "action.save"));
                                 page.writeEnd();
                             page.writeEnd();
                         page.writeEnd();
@@ -333,14 +335,14 @@ public class ContentTools extends PageServlet {
 
                     page.writeStart("div",
                             "class", "fixedScrollable",
-                            "data-tab", "For Developers");
+                            "data-tab", page.localize(ContentTools.class, "label.forDevelopers"));
                         page.writeStart("ul");
                             if (object != null) {
                                 page.writeStart("li");
                                     page.writeStart("a",
                                             "target", "_blank",
                                             "href", page.objectUrl("/contentRaw", ObjectUtils.firstNonNull(page.getOverlaidDraft(object), page.getOverlaidHistory(object), object)));
-                                        page.writeHtml("View Raw Data");
+                                        page.writeHtml(page.localize(ContentTools.class, "action.viewRaw"));
                                     page.writeEnd();
                                 page.writeEnd();
                             }
@@ -352,7 +354,7 @@ public class ContentTools extends PageServlet {
                                                 "target", "_top",
                                                 "href", StringUtils.addQueryParameters(returnUrl,
                                                         "deprecated", null));
-                                            page.writeHtml("Hide Deprecated Fields");
+                                            page.writeHtml(page.localize(ContentTools.class, "action.hideDeprecated"));
                                         page.writeEnd();
 
                                     } else {
@@ -360,7 +362,7 @@ public class ContentTools extends PageServlet {
                                                 "target", "_top",
                                                 "href", StringUtils.addQueryParameters(returnUrl,
                                                         "deprecated", true));
-                                            page.writeHtml("Show Deprecated Fields");
+                                            page.writeHtml(page.localize(ContentTools.class, "action.showDeprecated"));
                                         page.writeEnd();
                                     }
                                 page.writeEnd();
@@ -379,7 +381,7 @@ public class ContentTools extends PageServlet {
                                             page.writeStart("tr");
                                                 page.writeStart("th");
                                                     page.writeStart("label", "for", page.createId());
-                                                        page.writeHtml("Class");
+                                                        page.writeHtml(page.localize(ContentTools.class, "label.class"));
                                                     page.writeEnd();
                                                 page.writeEnd();
 
@@ -465,7 +467,7 @@ public class ContentTools extends PageServlet {
 
                                 if (!ObjectUtils.isBlank(defaultPath) || !ObjectUtils.isBlank(paths)) {
                                     page.writeStart("h2");
-                                        page.writeHtml("Renderers");
+                                        page.writeHtml(page.localize(ContentTools.class, "subtitle.renderers"));
                                     page.writeEnd();
 
                                     page.writeStart("table", "class", "table-striped");
@@ -474,7 +476,7 @@ public class ContentTools extends PageServlet {
                                                 page.writeStart("tr");
                                                     page.writeStart("th");
                                                         page.writeStart("code");
-                                                            page.writeHtml("Default");
+                                                            page.writeHtml(page.localize(ContentTools.class, "label.default"));
                                                         page.writeEnd();
                                                     page.writeEnd();
 
@@ -565,7 +567,7 @@ public class ContentTools extends PageServlet {
 
             if (!presentAnnotations.isEmpty()) {
                 page.writeStart("h2");
-                    page.writeHtml("Present Annotations");
+                    page.writeHtml(page.localize(ContentTools.class, "subtitle.presentAnnotations"));
                 page.writeEnd();
 
                 page.writeStart("ul");
@@ -578,7 +580,7 @@ public class ContentTools extends PageServlet {
             }
 
             page.writeStart("h2");
-                page.writeHtml("Possible Annotations");
+            page.writeHtml(page.localize(ContentTools.class, "subtitle.possibleAnnotations"));
             page.writeEnd();
 
             page.writeStart("ul");

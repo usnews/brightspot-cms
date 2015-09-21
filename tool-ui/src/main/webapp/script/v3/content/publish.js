@@ -113,6 +113,20 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
 
               saving = false;
 
+              $form.find('input, textarea').each(function() {
+                var $input = $(this);
+
+                $input.prop('defaultValue', $input.val());
+              });
+
+              $form.find('option').each(function() {
+                var $option = $(this);
+
+                $option.prop('defaultSelected', $option.prop('selected'));
+              });
+
+              $form.find('.state-changed').removeClass('state-changed');
+
               $form.removeAttr('target');
               $frame.remove();
               $.removeData($form[0], 'bsp-publish-submitting');

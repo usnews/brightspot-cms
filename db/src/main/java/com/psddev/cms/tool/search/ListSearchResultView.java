@@ -117,18 +117,17 @@ public class ListSearchResultView extends AbstractSearchResultView {
     protected void writeImagesHtml(Iterable<?> items) throws IOException {
         page.writeStart("div", "class", "searchResult-images");
             for (Object item : items) {
-                itemWriter.writeBeforeHtml(page, search, item);
-
                 page.writeStart("figure");
+                    itemWriter.writeCheckboxHtml(page, search, item);
+
                     page.writeElement("img",
                             "src", page.getPreviewThumbnailUrl(item),
                             "alt", (showSiteLabel ? page.getObjectLabel(State.getInstance(item).as(Site.ObjectModification.class).getOwner()) + ": " : "")
                                     + (showTypeLabel ? page.getTypeLabel(item) + ": " : "")
                                     + page.getObjectLabel(item));
 
+                    itemWriter.writeBeforeHtml(page, search, item);
                     page.writeStart("figcaption");
-                        itemWriter.writeCheckboxHtml(page, search, item);
-
                         if (showSiteLabel) {
                             page.writeObjectLabel(State.getInstance(item).as(Site.ObjectModification.class).getOwner());
                             page.writeHtml(": ");
@@ -141,9 +140,8 @@ public class ListSearchResultView extends AbstractSearchResultView {
 
                         page.writeObjectLabel(item);
                     page.writeEnd();
+                    itemWriter.writeAfterHtml(page, search, item);
                 page.writeEnd();
-
-                itemWriter.writeAfterHtml(page, search, item);
             }
         page.writeEnd();
     }
@@ -200,18 +198,18 @@ public class ListSearchResultView extends AbstractSearchResultView {
 
                     if (showSiteLabel) {
                         page.writeStart("th");
-                            page.writeHtml("Site");
+                            page.writeHtml(page.localize(ListSearchResultView.class, "label.site"));
                         page.writeEnd();
                     }
 
                     if (showTypeLabel) {
                         page.writeStart("th");
-                            page.writeHtml("Type");
+                            page.writeHtml(page.localize(ListSearchResultView.class, "label.type"));
                         page.writeEnd();
                     }
 
                     page.writeStart("th");
-                        page.writeHtml("Label");
+                        page.writeHtml(page.localize(ListSearchResultView.class, "label.label"));
                     page.writeEnd();
 
                     if (sortField != null

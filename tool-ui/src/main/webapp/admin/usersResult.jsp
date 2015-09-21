@@ -64,7 +64,7 @@ PaginatedResult<ToolUser> users = query.select(offset, wp.intParam("limit", 10))
 
 <% } else { %>
     <div class="message message-warning">
-        <p>No matching items!</p>
+        <%= wp.h(wp.localize("com.psddev.cms.tool.page.admin.UsersResult", "message.noMatches"))%>
     </div>
 <% } %>
 

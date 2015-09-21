@@ -35,7 +35,7 @@ require([
   'velocity',
 
   'v3/input/carousel',
-  'input/change',
+  'v3/input/change',
   'input/code',
   'input/color',
   'input/focus',

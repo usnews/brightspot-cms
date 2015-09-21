@@ -16,17 +16,13 @@ public class SaveSearchResultAction implements SearchResultAction {
             SearchResultSelection selection)
             throws IOException {
 
-        if (selection != null) {
-            return;
-        }
-
         page.writeStart("div", "class", "searchResult-action-simple");
             page.writeStart("a",
                     "class", "button",
                     "target", "toolUserSaveSearch",
                     "href", page.cmsUrl("/toolUserSaveSearch",
                             "search", page.url("", Search.NAME_PARAMETER, null)));
-                page.writeHtml("Save Search");
+                page.writeHtml(page.localize(SaveSearchResultAction.class, "action.saveSearch"));
             page.writeEnd();
         page.writeEnd();
     }
