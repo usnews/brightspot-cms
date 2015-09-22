@@ -89,7 +89,7 @@ if (wp.isFormPost()) {
     String siteUrl = Query.from(CmsTool.class).first().getDefaultSiteUrl();
     String domain = getDomain(siteUrl);
     String ipAddress = getIpAddress(request.getHeader("X-FORWARDED-FOR"), request.getRemoteAddr());
-    Boolean isAuthLogged = Settings.get(Boolean.class, "cms/tool/isAuthenticationLogged");
+    boolean isAuthLogged = Settings.get(boolean.class, "cms/tool/isAuthenticationLogged");
 
     try {
 
