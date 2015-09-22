@@ -12,6 +12,11 @@
   @media @media-tablet {
     width: 70%;
   }
+
+  [data-dynamic-predicate]:not([data-dynamic-predicate = '']):not(.state-loaded) + & {
+    opacity: 0.5;
+    pointer-events: none;
+  }
 }
 
 .objectId-edit {

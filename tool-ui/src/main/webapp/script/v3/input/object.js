@@ -120,6 +120,10 @@ function($) {
       this.$caller.on('change.objectId', selector, function() {
         refresh($(this));
       });
+
+      this.$caller.on('refresh.objectId', selector, function() {
+        refresh($(this));
+      });
     },
 
     '_create': function(input) {

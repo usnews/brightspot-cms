@@ -52,6 +52,12 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
           return $(this).closest('.collapsed').length === 0;
         });
 
+        if (!idle) {
+          $form.find('[data-dynamic-predicate][data-dynamic-predicate != ""]').each(function () {
+            $(this).removeClass('state-loaded');
+          });
+        }
+
         $.ajax({
           'type': 'post',
           'url': CONTEXT_PATH + 'contentState?idle=' + (!!idle) + (questionAt > -1 ? '&' + action.substring(questionAt + 1) : ''),
@@ -81,7 +87,8 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
               if ($element.is('[data-dynamic-predicate]')) {
 
                 $element.attr('data-additional-query', dynamicPredicate);
-                $element.trigger('change.objectId');
+                $element.trigger('refresh.objectId');
+                $element.addClass('state-loaded');
               }
 
               if (text === null || text === '') {
