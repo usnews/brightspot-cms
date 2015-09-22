@@ -11,6 +11,7 @@ import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.Dashboard;
 import com.psddev.cms.tool.DefaultDashboardWidget;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.cms.tool.page.UploadFiles;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 
@@ -69,7 +70,8 @@ public class BulkUploadWidget extends DefaultDashboardWidget {
                             "target", "uploadFiles",
                             "href", page.url("/content/uploadFiles",
                                     "typeId", ObjectType.getInstance(Content.class).getId(),
-                                    "type", defaultType != null ? defaultType.getId() : null));
+                                    "type", defaultType != null ? defaultType.getId() : null),
+                                    "context", UploadFiles.Context.GLOBAL);
                         page.writeHtml("select");
                     page.writeEnd();
                     page.writeHtml(" files.");
