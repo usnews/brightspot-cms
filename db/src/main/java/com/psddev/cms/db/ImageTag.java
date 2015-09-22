@@ -320,6 +320,11 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         return dimension;
     }
 
+    /**
+     * Returns {@code true} if the specified ImageCrop has any boundaries outside the region (0.0,0.0) to (1.0,1.0).
+     * @param imageCrop
+     * @return {@code true} if the specified ImageCrop will be processed as a padded crop.
+     */
     protected static boolean isPaddedCrop(ImageCrop imageCrop) {
         return imageCrop.getX() < 0.0
                 || imageCrop.getY() < 0.0
@@ -327,6 +332,11 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                 || imageCrop.getY() + imageCrop.getHeight() > 1.0;
     }
 
+    /**
+     * Returns a new ImageCrop instance, constrained to the region (0.0,0.0) to (1.0,1.0).
+     * @param imageCrop an unconstrained ImageCrop
+     * @return a constrained ImageCrop
+     */
     protected static ImageCrop getPaddedCrop(ImageCrop imageCrop) {
 
         ImageCrop paddedCrop = new ImageCrop();
