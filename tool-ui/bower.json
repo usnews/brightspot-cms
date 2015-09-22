@@ -12,6 +12,7 @@
     "husl": "4.0.0",
     "jquery": "1.8.3+1",
     "jsdiff": "2.0.2",
+    "js-cookie": "2.0.3",
     "leaflet": "0.7.3",
     "leaflet.draw": "0.2.3",
     "leaflet.locatecontrol": "0.34.0",
