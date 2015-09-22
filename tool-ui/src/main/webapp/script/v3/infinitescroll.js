@@ -9,7 +9,7 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
           nextSelector             : 'li.next a',
           previousSelector         : 'li.prev a',
           itemsContainerSelector   : '.searchResult-images',
-          itemSelector             : 'a figure',
+          itemSelector             : 'figure',
           scrollBuffer             : 100,
           prefill                  : true
         };
@@ -28,8 +28,12 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
 
         function shouldFetch() {
           var $items = $itemContainer.find(settings.itemSelector);
-          var $item = $items.first();
-          return $scrollable.outerWidth() * ($scrollable.outerHeight() + $scrollable.scrollTop() + settings.scrollBuffer) >= ($item.outerWidth() * $item.outerHeight() * $items.size());
+          if ($items) {
+            var $item = $items.first();
+            return $scrollable.outerWidth() * ($scrollable.outerHeight() + $scrollable.scrollTop() + settings.scrollBuffer) >= ($item.outerWidth() * $item.outerHeight() * $items.size());
+          } else {
+            return false;
+          }
         }
 
         function fill() {
