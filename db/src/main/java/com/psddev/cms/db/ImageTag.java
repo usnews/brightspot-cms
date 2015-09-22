@@ -340,16 +340,6 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         return paddedCrop;
     }
 
-    protected static double getPaddedCropOffsetX(ImageCrop imageCrop) {
-
-        return imageCrop.getX() < 0 ? -imageCrop.getX() / imageCrop.getWidth() * getPaddedCrop(imageCrop).getWidth() : 0;
-    }
-
-    protected static double getPaddedCropOffsetY(ImageCrop imageCrop) {
-
-        return imageCrop.getY() < 0 ? -imageCrop.getY() / imageCrop.getHeight() * getPaddedCrop(imageCrop).getHeight() : 0;
-    }
-
     /**
      * Finds the crop information for the StorageItem {@code item}.
      */
@@ -896,8 +886,10 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
                 if (isPaddedCrop(originalCrop)) {
 
-                    double offsetX = getPaddedCropOffsetX(originalCrop);
-                    double offsetY = getPaddedCropOffsetY(originalCrop);
+                    // Calculate the horizontal (left) CSS offset for use with in rendering padded crop HTML.
+                    double offsetX = originalCrop.getX() < 0 ? -originalCrop.getX() / originalCrop.getWidth() * getPaddedCrop(originalCrop).getWidth() : 0;
+                    // Calculate the vertical (top) CSS offset for use with in rendering padded crop HTML.
+                    double offsetY = originalCrop.getY() < 0 ? -originalCrop.getY() / originalCrop.getHeight() * getPaddedCrop(originalCrop).getHeight() : 0;
 
                     StringWriter paddedCropWriter = new StringWriter();
                     HtmlWriter paddedCropHtml = new HtmlWriter(paddedCropWriter);
