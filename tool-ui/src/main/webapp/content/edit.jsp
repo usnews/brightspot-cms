@@ -963,7 +963,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                     "value", "true");
 
                                 if (editingState.isNew()) {
-                                    wp.writeHtml(wp.localize(Draft.class, "action.save.type"));
+                                    wp.writeHtml("Save Initial Draft");
 
                                 } else {
                                     wp.writeHtml(wp.localize(Draft.class, "action.newType"));
