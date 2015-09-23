@@ -70,6 +70,18 @@
 
             <dependency>
                 <groupId>com.psddev</groupId>
+                <artifactId>dari-mail</artifactId>
+                <version>${dari.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.psddev</groupId>
+                <artifactId>dari-sms</artifactId>
+                <version>${dari.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.psddev</groupId>
                 <artifactId>dari-util</artifactId>
                 <version>${dari.version}</version>
             </dependency>

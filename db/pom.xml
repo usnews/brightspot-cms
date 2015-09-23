@@ -43,6 +43,16 @@
 
         <dependency>
             <groupId>com.psddev</groupId>
+            <artifactId>dari-mail</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.psddev</groupId>
+            <artifactId>dari-sms</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.psddev</groupId>
             <artifactId>dari-util</artifactId>
         </dependency>
 
