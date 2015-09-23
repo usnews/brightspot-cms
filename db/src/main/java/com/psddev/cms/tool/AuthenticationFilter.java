@@ -93,7 +93,7 @@ public class AuthenticationFilter extends AbstractFilter {
         response.addCookie(csrfCookie);
 
         if (JspUtils.isFormPost(request)
-                && !csrfCookie.getValue().equals(MoreObjects.firstNonNull(
+                && !csrfCookie.getValue().equals(ObjectUtils.firstNonNull(
                         request.getHeader("Brightspot-CSRF"),
                         request.getParameter("_csrf")))) {
 
