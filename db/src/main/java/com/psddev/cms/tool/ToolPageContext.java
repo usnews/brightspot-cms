@@ -149,6 +149,8 @@ public class ToolPageContext extends WebPageContext {
 
     public static final String DEFAULT_OBJECT_LABEL = "Untitled";
 
+    private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
+
     /** Creates an instance based on the given {@code pageContext}. */
     public ToolPageContext(PageContext pageContext) {
         super(pageContext);
@@ -1299,7 +1301,11 @@ public class ToolPageContext extends WebPageContext {
 
             String label = getObjectLabelOrDefault(state, DEFAULT_OBJECT_LABEL);
 
-            if (label.length() > 41 && !label.contains(" ")) {
+            if (WHITESPACE_PATTERN.splitAsStream(label)
+                    .filter(word -> word.length() > 41)
+                    .findFirst()
+                    .isPresent()) {
+
                 writeStart("span", "class", "breakable");
                 writeHtml(label);
                 writeEnd();
