@@ -1,4 +1,4 @@
-define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
+define(['jquery', 'codemirror/lib/codemirror', 'v3/spellcheck'], function($, CodeMirror, spellcheckAPI) {
     
     var CodeMirrorRte;
 
@@ -274,6 +274,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             self.initEvents();
             self.clipboardInit();
             self.trackInit();
+            self.spellcheckInit();
         },
 
         
@@ -2838,6 +2839,150 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 // (or it will overwrite the clipboard)
                 e.preventDefault();
             }
+        },
+
+        
+        //==================================================
+        // Spellcheck
+        //==================================================
+
+
+        /**
+         * Set up the spellchecker and run the first spellcheck.
+         */
+        spellcheckInit: function() {
+
+            var self;
+
+            self = this;
+
+            self.spellcheckUpdate();
+
+            self.$el.on('rteChange', $.throttle(2000, function(){
+                self.spellcheckUpdate();
+            }));
+        },
+
+
+        /**
+         * 
+         */
+        spellcheckUpdate: function() {
+
+            var self, text, wordsArray, wordsArrayUnique, wordsRegexp, wordsUnique;
+
+            self = this;
+            
+            // Get the text for the document
+            text = self.toText() || '';
+
+            // Split into words
+            wordsRegexp = new RegExp('[^\\s!"#$%&\(\)*+,-./:;<=>?@\\[\\]\\\\^_`{|}~]+', 'g');
+            wordsArray = text.match( wordsRegexp );
+        
+            if (!wordsArray) {
+                self.spellcheckClear();
+                return;
+            }
+
+            // Eliminate duplicate words (but keep mixed case so we can later find and replace the words)
+            wordsUnique = {};
+            wordsArrayUnique = [];
+            $.each(wordsArray, function(i, word){
+                if (!wordsUnique[word]) {
+                    wordsArrayUnique.push(word);
+                    wordsUnique[word] = true;
+                }
+            });
+
+            // Get spell checker results
+            spellcheckAPI.lookup(wordsArrayUnique).done(function(results) {
+
+                self.spellcheckClear();
+
+                $.each(wordsArrayUnique, function(i,word) {
+                    
+                    var result, index, indexStart, range, split, wordLength;
+
+                    wordLength = word.length;
+                    
+                    // Check if we have replacements for this word
+                    result = results[word.toLowerCase()];
+                    if ($.isArray(result) && result.length) {
+                        
+                        // Find the location of all occurances
+                        indexStart = 0;
+                        while ((index = text.indexOf(word, indexStart)) > -1) {
+
+                            // Figure out the line and character for this word
+                            split = text.substring(0, index).split("\n");
+                            line = split.length - 1;
+                            ch = split[line].length;
+                            
+                            // Add a mark to indicate this is a misspelling
+                            self.spellcheckMarkText({
+                                from: {line:line, ch:ch},
+                                to:{line:line, ch:ch + wordLength}
+                            }, result);
+                            
+                            // Move the starting point so we can find another occurrance of this word
+                            indexStart = index + wordLength;
+                        }
+                    }
+                    
+                });
+                
+            }).fail(function(status){
+                
+                // A problem occurred getting the spell check results
+                self.spellcheckClear();
+                
+            });
+
+        },
+
+        /**
+         * 
+         */
+        spellcheckMarkText: function(range, result) {
+
+            var editor, markOptions, self;
+
+            self = this;
+            
+            editor = self.codeMirror;
+
+            markOptions = {
+                className: 'rte2-style-spelling',
+                inclusiveRight: false,
+                inclusiveLeft: false,
+                addToHistory: false,
+                clearWhenEmpty: true
+            };
+
+            mark = editor.markText(range.from, range.to, markOptions);
+
+            // Save the spelling suggestions on the mark so we can use later (?)
+            mark.spelling = result;
+        },
+        
+        /**
+         * Remove all the spellcheck marks.
+         */
+        spellcheckClear: function() {
+
+            var editor, self;
+
+            self = this;
+
+            editor = self.codeMirror;
+            
+            // Loop through all the marks and remove the ones that were marked
+            editor.getAllMarks().forEach(function(mark) {
+                if (mark.className === 'rte2-style-spelling') {
+                    mark.clear();
+                }
+            });
         },
 
         
