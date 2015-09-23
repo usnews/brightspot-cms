@@ -103,6 +103,8 @@ define(['jquery'], function($) {
             if (wordsToFetch.length) {
 
                 $.ajax(self.serviceUrl, {
+
+                    type: 'POST',
                     
                     dataType: 'json',
                     
