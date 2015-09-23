@@ -48,6 +48,8 @@ public class ToolUserSaveSearch extends PageServlet {
             page.writeEnd();
             page.writeStart("script", "type", "text/javascript");
                 page.writeRaw("$('#").writeRaw(page.getId()).writeRaw("').popup('close');");
+                // ok, why can't we use the same #id pattern with the following that we used with the previous
+                page.writeRaw("$('.frame[name=\"savedSearches\"]').find('form[name=\"refreshSavedSearches\"]').submit();");
             page.writeEnd();
             return;
         }

@@ -23,29 +23,10 @@ wp.writeStart("div", "class", "toolSearchSaved");
         wp.writeHtml("Saved Searches");
     wp.writeEnd();
 
-    if (savedSearches.isEmpty()) {
-        wp.writeStart("div", "class", "message");
-            wp.writeHtml("No saved searches yet.");
-        wp.writeEnd();
-
-    } else {
-        List<String> savedSearchNames = new ArrayList<String>(savedSearches.keySet());
-
-        Collections.sort(savedSearchNames, String.CASE_INSENSITIVE_ORDER);
-
-        wp.writeStart("ul", "class", "links");
-            for (String savedSearchName : savedSearchNames) {
-                String savedSearch = savedSearches.get(savedSearchName);
-
-                wp.writeStart("li");
-                    wp.writeStart("a",
-                            "href", wp.url(null) + "?" + savedSearch);
-                        wp.writeHtml(savedSearchName);
-                    wp.writeEnd();
-                wp.writeEnd();
-            }
-        wp.writeEnd();
-    }
+    wp.writeStart("div", "class", "frame savedSearches", "name", "savedSearches");
+      wp.writeStart("a", "href", "/cms/misc/savedSearches.jsp");
+      wp.writeEnd();
+    wp.writeEnd();
 wp.writeEnd();
 
 wp.include(
@@ -53,7 +34,8 @@ wp.include(
         "name", "toolHeader",
         "newJsp", "/content/edit.jsp",
         "newTarget", "_top",
-        "resultJsp", "/misc/searchResult.jsp");
+        "resultJsp", "/misc/searchResult.jsp",
+        "savedSearchesJsp", "/misc/savedSearches.jsp");
 
 %>
 <script type="text/javascript">

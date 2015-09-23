@@ -178,32 +178,18 @@ writer.writeStart("h1", "class", "icon icon-action-search");
 writer.writeEnd();
 
 ToolUser user = wp.getUser();
-Map<String, String> savedSearches = user.getSavedSearches();
 
-if (!savedSearches.isEmpty()) {
-    wp.writeStart("div", "class", "widget-contentCreate searchSaved");
-        List<String> savedSearchNames = new ArrayList<String>(savedSearches.keySet());
 
-        Collections.sort(savedSearchNames, String.CASE_INSENSITIVE_ORDER);
+    writer.writeStart("div", "class", "toolSearchSaved");
+        writer.writeStart("h2");
+            writer.writeHtml("Saved Searches");
+        writer.writeEnd();
 
-        wp.writeStart("div", "class", "action action-create icon-action-search");
-            wp.writeHtml("Saved Searches");
-        wp.writeEnd();
-
-        wp.writeStart("ul");
-            for (String savedSearchName : savedSearchNames) {
-                String savedSearch = savedSearches.get(savedSearchName);
-
-                wp.writeStart("li");
-                    wp.writeStart("a",
-                            "href", wp.url(null) + "?" + savedSearch);
-                        wp.writeHtml(savedSearchName);
-                    wp.writeEnd();
-                wp.writeEnd();
-            }
-        wp.writeEnd();
-    wp.writeEnd();
-}
+        writer.writeStart("div", "class", "frame savedSearches", "name", "savedSearches");
+            writer.writeStart("a", "href", "/cms/misc/savedSearches.jsp");
+            writer.writeEnd();
+        writer.writeEnd();
+    writer.writeEnd();
 
 writer.start("div", "class", "searchForm");
     writer.start("div", "class", "searchControls");
