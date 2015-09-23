@@ -1,4 +1,4 @@
-define(['jquery', 'codemirror/lib/codemirror', 'v3/spellcheck'], function($, CodeMirror, spellcheckAPI) {
+define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint', 'v3/spellcheck'], function($, CodeMirror, CodeMirrorShowHint, spellcheckAPI) {
     
     var CodeMirrorRte;
 
@@ -2846,7 +2846,6 @@ define(['jquery', 'codemirror/lib/codemirror', 'v3/spellcheck'], function($, Cod
         // Spellcheck
         //==================================================
 
-
         /**
          * Set up the spellchecker and run the first spellcheck.
          */
@@ -2856,16 +2855,28 @@ define(['jquery', 'codemirror/lib/codemirror', 'v3/spellcheck'], function($, Cod
 
             self = this;
 
+            // Run the first spellcheck
             self.spellcheckUpdate();
 
+            // Update the spellcheck whenever a change is made
             self.$el.on('rteChange', $.throttle(2000, function(){
                 self.spellcheckUpdate();
             }));
+
+            // Catch right click events to show spelling suggestions
+            $(self.codeMirror.getWrapperElement()).on('contextmenu', function(event) {
+                if (self.spellcheckShow()) {
+                    event.preventDefault();
+                }
+            });
         },
 
 
         /**
-         * 
+         * Check the text for spelling errors and mark them.
+         *
+         * @returns {Promise}
+         * Returns a promise that can be used to check when the spellcheck has completed.
          */
         spellcheckUpdate: function() {
 
@@ -2896,13 +2907,13 @@ define(['jquery', 'codemirror/lib/codemirror', 'v3/spellcheck'], function($, Cod
             });
 
             // Get spell checker results
-            spellcheckAPI.lookup(wordsArrayUnique).done(function(results) {
+            return spellcheckAPI.lookup(wordsArrayUnique).done(function(results) {
 
                 self.spellcheckClear();
 
                 $.each(wordsArrayUnique, function(i,word) {
                     
-                    var result, index, indexStart, range, split, wordLength;
+                    var range, result, index, indexStart, range, split, wordLength;
 
                     wordLength = word.length;
                     
@@ -2918,13 +2929,15 @@ define(['jquery', 'codemirror/lib/codemirror', 'v3/spellcheck'], function($, Cod
                             split = text.substring(0, index).split("\n");
                             line = split.length - 1;
                             ch = split[line].length;
-                            
-                            // Add a mark to indicate this is a misspelling
-                            self.spellcheckMarkText({
+
+                            range = {
                                 from: {line:line, ch:ch},
                                 to:{line:line, ch:ch + wordLength}
-                            }, result);
+                            };
                             
+                            // Add a mark to indicate this is a misspelling
+                            self.spellcheckMarkText(range, result);
+
                             // Move the starting point so we can find another occurrance of this word
                             indexStart = index + wordLength;
                         }
@@ -2938,11 +2951,18 @@ define(['jquery', 'codemirror/lib/codemirror', 'v3/spellcheck'], function($, Cod
                 self.spellcheckClear();
                 
             });
-
         },
 
+        
         /**
-         * 
+         * Create a CodeMirror mark for a misspelled word.
+         * Also saves the spelling suggestions on the mark so they can be displayed to the user.
+         *
+         * @param {Object} range
+         * A range object to specify the mis-spelled word. {from:{line:#, ch:#}, to:{line:#, ch:#}}
+         *
+         * @param {Array} result
+         * Array of spelling suggestions for the mis-spelled word.
          */
         spellcheckMarkText: function(range, result) {
 
@@ -2965,7 +2985,8 @@ define(['jquery', 'codemirror/lib/codemirror', 'v3/spellcheck'], function($, Cod
             // Save the spelling suggestions on the mark so we can use later (?)
             mark.spelling = result;
         },
-        
+
+
         /**
          * Remove all the spellcheck marks.
          */
@@ -2985,7 +3006,84 @@ define(['jquery', 'codemirror/lib/codemirror', 'v3/spellcheck'], function($, Cod
             });
         },
 
-        
+
+        /**
+         * Show spelling suggestions.
+         *
+         * @param {Object} [range=current selection]
+         * The range that is selected. If not provided uses the current selection.
+         *
+         * @returns {Boolean}
+         * Returns true if a misspelling was found.
+         * Returns false if no misspelling was found.
+         * This can be used for example with the right click event, so you can cancel
+         * the event if a misspelling is shown (to prevent the normal browser context menu from appearing)
+         */
+        spellcheckShow: function(range) {
+
+            var editor, marks, pos, range, self, suggestions;
+
+            self = this;
+
+            editor = self.codeMirror;
+
+            range = range || self.getRange();
+
+            // Is there a spelling error at the current cursor position?
+            marks = editor.findMarksAt(range.from);
+            $.each(marks, function(i,mark) {
+                if (mark.className === 'rte2-style-spelling') {
+                    pos = mark.find();
+
+                    // Get the spelling suggestions, which we previosly 
+                    suggestions = mark.spelling;
+                    return false;
+                }
+            });
+
+            if (!pos || !suggestions) {
+                return false;
+            }
+            
+            // If a range is selected (rather than a single cursor position),
+            // it must exactly match the range of the mark or we won't show the popup
+            if (range.from.line !== range.to.line || range.from.ch !== range.to.ch) {
+
+                if (pos.from.line === range.from.line &&
+                    pos.from.ch === range.from.ch &&
+                    pos.to.line === range.to.line &&
+                    pos.to.ch === range.to.ch) {
+
+                    // The showHint() function does not work if there is a selection,
+                    // so change the selection to a single cursor position at the beginning
+                    // of the word.
+                    editor.setCursor(pos.from);
+                    
+                } else {
+                    
+                    // The selection is beyond the misspelling, so don't show a hint
+                    return false;
+                }
+            }
+
+            editor.showHint({
+                completeSingle: false, // don't automatically correct if there is only one suggestion
+                hint: function(editor, options) {
+                    return {
+                        list: suggestions,
+                        from: pos.from,
+                        to: pos.to
+                    };
+                }
+            });
+
+            // Return true so we can cancel the context menu that normally
+            // appears for the right mouse click
+            return true;
+
+        },
+
+
         //==================================================
         // Miscelaneous Functions
         //==================================================
@@ -3206,6 +3304,10 @@ define(['jquery', 'codemirror/lib/codemirror', 'v3/spellcheck'], function($, Cod
                 self.insert('\u21b5', 'newline');
             };
 
+            keymap['Ctrl-Space'] = function (cm) {
+                self.spellcheckShow();
+            };
+            
             $.each(self.styles, function(styleKey, styleObj) {
 
                 var keys;
