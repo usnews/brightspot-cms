@@ -2858,6 +2858,10 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
             // Run the first spellcheck
             self.spellcheckUpdate();
 
+            self.codeMirror.on('focus', function() {
+                self.spellcheckUpdate();
+            });
+            
             // Update the spellcheck whenever a change is made
             self.$el.on('rteChange', $.throttle(2000, function(){
                 self.spellcheckUpdate();
@@ -2888,7 +2892,7 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
             text = self.toText() || '';
 
             // Split into words
-            wordsRegexp = new RegExp('[^\\s!"#$%&\(\)*+,-./:;<=>?@\\[\\]\\\\^_`{|}~]+', 'g');
+            wordsRegexp = new RegExp('[^\\s!"#$%&\(\)*+,-./:;<=>?@\\[\\]\\\\^_`{|}~\u21b5]+', 'g');
             wordsArray = text.match( wordsRegexp );
         
             if (!wordsArray) {
