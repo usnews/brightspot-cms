@@ -930,7 +930,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                         "value", "true");
                                     ObjectType type = editingState.getType();
                                     if (type != null) {
-                                        wp.writeHtml(ObjectUtils.firstNonBlank(type.as(ToolUi.class).getPublishButtonText(), "Publish"));
+                                        wp.writeHtml(ObjectUtils.firstNonBlank(type.as(ToolUi.class).getPublishButtonText(), wp.localize(type, "action.publish")));
                                     } else {
                                         wp.writeHtml(wp.localize(type, "action.publish"));
                                     }
