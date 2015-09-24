@@ -2918,7 +2918,7 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
                     wordLength = word.length;
                     
                     // Check if we have replacements for this word
-                    result = results[word.toLowerCase()];
+                    result = results[word];
                     if ($.isArray(result) && result.length) {
                         
                         // Find the location of all occurances
@@ -3068,6 +3068,7 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
 
             editor.showHint({
                 completeSingle: false, // don't automatically correct if there is only one suggestion
+                completeOnSingleClick: true,
                 hint: function(editor, options) {
                     return {
                         list: suggestions,

@@ -82,9 +82,7 @@ define(['jquery'], function($) {
             // Eliminate any duplicate words
             wordsUnique = {};
             $.each(wordsArray, function(){
-                var word;
-                word = this.toLowerCase();
-                wordsUnique[word] = true;
+                wordsUnique[this] = true;
             });
 
             // First check if any of the words are already in the cache so we can avoid making a call to the service
@@ -177,7 +175,7 @@ define(['jquery'], function($) {
         cacheAdd: function(word, result) {
             var self;
             self = this;
-            self.cache[word.toLowerCase()] = result;
+            self.cache[word] = result;
         },
 
         
@@ -188,7 +186,7 @@ define(['jquery'], function($) {
         cacheLookup: function(word) {
             var self;
             self = this;
-            return self.cache[ word.toLowerCase() ];
+            return self.cache[word];
         },
 
         
