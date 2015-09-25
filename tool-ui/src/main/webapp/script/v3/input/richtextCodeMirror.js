@@ -2846,6 +2846,8 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
         // Spellcheck
         //==================================================
 
+        spellcheckWordSeparator: '\\s!"#$%&\(\)*+,-./:;<=>?@\\[\\]\\\\^_`{|}~\u21b5',
+        
         /**
          * Set up the spellchecker and run the first spellcheck.
          */
@@ -2874,7 +2876,7 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
                 }
             });
         },
-
+        
 
         /**
          * Check the text for spelling errors and mark them.
@@ -2892,7 +2894,7 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
             text = self.toText() || '';
 
             // Split into words
-            wordsRegexp = new RegExp('[^\\s!"#$%&\(\)*+,-./:;<=>?@\\[\\]\\\\^_`{|}~\u21b5]+', 'g');
+            wordsRegexp = new RegExp('[^' + self.spellcheckWordSeparator + ']+', 'g');
             wordsArray = text.match( wordsRegexp );
         
             if (!wordsArray) {
@@ -2917,18 +2919,30 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
 
                 $.each(wordsArrayUnique, function(i,word) {
                     
-                    var range, result, index, indexStart, range, split, wordLength;
+                    var range, result, index, indexStart, indexWord, range, split, wordLength;
 
                     wordLength = word.length;
                     
                     // Check if we have replacements for this word
                     result = results[word];
-                    if ($.isArray(result) && result.length) {
+                    if ($.isArray(result)) {
                         
                         // Find the location of all occurances
                         indexStart = 0;
                         while ((index = text.indexOf(word, indexStart)) > -1) {
 
+                            // Move the starting point so we can find another occurrance of this word
+                            indexStart = index + wordLength;
+                            
+                            // Make sure we're at a word boundary on both sides of the word
+                            // so we don't mark a string in the middle of another word
+                            if ((index > 0) && wordsRegexp.test( text[index - 1] )) {
+                                continue;
+                            }
+                            if ((index + wordLength < text.length) && wordsRegexp.test( text[index + wordLength] )) {
+                                continue;
+                            }
+                            
                             // Figure out the line and character for this word
                             split = text.substring(0, index).split("\n");
                             line = split.length - 1;
@@ -2942,8 +2956,6 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
                             // Add a mark to indicate this is a misspelling
                             self.spellcheckMarkText(range, result);
 
-                            // Move the starting point so we can find another occurrance of this word
-                            indexStart = index + wordLength;
                         }
                     }
                     
@@ -3045,10 +3057,10 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
                 }
             });
 
-            if (!pos || !suggestions) {
+            if (!pos || !suggestions || !suggestions.length) {
                 return false;
             }
-            
+
             // If a range is selected (rather than a single cursor position),
             // it must exactly match the range of the mark or we won't show the popup
             if (range.from.line !== range.to.line || range.from.ch !== range.to.ch) {
@@ -3089,6 +3101,24 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
         },
 
 
+        /**
+         * 
+         */
+        spellcheckIndexOf: function(sourceStr, searchStr, startpos) {
+
+            var indexOf, self, regex;
+
+            self = this;
+            
+            regex = '(^|[' + self.spellcheckWordSeparator + '])(' + searchStr + ')($|[' + self.spellcheckWordSeparator + '])';
+
+            indexOf = sourceStr.substring(startpos || 0).search(regex);
+            
+            return (indexOf >= 0) ? (indexOf + (startpos || 0)) : indexOf;
+            
+        },
+
+        
         //==================================================
         // Miscelaneous Functions
         //==================================================
