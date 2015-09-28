@@ -241,6 +241,13 @@ $.plugin2('frame', {
       if ($frame.is(':not(.' + loadingClassName + '):not(.' + loadedClassName + ')')) {
         $anchor = $frame.find('a:only-child:not([target])');
 
+        // Store the plugin instance in the dom element's data
+        // TODO: We're storing a mock of the current object context because I can't figure out two store the actual object
+        //       but the values in the mock are valid
+        $frame.data('framePlugin', {
+          'loadPage': loadPage
+        });
+
         if ($anchor.length > 0) {
           $anchor.click();
 
