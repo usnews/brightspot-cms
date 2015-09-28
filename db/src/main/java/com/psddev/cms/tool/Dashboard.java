@@ -9,9 +9,12 @@ import java.util.stream.IntStream;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.TypeDefinition;
+import com.psddev.dari.util.UuidUtils;
 
 @Dashboard.Embedded
 public class Dashboard extends Record {
+
+    private static final String WIDGET_ID_NAME_PREFIX = Dashboard.class.getName() + "/";
 
     private List<DashboardColumn> columns;
 
@@ -28,6 +31,8 @@ public class Dashboard extends Record {
         ClassFinder.findConcreteClasses(DefaultDashboardWidget.class).forEach(c -> {
             DefaultDashboardWidget widget = TypeDefinition.getInstance(c).newInstance();
             int columnIndex = widget.getColumnIndex();
+
+            widget.getState().setId(UuidUtils.createVersion3Uuid(WIDGET_ID_NAME_PREFIX + c.getName()));
 
             IntStream.range(0, columnIndex - columns.size() + 1)
                     .forEach(i -> columns.add(new DashboardColumn()));
