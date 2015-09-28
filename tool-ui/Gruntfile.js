@@ -20,6 +20,12 @@ module.exports = function(grunt) {
                             'mode/clike/clike.js',
                             'mode/css/css.js',
                             'addon/mode/multiplex.js', // needed by htmlembedded
+                            'addon/dialog/dialog.js', // needed for rte search
+                            'addon/dialog/dialog.css', // needed for rte search
+                            'addon/search/searchcursor.js', // needed for rte search
+                            'addon/search/search.js', // needed for rte search
+                            'addon/search/search.css', // needed for rte search
+                            'addon/scroll/annotatescrollbar.js', // needed for rte search
                             'mode/htmlembedded/htmlembedded.js',
                             'mode/htmlmixed/htmlmixed.js',
                             'mode/javascript/javascript.js',

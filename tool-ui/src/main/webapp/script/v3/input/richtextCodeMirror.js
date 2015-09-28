@@ -1,4 +1,10 @@
-define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
+define([
+    'jquery',
+    'codemirror/lib/codemirror',
+    'codemirror/addon/dialog/dialog',
+    'codemirror/addon/search/searchcursor',
+    'codemirror/addon/search/search'
+], function($, CodeMirror) {
     
     var CodeMirrorRte;
 
