@@ -38,13 +38,10 @@ public class Dashboard extends Record {
             width *= 1.61803398875;
 
             column.setWidth(width);
-            Collections.sort(column.getWidgets(), new Comparator<DashboardWidget>() {
-
-                @Override
-                public int compare(DashboardWidget x, DashboardWidget y) {
-                    return ((DefaultDashboardWidget) x).getWidgetIndex() - ((DefaultDashboardWidget) y).getWidgetIndex();
-                }
-            });
+            Collections.sort(
+                    column.getWidgets(),
+                    Comparator.comparingInt(w -> ((DefaultDashboardWidget) w).getWidgetIndex())
+                            .thenComparing(w -> w.getClass().getName()));
         }
 
         return dashboard;
