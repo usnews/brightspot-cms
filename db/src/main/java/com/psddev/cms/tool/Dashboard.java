@@ -4,40 +4,46 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.ListIterator;
+import java.util.stream.IntStream;
 
 import com.psddev.dari.db.Record;
-import com.psddev.dari.db.Recordable.Embedded;
 import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.TypeDefinition;
 
-@Embedded
+@Dashboard.Embedded
 public class Dashboard extends Record {
 
     private List<DashboardColumn> columns;
 
-    public static Dashboard getDefaultDashboard() {
+    /**
+     * Creates a default dashboard containing instances of all classes that
+     * implement {@link DefaultDashboardWidget}.
+     *
+     * @return Never {@code null}.
+     */
+    public static Dashboard createDefaultDashboard() {
         Dashboard dashboard = new Dashboard();
         List<DashboardColumn> columns = dashboard.getColumns();
 
-        for (Class<? extends DefaultDashboardWidget> c : ClassFinder.Static.findClasses(DefaultDashboardWidget.class)) {
+        ClassFinder.findConcreteClasses(DefaultDashboardWidget.class).forEach(c -> {
             DefaultDashboardWidget widget = TypeDefinition.getInstance(c).newInstance();
             int columnIndex = widget.getColumnIndex();
 
-            while (columns.size() - 1 < columnIndex) {
-                columns.add(new DashboardColumn());
-            }
+            IntStream.range(0, columnIndex - columns.size() + 1)
+                    .forEach(i -> columns.add(new DashboardColumn()));
 
-            columns.get(columnIndex).getWidgets().add(widget);
-        }
+            columns.get(columnIndex)
+                    .getWidgets()
+                    .add(widget);
+        });
 
         double width = 1.0;
 
-        for (ListIterator<DashboardColumn> i = columns.listIterator(columns.size()); i.hasPrevious();) {
-            DashboardColumn column = i.previous();
-            width *= 1.61803398875;
+        for (DashboardColumn column : columns) {
+            width /= 1.61803398875;
 
             column.setWidth(width);
+
             Collections.sort(
                     column.getWidgets(),
                     Comparator.comparingInt(w -> ((DefaultDashboardWidget) w).getWidgetIndex())
@@ -45,6 +51,14 @@ public class Dashboard extends Record {
         }
 
         return dashboard;
+    }
+
+    /**
+     * @deprecated Use {@link #createDefaultDashboard()} instead.
+     */
+    @Deprecated
+    public static Dashboard getDefaultDashboard() {
+        return createDefaultDashboard();
     }
 
     public List<DashboardColumn> getColumns() {
