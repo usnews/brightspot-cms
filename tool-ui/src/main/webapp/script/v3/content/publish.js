@@ -307,8 +307,8 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
     }
 
     // Execute on resizes and scrolls.
-    //updateSizes();
-    //moveElements();
+    updateSizes();
+    moveElements();
 
     $window.resize(bsp_utils.throttle(50, function() {
       updateSizes();
