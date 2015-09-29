@@ -202,6 +202,57 @@ public class Workflow extends Record {
         return transitions;
     }
 
+    public Map<String, WorkflowTransition> getTransitionsTo(String to) {
+        if (to == null) {
+            to = "Published";
+        }
+
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+        Map<String, List<Map<String, Object>>> actions = (Map) getActions();
+        List<Map<String, Object>> rawStates = actions.get("states");
+        List<Map<String, Object>> rawTransitions = actions.get("transitions");
+        Map<String, WorkflowTransition> transitions = new HashMap<>();
+
+        if (rawStates != null && rawTransitions != null) {
+            Map<String, WorkflowState> states = new HashMap<>();
+            WorkflowState state;
+
+            for (Map<String, Object> s : rawStates) {
+                state = new WorkflowState();
+                state.setName((String) s.get("name"));
+                state.setDisplayName((String) s.get("displayName"));
+                states.put((String) s.get("id"), state);
+            }
+
+            state = new WorkflowState();
+            state.setName("New");
+            states.put("initial", state);
+
+            state = new WorkflowState();
+            state.setName("Published");
+            states.put("final", state);
+
+            for (Map<String, Object> t : rawTransitions) {
+                WorkflowTransition transition = new WorkflowTransition();
+                String name = (String) t.get("name");
+                WorkflowState target = states.get(t.get("target"));
+
+                transition.setName(name);
+                transition.setDisplayName((String) t.get("displayName"));
+                transition.setSource(states.get(t.get("source")));
+                transition.setTarget(target);
+
+                if (!(target == null
+                        || !to.equals(target.getName())
+                        || "New".equals(transition.getSource().getName()))) {
+                    transitions.put(name, transition);
+                }
+            }
+        }
+
+        return transitions;
+    }
+
     @Override
     protected void beforeSave() {
         super.beforeSave();

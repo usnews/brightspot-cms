@@ -170,6 +170,7 @@ public class ContentRevisions extends Widget {
 
                 page.writeStart("ul", "class", "links pageThumbnails");
                     for (Draft d : drafts) {
+                        String name = d.getName();
                         Content.ObjectModification dcd = d.as(Content.ObjectModification.class);
 
                         page.writeStart("li",
@@ -177,6 +178,10 @@ public class ContentRevisions extends Widget {
                                 "data-preview-url", "/_preview?_cms.db.previewId=" + d.getId());
                         page.writeStart("a", "href", page.objectUrl(null, d));
                         // TODO: LOCALIZE
+                                if (!ObjectUtils.isBlank(name)) {
+                                    page.writeHtml(name);
+                                    page.writeHtml(" - ");
+                                }
                                 page.writeHtml(page.formatUserDateTime(dcd.getUpdateDate()));
                                 page.writeHtml(" by ");
                                 page.writeObjectLabel(dcd.getUpdateUser());

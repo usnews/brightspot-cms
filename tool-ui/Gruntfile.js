@@ -20,6 +20,7 @@ module.exports = function(grunt) {
                             'mode/clike/clike.js',
                             'mode/css/css.js',
                             'addon/mode/multiplex.js', // needed by htmlembedded
+                            'addon/hint/show-hint.js', // needed for spellcheck
                             'mode/htmlembedded/htmlembedded.js',
                             'mode/htmlmixed/htmlmixed.js',
                             'mode/javascript/javascript.js',

@@ -11,7 +11,10 @@ import java.util.stream.Stream;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import com.psddev.dari.db.Database;
 import com.psddev.dari.db.DatabaseEnvironment;
+import com.psddev.dari.db.DistributedLock;
+import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
@@ -475,13 +478,41 @@ public class Draft extends Content {
         Preconditions.checkNotNull(newObject);
 
         State newState = State.getInstance(newObject);
+        UUID newId = newState.getId();
 
         setObjectType(newState.getType());
-        setObjectId(newState.getId());
+        setObjectId(newId);
         setDifferences(findDifferences(
                 newState.getDatabase().getEnvironment(),
                 oldValues,
                 newState.getSimpleValues()));
+
+        DistributedLock lock = DistributedLock.Static.getInstance(
+                Database.Static.getDefault(),
+                getClass().getName() + "/" + newId);
+
+        lock.lock();
+
+        try {
+            NameData nameData = State.getInstance(Query.fromAll()
+                    .where("_id = ?", newId)
+                    .noCache()
+                    .first())
+                    .as(NameData.class);
+
+            Integer index = nameData.getIndex();
+            index = index != null ? index + 1 : 1;
+
+            if (ObjectUtils.isBlank(getName())) {
+                setName("#" + index);
+            }
+
+            nameData.setIndex(index);
+            nameData.save();
+
+        } finally {
+            lock.unlock();
+        }
     }
 
     /**
@@ -513,6 +544,20 @@ public class Draft extends Content {
 
         } else {
             return super.getLabel();
+        }
+    }
+
+    @FieldInternalNamePrefix("cms.draft.name.")
+    public static class NameData extends Modification<Object> {
+
+        private Integer index;
+
+        public Integer getIndex() {
+            return index;
+        }
+
+        public void setIndex(Integer index) {
+            this.index = index;
         }
     }
 }

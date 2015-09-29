@@ -242,6 +242,15 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                         } else {
                             if (draft != null) {
                                 wp.writeObjectLabel(ObjectType.getInstance(Draft.class));
+
+                                String draftName = draft.getName();
+
+                                if (!ObjectUtils.isBlank(draftName)) {
+                                    wp.writeHtml(" (");
+                                    wp.writeHtml(draftName);
+                                    wp.writeHtml(")");
+                                }
+
                                 wp.writeHtml(" for");
 
                                 if (!visible) {
@@ -581,6 +590,14 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                 if (draft != null) {
                                     wp.writeObjectLabel(ObjectType.getInstance(Draft.class));
 
+                                    String draftName = draft.getName();
+
+                                    if (!ObjectUtils.isBlank(draftName)) {
+                                        wp.writeHtml(" (");
+                                        wp.writeHtml(draftName);
+                                        wp.writeHtml(")");
+                                    }
+
                                 } else {
                                     wp.writeHtml("Initial Draft");
                                 }
@@ -809,7 +826,13 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                                     wp.writeEnd();
                                                 }
 
-                                                if (draft == null) {
+                                                if (draft == null
+                                                        && workflow.getTransitionsTo(currentState)
+                                                                .keySet()
+                                                                .stream()
+                                                                .filter(name -> wp.hasPermission("type/" + editingState.getTypeId() + "/" + name))
+                                                                .findFirst()
+                                                                .isPresent()) {
                                                     wp.writeStart("div", "class", "actions");
                                                         wp.writeStart("button",
                                                                 "class", "link icon icon-action-save",
@@ -845,7 +868,14 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                                 wp.writeFormFields(newLog);
                                             wp.writeEnd();
 
-                                            if (!visible && draft != null) {
+                                            if (!visible
+                                                    && draft != null
+                                                    && workflow.getTransitionsTo(editingState.as(Workflow.Data.class).getCurrentState())
+                                                            .keySet()
+                                                            .stream()
+                                                            .filter(name -> wp.hasPermission("type/" + editingState.getTypeId() + "/" + name))
+                                                            .findFirst()
+                                                            .isPresent()) {
                                                 wp.writeStart("button",
                                                         "name", "action-merge",
                                                         "value", "true");
@@ -930,7 +960,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                         "value", "true");
                                     ObjectType type = editingState.getType();
                                     if (type != null) {
-                                        wp.writeHtml(ObjectUtils.firstNonBlank(type.as(ToolUi.class).getPublishButtonText(), "Publish"));
+                                        wp.writeHtml(ObjectUtils.firstNonBlank(type.as(ToolUi.class).getPublishButtonText(), wp.localize(type, "action.publish")));
                                     } else {
                                         wp.writeHtml(wp.localize(type, "action.publish"));
                                     }

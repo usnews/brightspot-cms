@@ -1,4 +1,4 @@
-define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
+define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint', 'v3/spellcheck'], function($, CodeMirror, CodeMirrorShowHint, spellcheckAPI) {
     
     var CodeMirrorRte;
 
@@ -274,6 +274,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             self.initEvents();
             self.clipboardInit();
             self.trackInit();
+            self.spellcheckInit();
         },
 
         
@@ -2842,6 +2843,283 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
         
         //==================================================
+        // Spellcheck
+        //==================================================
+
+        spellcheckWordSeparator: '\\s!"#$%&\(\)*+,-./:;<=>?@\\[\\]\\\\^_`{|}~\u21b5',
+        
+        /**
+         * Set up the spellchecker and run the first spellcheck.
+         */
+        spellcheckInit: function() {
+
+            var self;
+
+            self = this;
+
+            // Run the first spellcheck
+            self.spellcheckUpdate();
+
+            self.codeMirror.on('focus', function() {
+                self.spellcheckUpdate();
+            });
+            
+            // Update the spellcheck whenever a change is made
+            self.$el.on('rteChange', $.throttle(2000, function(){
+                self.spellcheckUpdate();
+            }));
+
+            // Catch right click events to show spelling suggestions
+            $(self.codeMirror.getWrapperElement()).on('contextmenu', function(event) {
+                if (self.spellcheckShow()) {
+                    event.preventDefault();
+                }
+            });
+        },
+        
+
+        /**
+         * Check the text for spelling errors and mark them.
+         *
+         * @returns {Promise}
+         * Returns a promise that can be used to check when the spellcheck has completed.
+         */
+        spellcheckUpdate: function() {
+
+            var self, text, wordsArray, wordsArrayUnique, wordsRegexp, wordsUnique;
+
+            self = this;
+            
+            // Get the text for the document
+            text = self.toText() || '';
+
+            // Split into words
+            wordsRegexp = new RegExp('[^' + self.spellcheckWordSeparator + ']+', 'g');
+            wordsArray = text.match( wordsRegexp );
+        
+            if (!wordsArray) {
+                self.spellcheckClear();
+                return;
+            }
+
+            // Eliminate duplicate words (but keep mixed case so we can later find and replace the words)
+            wordsUnique = {};
+            wordsArrayUnique = [];
+            $.each(wordsArray, function(i, word){
+                if (!wordsUnique[word]) {
+                    wordsArrayUnique.push(word);
+                    wordsUnique[word] = true;
+                }
+            });
+
+            // Get spell checker results
+            return spellcheckAPI.lookup(wordsArrayUnique).done(function(results) {
+
+                self.spellcheckClear();
+
+                $.each(wordsArrayUnique, function(i,word) {
+                    
+                    var range, result, index, indexStart, indexWord, range, split, wordLength;
+
+                    wordLength = word.length;
+                    
+                    // Check if we have replacements for this word
+                    result = results[word];
+                    if ($.isArray(result)) {
+                        
+                        // Find the location of all occurances
+                        indexStart = 0;
+                        while ((index = text.indexOf(word, indexStart)) > -1) {
+
+                            // Move the starting point so we can find another occurrance of this word
+                            indexStart = index + wordLength;
+                            
+                            // Make sure we're at a word boundary on both sides of the word
+                            // so we don't mark a string in the middle of another word
+                            if ((index > 0) && wordsRegexp.test( text[index - 1] )) {
+                                continue;
+                            }
+                            if ((index + wordLength < text.length) && wordsRegexp.test( text[index + wordLength] )) {
+                                continue;
+                            }
+                            
+                            // Figure out the line and character for this word
+                            split = text.substring(0, index).split("\n");
+                            line = split.length - 1;
+                            ch = split[line].length;
+
+                            range = {
+                                from: {line:line, ch:ch},
+                                to:{line:line, ch:ch + wordLength}
+                            };
+                            
+                            // Add a mark to indicate this is a misspelling
+                            self.spellcheckMarkText(range, result);
+
+                        }
+                    }
+                    
+                });
+                
+            }).fail(function(status){
+                
+                // A problem occurred getting the spell check results
+                self.spellcheckClear();
+                
+            });
+        },
+
+        
+        /**
+         * Create a CodeMirror mark for a misspelled word.
+         * Also saves the spelling suggestions on the mark so they can be displayed to the user.
+         *
+         * @param {Object} range
+         * A range object to specify the mis-spelled word. {from:{line:#, ch:#}, to:{line:#, ch:#}}
+         *
+         * @param {Array} result
+         * Array of spelling suggestions for the mis-spelled word.
+         */
+        spellcheckMarkText: function(range, result) {
+
+            var editor, markOptions, self;
+
+            self = this;
+            
+            editor = self.codeMirror;
+
+            markOptions = {
+                className: 'rte2-style-spelling',
+                inclusiveRight: false,
+                inclusiveLeft: false,
+                addToHistory: false,
+                clearWhenEmpty: true
+            };
+
+            mark = editor.markText(range.from, range.to, markOptions);
+
+            // Save the spelling suggestions on the mark so we can use later (?)
+            mark.spelling = result;
+        },
+
+
+        /**
+         * Remove all the spellcheck marks.
+         */
+        spellcheckClear: function() {
+
+            var editor, self;
+
+            self = this;
+
+            editor = self.codeMirror;
+            
+            // Loop through all the marks and remove the ones that were marked
+            editor.getAllMarks().forEach(function(mark) {
+                if (mark.className === 'rte2-style-spelling') {
+                    mark.clear();
+                }
+            });
+        },
+
+
+        /**
+         * Show spelling suggestions.
+         *
+         * @param {Object} [range=current selection]
+         * The range that is selected. If not provided uses the current selection.
+         *
+         * @returns {Boolean}
+         * Returns true if a misspelling was found.
+         * Returns false if no misspelling was found.
+         * This can be used for example with the right click event, so you can cancel
+         * the event if a misspelling is shown (to prevent the normal browser context menu from appearing)
+         */
+        spellcheckShow: function(range) {
+
+            var editor, marks, pos, range, self, suggestions;
+
+            self = this;
+
+            editor = self.codeMirror;
+
+            range = range || self.getRange();
+
+            // Is there a spelling error at the current cursor position?
+            marks = editor.findMarksAt(range.from);
+            $.each(marks, function(i,mark) {
+                if (mark.className === 'rte2-style-spelling') {
+                    pos = mark.find();
+
+                    // Get the spelling suggestions, which we previosly 
+                    suggestions = mark.spelling;
+                    return false;
+                }
+            });
+
+            if (!pos || !suggestions || !suggestions.length) {
+                return false;
+            }
+
+            // If a range is selected (rather than a single cursor position),
+            // it must exactly match the range of the mark or we won't show the popup
+            if (range.from.line !== range.to.line || range.from.ch !== range.to.ch) {
+
+                if (pos.from.line === range.from.line &&
+                    pos.from.ch === range.from.ch &&
+                    pos.to.line === range.to.line &&
+                    pos.to.ch === range.to.ch) {
+
+                    // The showHint() function does not work if there is a selection,
+                    // so change the selection to a single cursor position at the beginning
+                    // of the word.
+                    editor.setCursor(pos.from);
+                    
+                } else {
+                    
+                    // The selection is beyond the misspelling, so don't show a hint
+                    return false;
+                }
+            }
+
+            editor.showHint({
+                completeSingle: false, // don't automatically correct if there is only one suggestion
+                completeOnSingleClick: true,
+                hint: function(editor, options) {
+                    return {
+                        list: suggestions,
+                        from: pos.from,
+                        to: pos.to
+                    };
+                }
+            });
+
+            // Return true so we can cancel the context menu that normally
+            // appears for the right mouse click
+            return true;
+
+        },
+
+
+        /**
+         * 
+         */
+        spellcheckIndexOf: function(sourceStr, searchStr, startpos) {
+
+            var indexOf, self, regex;
+
+            self = this;
+            
+            regex = '(^|[' + self.spellcheckWordSeparator + '])(' + searchStr + ')($|[' + self.spellcheckWordSeparator + '])';
+
+            indexOf = sourceStr.substring(startpos || 0).search(regex);
+            
+            return (indexOf >= 0) ? (indexOf + (startpos || 0)) : indexOf;
+            
+        },
+
+        
+        //==================================================
         // Miscelaneous Functions
         //==================================================
 
@@ -3061,6 +3339,10 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 self.insert('\u21b5', 'newline');
             };
 
+            keymap['Ctrl-Space'] = function (cm) {
+                self.spellcheckShow();
+            };
+            
             $.each(self.styles, function(styleKey, styleObj) {
 
                 var keys;
