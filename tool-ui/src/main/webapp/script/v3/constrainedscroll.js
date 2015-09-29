@@ -46,7 +46,6 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
     $(SELECTOR).each(function() {
       var element = this;
       var $element = $(element);
-      var closestPopup = $element.closest('.popup');
 
       // Skip the move if not visible.
       if (!$.data(element, VISIBLE_DATA_KEY) ||
