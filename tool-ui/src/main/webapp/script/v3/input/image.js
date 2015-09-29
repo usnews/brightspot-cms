@@ -3277,21 +3277,27 @@ define([
             self.hotspotOverlayRemoveAll();
 
             // Loop through all the hotspot inputs that have not yet been moved into popups
-            self.dom.$hotspots.find('.objectInputs').each(function(){
+            //
+            // Note there is a possibility that the .objectInputs div might have nested
+            // within it more .objectInputs divs, so we need to be sure only to get the
+            // parent div for the entire hotspot and not any internal divs
+            self.dom.$hotspots.find('> ul > li > .objectInputs').each(function(){
                 
                 var $hotspot, $objectInput;
                 
                 $objectInput = $(this);
 
                 // Hide the width, height, x, y inputs
-                $objectInput.find(':input[name$=".x"], :input[name$=".y"], :input[name$=".width"], :input[name$=".height"]').closest('.inputContainer').hide();
-                
+                $objectInput.find(':input[name$="cms.image.x"], :input[name$="cms.image.y"], :input[name$="cms.image.width"], :input[name$="cms.image.height"]')
+                    .closest('.inputContainer').hide();
+
+                // Create a new list for the hotspot LI and move it into a popup
                 $hotspot = $('<ul/>').append( $objectInput.closest('li') );
                 $hotspot.popup({parent:self.dom.$hotspotPopups}).popup('close');
             });
 
             // Loop through all the hotspot data in the popups
-            self.dom.$hotspotPopups.find('.objectInputs').each(function(){
+            self.dom.$hotspotPopups.find('ul > li > .objectInputs').each(function(){
 
                 var data, $objectInput;
 
