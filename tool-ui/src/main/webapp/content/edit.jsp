@@ -242,6 +242,15 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                         } else {
                             if (draft != null) {
                                 wp.writeObjectLabel(ObjectType.getInstance(Draft.class));
+
+                                String draftName = draft.getName();
+
+                                if (!ObjectUtils.isBlank(draftName)) {
+                                    wp.writeHtml(" (");
+                                    wp.writeHtml(draftName);
+                                    wp.writeHtml(")");
+                                }
+
                                 wp.writeHtml(" for");
 
                                 if (!visible) {
@@ -580,6 +589,14 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                             wp.writeStart("p");
                                 if (draft != null) {
                                     wp.writeObjectLabel(ObjectType.getInstance(Draft.class));
+
+                                    String draftName = draft.getName();
+
+                                    if (!ObjectUtils.isBlank(draftName)) {
+                                        wp.writeHtml(" (");
+                                        wp.writeHtml(draftName);
+                                        wp.writeHtml(")");
+                                    }
 
                                 } else {
                                     wp.writeHtml("Initial Draft");
