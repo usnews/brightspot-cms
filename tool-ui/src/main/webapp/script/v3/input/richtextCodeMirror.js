@@ -444,9 +444,9 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
                 self.$el.trigger('rteCursorActivity', [self]);
             });
             
-            editor.on('changes', function(instance, event) {
+            editor.on('changes', $.debounce(200, function(instance, event) {
                 self.triggerChange();
-            });
+            }));
 
             editor.on('focus', function(instance, event) {
                 self.$el.trigger('rteFocus', [self]);
@@ -462,11 +462,11 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
          * Trigger an rteChange event.
          * This can happen when user types changes into the editor, or if some kind of mark is modified.
          */
-        triggerChange: $.throttle(200, function() {
+        triggerChange: function() {
             var self;
             self = this;
             self.$el.trigger('rteChange', [self]);
-        }),
+        },
 
         
         //==================================================
@@ -2867,12 +2867,8 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
             // Run the first spellcheck
             self.spellcheckUpdate();
 
-            self.codeMirror.on('focus', function() {
-                self.spellcheckUpdate();
-            });
-            
-            // Update the spellcheck whenever a change is made
-            self.$el.on('rteChange', $.throttle(2000, function(){
+            // Update the spellcheck whenever a change is made (but not too often)
+            self.$el.on('rteChange', $.debounce(1000, function(){
                 self.spellcheckUpdate();
             }));
 
@@ -4337,6 +4333,7 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
             });
 
             editor.setHistory(history);
+            self.triggerChange();
             
         }, // fromHTML()
 
