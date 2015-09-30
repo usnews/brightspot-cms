@@ -26,6 +26,7 @@ module.exports = function(grunt) {
                             'addon/search/search.js', // needed for rte search
                             'addon/search/search.css', // needed for rte search
                             'addon/scroll/annotatescrollbar.js', // needed for rte search
+                            'addon/hint/show-hint.js', // needed for spellcheck
                             'mode/htmlembedded/htmlembedded.js',
                             'mode/htmlmixed/htmlmixed.js',
                             'mode/javascript/javascript.js',
