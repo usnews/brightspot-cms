@@ -2640,7 +2640,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             var self;
             self = this;
 
-            self.$container.on('rteChange', $.throttle(2000, function(){
+            self.$container.on('rteChange', $.debounce(2000, function(){
                 self.previewUpdate();
             }));
         },
