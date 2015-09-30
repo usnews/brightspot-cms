@@ -624,6 +624,11 @@ if (!isValueExternal) {
                                         "id", itemState.getId()));
 
                     } else {
+                        wp.writeElement("input",
+                                "type", "hidden",
+                                "name", dataName,
+                                "value", "");
+
                         wp.writeFormFields(item);
                     }
                 wp.writeEnd();
