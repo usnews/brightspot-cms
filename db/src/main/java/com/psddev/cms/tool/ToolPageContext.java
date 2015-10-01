@@ -308,28 +308,40 @@ public class ToolPageContext extends WebPageContext {
 
         Locale defaultLocale = Locale.getDefault();
         Locale userLocale = MoreObjects.firstNonNull(getUser() != null ? getUser().getLocale() : null, defaultLocale);
-        String localized = createLocalizedString(userLocale, userLocale, baseName, key, state, contextOverrides);
+        boolean firstTry = true;
 
-        if (localized == null && !defaultLocale.equals(userLocale)) {
-            localized = createLocalizedString(defaultLocale, userLocale, baseName, key, state, contextOverrides);
-        }
+        while (true) {
+            String localized = createLocalizedString(userLocale, userLocale, baseName, key, state, contextOverrides);
 
-        if (localized == null) {
-            Locale usLocale = Locale.US;
-            String usLanguage = usLocale.getLanguage();
-
-            if (!usLanguage.equals(defaultLocale.getLanguage())
-                    && !usLanguage.equals(userLocale.getLanguage())) {
-
-                localized = createLocalizedString(usLocale, userLocale, baseName, key, state, contextOverrides);
+            if (localized == null && !defaultLocale.equals(userLocale)) {
+                localized = createLocalizedString(defaultLocale, userLocale, baseName, key, state, contextOverrides);
             }
-        }
 
-        if (localized == null) {
-            return "{" + baseName + "/" + key + "}";
+            if (localized == null) {
+                Locale usLocale = Locale.US;
+                String usLanguage = usLocale.getLanguage();
 
-        } else {
-            return localized;
+                if (!usLanguage.equals(defaultLocale.getLanguage())
+                        && !usLanguage.equals(userLocale.getLanguage())) {
+
+                    localized = createLocalizedString(usLocale, userLocale, baseName, key, state, contextOverrides);
+                }
+            }
+
+            if (localized == null) {
+                if (firstTry) {
+                    firstTry = false;
+
+                    System.out.println("invalidate and retry");
+                    ObjectTypeResourceBundle.invalidateInstances();
+
+                } else {
+                    return "{" + baseName + "/" + key + "}";
+                }
+
+            } else {
+                return localized;
+            }
         }
     }
 
