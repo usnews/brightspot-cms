@@ -269,14 +269,11 @@ public class ToolPageContext extends WebPageContext {
 
     public String localize(Object context, Map<String, Object> contextOverrides, String key) throws IOException {
         String baseName = null;
-        ObjectField field = null;
 
         if (context instanceof ObjectField) {
-            field = (ObjectField) context;
-            context = field.getParentType();
+            context = ((ObjectField) context).getParentType();
         }
 
-        ObjectType type = null;
         State state = null;
 
         if (context != null) {
@@ -284,11 +281,10 @@ public class ToolPageContext extends WebPageContext {
                 baseName = (String) context;
 
             } else if (context instanceof ObjectType) {
-                type = (ObjectType) context;
-                baseName = type.getInternalName();
+                baseName = ((ObjectType) context).getInternalName();
 
             } else if (context instanceof Class) {
-                type = ObjectType.getInstance((Class<?>) context);
+                ObjectType type = ObjectType.getInstance((Class<?>) context);
 
                 if (type != null) {
                     baseName = type.getInternalName();
@@ -299,7 +295,7 @@ public class ToolPageContext extends WebPageContext {
 
             } else if (context instanceof Recordable) {
                 state = ((Recordable) context).getState();
-                type = state.getType();
+                ObjectType type = state.getType();
 
                 if (type != null) {
                     baseName = type.getInternalName();
