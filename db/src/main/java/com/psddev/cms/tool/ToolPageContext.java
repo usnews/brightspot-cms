@@ -326,10 +326,7 @@ public class ToolPageContext extends WebPageContext {
         }
 
         if (localized == null) {
-            throw new MissingResourceException(
-                    String.format("Can't find [%s] key in [%s] resource bundle!", key, baseName),
-                    baseName,
-                    key);
+            return "{" + baseName + "/" + key + "}";
 
         } else {
             return localized;
