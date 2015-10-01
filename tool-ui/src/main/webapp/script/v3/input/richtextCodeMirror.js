@@ -1084,7 +1084,7 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
          */
         inlineGetStyles: function(range) {
             
-            var classes, classMap, isClass, isCursor, editor, lineNumber, self, styles, lineStarting;
+            var classes, classMap, isClass, editor, lineNumber, self, styles, lineStarting;
 
             self = this;
             editor = self.codeMirror;
@@ -1095,7 +1095,6 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
             classes = {};
             
             isClass = true;
-            isCursor = Boolean(range.from.line === range.to.line && range.from.ch === range.to.ch);
 
             editor.eachLine(range.from.line, range.to.line + 1, function(line) {
 
@@ -1118,7 +1117,7 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
 
                     marks.forEach(function(mark) {
                         
-                        var markPosition;
+                        var isSingleChar, markPosition;
                         
                         if (mark.className) {
 
@@ -1134,29 +1133,31 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
                             //
                             // If the mark is defined to the right of the cursor, then we only include the classname if inclusiveLeft is set.
                             // If the mark is defined to the left of the cursor, then we only include the classname if inclusiveRight is set.
+
+                            isSingleChar = Boolean(charTo - charFrom < 2);
                             
-                            if (isCursor && markPosition.from.line === lineNumber && markPosition.from.ch === charNumber && !mark.inclusiveLeft) {
+                            if (isSingleChar && markPosition.from.line === lineNumber && markPosition.from.ch === charNumber && !mark.inclusiveLeft) {
 
                                 // Don't add this to the classes if we are on the left side of the range when inclusiveLeft is not set
                                 
-                            } else if (isCursor && markPosition.to.line === lineNumber && markPosition.to.ch === charNumber && !mark.inclusiveRight) {
+                            } else if (isSingleChar && markPosition.to.line === lineNumber && markPosition.to.ch === charNumber && !mark.inclusiveRight) {
                                 
                                 // Don't add this to the classes if we are on the right side of the range when inclusiveRight is not set
 
                             } else {
-
+                                
                                 // Add this class to the list of classes found on this character position
                                 classesForChar[mark.className] = true;
+
                             }
                         }
                     });
 
-                    // If this is the first character, save the list of classes so we can compare against all the other characters
+                    // If this is the first character in the range, save the list of classes so we can compare against all the other characters
                     if (lineNumber === range.from.line && charNumber === range.from.ch) {
                         classes = $.extend({}, classesForChar);
                     } else {
 
-                        // We are not on the first character.
                         // Check all the previous classes we found, and if they were not also found on the current character,
                         // then mark the class false (to indicate the class was found but is not on ALL characters in the range)
 
@@ -1174,11 +1175,13 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
 
                         if (isRange) {
 
+                            // Set to false for classes that are not on this character
                             $.each(classes, function(className, value) {
                                 if (!classesForChar[className]) {
                                     classes[className] = false;
                                 }
                             });
+
                         }
 
                         // For any additional classes we found (that were not already in the list)
@@ -1189,6 +1192,7 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
                             }
                         });
                     }
+
                 }
 
                 lineNumber++;
