@@ -2013,6 +2013,12 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
                 
             }
 
+            // If the next (or previous) line is blank, then try to move to the line after that (if it is not blank)
+            lineDelta = Math.sign(lineDelta) * 1;
+            if (self.isLineBlank(lineNumber) && !self.isLineBlank(lineNumber + lineDelta)) {
+                lineNumber += lineDelta;
+            }
+
             // Depending on the type of mark that was created, the content is stored differently
             content = self.enhancementGetContent(mark);
             $content = $(content).detach();
@@ -3131,6 +3137,17 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
         },
 
 
+        isLineBlank: function(lineNumber) {
+            var editor, self, text;
+            self = this;
+            editor = self.codeMirror;
+
+            text = editor.getLine(lineNumber) || '';
+
+            return /^\s*$/.test(text);
+        },
+
+        
         /**
          * Returns the character count of the editor.
          * Note this counts only the plain text, not including the HTML elements that will be in the final result.
