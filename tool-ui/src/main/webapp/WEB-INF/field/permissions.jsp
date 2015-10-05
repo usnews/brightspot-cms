@@ -3,7 +3,9 @@
 com.psddev.cms.db.Content,
 com.psddev.cms.db.Site,
 com.psddev.cms.db.Template,
+com.psddev.cms.db.ToolRole,
 com.psddev.cms.db.ToolUi,
+com.psddev.cms.db.ToolUser,
 com.psddev.cms.db.Workflow,
 com.psddev.cms.db.WorkflowTransition,
 com.psddev.cms.tool.Area,
@@ -31,7 +33,8 @@ java.util.LinkedHashMap,
 java.util.List,
 java.util.Map,
 java.util.Set,
-java.util.TreeSet
+java.util.TreeSet,
+java.util.stream.Stream
 " %>
 <%@ page import="com.psddev.dari.util.StringUtils" %>
 <%@ page import="com.psddev.dari.db.DatabaseEnvironment" %><%
@@ -101,6 +104,15 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 }
             }
         }
+    }
+
+    if (!permissions.contains("area/admin/adminUsers")) {
+        Stream.of(ToolRole.class, ToolUser.class).forEach(c -> {
+            String permissionId = "type/" + ObjectType.getInstance(c).getId();
+
+            permissions.remove(permissionId);
+            permissions.remove(permissionId + "/");
+        });
     }
 
     state.putValue(fieldName, permissions.toString());
