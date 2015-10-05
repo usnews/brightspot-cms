@@ -1069,6 +1069,7 @@ public class ToolPageContext extends WebPageContext {
 
             if (history != null) {
                 state.getExtras().put(OVERLAID_HISTORY_EXTRA, history);
+                state.getExtras().put("cms.draft.oldValues", state.getSimpleValues());
                 state.setValues(history.getObjectOriginals());
                 state.setStatus(StateStatus.SAVED);
 
