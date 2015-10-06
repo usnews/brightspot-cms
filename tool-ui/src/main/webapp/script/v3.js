@@ -44,6 +44,7 @@ require([
   'input/location',
   'v3/input/object',
   'input/query',
+  'v3/input/read-only',
   'input/region',
   'v3/input/richtext',
   'v3/input/richtext2',

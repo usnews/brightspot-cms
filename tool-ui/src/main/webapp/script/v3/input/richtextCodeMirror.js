@@ -252,6 +252,7 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
             self.$el = $(element).first();
 
             codeMirrorOptions = {
+                readOnly: $(element).closest('.inputContainer-readOnly'),
                 lineWrapping: true,
                 dragDrop: false,
                 mode:null,
