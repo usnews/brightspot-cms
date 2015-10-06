@@ -18,6 +18,7 @@
     "leaflet.locatecontrol": "0.34.0",
     "L.GeoSearch": "*",
     "spectrum": "1.3.4",
+    "string": "3.3.0",
     "velocity": "1.1.0"
   },
   "name": "brightspot-cms"

@@ -61,6 +61,11 @@ final class ObjectTypeResourceBundle extends ListResourceBundle {
                 : GLOBAL_BUNDLE.get();
     }
 
+    public static void invalidateInstances() {
+        GLOBAL_BUNDLE.reset();
+        TYPE_BUNDLES.invalidateAll();
+    }
+
     private ObjectTypeResourceBundle(ObjectType type) {
         Map<String, Object> map = new CompactMap<>();
 

@@ -269,14 +269,11 @@ public class ToolPageContext extends WebPageContext {
 
     public String localize(Object context, Map<String, Object> contextOverrides, String key) throws IOException {
         String baseName = null;
-        ObjectField field = null;
 
         if (context instanceof ObjectField) {
-            field = (ObjectField) context;
-            context = field.getParentType();
+            context = ((ObjectField) context).getParentType();
         }
 
-        ObjectType type = null;
         State state = null;
 
         if (context != null) {
@@ -284,11 +281,10 @@ public class ToolPageContext extends WebPageContext {
                 baseName = (String) context;
 
             } else if (context instanceof ObjectType) {
-                type = (ObjectType) context;
-                baseName = type.getInternalName();
+                baseName = ((ObjectType) context).getInternalName();
 
             } else if (context instanceof Class) {
-                type = ObjectType.getInstance((Class<?>) context);
+                ObjectType type = ObjectType.getInstance((Class<?>) context);
 
                 if (type != null) {
                     baseName = type.getInternalName();
@@ -299,7 +295,7 @@ public class ToolPageContext extends WebPageContext {
 
             } else if (context instanceof Recordable) {
                 state = ((Recordable) context).getState();
-                type = state.getType();
+                ObjectType type = state.getType();
 
                 if (type != null) {
                     baseName = type.getInternalName();
@@ -312,31 +308,40 @@ public class ToolPageContext extends WebPageContext {
 
         Locale defaultLocale = Locale.getDefault();
         Locale userLocale = MoreObjects.firstNonNull(getUser() != null ? getUser().getLocale() : null, defaultLocale);
-        String localized = createLocalizedString(userLocale, userLocale, baseName, key, state, contextOverrides);
+        boolean firstTry = true;
 
-        if (localized == null && !defaultLocale.equals(userLocale)) {
-            localized = createLocalizedString(defaultLocale, userLocale, baseName, key, state, contextOverrides);
-        }
+        while (true) {
+            String localized = createLocalizedString(userLocale, userLocale, baseName, key, state, contextOverrides);
 
-        if (localized == null) {
-            Locale usLocale = Locale.US;
-            String usLanguage = usLocale.getLanguage();
-
-            if (!usLanguage.equals(defaultLocale.getLanguage())
-                    && !usLanguage.equals(userLocale.getLanguage())) {
-
-                localized = createLocalizedString(usLocale, userLocale, baseName, key, state, contextOverrides);
+            if (localized == null && !defaultLocale.equals(userLocale)) {
+                localized = createLocalizedString(defaultLocale, userLocale, baseName, key, state, contextOverrides);
             }
-        }
 
-        if (localized == null) {
-            throw new MissingResourceException(
-                    String.format("Can't find [%s] key in [%s] resource bundle!", key, baseName),
-                    baseName,
-                    key);
+            if (localized == null) {
+                Locale usLocale = Locale.US;
+                String usLanguage = usLocale.getLanguage();
 
-        } else {
-            return localized;
+                if (!usLanguage.equals(defaultLocale.getLanguage())
+                        && !usLanguage.equals(userLocale.getLanguage())) {
+
+                    localized = createLocalizedString(usLocale, userLocale, baseName, key, state, contextOverrides);
+                }
+            }
+
+            if (localized == null) {
+                if (firstTry) {
+                    firstTry = false;
+
+                    System.out.println("invalidate and retry");
+                    ObjectTypeResourceBundle.invalidateInstances();
+
+                } else {
+                    return "{" + baseName + "/" + key + "}";
+                }
+
+            } else {
+                return localized;
+            }
         }
     }
 
@@ -1064,6 +1069,7 @@ public class ToolPageContext extends WebPageContext {
 
             if (history != null) {
                 state.getExtras().put(OVERLAID_HISTORY_EXTRA, history);
+                state.getExtras().put("cms.draft.oldValues", state.getSimpleValues());
                 state.setValues(history.getObjectOriginals());
                 state.setStatus(StateStatus.SAVED);
 

@@ -108,6 +108,10 @@ module.exports = function(grunt) {
                         expand: true,
                         src: '*.js'
                     }
+                ],
+
+                'string': [
+                  'dist/string.js'
                 ]
 
             },
