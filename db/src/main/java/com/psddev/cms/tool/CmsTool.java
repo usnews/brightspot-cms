@@ -826,10 +826,10 @@ public class CmsTool extends Tool {
         // Areas.
         plugins.add(createArea2("Content", "dashboard", "dashboard", null));
         plugins.add(createArea2("Dashboard", "cms.dashboard", "dashboard/dashboard", "/"));
+        plugins.add(createArea2("Production Guides", "viewGuides", "dashboard/viewGuides", "/viewGuides.jsp"));
         plugins.add(createArea2("Admin", "admin", "admin", null));
         plugins.add(createArea2("Content Types", "cms.adminContentTypes", "admin/contentTypes", "/adminContentTypes"));
         plugins.add(createArea2("Production Guides", "adminGuides", "admin/adminGuides", "/admin/guides.jsp"));
-        plugins.add(createArea2("View Production Guides", "viewGuides", "admin/viewGuides", "/admin/viewGuides.jsp"));
         plugins.add(createArea2("Settings", "adminSettings", "admin/adminSettings", "/admin/settings.jsp"));
         plugins.add(createArea2("Sites", "adminSites", "admin/adminSites", "/admin/sites.jsp"));
         plugins.add(createArea2("Users & Roles", "adminUsers", "admin/adminUsers", "/admin/users.jsp"));

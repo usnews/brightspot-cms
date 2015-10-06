@@ -22,7 +22,7 @@
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
-if (wp.requirePermission("area/admin/viewGuides")) {
+if (wp.requirePermission("dashboard/viewGuides")) {
     return;
 }
 
@@ -112,7 +112,7 @@ wp.include("/WEB-INF/header.jsp"); %>
                     Guide selectedGuide = (Guide) selected;
                     request.setAttribute("productionGuide", selectedGuide);
             %>
-            <a class="link-one" href="<%= wp.url("/admin/viewGuides.jsp") %>"><button class="link imageEditor-rotate-left">Back to View</button></a>
+            <a class="link-one" href="<%= wp.url("/viewGuides.jsp") %>"><button class="link imageEditor-rotate-left">Back to View</button></a>
             <a href="<%= wp.objectUrl("/admin/guides.jsp", selected) %>"><button class="link icon icon-object-draft">Edit</button></a>
             <h2 class="card-title"><%=label%></h2>
             <div class="guideOverview">
