@@ -487,31 +487,38 @@ public class Draft extends Content {
                 oldValues,
                 newState.getSimpleValues()));
 
-        DistributedLock lock = DistributedLock.Static.getInstance(
-                Database.Static.getDefault(),
-                getClass().getName() + "/" + newId);
+        State newStateCopy = State.getInstance(Query.fromAll()
+                .where("_id = ?", newId)
+                .noCache()
+                .first());
 
-        lock.lock();
+        if (newStateCopy == null) {
+            setName("#1");
+            newState.as(NameData.class).setIndex(1);
 
-        try {
-            NameData nameData = State.getInstance(Query.fromAll()
-                    .where("_id = ?", newId)
-                    .noCache()
-                    .first())
-                    .as(NameData.class);
+        } else {
+            DistributedLock lock = DistributedLock.Static.getInstance(
+                    Database.Static.getDefault(),
+                    getClass().getName() + "/" + newId);
 
-            Integer index = nameData.getIndex();
-            index = index != null ? index + 1 : 1;
+            lock.lock();
 
-            if (ObjectUtils.isBlank(getName())) {
-                setName("#" + index);
+            try {
+                NameData nameData = newStateCopy.as(NameData.class);
+
+                Integer index = nameData.getIndex();
+                index = index != null ? index + 1 : 1;
+
+                if (ObjectUtils.isBlank(getName())) {
+                    setName("#" + index);
+                }
+
+                nameData.setIndex(index);
+                nameData.save();
+
+            } finally {
+                lock.unlock();
             }
-
-            nameData.setIndex(index);
-            nameData.save();
-
-        } finally {
-            lock.unlock();
         }
     }
 
