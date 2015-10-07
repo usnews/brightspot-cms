@@ -252,7 +252,7 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
             self.$el = $(element).first();
 
             codeMirrorOptions = {
-                readOnly: $(element).closest('.inputContainer-readOnly'),
+                readOnly: $(element).closest('.inputContainer-readOnly').length,
                 lineWrapping: true,
                 dragDrop: false,
                 mode:null,
@@ -3146,6 +3146,30 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
             text = editor.getLine(lineNumber) || '';
 
             return /^\s*$/.test(text);
+        },
+
+
+        /**
+         * If the current line is blank, move to the next non-blank line.
+         * This is used to ensure new enhancements are added to the start of a paragraph.
+         */
+        moveToNonBlank: function() {
+            
+            var editor, line, max, self;
+
+            self = this;
+            editor = self.codeMirror;
+
+            line = editor.getCursor().line;
+            max = editor.lineCount();
+
+            while (line < max && self.isLineBlank(line)) {
+                line++;
+            }
+
+            editor.setCursor(line, 0);
+            
+            return line;
         },
 
         

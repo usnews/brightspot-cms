@@ -1102,6 +1102,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                     event.stopPropagation();
                     event.preventDefault();
 
+                    // Before creating a new enhancement via the toolbar, move the cursor to the start of a non-blank line
+                    rte.moveToNonBlank();
+                    
                     self.enhancementCreate();
                     break;
 
