@@ -4460,6 +4460,20 @@ define([
             self.codeMirror.clearHistory();
         },
 
+
+        find: function(){
+            var self;
+            self = this;
+            self.codeMirror.execCommand('find');
+        },
+
+        
+        replace: function(){
+            var self;
+            self = this;
+            self.codeMirror.execCommand('replace');
+        },
+
         
         /**
          * Get all the attributes for an element.
