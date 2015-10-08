@@ -260,6 +260,7 @@ define([
             self.$el = $(element).first();
 
             codeMirrorOptions = {
+                readOnly: $(element).closest('.inputContainer-readOnly').length,
                 lineWrapping: true,
                 dragDrop: false,
                 mode:null,
@@ -1092,7 +1093,7 @@ define([
          */
         inlineGetStyles: function(range) {
             
-            var classes, classMap, isClass, isCursor, editor, lineNumber, self, styles, lineStarting;
+            var classes, classMap, isClass, editor, lineNumber, self, styles, lineStarting;
 
             self = this;
             editor = self.codeMirror;
@@ -1103,7 +1104,6 @@ define([
             classes = {};
             
             isClass = true;
-            isCursor = Boolean(range.from.line === range.to.line && range.from.ch === range.to.ch);
 
             editor.eachLine(range.from.line, range.to.line + 1, function(line) {
 
@@ -1126,7 +1126,7 @@ define([
 
                     marks.forEach(function(mark) {
                         
-                        var markPosition;
+                        var isSingleChar, markPosition;
                         
                         if (mark.className) {
 
@@ -1142,29 +1142,31 @@ define([
                             //
                             // If the mark is defined to the right of the cursor, then we only include the classname if inclusiveLeft is set.
                             // If the mark is defined to the left of the cursor, then we only include the classname if inclusiveRight is set.
+
+                            isSingleChar = Boolean(charTo - charFrom < 2);
                             
-                            if (isCursor && markPosition.from.line === lineNumber && markPosition.from.ch === charNumber && !mark.inclusiveLeft) {
+                            if (isSingleChar && markPosition.from.line === lineNumber && markPosition.from.ch === charNumber && !mark.inclusiveLeft) {
 
                                 // Don't add this to the classes if we are on the left side of the range when inclusiveLeft is not set
                                 
-                            } else if (isCursor && markPosition.to.line === lineNumber && markPosition.to.ch === charNumber && !mark.inclusiveRight) {
+                            } else if (isSingleChar && markPosition.to.line === lineNumber && markPosition.to.ch === charNumber && !mark.inclusiveRight) {
                                 
                                 // Don't add this to the classes if we are on the right side of the range when inclusiveRight is not set
 
                             } else {
-
+                                
                                 // Add this class to the list of classes found on this character position
                                 classesForChar[mark.className] = true;
+
                             }
                         }
                     });
 
-                    // If this is the first character, save the list of classes so we can compare against all the other characters
+                    // If this is the first character in the range, save the list of classes so we can compare against all the other characters
                     if (lineNumber === range.from.line && charNumber === range.from.ch) {
                         classes = $.extend({}, classesForChar);
                     } else {
 
-                        // We are not on the first character.
                         // Check all the previous classes we found, and if they were not also found on the current character,
                         // then mark the class false (to indicate the class was found but is not on ALL characters in the range)
 
@@ -1182,11 +1184,13 @@ define([
 
                         if (isRange) {
 
+                            // Set to false for classes that are not on this character
                             $.each(classes, function(className, value) {
                                 if (!classesForChar[className]) {
                                     classes[className] = false;
                                 }
                             });
+
                         }
 
                         // For any additional classes we found (that were not already in the list)
@@ -1197,6 +1201,7 @@ define([
                             }
                         });
                     }
+
                 }
 
                 lineNumber++;
@@ -2015,6 +2020,12 @@ define([
                 lineLength = editor.getLine(lineMax).length;
                 editor.replaceRange('\n', {line:lineMax, ch:lineLength});
                 
+            }
+
+            // If the next (or previous) line is blank, then try to move to the line after that (if it is not blank)
+            lineDelta = Math.sign(lineDelta) * 1;
+            if (self.isLineBlank(lineNumber) && !self.isLineBlank(lineNumber + lineDelta)) {
+                lineNumber += lineDelta;
             }
 
             // Depending on the type of mark that was created, the content is stored differently
@@ -3135,6 +3146,41 @@ define([
         },
 
 
+        isLineBlank: function(lineNumber) {
+            var editor, self, text;
+            self = this;
+            editor = self.codeMirror;
+
+            text = editor.getLine(lineNumber) || '';
+
+            return /^\s*$/.test(text);
+        },
+
+
+        /**
+         * If the current line is blank, move to the next non-blank line.
+         * This is used to ensure new enhancements are added to the start of a paragraph.
+         */
+        moveToNonBlank: function() {
+            
+            var editor, line, max, self;
+
+            self = this;
+            editor = self.codeMirror;
+
+            line = editor.getCursor().line;
+            max = editor.lineCount();
+
+            while (line < max && self.isLineBlank(line)) {
+                line++;
+            }
+
+            editor.setCursor(line, 0);
+            
+            return line;
+        },
+
+        
         /**
          * Returns the character count of the editor.
          * Note this counts only the plain text, not including the HTML elements that will be in the final result.

@@ -44,6 +44,7 @@ require([
   'input/location',
   'v3/input/object',
   'input/query',
+  'v3/input/read-only',
   'input/region',
   'v3/input/richtext',
   'v3/input/richtext2',
@@ -621,6 +622,13 @@ function() {
     var $frame = $(event.target);
     var $parent = $frame.popup('source').closest('.popup, .toolContent');
 
+    // Since the edit popup might contain other popups within it,
+    // only run this code when the edit popup is opened
+    // (not when the internal popups are opened)
+    if (!$frame.is('.popup[data-popup-source-class~="objectId-edit"]')) {
+      return;
+    }
+    
     $frame.popup('container').removeClass('popup-objectId-edit-hide');
     $parent.addClass('popup-objectId-edit popup-objectId-edit-loading');
     $win.resize();
@@ -711,11 +719,20 @@ function() {
   });
 
   $doc.on('close', '.popup[data-popup-source-class~="objectId-edit"]', function(event) {
-    scrollTops.pop();
-
+    
     var $frame = $(event.target);
+
+    // Since the edit popup might contain other popups within it,
+    // only run this code when the edit popup is opened
+    // (not when the internal popups are opened)
+    if (!$frame.is('.popup[data-popup-source-class~="objectId-edit"]')) {
+      return;
+    }
+
     var $source = $frame.popup('source');
     var $popup = $frame.popup('container');
+
+    scrollTops.pop();
 
     if ($.data($popup[0], 'popup-close-cancelled')) {
       return;

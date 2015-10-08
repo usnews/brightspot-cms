@@ -1102,6 +1102,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                     event.stopPropagation();
                     event.preventDefault();
 
+                    // Before creating a new enhancement via the toolbar, move the cursor to the start of a non-blank line
+                    rte.moveToNonBlank();
+                    
                     self.enhancementCreate();
                     break;
 
@@ -2124,7 +2127,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
         enhancementMove: function(el, direction) {
 
-            var mark, self;
+            var $el, mark, self, topNew, topOriginal, topWindow;
 
             self = this;
 
@@ -2134,7 +2137,20 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             }
 
             if (direction === 1 || direction === -1) {
+
+                $el = self.enhancementGetWrapper(el);
+                
+                topOriginal = $el.offset().top;
+                    
                 mark = self.rte.enhancementMove(mark, direction);
+
+                topNew = $el.offset().top;
+
+                // Adjust the scroll position of the window so the enhancement stays in the same position relative to the mouse.
+                // This is to let the user repeatedly click the Up/Down button to move the enhancement multiple lines.
+                topWindow = $(window).scrollTop();
+                $(window).scrollTop(topWindow + topNew - topOriginal);
+
             }
         },
 

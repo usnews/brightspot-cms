@@ -6,6 +6,8 @@
       $doc = $(doc),
       $openOriginal,
       $openList;
+  
+  require(['string'], function (S) {    
 
   $.plugin2('dropDown', {
     '_defaultOptions': {
@@ -305,13 +307,13 @@
         });
 
         $search.bind('input', function() {
-          var re = new RegExp($search.val().replace(/\s/, '').split('').join('(?:.*\\W)?'), 'i'),
+          var re = new RegExp(S($search.val().replace(/\s/, '').split('').join('(?:.*\\W)?')).latinise().s, 'i'),
               $first;
 
           $list.find('.' + plugin.className('listItem')).each(function() {
             var $item = $(this);
 
-            if (re.test($item.text())) {
+            if (re.test(S($item.text()).latinise().s)) {
               $item.show();
 
               if (!$first) {
@@ -413,6 +415,8 @@
     }
 
     return true;
+  });
+  
   });
 
 }(jQuery, window));

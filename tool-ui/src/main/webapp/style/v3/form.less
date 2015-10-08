@@ -255,14 +255,18 @@
 .contentDiff-sideBySide .objectInputs,
 .inputContainer-pending,
 .inputContainer-readOnly,
-.inputContainer-updated {
+.inputContainer-updated,
+.objectInputs-readOnly {
   opacity: 0.6;
   pointer-events: none;
 
+  input[type='text'],
+  textarea,
   .inputPending a,
   .inputUpdated a,
   .objectId-edit,
   .repeatableLabel,
+  .rte2-codemirror,
   .tabs,
   .tabs-wrapper {
     pointer-events: auto;
