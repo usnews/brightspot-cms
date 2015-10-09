@@ -1,4 +1,12 @@
-define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint', 'v3/spellcheck'], function($, CodeMirror, CodeMirrorShowHint, spellcheckAPI) {
+define([
+    'jquery',
+    'v3/spellcheck',
+    'codemirror/lib/codemirror',
+    'codemirror/addon/hint/show-hint',
+    'codemirror/addon/dialog/dialog',
+    'codemirror/addon/search/searchcursor',
+    'codemirror/addon/search/search'
+], function($, spellcheckAPI, CodeMirror) {
     
     var CodeMirrorRte;
 
@@ -4450,6 +4458,20 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
             var self;
             self = this;
             self.codeMirror.clearHistory();
+        },
+
+
+        find: function(){
+            var self;
+            self = this;
+            self.codeMirror.execCommand('find');
+        },
+
+        
+        replace: function(){
+            var self;
+            self = this;
+            self.codeMirror.execCommand('replace');
         },
 
         
