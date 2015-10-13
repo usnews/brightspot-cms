@@ -39,6 +39,7 @@ import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.StorageItem;
 
 /** User that uses the CMS and other related tools. */
+@ToolUi.DefaultSortField("name")
 @ToolUi.IconName("object-toolUser")
 @Record.BootstrapPackages("Users and Roles")
 @Record.BootstrapTypeMappable(groups = Content.class, uniqueKey = "email")
