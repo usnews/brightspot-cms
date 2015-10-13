@@ -91,6 +91,25 @@
         }
       });
 
+      function resize() {
+        var offset = $input.offset();
+        var inputWidth = $input.outerWidth(true);
+
+        if (inputWidth > $listContainer.outerWidth(true)) {
+          $listContainer.css('min-width', inputWidth + 20);
+        }
+
+        offset.top += $input.outerHeight();
+
+        if (isFixedPosition) {
+          offset.top -= $win.scrollTop();
+        }
+
+        $listContainer.css(offset);
+        $markerContainer.css(offset);
+        $markerContainer.css('width', $input.outerWidth());
+      }
+
       $label.bind('dropDown-update', function() {
         var newLabel = $.map($original.find('option:selected'), function(option) {
           return $(option).text();
@@ -98,6 +117,8 @@
 
         $label.html(newLabel || dynamicPlaceholderHtml || placeholder || '&nbsp;');
         $label.toggleClass('state-placeholder', !newLabel);
+
+        resize();
       });
 
       containerCss = {
@@ -124,22 +145,7 @@
       });
 
       $list.bind('dropDown-open', function() {
-        var offset = $input.offset();
-        var inputWidth = $input.outerWidth(true);
-
-        if (inputWidth > $listContainer.outerWidth(true)) {
-          $listContainer.css('min-width', inputWidth + 20);
-        }
-
-        offset.top += $input.outerHeight();
-
-        if (isFixedPosition) {
-          offset.top -= $win.scrollTop();
-        }
-
-        $listContainer.css(offset);
-        $markerContainer.css(offset);
-        $markerContainer.css('width', $input.outerWidth());
+        resize();
 
         $input.addClass(plugin.className('list-open'));
 
