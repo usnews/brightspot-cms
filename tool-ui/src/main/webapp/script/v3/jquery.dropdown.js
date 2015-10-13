@@ -122,7 +122,7 @@
           var markerBottom = winHeight - inputOffset.top;
 
           if (isFixedPosition) {
-            markerBottom -= $win.scrollTop();
+            markerBottom += $win.scrollTop();
           }
 
           $list.css('max-height', inputOffset.top - winScrollTop);
