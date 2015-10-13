@@ -48,6 +48,7 @@ public class ToolUser extends Record implements ToolEntity {
     private static final long TOKEN_CHECK_EXPIRE_MILLISECONDS = 30000L;
 
     @Indexed
+    @ToolUi.DefaultSearchResult
     @ToolUi.Note("If left blank, the user will have full access to everything.")
     private ToolRole role;
 
