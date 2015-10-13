@@ -92,21 +92,49 @@
       });
 
       function resize() {
-        var offset = $input.offset();
+        var inputOffset = $input.offset();
         var inputWidth = $input.outerWidth(true);
+        var winScrollTop = $win.scrollTop();
+        var winHeight = $win.height();
 
         if (inputWidth > $listContainer.outerWidth(true)) {
           $listContainer.css('min-width', inputWidth + 20);
         }
 
-        offset.top += $input.outerHeight();
+        if (inputOffset.top - winScrollTop < winHeight * 0.6) {
+          var inputHeight = $input.outerHeight();
+          var markerTop = inputOffset.top + inputHeight;
 
-        if (isFixedPosition) {
-          offset.top -= $win.scrollTop();
+          if (isFixedPosition) {
+            markerTop -= $win.scrollTop();
+          }
+
+          $list.css('max-height', winScrollTop + winHeight - inputOffset.top - inputHeight);
+
+          $input.add($listContainer).add($markerContainer).removeClass('dropDown-input-bottom');
+          $listContainer.add($markerContainer).css({
+            'bottom': '',
+            'left': inputOffset.left,
+            'top': markerTop
+          });
+
+        } else {
+          var markerBottom = winHeight - inputOffset.top;
+
+          if (isFixedPosition) {
+            markerBottom -= $win.scrollTop();
+          }
+
+          $list.css('max-height', inputOffset.top - winScrollTop);
+
+          $input.add($listContainer).add($markerContainer).addClass('dropDown-input-bottom');
+          $listContainer.add($markerContainer).css({
+            'bottom': markerBottom,
+            'left': inputOffset.left,
+            'top': ''
+          });
         }
 
-        $listContainer.css(offset);
-        $markerContainer.css(offset);
         $markerContainer.css('width', $input.outerWidth());
       }
 
