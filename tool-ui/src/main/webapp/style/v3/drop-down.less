@@ -23,6 +23,10 @@
 .dropDown-input {
   &:extend(.select all);
 
+  max-width: 300px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
   &.dropDown-list-open {
     border-bottom-left-radius: 0;
     border-color: @color-focus;
