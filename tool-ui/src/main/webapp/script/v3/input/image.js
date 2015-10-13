@@ -2713,12 +2713,13 @@ define([
                 // Loop  through all the text blocks within this group
                 $.each(self.sizeGroups[groupName].textInfos, function(textInfoKey, textInfo) {
 
-                    var fontSize, $rteInput;
+                    var fontSize, $rteInput, rte;
 
                     // Update the text from the rich text editor
                     $rteInput = textInfo.$textOverlay.find('.imageEditor-textOverlayInput');
                     if ($rteInput.length) {
-                        textInfo.text = $rteInput.val();
+                        rte = $rteInput.data('rte2');
+                        textInfo.text = rte ? rte.toHTML() : $rteInput.val();
                     }
 
                     texts += self.textDelimiter + textInfo.text;
