@@ -80,6 +80,7 @@ require([
   'content/layout-element',
   'v3/content/state',
   'v3/csrf',
+  'v3/search-filters',
   'v3/search-result-check-all',
   'v3/tabs' ],
 
