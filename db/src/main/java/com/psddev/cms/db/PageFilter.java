@@ -107,6 +107,8 @@ public class PageFilter extends AbstractFilter {
     public static final String MAIN_OBJECT_RENDERER_CONTEXT = "_main";
     public static final String EMBED_OBJECT_RENDERER_CONTEXT = "_embed";
 
+    private boolean poweredBy;
+
     /**
      * Returns {@code true} if rendering the given {@code request} has
      * been aborted.
@@ -242,6 +244,11 @@ public class PageFilter extends AbstractFilter {
     }
 
     @Override
+    protected void doInit() throws Exception {
+        poweredBy = Settings.getOrDefault(boolean.class, "brightspot/poweredBy", Boolean.TRUE);
+    }
+
+    @Override
     protected void doError(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -292,6 +299,10 @@ public class PageFilter extends AbstractFilter {
             HttpServletResponse response,
             FilterChain chain)
             throws IOException, ServletException {
+
+        if (poweredBy) {
+            response.setHeader("X-Powered-By", "Brightspot");
+        }
 
         if (request.getMethod().equalsIgnoreCase("HEAD")
                 && ObjectUtils.to(boolean.class, request.getHeader("Brightspot-Main-Object-Id-Query"))) {
