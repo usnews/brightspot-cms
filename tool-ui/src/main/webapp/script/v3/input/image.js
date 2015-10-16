@@ -2880,8 +2880,9 @@ define([
 
             // Create a div below the image to hold the rich text toolbar
             $textOverlayToolbar = $('<div/>', {'class':'imageEditor-text-toolbar'})
-                .hide()
-                .appendTo(self.dom.tabs.sizes);
+                .hide();
+
+            self.dom.tabs.sizes.before($textOverlayToolbar);
             
             $textOverlayInput.on('rteFocus', function(){
                 self.$element.find('.imageEditor-text-toolbar').hide();
