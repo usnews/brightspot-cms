@@ -36,6 +36,7 @@ public class ToolUi extends Modification<Object> {
     private String codeType;
     private Boolean colorPicker;
     private String cssClass;
+    private Boolean defaultSearchResult;
     private Set<String> displayAfter;
     private Set<String> displayBefore;
     private boolean displayFirst;
@@ -110,6 +111,14 @@ public class ToolUi extends Modification<Object> {
 
     public void setCssClass(String cssClass) {
         this.cssClass = cssClass;
+    }
+
+    public Boolean getDefaultSearchResult() {
+        return defaultSearchResult;
+    }
+
+    public void setDefaultSearchResult(Boolean defaultSearchResult) {
+        this.defaultSearchResult = defaultSearchResult;
     }
 
     public Set<String> getDisplayAfter() {
@@ -754,6 +763,26 @@ public class ToolUi extends Modification<Object> {
         @Override
         public void process(ObjectType type, ObjectField field, CssClass annotation) {
             field.as(ToolUi.class).setCssClass(annotation.value());
+        }
+    }
+
+    /**
+     * Specifies that the target field should display in the search result
+     * by default.
+     */
+    @Documented
+    @ObjectField.AnnotationProcessorClass(DefaultSearchResultProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ ElementType.FIELD, ElementType.METHOD })
+    public @interface DefaultSearchResult {
+        boolean value() default true;
+    }
+
+    private static class DefaultSearchResultProcessor implements ObjectField.AnnotationProcessor<DefaultSearchResult> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, DefaultSearchResult annotation) {
+            field.as(ToolUi.class).setDefaultSearchResult(annotation.value());
         }
     }
 
