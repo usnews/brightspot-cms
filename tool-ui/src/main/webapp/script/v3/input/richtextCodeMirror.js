@@ -3132,6 +3132,163 @@ define([
 
 
         //==================================================
+        // Case Functions (lower case and uppper case)
+        //
+        // Note we can't just change the text directly in CodeMirror,
+        // because that would obliterate the markers we use for styling.
+        // So instead we copy the range as HTML, change the case of
+        // the text nodes in the HTML, then paste the HTML back into
+        // the same range.
+        //==================================================
+
+        /**
+         * Toggle the case "smartly".
+         * If the text is all uppercase, change to all lower case.
+         * If the text is all lowercase, or a mix, then change to all uppercase.
+         * @param {Object} [range=current range]
+         */
+        caseToggleSmart: function(range) {
+            
+            var editor, self, text, textUpper;
+
+            self = this;
+            
+            range = range || self.getRange();
+
+            editor = self.codeMirror;
+
+            // Get the text for the range
+            text = editor.getRange(range.from, range.to) || '';
+            textUpper = text.toUpperCase();
+
+            if (text === textUpper) {
+                return self.caseToLower(range);
+            } else {
+                return self.caseToUpper(range);
+            }
+        },
+
+        
+        /**
+         * Change to lower case.
+         * @param {Object} [range=current range]
+         */
+        caseToLower: function(range) {
+            
+            var html, node, self;
+
+            self = this;
+
+            range = range || self.getRange();
+
+            // Get the HTML for the range
+            html = self.toHTML(range);
+
+            // Convert the text nodes to lower case
+            node = self.htmlToLowerCase(html);
+            
+            // Save it back to the range as lower case text
+            self.fromHTML(node, range, true);
+
+            // Reset the selection range since it will be wiped out
+            self.setSelection(range);
+        },
+
+        
+        /**
+         * Change to upper case.
+         * @param {Object} [range=current range]
+         */
+        caseToUpper: function(range) {
+            
+            var html, node, self;
+
+            self = this;
+
+            range = range || self.getRange();
+
+            // Get the HTML for the range
+            html = self.toHTML(range);
+
+            // Convert the text nodes to upper case
+            node = self.htmlToUpperCase(html);
+            
+            // Save it back to the range as lower case text
+            self.fromHTML(node, range, true);
+            
+            // Reset the selection range since it will be wiped out
+            self.setSelection(range);
+        },
+
+        
+        /**
+         * Change the text nodes to lower case within some HTML.
+         * @param {String|DOM} html
+         */
+        htmlToLowerCase: function(html) {
+            var self;
+            self = this;
+            return self.htmlChangeCase(html, false);
+        },
+
+        
+        /**
+         * Change the text nodes to lower case within some HTML.
+         * @param {String|DOM} html
+         */
+        htmlToUpperCase: function(html) {
+            var self;
+            self = this;
+            return self.htmlChangeCase(html, true);
+        },
+
+        
+        /**
+         * Change the text nodes to lower or upper case within some HTML.
+         * @param {String|DOM} html
+         */
+        htmlChangeCase: function(html, upper) {
+            var node, self;
+            
+            self = this;
+            
+            // Call recursive function to change all the text nodes
+            node = self.htmlParse(html);
+            if (node) {
+                self.htmlChangeCaseProcessNode(node, upper);
+            }
+            return node;
+        },
+
+        /**
+         * Recursive function to change case of text nodes.
+         * @param {DOM} node
+         * @param {Boolean} upper
+         * Set to true for upper case, or false for lower case.
+         */
+        htmlChangeCaseProcessNode: function(node, upper) {
+            var childNodes, i, length, self;
+            self = this;
+            
+            if (node.nodeType === 3) {
+                if (node.nodeValue) {
+                    node.nodeValue = upper ? node.nodeValue.toUpperCase() : node.nodeValue.toLowerCase();
+                }
+            } else {
+                childNodes = node.childNodes;
+                length = childNodes.length;
+                for (i = 0; i < length; ++ i) {
+                    self.htmlChangeCaseProcessNode(childNodes[i], upper);
+                }
+            }
+        },
+        
+        // Other possibilities for the future?
+        // caseToggle (toggle case of each character)
+        // caseSentence (first word cap, others lower)
+        // caseTitle (first letter of each word)
+        
+        //==================================================
         // Miscelaneous Functions
         //==================================================
 
@@ -3210,6 +3367,20 @@ define([
                 from: self.codeMirror.getCursor('from'),
                 to: self.codeMirror.getCursor('to')
             };
+        },
+        
+        /**
+         * Sets the selection to a range.
+         */
+        setSelection: function(range){
+
+            var editor, self;
+
+            self = this;
+
+            editor = self.codeMirror;
+
+            editor.setSelection(range.from, range.to);
         },
 
 
