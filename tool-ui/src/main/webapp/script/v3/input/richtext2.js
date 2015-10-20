@@ -395,7 +395,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             { action: 'collapse', text: 'Collapse All Comments', className: 'rte2-toolbar-comment-collapse', collapseStyle: 'comment', tooltip: 'Collapse All Comments' },
 
             { separator:true },
-            { action:'fullscreen', text: 'Fullscreen', className: 'rte2-toolbar-fullscreen', tooltip: 'Toggle Fullscreen Editing' },
+            { action:'fullscreen', text: 'Fullscreen', className: 'rte2-toolbar-fullscreen', tooltip: 'Toggle Fullscreen Editing' }
 
             // Example adding buttons to insert special characters or other text:
             // { text: 'Special Characters', submenu: [
@@ -1144,6 +1144,18 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
                 case 'trackChangesShowFinalToggle':
                     rte.trackDisplayToggle();
+                    break;
+
+                case 'find':
+                    rte.focus();
+                    rte.find();
+                    return; // return so we don't run rte.focus() again
+                    break;
+
+                case 'replace':
+                    rte.focus();
+                    rte.replace();
+                    return; // return so we don't run rte.focus() again
                     break;
                 }
 
@@ -2714,6 +2726,12 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self.rte.refresh();
         },
 
+        refresh: function() {
+            var self;
+            self = this;
+            self.rte.refresh();
+        },
+        
         setCursor: function(line, ch) {
             var self;
             self.rte.setCursor(line, ch);
