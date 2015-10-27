@@ -1872,6 +1872,13 @@ define([
             imageHeight = self.dom.$image.height();
             boundsRight = bounds.left + bounds.width;
             boundsBottom = bounds.top + bounds.height;
+            
+            // Adjust height and width if padded crop is used
+            var paddingData = self.dom.$imageContainer.data('padding'); 
+            if (paddingData) {
+                imageWidth += (paddingData['left'] || 0) * 2;
+                imageHeight += (paddingData['top'] || 0) * 2;
+            }                
 
             self.dom.$coverTop.css({
                 'height': bounds.top,
@@ -2056,6 +2063,7 @@ define([
                     'padding-top' : diff + 'px',
                     'height' : ($imageContainer.height() + diff) + 'px'
                 });
+                $imageContainer.data('padding', { top : diff });
                 bounds.top = 0;
             } else if (bounds.left < 0) {
                 diff = Math.abs(bounds.left);
@@ -2063,6 +2071,7 @@ define([
                     'padding-left' : diff + 'px',
                     'width' : ($imageContainer.width() + diff) + 'px'
                 });
+                $imageContainer.data('padding', { left : diff });
                 bounds.left = 0;
             }
             
@@ -2082,7 +2091,9 @@ define([
             });
             
             // Resets styles injected for padded crop
-            self.dom.$imageContainer.attr('style', '');
+            self.dom.$imageContainer
+                .attr('style', '')
+                .data('padding', '');
         },
 
         
@@ -2133,6 +2144,14 @@ define([
 
                 imageWidth = self.dom.$image.width();
                 imageHeight = self.dom.$image.height();
+                
+                // Adjust height and width if padded crop is used
+                var paddingData = self.dom.$imageContainer.data('padding'); 
+                if (paddingData) {
+                    imageWidth += (paddingData['left'] || 0) * 2;
+                    imageHeight += (paddingData['top'] || 0) * 2;
+                }
+                
 
                 // On mousedown, let the user start dragging the element
                 // The .drag() function takes the following parameters:
