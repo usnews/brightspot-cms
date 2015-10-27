@@ -1649,30 +1649,56 @@ define([
 
             // Check if cropping values have been previously set
             if (width === 0 || height === 0) {
+                
+                width = sizeInfo.width;
+                height = sizeInfo.height;
 
-                // If no cropping values, and there is an aspect ratio for this size,
-                // make the crop area as big as possible while staying within the aspect ratio
-                if (aspectRatio) {
-                    
-                    width = imageHeight * aspectRatio;
-                    height = imageWidth / aspectRatio;
+                // When crop dimensions are both smaller than image dimensions,
+                // calculate bounds of normal crop
+                if (imageHeight >= height && imageWidth >= width) {
 
-                    if (width > imageWidth) {
-                        width = height * aspectRatio;
+                    // If no cropping values, and there is an aspect ratio for this size,
+                    // make the crop area as big as possible while staying within the aspect ratio
+                    if (aspectRatio) {
+
+                        width = imageHeight * aspectRatio;
+                        height = imageWidth / aspectRatio;
+
+                        if (width > imageWidth) {
+                            width = height * aspectRatio;
+                        } else {
+                            height = width / aspectRatio;
+                        }
+
+                        left = (imageWidth - width) / 2;
+                        top = 0;
+
                     } else {
-                        height = width / aspectRatio;
-                    }
 
-                    left = (imageWidth - width) / 2;
-                    top = 0;
-                    
+                        // There is no aspect ratio so just select the whole image
+                        left = 0;
+                        top = 0;
+                        width = imageWidth;
+                        height = imageHeight;
+                    }       
+
                 } else {
 
-                    // There is no aspect ratio so just select the whole image
-                    left = 0;
-                    top = 0;
-                    width = imageWidth;
-                    height = imageHeight;
+                    // Crop dimensions are larger than image dimensions,
+                    // create padded crop bounds (will contain negative values)
+
+                    // Padding will be added to dimension with largest
+                    // difference between crop dimension and image dimension
+                    if (height - imageHeight < width - imageWidth) {
+                        height = imageHeight;
+                        width = height * aspectRatio;
+                        left = (imageWidth - width) / 2;
+
+                    } else {
+                        width = imageWidth;
+                        height = width / aspectRatio;
+                        top = (imageHeight - height) / 2;
+                    }
                 }
 
             } else {
@@ -2018,8 +2044,28 @@ define([
          * @param Object height
          */
         sizeBoxUpdate: function(groupName, bounds) {
-            var self;
+            var self, $imageContainer, diff;
             self = this;
+            $imageContainer = self.dom.$imageContainer;
+            
+            // Handle negative top/left bounds
+            // for padded crop
+            if (bounds.top < 0) {
+                diff = Math.abs(bounds.top)
+                $imageContainer.css({
+                    'padding-top' : diff + 'px',
+                    'height' : ($imageContainer.height() + diff) + 'px'
+                });
+                bounds.top = 0;
+            } else if (bounds.left < 0) {
+                diff = Math.abs(bounds.left);
+                $imageContainer.css({
+                    'padding-left' : diff + 'px',
+                    'width' : ($imageContainer.width() + diff) + 'px'
+                });
+                bounds.left = 0;
+            }
+            
             self.sizeGroups[groupName].$sizeBox.css(bounds);
         },
 
@@ -2034,6 +2080,9 @@ define([
             $.each(self.sizeGroups, function(groupName, groupInfo) {
                 groupInfo.$sizeBox.hide();
             });
+            
+            // Resets styles injected for padded crop
+            self.dom.$imageContainer.attr('style', '');
         },
 
         
