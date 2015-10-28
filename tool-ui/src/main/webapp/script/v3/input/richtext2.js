@@ -366,6 +366,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             { style: 'subscript', text: 'Sub', className: 'rte2-toolbar-subscript', tooltip: 'Subscript' },
             { style: 'link', text: 'Link', className: 'rte2-toolbar-link', tooltip: 'Link' },
             { style: 'html', text: 'HTML', className: 'rte2-toolbar-html', tooltip: 'Raw HTML' },
+            // { action: 'caseToggleSmart', text: 'Case', className: 'rte2-toolbar-noicon', tooltip: 'Toggle upper/lowercase' },
             { action: 'clear', text: 'Clear', className: 'rte2-toolbar-clear', tooltip: 'Clear Formatting' },
 
             { separator:true, inline:false },
@@ -1079,6 +1080,18 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             if (item.action) {
 
                 switch (item.action) {
+
+                case 'caseToggleSmart':
+                    rte.caseToggleSmart();
+                    break;
+                    
+                case 'caseToLower':
+                    rte.caseToLower();
+                    break;
+
+                case 'caseToUpper':
+                    rte.caseToUpper();
+                    break;
 
                 case 'clear':
                     rte.removeStyles();
