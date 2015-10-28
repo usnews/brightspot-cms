@@ -1637,7 +1637,7 @@ define([
          */
         sizesGetSizeBounds: function(imageWidth, imageHeight, sizeInfo) {
             
-            var sizeAspectRatio, height, left, self, top, width, leftPad, topPad;
+            var sizeAspectRatio, height, left, self, top, width, padData;
 
             self = this;
 
@@ -1646,6 +1646,8 @@ define([
             width = parseFloat(sizeInfo.inputs.width.val()) || 0.0;
             height = parseFloat(sizeInfo.inputs.height.val()) || 0.0;
             sizeAspectRatio = sizeInfo.aspectRatio;
+            
+            padData = self.sizesGetSizePaddingData(imageWidth, imageHeight, sizeInfo);
 
             // Check if cropping values have been previously set
             if (width === 0 || height === 0) {
@@ -1655,45 +1657,11 @@ define([
 
                 if (sizeAspectRatio) {
                     
-                    var imageAspectRatio = imageWidth / imageHeight;
-
-                    if (imageAspectRatio === sizeAspectRatio) {
-    
-                        // If no cropping values and the image and crop aspect ratios are equivalent,
-                        // make the crop area as big as possible while staying within the aspect ratio
-    
-                        width = imageHeight * sizeAspectRatio;
-                        height = imageWidth / sizeAspectRatio;
-    
-                        if (width > imageWidth) {
-                            width = height * sizeAspectRatio;
-                        } else {
-                            height = width / sizeAspectRatio;
-                        }
-    
-                        left = (imageWidth - width) / 2;
-                        top = 0;
-    
-                    } else {
-                        
-                        leftPad = Math.max(imageWidth * (sizeAspectRatio / imageAspectRatio - 1), 0) / 2;
-                        topPad = Math.max(imageHeight * (imageAspectRatio / sizeAspectRatio -1), 0) / 2;
-                        
-                        // left = Math.max((sizeAspectRatio / imageAspectRatio - 1), 0);
-                        // top = Math.max((imageAspectRatio / sizeAspectRatio -1), 0);
-                        
-                        debugger;
-                        if (leftPad > topPad) {
-                            height = imageHeight;
-                            width = height * sizeAspectRatio;
-                        } else {
-                            width = imageWidth;
-                            height = width / sizeAspectRatio;
-                        }
-                        
-                        left = 0;
-                        top = 0;
-                    }
+                    height = padData.paddedImageHeight;
+                    width = padData.paddedImageWidth;
+                    
+                    left = 0;
+                    top = 0;
                     
                 } else {
                     
@@ -1708,23 +1676,52 @@ define([
 
                 // There was a cropping value previously set,
                 // so just convert from percentages to pixels
-                left *= imageWidth;
-                top *= imageHeight;
-                width *= imageWidth;
-                height *= imageHeight;
+                left *= padData.paddedImageWidth;
+                top *= padData.paddedImageHeight;
+                width *= padData.paddedImageWidth;
+                height *= padData.paddedImageHeight;
             }
 
             // Return as an object of pixel values
             return {
                 left: left,
-                leftPad: leftPad,
                 top: top,
-                topPad: topPad,
                 width: width,
                 height: height
             };
         },
-
+        
+        /**
+         * Calculates padding values
+         */
+        sizesGetSizePaddingData: function(imageWidth, imageHeight, sizeInfo) {
+            
+            var imageAspectRatio, sizeAspectRatio, topPad, leftPad, paddedImageHeight, paddedImageWidth;
+            
+            imageAspectRatio = imageWidth / imageHeight;
+            sizeAspectRatio = sizeInfo.aspectRatio;
+            
+            topPad = Math.max((imageAspectRatio / sizeAspectRatio -1), 0) / 2;
+            leftPad =  Math.max((sizeAspectRatio / imageAspectRatio - 1), 0) / 2;
+            
+            if (leftPad > topPad) {
+                paddedImageHeight = imageHeight;
+                paddedImageWidth = paddedImageHeight * sizeAspectRatio;
+            } else {
+                paddedImageWidth = imageWidth;
+                paddedImageHeight = paddedImageWidth / sizeAspectRatio;
+            }
+            
+            return {
+                top: topPad,
+                left: leftPad,
+                topPadPx: topPad * imageHeight,
+                leftPadPx: leftPad * imageWidth,
+                paddedImageWidth: paddedImageWidth,
+                paddedImageHeight: paddedImageHeight,
+                scale: 1 / (1 + leftPad)
+            }
+        },
         
         /**
          * For a size group, update all the inputs.
@@ -1878,12 +1875,9 @@ define([
             boundsRight = bounds.left + bounds.width;
             boundsBottom = bounds.top + bounds.height;
             
-            // Adjust height and width if padded crop is used
-            var paddingData = self.dom.$imageContainer.data('padding'); 
-            if (paddingData) {
-                imageWidth += (paddingData['left'] || 0) * 2;
-                imageHeight += (paddingData['top'] || 0) * 2;
-            }                
+            // Adjust height and width with padding
+            imageWidth += bounds.leftPad * 2;
+            imageHeight += bounds.topPad * 2;
 
             self.dom.$coverTop.css({
                 'height': bounds.top,
@@ -2024,7 +2018,7 @@ define([
          */
         sizeBoxShow: function(groupName) {
             
-            var bounds, self, sizeInfo;
+            var bounds, self, sizeInfo, padData;
             
             self = this;
 
@@ -2032,9 +2026,33 @@ define([
             sizeInfo = self.sizesGetGroupFirstSizeInfo(groupName);
 
             // Get the boundaries for the size box, based on the current image size on the page
-            bounds = self.sizesGetSizeBounds(self.dom.$image.width(), self.dom.$image.height(), sizeInfo);
+            var imageWidth = self.dom.$image.width();
+            var imageHeight = self.dom.$image.height();
+            var imageContainer = self.dom.$imageContainer;
+            bounds = self.sizesGetSizeBounds(imageWidth, imageHeight, sizeInfo);
+            padData = self.sizesGetSizePaddingData(imageWidth, imageHeight, sizeInfo);
             
-            self.coverUpdate(bounds);
+            if (padData.topPadPx < padData.leftPadPx) {
+                var originalImageWidth = self.dom.$image.width();
+                var transformCss = {
+                    'transform': 'scale(' + padData.scale + ')',
+                    'transform-origin': 'top left'
+                };                
+                imageContainer.css(transformCss);
+                imageContainer.css({
+                    'padding-left' :  padData.leftPadPx+ 'px',
+                    'width' : (imageContainer.width() + (padData.leftPadPx * 2)) + 'px',
+                });
+                self.dom.$image.width(originalImageWidth);
+            } else {
+                                
+                imageContainer.css({
+                    'padding-top' : padData.topPadPx + 'px',
+                    'height' : (imageContainer.height() + (padData.topPadPx * 2)) + 'px'
+                });
+            }
+            
+            self.coverUpdate(bounds, sizeInfo);
             self.coverShow();
             
             self.sizeBoxUpdate(groupName, bounds);
@@ -2056,33 +2074,21 @@ define([
          * @param Object height
          */
         sizeBoxUpdate: function(groupName, bounds) {
-            var self, $imageContainer;
+            var self, $imageContainer, padData, sizeInfo, sizeBox;
+            
             self = this;
             $imageContainer = self.dom.$imageContainer;
+            sizeInfo = self.sizesGetGroupFirstSizeInfo(groupName);
+            padData = self.sizesGetSizePaddingData(self.dom.$image.width(), self.dom.$image.height(), sizeInfo);
             
-            var sizeBox = self.sizeGroups[groupName].$sizeBox;
+            var transformCss = {
+                'transform': 'scale(' + padData.scale + ')',
+                'transform-origin': 'top left'
+            };
+            
+            sizeBox = self.sizeGroups[groupName].$sizeBox;
             sizeBox.css(bounds);
-            
-            // Limits the height to match the sizebox, due to min-height style
-            $imageContainer.css({ height : sizeBox.height()});
-            
-            // Adjust the properties of the image container
-            // to account for padding in crops
-            if (bounds.topPad < bounds.leftPad) {
-                var originalImageWidth = self.dom.$image.width();
-                $imageContainer.css({
-                   'padding-left' :  bounds.leftPad + 'px',
-                   'width' : ($imageContainer.width() + (bounds.leftPad * 2)) + 'px'
-                });
-                self.dom.$image.width(originalImageWidth);
-                $imageContainer.data('padding', { left : bounds.leftPad });
-            } else {
-                $imageContainer.css({
-                    'padding-top' : bounds.topPad + 'px',
-                    'height' : ($imageContainer.height() + (bounds.topPad * 2)) + 'px'
-                });
-                $imageContainer.data('padding', { top : bounds.topPad });
-            }
+            sizeBox.css(transformCss)
         },
 
         
@@ -2098,9 +2104,7 @@ define([
             });
             
             // Resets styles injected for padded crop
-            self.dom.$imageContainer
-                .attr('style', '')
-                .data('padding', '');
+            self.dom.$imageContainer.attr('style', '');
         },
 
         
@@ -2130,13 +2134,14 @@ define([
             
             mousedownHandler = function(mousedownEvent) {
 
-                var aspectRatio, element, imageWidth, imageHeight, original, sizeBoxPosition;
+                var aspectRatio, sizeInfo, element, imageWidth, imageHeight, original, sizeBoxPosition;
 
                 // The element that was dragged
                 element = this;
 
                 // Get the aspect ratio for this group
-                aspectRatio = self.sizesGetGroupAspectRatio(groupName);
+                sizeInfo = self.sizesGetGroupFirstSizeInfo(groupName);
+                aspectRatio = sizeInfo.aspectRatio;
 
                 sizeBoxPosition = $sizeBox.position();
                 
@@ -2153,13 +2158,12 @@ define([
                 imageHeight = self.dom.$image.height();
                 
                 // Adjust height and width if padded crop is used
-                var paddingData = self.dom.$imageContainer.data('padding'); 
-                if (paddingData) {
-                    imageWidth += (paddingData['left'] || 0) * 2;
-                    imageHeight += (paddingData['top'] || 0) * 2;
+                var padData = self.sizesGetSizePaddingData(imageWidth, imageHeight, sizeInfo);
+                if (padData) {
+                    imageWidth += (padData.leftPadPx || 0) * 2;
+                    imageHeight += (padData.topPadPx || 0) * 2;
                 }
                 
-
                 // On mousedown, let the user start dragging the element
                 // The .drag() function takes the following parameters:
                 // (element, event, startCallback, moveCallback, endCallback)
