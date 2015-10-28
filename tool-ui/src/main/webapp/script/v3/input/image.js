@@ -1637,7 +1637,7 @@ define([
          */
         sizesGetSizeBounds: function(imageWidth, imageHeight, sizeInfo) {
             
-            var aspectRatio, height, left, self, top, width;
+            var sizeAspectRatio, height, left, self, top, width, leftPad, topPad;
 
             self = this;
 
@@ -1645,7 +1645,7 @@ define([
             top = parseFloat(sizeInfo.inputs.y.val()) || 0.0;
             width = parseFloat(sizeInfo.inputs.width.val()) || 0.0;
             height = parseFloat(sizeInfo.inputs.height.val()) || 0.0;
-            aspectRatio = sizeInfo.aspectRatio;
+            sizeAspectRatio = sizeInfo.aspectRatio;
 
             // Check if cropping values have been previously set
             if (width === 0 || height === 0) {
@@ -1653,52 +1653,55 @@ define([
                 width = sizeInfo.width;
                 height = sizeInfo.height;
 
-                // When crop dimensions are both smaller than image dimensions,
-                // calculate bounds of normal crop
-                if (imageHeight >= height && imageWidth >= width) {
+                if (sizeAspectRatio) {
+                    
+                    var imageAspectRatio = imageWidth / imageHeight;
 
-                    // If no cropping values, and there is an aspect ratio for this size,
-                    // make the crop area as big as possible while staying within the aspect ratio
-                    if (aspectRatio) {
-
-                        width = imageHeight * aspectRatio;
-                        height = imageWidth / aspectRatio;
-
+                    if (imageAspectRatio === sizeAspectRatio) {
+    
+                        // If no cropping values and the image and crop aspect ratios are equivalent,
+                        // make the crop area as big as possible while staying within the aspect ratio
+    
+                        width = imageHeight * sizeAspectRatio;
+                        height = imageWidth / sizeAspectRatio;
+    
                         if (width > imageWidth) {
-                            width = height * aspectRatio;
+                            width = height * sizeAspectRatio;
                         } else {
-                            height = width / aspectRatio;
+                            height = width / sizeAspectRatio;
                         }
-
+    
                         left = (imageWidth - width) / 2;
                         top = 0;
-
+    
                     } else {
-
-                        // There is no aspect ratio so just select the whole image
+                        
+                        leftPad = Math.max(imageWidth * (sizeAspectRatio / imageAspectRatio - 1), 0) / 2;
+                        topPad = Math.max(imageHeight * (imageAspectRatio / sizeAspectRatio -1), 0) / 2;
+                        
+                        // left = Math.max((sizeAspectRatio / imageAspectRatio - 1), 0);
+                        // top = Math.max((imageAspectRatio / sizeAspectRatio -1), 0);
+                        
+                        debugger;
+                        if (leftPad > topPad) {
+                            height = imageHeight;
+                            width = height * sizeAspectRatio;
+                        } else {
+                            width = imageWidth;
+                            height = width / sizeAspectRatio;
+                        }
+                        
                         left = 0;
                         top = 0;
-                        width = imageWidth;
-                        height = imageHeight;
-                    }       
-
-                } else {
-
-                    // Crop dimensions are larger than image dimensions,
-                    // create padded crop bounds (will contain negative values)
-
-                    // Padding will be added to dimension with largest
-                    // difference between crop dimension and image dimension
-                    if (height - imageHeight < width - imageWidth) {
-                        height = imageHeight;
-                        width = height * aspectRatio;
-                        left = (imageWidth - width) / 2;
-
-                    } else {
-                        width = imageWidth;
-                        height = width / aspectRatio;
-                        top = (imageHeight - height) / 2;
                     }
+                    
+                } else {
+                    
+                    // There is no aspect ratio so just select the whole image
+                    left = 0;
+                    top = 0;
+                    width = imageWidth;
+                    height = imageHeight;                    
                 }
 
             } else {
@@ -1714,7 +1717,9 @@ define([
             // Return as an object of pixel values
             return {
                 left: left,
+                leftPad: leftPad,
                 top: top,
+                topPad: topPad,
                 width: width,
                 height: height
             };
@@ -2051,31 +2056,33 @@ define([
          * @param Object height
          */
         sizeBoxUpdate: function(groupName, bounds) {
-            var self, $imageContainer, diff;
+            var self, $imageContainer;
             self = this;
             $imageContainer = self.dom.$imageContainer;
             
-            // Handle negative top/left bounds
-            // for padded crop
-            if (bounds.top < 0) {
-                diff = Math.abs(bounds.top)
-                $imageContainer.css({
-                    'padding-top' : diff + 'px',
-                    'height' : ($imageContainer.height() + diff) + 'px'
-                });
-                $imageContainer.data('padding', { top : diff });
-                bounds.top = 0;
-            } else if (bounds.left < 0) {
-                diff = Math.abs(bounds.left);
-                $imageContainer.css({
-                    'padding-left' : diff + 'px',
-                    'width' : ($imageContainer.width() + diff) + 'px'
-                });
-                $imageContainer.data('padding', { left : diff });
-                bounds.left = 0;
-            }
+            var sizeBox = self.sizeGroups[groupName].$sizeBox;
+            sizeBox.css(bounds);
             
-            self.sizeGroups[groupName].$sizeBox.css(bounds);
+            // Limits the height to match the sizebox, due to min-height style
+            $imageContainer.css({ height : sizeBox.height()});
+            
+            // Adjust the properties of the image container
+            // to account for padding in crops
+            if (bounds.topPad < bounds.leftPad) {
+                var originalImageWidth = self.dom.$image.width();
+                $imageContainer.css({
+                   'padding-left' :  bounds.leftPad + 'px',
+                   'width' : ($imageContainer.width() + (bounds.leftPad * 2)) + 'px'
+                });
+                self.dom.$image.width(originalImageWidth);
+                $imageContainer.data('padding', { left : bounds.leftPad });
+            } else {
+                $imageContainer.css({
+                    'padding-top' : bounds.topPad + 'px',
+                    'height' : ($imageContainer.height() + (bounds.topPad * 2)) + 'px'
+                });
+                $imageContainer.data('padding', { top : bounds.topPad });
+            }
         },
 
         
