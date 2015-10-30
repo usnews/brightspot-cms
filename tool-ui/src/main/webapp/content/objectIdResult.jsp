@@ -27,9 +27,12 @@ String removeId = wp.createId();
 
         @Override
         public void renderBeforeItem(Object item) throws IOException {
+            State itemState = State.getInstance(item);
+
             writer.start("span",
                     "class", "link",
-                    "data-objectId", State.getInstance(item).getId());
+                    "data-type-id", itemState.getTypeId(),
+                    "data-objectId", itemState.getId());
         }
 
         @Override
@@ -59,6 +62,8 @@ String removeId = wp.createId();
 
             if ($repeatable.length > 0) {
                 $sourceContainer = $source.closest('li');
+
+                $sourceContainer.attr('data-sortable-item-type', $link.attr('data-type-id'));
 
                 if ($sourceContainer.nextAll('li').length === 0) {
                     $repeatable.find('.addButton').click();
