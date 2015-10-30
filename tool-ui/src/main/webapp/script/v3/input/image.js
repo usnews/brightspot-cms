@@ -2258,7 +2258,7 @@ define([
                         // Check if the box extends past the right
                         overflow = bounds.left + (bounds.width * region.scale) - scaledWidth;
                         if (overflow > 0) {
-                            bounds.width -= overflow;
+                            bounds.width -= overflow / region.scale;
                             if (aspectRatio) {
                                 bounds.height = bounds.width / aspectRatio;
                             }
@@ -2267,7 +2267,7 @@ define([
                         // Check if the box extends past the bottom
                         overflow = bounds.top + (bounds.height * region.scale) - scaledHeight;
                         if (overflow > 0) {
-                            bounds.height -= overflow;
+                            bounds.height -= overflow / region.scale;
                             if (aspectRatio) {
                                 bounds.width = bounds.height * aspectRatio;
                             }
