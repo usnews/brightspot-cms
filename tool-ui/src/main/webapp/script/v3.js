@@ -337,8 +337,8 @@ function() {
         var $input, $container, html, $html, text;
 
         $input = rte.$el;
-        $container = $input.closest('.inputContainer');
-        
+        $container = $input.next('.rte2-wrapper').find('> .rte2-toolbar');
+
         html = rte.toHTML();
         $html = $(new DOMParser().parseFromString(html, "text/html").body);
         $html.find('del,.rte-comment').remove();
