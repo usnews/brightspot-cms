@@ -411,6 +411,8 @@ define([
 
                 if (self.doubleClickTimestamp && (now - self.doubleClickTimestamp < 500) ) {
 
+                    delete self.doubleClickTimestamp;
+                    
                     // Figure out the line and character based on the mouse coord that was clicked
                     pos = editor.coordsChar({left:event.pageX, top:event.pageY}, 'page');
 
