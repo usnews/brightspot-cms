@@ -256,16 +256,23 @@ if (object == null) {
 
                 // Using new RTE
 
+                // Update the label in the reference data since it might have changed and we display it on the page
+                reference.label = label;
+
+                // Trigger an event on the link that opened this popup,
+                // to notify about any changes to the enhancement data
+                $source.trigger('enhancementUpdate', [reference]);
+
                 // Get the rte2 object - this would normally be found on the textarea,
                 // but since $source is a link within the editor we'll use it to find the wrapper element
                 // and get the rte2 object from there
                 var rte2 = $source.closest('.rte2-wrapper').data('rte2');
                 if (rte2) {
-                    // Update the label in the reference data since it might have changed and we display it on the page
-                    reference.label = label;
+                    
                     // Save the enhancement data on the enhancement
-                    rte2.enhancementSetReference($source, reference);
                     // Enhancement will be updated automaticaly when the popup closes
+                    rte2.enhancementSetReference($source, reference);
+
                 }
             }
                 
