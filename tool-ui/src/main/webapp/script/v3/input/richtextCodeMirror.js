@@ -3544,7 +3544,7 @@ define([
 
             self = this;
 
-            pos = mark.find() || {};
+            pos = self.markGetRange(mark);
             if (!pos.from) {
                 return;
             }
