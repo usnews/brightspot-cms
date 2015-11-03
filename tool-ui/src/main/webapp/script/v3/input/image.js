@@ -2325,8 +2325,8 @@ define([
                     sizeBoxWidth = $sizeBox.width();
                     sizeBoxHeight = $sizeBox.height();
                     
-                    x = (sizeBoxPosition.left * 1 / area.scale) / imageWidth - area.left;
-                    y = (sizeBoxPosition.top * 1 / area.scale) / imageHeight - area.top;
+                    x = sizeBoxPosition.left / area.scale / imageWidth - area.left;
+                    y = sizeBoxPosition.top / area.scale / imageHeight - area.top;
 
                     // Set the hidden inputs to the current bounds.
                     self.sizesSetGroupBounds(groupName, {
