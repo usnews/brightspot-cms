@@ -1070,6 +1070,10 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                         cropY = (int) (crop.getY() * originalHeight);
                         cropWidth = (int) (crop.getWidth() * originalWidth);
                         cropHeight = (int) (crop.getHeight() * originalHeight);
+
+                        // update resize height proportionally using the calculated crop aspect ratio
+
+                        height = (int) ((double) width / cropWidth * cropHeight);
                     }
                 }
 
