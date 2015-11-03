@@ -1561,7 +1561,7 @@ define([
          */
         sizesUpdatePreview: function(groupName) {
             
-            var groupInfos, operations, self;
+            var groupInfos, operations, self, area;
 
             self = this;
 
@@ -1597,6 +1597,29 @@ define([
                 }
 
                 bounds = self.sizesGetSizeBounds(width, height, sizeInfoFirst);
+                
+                // Adjust image preview with padding
+                area = self.sizesGetImageArea(width, height, sizeInfoFirst);
+                var inputX, inputY, inputWidth, inputHeight;
+                inputX = Number(sizeInfoFirst.inputs.x.val());
+                inputY = Number(sizeInfoFirst.inputs.y.val());
+                inputWidth = Number(sizeInfoFirst.inputs.width.val());
+                inputHeight = Number(sizeInfoFirst.inputs.height.val()); 
+                
+                var padTop = inputY < 0 ? Math.abs(inputY) / bounds.height * height : 0;
+                var padBottom = inputY + inputHeight > 1 ? (inputY + inputHeight - 1) / bounds.height * height : 0;
+                
+                var padLeft = inputX < 0 ? Math.abs(inputX) / bounds.width * width : 0;
+                var padRight = inputX + inputWidth > 1 ? (inputX + inputWidth - 1) / bounds.width * width : 0;
+                
+                bounds.top -= area.topPadPx;
+                bounds.left -= area.leftPadPx;
+                bounds.height = bounds.height * (1 - padBottom - padTop);
+                bounds.width = bounds.width * (1 - padLeft - padRight);
+                
+                $imageWrapper.css({
+                    'padding' : (padTop * 100) + '% ' + (padRight * 100) + '% ' + (padBottom * 100) + '% ' + (padLeft * 100) + '%'
+                });
 
                 // Crop the image based on the current crop dimension,
                 // then replace the thumbnail image with the newly cropped image
@@ -1695,7 +1718,10 @@ define([
         /**
          * Calculates area dimensions to displaying image for the given size.
          * Area will be "padded" around the image on the dimension with a greater 
-         * difference in aspect ratios between the image and the crop.
+         * difference in aspect ratios between the image and the crop. The numbers
+         * returned in percentages (top, left) are relative to the image, not the
+         * total area.
+         * 
          */
         sizesGetImageArea: function(imageWidth, imageHeight, sizeInfo) {    
             var imageAspectRatio, sizeAspectRatio, topPad, leftPad, paddedImageHeight, paddedImageWidth;
@@ -1703,7 +1729,7 @@ define([
             imageAspectRatio = imageWidth / imageHeight;
             sizeAspectRatio = sizeInfo.aspectRatio;
             
-            topPad = Math.max((imageAspectRatio / sizeAspectRatio -1), 0) / 2;
+            topPad = Math.max((imageAspectRatio / sizeAspectRatio - 1), 0) / 2;
             leftPad =  Math.max((sizeAspectRatio / imageAspectRatio - 1), 0) / 2;
             
             if (leftPad > topPad) {
@@ -2299,8 +2325,8 @@ define([
                     sizeBoxWidth = $sizeBox.width();
                     sizeBoxHeight = $sizeBox.height();
                     
-                    x = sizeBoxPosition.left / imageWidth - area.left;
-                    y = sizeBoxPosition.top / imageHeight - area.top;
+                    x = (sizeBoxPosition.left * 1 / area.scale) / imageWidth - area.left;
+                    y = (sizeBoxPosition.top * 1 / area.scale) / imageHeight - area.top;
 
                     // Set the hidden inputs to the current bounds.
                     self.sizesSetGroupBounds(groupName, {
