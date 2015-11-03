@@ -1059,7 +1059,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
                         if (standardAspectRatio != null) {
 
-                            crop.setHeight(crop.getWidth() / standardAspectRatio);
+                            crop.setHeight(crop.getWidth() / standardAspectRatio * originalWidth / originalHeight);
                         }
 
                         if (isPaddedCrop) {
