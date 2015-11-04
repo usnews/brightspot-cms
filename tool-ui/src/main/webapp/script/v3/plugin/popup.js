@@ -72,6 +72,7 @@
         if ($original.hasClass('popup-show')) {
 
           $original.removeClass('popup-show');
+          $original.trigger('closed');  
           $('.popup').each(function() {
             var $popup = $(this);
             var $source = $popup.popup('source');
