@@ -1670,4 +1670,3 @@ The HTML within the repeatable element must conform to these standards:
     }); // END require
 
 }(jQuery, window));
-//# sourceURL=jquery.repeatable.js
