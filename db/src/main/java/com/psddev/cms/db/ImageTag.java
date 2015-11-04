@@ -897,9 +897,9 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                 if (isPaddedCrop(originalCrop)) {
 
                     // Calculate the horizontal (left) CSS offset for use with in rendering padded crop HTML.
-                    double offsetX = originalCrop.getX() < 0 ? -originalCrop.getX() / originalCrop.getWidth() * getPaddedCrop(originalCrop).getWidth() : 0;
+                    double offsetX = originalCrop.getX() < 0 ? (-originalCrop.getX() / originalCrop.getWidth()) : 0;
                     // Calculate the vertical (top) CSS offset for use with in rendering padded crop HTML.
-                    double offsetY = originalCrop.getY() < 0 ? -originalCrop.getY() / originalCrop.getHeight() * getPaddedCrop(originalCrop).getHeight() : 0;
+                    double offsetY = originalCrop.getY() < 0 ? (-originalCrop.getY() / originalCrop.getHeight()) : 0;
 
                     StringWriter paddedCropWriter = new StringWriter();
                     HtmlWriter paddedCropHtml = new HtmlWriter(paddedCropWriter);
@@ -1057,10 +1057,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
                         boolean isPaddedCrop = isPaddedCrop(crop);
 
-                        if (standardAspectRatio != null) {
-
-                            crop.setHeight(crop.getWidth() / standardAspectRatio * originalWidth / originalHeight);
-                        }
+                        ImageCrop originalCrop = crop;
 
                         if (isPaddedCrop) {
                             crop = getPaddedCrop(crop);
@@ -1071,9 +1068,8 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                         cropWidth = (int) (crop.getWidth() * originalWidth);
                         cropHeight = (int) (crop.getHeight() * originalHeight);
 
-                        // update resize height proportionally using the calculated crop aspect ratio
-
-                        height = (int) ((double) width / cropWidth * cropHeight);
+                        height = (int) ((double) height * crop.getHeight() / originalCrop.getHeight());
+                        width = (int) ((double) width * crop.getWidth() / originalCrop.getWidth());
                     }
                 }
 

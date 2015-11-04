@@ -2121,7 +2121,9 @@ define([
             
             sizeBox = self.sizeGroups[groupName].$sizeBox;
             sizeBox.css(bounds);
-            sizeBox.css(transformCss)
+            sizeBox.css(transformCss);
+            sizeBox.data('exactHeight', bounds.height);
+            sizeBox.data('exactWidth', bounds.width);
         },
 
         
@@ -2182,7 +2184,7 @@ define([
                     'left': sizeBoxPosition.left,
                     'top': sizeBoxPosition.top,
                     'width': $sizeBox.width(),
-                    'height': $sizeBox.height(),
+                    'height': $sizeBox.width() / aspectRatio,
                     'pageX': mousedownEvent.pageX,
                     'pageY': mousedownEvent.pageY
                 };
@@ -2325,8 +2327,8 @@ define([
                     // Now that we're done dragging, update the size box
                     
                     sizeBoxPosition = $sizeBox.position();
-                    sizeBoxWidth = $sizeBox.width();
-                    sizeBoxHeight = $sizeBox.height();
+                    sizeBoxWidth = $sizeBox.data('exactWidth');
+                    sizeBoxHeight = $sizeBox.data('exactHeight');
                     
                     x = sizeBoxPosition.left / area.scale / imageWidth - area.left;
                     y = sizeBoxPosition.top / area.scale / imageHeight - area.top;
