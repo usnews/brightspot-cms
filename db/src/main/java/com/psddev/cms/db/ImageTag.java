@@ -818,108 +818,117 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
                 ImageCrop originalCrop = crop;
 
-                if (isPaddedCrop(crop)) {
+                if (isPaddedCrop(crop) || isOverlay()) {
 
-                    crop = getPaddedCrop(crop);
-                }
+                    String id = "i" + UUID.randomUUID().toString().replace("-", "");
 
-                if (isOverlay()) {
+                    StringBuilder overlayCssBuilder = new StringBuilder();
 
-                    List<ImageTextOverlay> textOverlays = crop.getTextOverlays();
-                    boolean hasOverlays = false;
+                    overlayCssBuilder.append("#");
+                    overlayCssBuilder.append(id);
+                    overlayCssBuilder.append("{display:inline-block;overflow:hidden;position:relative;}");
 
-                    for (ImageTextOverlay textOverlay : textOverlays) {
-                        if (!ObjectUtils.isBlank(textOverlay.getText())) {
-                            hasOverlays = true;
-                            break;
+                    if (isPaddedCrop(crop)) {
+
+                        crop = getPaddedCrop(crop);
+
+                        // Calculate the CSS padding-top for use with in rendering padded crop HTML.
+                        double paddingTop = originalCrop.getY() < 0 ? (-originalCrop.getY() / originalCrop.getHeight()) : 0;
+
+                        // Calculate the CSS padding-left for use with in rendering padded crop HTML.
+                        double paddingLeft = originalCrop.getX() < 0 ? (-originalCrop.getX() / originalCrop.getWidth()) : 0;
+
+                        double paddingRight = (originalCrop.getX() + originalCrop.getWidth()) > 1 ? 1 - paddingLeft - crop.getWidth() / originalCrop.getWidth() : 0;
+
+                        double paddingBottom = (originalCrop.getY() + originalCrop.getHeight()) > 1 ? 1 - paddingTop - crop.getHeight() / originalCrop.getHeight() : 0;
+
+                        StringWriter paddedCropWriter = new StringWriter();
+                        HtmlWriter paddedCropHtml = new HtmlWriter(paddedCropWriter);
+
+                        try {
+
+                            paddedCropHtml.writeStart("span", "style", "display: inline-block; overflow: hidden; padding: " + paddingTop * 100 + "% " + paddingRight * 100 + "% " + paddingBottom * 100 + "% " + paddingLeft * 100 + "%;");
+
+                            paddedCropHtml.writeRaw(html);
+
+                            paddedCropHtml.writeEnd();
+
+                        } catch (IOException e) {
+                            // Ignore.
                         }
+
+                        html = paddedCropWriter.toString();
                     }
 
-                    if (hasOverlays) {
-                        StringBuilder overlay = new StringBuilder();
-                        CmsTool cms = Application.Static.getInstance(CmsTool.class);
-                        String defaultCss = cms.getDefaultTextOverlayCss();
-                        String id = "i" + UUID.randomUUID().toString().replace("-", "");
+                    if (isOverlay()) {
 
-                        overlay.append("<style type=\"text/css\">");
+                        List<ImageTextOverlay> textOverlays = crop.getTextOverlays();
+                        boolean hasOverlays = false;
 
-                        if (!ObjectUtils.isBlank(defaultCss)) {
-                            overlay.append("#");
-                            overlay.append(id);
-                            overlay.append("{display:inline-block;overflow:hidden;position:relative;");
-                            overlay.append(defaultCss);
-                            overlay.append("}");
-                        }
-
-                        for (CmsTool.CssClassGroup group : cms.getTextCssClassGroups()) {
-                            String groupName = group.getInternalName();
-                            for (CmsTool.CssClass cssClass : group.getCssClasses()) {
-                                overlay.append("#");
-                                overlay.append(id);
-                                overlay.append(" .cms-");
-                                overlay.append(groupName);
-                                overlay.append("-");
-                                overlay.append(cssClass.getInternalName());
-                                overlay.append("{");
-                                overlay.append(cssClass.getCss());
-                                overlay.append("}");
+                        for (ImageTextOverlay textOverlay : textOverlays) {
+                            if (!ObjectUtils.isBlank(textOverlay.getText())) {
+                                hasOverlays = true;
+                                break;
                             }
                         }
 
-                        overlay.append("</style>");
+                        if (hasOverlays) {
+                            StringBuilder overlay = new StringBuilder();
+                            CmsTool cms = Application.Static.getInstance(CmsTool.class);
+                            String defaultCss = cms.getDefaultTextOverlayCss();
 
-                        overlay.append("<span id=\"");
-                        overlay.append(id);
-                        overlay.append("\">");
-                        overlay.append(html);
+                            if (!ObjectUtils.isBlank(defaultCss)) {
+                                overlayCssBuilder.append("#");
+                                overlayCssBuilder.append(id);
+                                overlayCssBuilder.append("{");
+                                overlayCssBuilder.append(defaultCss);
+                                overlayCssBuilder.append("}");
+                            }
 
-                        for (ImageTextOverlay textOverlay : textOverlays) {
-                            String text = textOverlay.getText();
+                            for (CmsTool.CssClassGroup group : cms.getTextCssClassGroups()) {
+                                String groupName = group.getInternalName();
+                                for (CmsTool.CssClass cssClass : group.getCssClasses()) {
+                                    overlayCssBuilder.append("#");
+                                    overlayCssBuilder.append(id);
+                                    overlayCssBuilder.append(" .cms-");
+                                    overlayCssBuilder.append(groupName);
+                                    overlayCssBuilder.append("-");
+                                    overlayCssBuilder.append(cssClass.getInternalName());
+                                    overlayCssBuilder.append("{");
+                                    overlayCssBuilder.append(cssClass.getCss());
+                                    overlayCssBuilder.append("}");
+                                }
+                            }
 
-                            overlay.append("<span style=\"left: ");
-                            overlay.append(textOverlay.getX() * 100);
-                            overlay.append("%; position: absolute; top: ");
-                            overlay.append(textOverlay.getY() * 100);
-                            overlay.append("%; font-size: ");
-                            overlay.append(textOverlay.getSize() * standardImageSize.getHeight());
-                            overlay.append("px; width: ");
-                            overlay.append(textOverlay.getWidth() != 0.0 ? textOverlay.getWidth() * 100 : 100.0);
-                            overlay.append("%;\">");
-                            overlay.append(text);
+                            overlay.append("<span id=\"");
+                            overlay.append(id);
+                            overlay.append("\">");
+                            overlay.append(html);
+
+                            for (ImageTextOverlay textOverlay : textOverlays) {
+                                String text = textOverlay.getText();
+
+                                overlay.append("<span style=\"left: ");
+                                overlay.append(textOverlay.getX() * 100);
+                                overlay.append("%; position: absolute; top: ");
+                                overlay.append(textOverlay.getY() * 100);
+                                overlay.append("%; font-size: ");
+                                overlay.append(textOverlay.getSize() * standardImageSize.getHeight());
+                                overlay.append("px; width: ");
+                                overlay.append(textOverlay.getWidth() != 0.0 ? textOverlay.getWidth() * 100 : 100.0);
+                                overlay.append("%;\">");
+                                overlay.append(text);
+                                overlay.append("</span>");
+                            }
+
                             overlay.append("</span>");
+                            html = overlay.toString();
                         }
-
-                        overlay.append("</span>");
-                        html = overlay.toString();
-                    }
-                }
-
-                if (isPaddedCrop(originalCrop)) {
-
-                    // Calculate the horizontal (left) CSS offset for use with in rendering padded crop HTML.
-                    double offsetX = originalCrop.getX() < 0 ? (-originalCrop.getX() / originalCrop.getWidth()) : 0;
-                    // Calculate the vertical (top) CSS offset for use with in rendering padded crop HTML.
-                    double offsetY = originalCrop.getY() < 0 ? (-originalCrop.getY() / originalCrop.getHeight()) : 0;
-
-                    StringWriter paddedCropWriter = new StringWriter();
-                    HtmlWriter paddedCropHtml = new HtmlWriter(paddedCropWriter);
-
-                    try {
-                        paddedCropHtml.writeStart("span", "style", "display: inline-block; overflow: hidden; position: relative; width: " + standardImageSize.getWidth() + "px; height: " + standardImageSize.getHeight() + "px;");
-
-                        paddedCropHtml.writeStart("span", "style", "display: inline-block; overflow: hidden; position: absolute; left: " + offsetX * 100 + "%; top: " + offsetY * 100 + "%; ");
-
-                        paddedCropHtml.writeRaw(html);
-
-                        paddedCropHtml.writeEnd();
-
-                        paddedCropHtml.writeEnd();
-
-                    } catch (IOException e) {
-                        // Ignore.
                     }
 
-                    html = paddedCropWriter.toString();
+                    if (overlayCssBuilder.length() > 0) {
+                        html = "<style type=\"text/css\">" + overlayCssBuilder.toString() + "</style>" + html;
+                    }
                 }
             }
 
