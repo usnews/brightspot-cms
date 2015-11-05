@@ -822,11 +822,9 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
                     String id = "i" + UUID.randomUUID().toString().replace("-", "");
 
-                    String overlayCss = "#" + id + "{display:inline-block;overflow:hidden;position:relative;}";
+                    String overlayCss = "#" + id + "{display:inline-block;overflow:hidden;position:relative;width:" + originalCrop.getWidth() + "px;height:" + originalCrop.getHeight() + "px;}";
 
                     if (isPaddedCrop(crop)) {
-
-                        overlayCss += "#" + id + " > span > img{display:block;}";
 
                         crop = getPaddedCrop(crop);
 
@@ -845,7 +843,14 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
                         try {
 
-                            paddedCropHtml.writeStart("span", "style", "display: inline-block; overflow: hidden; padding: " + paddingTop * 100 + "% " + paddingRight * 100 + "% " + paddingBottom * 100 + "% " + paddingLeft * 100 + "%;");
+                            paddedCropHtml.writeStart("span", "style",
+                                      "display: inline-block;"
+                                    + "overflow: hidden;"
+                                    + "position: absolute;"
+                                    + "top: " + paddingTop * 100 + "%;"
+                                    + "right: " + paddingRight * 100 + "%;"
+                                    + "bottom: " + paddingBottom * 100 + "%;"
+                                    + "left: " + paddingLeft * 100 + "%;");
 
                             paddedCropHtml.writeRaw(html);
 
