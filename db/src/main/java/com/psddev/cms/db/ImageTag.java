@@ -826,7 +826,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
                     if (isPaddedCrop(crop)) {
 
-                        overlayCss += "#" + id + " > img{display:block;}";
+                        overlayCss += "#" + id + " > span > img{display:block;}";
 
                         crop = getPaddedCrop(crop);
 
