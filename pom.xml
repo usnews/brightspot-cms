@@ -112,10 +112,22 @@
         </dependencies>
     </dependencyManagement>
 
+    <distributionManagement>
+        <repository>
+            <id>psddev-releases</id>
+            <url>https://artifactory.psdops.com/psddev-releases</url>
+        </repository>
+
+        <snapshotRepository>
+            <id>psddev-snapshots</id>
+            <url>https://artifactory.psdops.com/psddev-snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <repositories>
         <repository>
             <id>public.psddev</id>
-            <url>http://public.psddev.com/maven</url>
+            <url>https://artifactory.psdops.com/public</url>
             <snapshots>
                 <updatePolicy>always</updatePolicy>
             </snapshots>
@@ -125,7 +137,7 @@
     <pluginRepositories>
         <pluginRepository>
             <id>public.psddev</id>
-            <url>http://public.psddev.com/maven</url>
+            <url>https://artifactory.psdops.com/public</url>
             <snapshots>
                 <updatePolicy>always</updatePolicy>
             </snapshots>
