@@ -301,6 +301,16 @@ li.CodeMirror-hint-active {
   color: white;
 }
 
+// For enhancements, let the enhancement toolbar overflow the codemirror widget,
+// and reset the z-index because it was causing problems with the submenu hover
+.CodeMirror, .CodeMirror-scroll {
+  overflow:visible !important;
+}
+.CodeMirror-linewidget {
+  overflow:visible;
+  z-index:inherit;
+}
+
 .rte2-wrapper {
 
   position:relative;
