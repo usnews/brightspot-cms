@@ -891,8 +891,6 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                                 }
                             }
 
-                            overlayHtml += "<span id=\"" + id + "\">" + html;
-
                             for (ImageTextOverlay textOverlay : textOverlays) {
                                 String text = textOverlay.getText();
 
@@ -905,12 +903,11 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                                 overlayHtml += text + "</span>";
                             }
 
-                            overlayHtml += "</span>";
-                            html = overlayHtml;
+                            html += overlayHtml;
                         }
                     }
 
-                    html = "<style type=\"text/css\">" + overlayCss + "</style>" + html;
+                    html = "<style type=\"text/css\">" + overlayCss + "</style><span id=\"" + id + "\">" + html + "</span>";
                 }
             }
 
