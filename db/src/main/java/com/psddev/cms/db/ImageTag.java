@@ -822,7 +822,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
                     String id = "i" + UUID.randomUUID().toString().replace("-", "");
 
-                    String overlayCss = "#" + id + "{display:inline-block;overflow:hidden;position:relative;width:" + originalCrop.getWidth() + "px;height:" + originalCrop.getHeight() + "px;}";
+                    String overlayCss = "#" + id + "{display:inline-block;overflow:hidden;position:relative;width:" + standardImageSize.getWidth() + "px;height:" + standardImageSize.getHeight() + "px;}";
 
                     if (isPaddedCrop(crop)) {
 
