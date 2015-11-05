@@ -116,7 +116,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
     /**
      * Sets the field that contains the image. If not set, the first
-     * field with {@value ObjectField.FILE_TYPE} type is used.
+     * field with {@value ObjectField#FILE_TYPE} type is used.
      * @deprecated No replacement
      */
     @Deprecated
@@ -154,7 +154,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
     /**
      * Sets the width. Note that this will override the width provided
-     * by the image size set with {@link #setSize(String)}.
+     * by the image size set with {@link #setSize(Object)}.
      */
     public void setWidth(String width) {
         if (width != null && width.endsWith("px")) {
@@ -165,7 +165,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
     /**
      * Sets the height. Note that this will override the height provided
-     * by the image size set with {@link #setSize(String)}.
+     * by the image size set with {@link #setSize(Object)}.
      */
     public void setHeight(String height) {
         if (height != null && height.endsWith("px")) {
@@ -176,7 +176,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
     /**
      * Sets the crop option. Note that this will override the crop option
-     * provided by the image size set with {@link #setSize(String)}.
+     * provided by the image size set with {@link #setSize(Object)}.
      */
     public void setCropOption(Object cropOptionObject) {
         CropOption cropOption = null;
@@ -190,7 +190,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
     /**
      * Sets the resize option. Note that this will override the resize option
-     * provided by the image size set with {@link #setSize(String)}.
+     * provided by the image size set with {@link #setSize(Object)}.
      */
     public void setResizeOption(Object resizeOptionObject) {
         ResizeOption resizeOption = null;
@@ -621,7 +621,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
         /**
          * Sets the field that contains the image. If not set, the first
-         * field with {@value ObjectField.FILE_TYPE} type is used.
+         * field with {@value ObjectField#FILE_TYPE} type is used.
          * @deprecated No replacement
          */
         @Deprecated
@@ -650,7 +650,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
         /**
          * Sets the width. Note that this will override the width provided
-         * by the image size set with {@link #setSize(String)}.
+         * by the image size set with {@link #setSize(Object)}.
          */
         public Builder setWidth(Integer width) {
             this.width = width;
@@ -659,7 +659,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
         /**
          * Sets the height. Note that this will override the height provided
-         * by the image size set with {@link #setSize(String)}.
+         * by the image size set with {@link #setSize(Object)}.
          */
         public Builder setHeight(Integer height) {
             this.height = height;
@@ -668,7 +668,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
         /**
          * Sets the crop option. Note that this will override the crop option
-         * provided by the image size set with {@link #setSize(String)}.
+         * provided by the image size set with {@link #setSize(Object)}.
          */
         public Builder setCropOption(CropOption cropOption) {
             this.cropOption = cropOption;
@@ -677,7 +677,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
         /**
          * Sets the resize option. Note that this will override the resize option
-         * provided by the image size set with {@link #setSize(String)}.
+         * provided by the image size set with {@link #setSize(Object)}.
          */
         public Builder setResizeOption(ResizeOption resizeOption) {
             this.resizeOption = resizeOption;
