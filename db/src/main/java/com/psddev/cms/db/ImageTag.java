@@ -822,13 +822,11 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
                     String id = "i" + UUID.randomUUID().toString().replace("-", "");
 
-                    StringBuilder overlayCssBuilder = new StringBuilder();
-
-                    overlayCssBuilder.append("#");
-                    overlayCssBuilder.append(id);
-                    overlayCssBuilder.append("{display:inline-block;overflow:hidden;position:relative;}");
+                    String overlayCss = "#" + id + "{display:inline-block;overflow:hidden;position:relative;}";
 
                     if (isPaddedCrop(crop)) {
+
+                        overlayCss += "#" + id + " > img{display:block;}";
 
                         crop = getPaddedCrop(crop);
 
@@ -873,62 +871,41 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                         }
 
                         if (hasOverlays) {
-                            StringBuilder overlay = new StringBuilder();
+                            String overlayHtml = "";
                             CmsTool cms = Application.Static.getInstance(CmsTool.class);
                             String defaultCss = cms.getDefaultTextOverlayCss();
 
                             if (!ObjectUtils.isBlank(defaultCss)) {
-                                overlayCssBuilder.append("#");
-                                overlayCssBuilder.append(id);
-                                overlayCssBuilder.append("{");
-                                overlayCssBuilder.append(defaultCss);
-                                overlayCssBuilder.append("}");
+                                overlayCss += "#" + id + "{" + defaultCss + "}";
                             }
 
                             for (CmsTool.CssClassGroup group : cms.getTextCssClassGroups()) {
                                 String groupName = group.getInternalName();
                                 for (CmsTool.CssClass cssClass : group.getCssClasses()) {
-                                    overlayCssBuilder.append("#");
-                                    overlayCssBuilder.append(id);
-                                    overlayCssBuilder.append(" .cms-");
-                                    overlayCssBuilder.append(groupName);
-                                    overlayCssBuilder.append("-");
-                                    overlayCssBuilder.append(cssClass.getInternalName());
-                                    overlayCssBuilder.append("{");
-                                    overlayCssBuilder.append(cssClass.getCss());
-                                    overlayCssBuilder.append("}");
+                                    overlayCss += "#" + id + " .cms-" + groupName + "-" + cssClass.getInternalName() + "{" + cssClass.getCss() + "}";
                                 }
                             }
 
-                            overlay.append("<span id=\"");
-                            overlay.append(id);
-                            overlay.append("\">");
-                            overlay.append(html);
+                            overlayHtml += "<span id=\"" + id + "\">" + html;
 
                             for (ImageTextOverlay textOverlay : textOverlays) {
                                 String text = textOverlay.getText();
 
-                                overlay.append("<span style=\"left: ");
-                                overlay.append(textOverlay.getX() * 100);
-                                overlay.append("%; position: absolute; top: ");
-                                overlay.append(textOverlay.getY() * 100);
-                                overlay.append("%; font-size: ");
-                                overlay.append(textOverlay.getSize() * standardImageSize.getHeight());
-                                overlay.append("px; width: ");
-                                overlay.append(textOverlay.getWidth() != 0.0 ? textOverlay.getWidth() * 100 : 100.0);
-                                overlay.append("%;\">");
-                                overlay.append(text);
-                                overlay.append("</span>");
+                                overlayHtml += "<span style=\"";
+                                overlayHtml += "left: " + textOverlay.getX() * 100 + "%;";
+                                overlayHtml += "position: absolute;";
+                                overlayHtml += "top: " + textOverlay.getY() * 100 + "%;";
+                                overlayHtml += "font-size: " + textOverlay.getSize() * standardImageSize.getHeight() + "px;";
+                                overlayHtml += "width: " + (textOverlay.getWidth() != 0.0 ? textOverlay.getWidth() * 100 : 100.0) + "%;\">";
+                                overlayHtml += text + "</span>";
                             }
 
-                            overlay.append("</span>");
-                            html = overlay.toString();
+                            overlayHtml += "</span>";
+                            html = overlayHtml;
                         }
                     }
 
-                    if (overlayCssBuilder.length() > 0) {
-                        html = "<style type=\"text/css\">" + overlayCssBuilder.toString() + "</style>" + html;
-                    }
+                    html = "<style type=\"text/css\">" + overlayCss + "</style>" + html;
                 }
             }
 
