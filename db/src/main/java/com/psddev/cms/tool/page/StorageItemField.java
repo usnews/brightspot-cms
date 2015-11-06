@@ -7,22 +7,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.fileupload.FileItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.psddev.cms.db.ImageCrop;
@@ -45,13 +41,9 @@ import com.psddev.dari.util.AggregateException;
 import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.ImageMetadataMap;
 import com.psddev.dari.util.IoUtils;
-import com.psddev.dari.util.MultipartRequest;
-import com.psddev.dari.util.MultipartRequestFilter;
 import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.RandomUuidStorageItemPathGenerator;
 import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.Settings;
-import com.psddev.dari.util.SparseSet;
 import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StorageItemFilter;
 import com.psddev.dari.util.StorageItemUploadPart;
@@ -258,8 +250,6 @@ public class StorageItemField extends PageServlet {
             }
 
             fieldValueMetadata.put("cms.edits", edits);
-
-            InputStream newItemData = null;
 
             if ("keep".equals(action)) {
                 newItem = StorageItemFilter.getParameter(request, fileKeepParamName, getStorageSetting(Optional.of(field)));
