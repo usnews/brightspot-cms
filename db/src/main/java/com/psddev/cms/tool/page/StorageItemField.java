@@ -48,6 +48,7 @@ import com.psddev.dari.util.IoUtils;
 import com.psddev.dari.util.MultipartRequest;
 import com.psddev.dari.util.MultipartRequestFilter;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.RandomUuidStorageItemPathGenerator;
 import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.SparseSet;
@@ -606,6 +607,12 @@ public class StorageItemField extends PageServlet {
         }
     }
 
+    /**
+     * Deprecated, use {@link RandomUuidStorageItemPathGenerator#createPath(String)}
+     * @param label
+     * @param fileName
+     * @return
+     */
     @Deprecated
     public static String createStorageItemPath(String label, String fileName) {
 
