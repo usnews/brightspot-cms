@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.psddev.cms.tool.AuthenticationFilter;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.RemoteWidgetFilter;
@@ -34,8 +33,8 @@ import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.cms.view.JsonViewRenderer;
 import com.psddev.cms.view.PageViewClass;
 import com.psddev.cms.view.ViewOutput;
-import com.psddev.cms.view.ViewRequest;
 import com.psddev.cms.view.ViewRenderer;
+import com.psddev.cms.view.ViewRequest;
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.ApplicationFilter;
 import com.psddev.dari.db.Database;
@@ -54,6 +53,7 @@ import com.psddev.dari.util.PageContextFilter;
 import com.psddev.dari.util.Profiler;
 import com.psddev.dari.util.PullThroughCache;
 import com.psddev.dari.util.Settings;
+import com.psddev.dari.util.StorageItemFilter;
 import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.TypeDefinition;
 
@@ -224,6 +224,7 @@ public class PageFilter extends AbstractFilter {
         dependencies.add(com.psddev.dari.util.FrameFilter.class);
         dependencies.add(com.psddev.dari.util.RoutingFilter.class);
         dependencies.add(FieldAccessFilter.class);
+        dependencies.add(StorageItemFilter.class);
         return dependencies;
     }
 
