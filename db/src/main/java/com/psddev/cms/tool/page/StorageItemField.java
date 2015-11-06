@@ -249,16 +249,12 @@ public class StorageItemField extends PageServlet {
                 }
             }
 
-            fieldValueMetadata.put("cms.edits", edits);
-
             if ("keep".equals(action)) {
                 newItem = StorageItemFilter.getParameter(request, fileKeepParamName, getStorageSetting(Optional.of(field)));
 
-                fieldValueMetadata.putAll(newItem.getMetadata());
             } else if ("newUpload".equals(action)) {
                 newItem = StorageItemFilter.getParameter(request, fileParamName, getStorageSetting(Optional.of(field)));
 
-                fieldValueMetadata.putAll(newItem.getMetadata());
             } else if ("dropbox".equals(action)) {
                 Map<String, Object> fileData = (Map<String, Object>) ObjectUtils.fromJson(page.param(String.class, dropboxName));
 
@@ -300,7 +296,6 @@ public class StorageItemField extends PageServlet {
                             newItem.setData(new FileInputStream(file));
                         }
 
-                        fieldValueMetadata.putAll(newItem.getMetadata());
                     } finally {
                         if (file != null && file.exists()) {
                             file.delete();
@@ -310,6 +305,12 @@ public class StorageItemField extends PageServlet {
             } else if ("newUrl".equals(action)) {
                 newItem = StorageItem.Static.createUrl(page.param(urlName));
             }
+
+            if (newItem != null) {
+                fieldValueMetadata.putAll(newItem.getMetadata());
+            }
+
+            fieldValueMetadata.put("cms.edits", edits);
 
             // Standard sizes.
             for (Iterator<Map.Entry<String, ImageCrop>> i = crops.entrySet().iterator(); i.hasNext();) {
