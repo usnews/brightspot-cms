@@ -14,14 +14,13 @@ public class MetadataBeforeSave implements StorageItemBeforeSave {
 
     @Override
     public void beforeSave(StorageItem storageItem) {
+
         if (!(storageItem instanceof AbstractStorageItem)) {
             return;
         }
 
-        AbstractStorageItem abstractStorageItem = (AbstractStorageItem) storageItem;
-
         Map<String, Object> metadata = new LinkedHashMap<>();
-        StorageItemUploadPart part = abstractStorageItem.getPart();
+        StorageItemUploadPart part = ((AbstractStorageItem) storageItem).getPart();
         if (part != null) {
             metadata.put("originalFilename", part.getName());
 
