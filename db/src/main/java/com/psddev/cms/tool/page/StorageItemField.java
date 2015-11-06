@@ -70,7 +70,7 @@ public class StorageItemField extends PageServlet {
         String storageName = inputName + ".storage";
         String pathName = inputName + ".path";
         String contentTypeName = inputName + ".contentType";
-        String fileName = inputName + ".file";
+        String fileParamName = inputName + ".file";
         String urlName = inputName + ".url";
         String dropboxName = inputName + ".dropbox";
         String cropsName = inputName + ".crops.";
@@ -299,7 +299,7 @@ public class StorageItemField extends PageServlet {
                         }
 
                     } else if ((mpRequest = MultipartRequestFilter.Static.getInstance(request)) != null) {
-                        FileItem fileItem = mpRequest.getFileItem(fileName);
+                        FileItem fileItem = mpRequest.getFileItem(fileParamName);
 
                         if (fileItem != null) {
                             name = fileItem.getName();
@@ -572,7 +572,7 @@ public class StorageItemField extends PageServlet {
                 page.writeTag("input",
                         "class", "fileSelectorItem fileSelectorNewUpload " + (uploader != null ? ObjectUtils.firstNonNull(uploader.getClassIdentifier(), "") : ""),
                         "type", "file",
-                        "name", page.h(fileName),
+                        "name", page.h(fileParamName),
                         "data-input-name", inputName);
 
                 page.writeTag("input",
