@@ -1,5 +1,6 @@
 package com.psddev.cms.tool.file;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,10 +24,13 @@ public class ContentTypeValidator implements StorageItemBeforeCreate {
 
     @Override
     public void beforeCreate(StorageItemUploadPart part) throws IOException {
-        Preconditions.checkNotNull(part);
-        Preconditions.checkNotNull(part.getFile());
+
+        if (part == null) {
+            return;
+        }
 
         String fileContentType = part.getContentType();
+
         if (fileContentType == null) {
             return;
         }
@@ -40,6 +44,11 @@ public class ContentTypeValidator implements StorageItemBeforeCreate {
         // Disallow HTML disguising as other content types per:
         // http://www.adambarth.com/papers/2009/barth-caballero-song.pdf
         if (!contentTypeGroups.contains("text/html")) {
+
+            if (part.getFile() == null) {
+                return;
+            }
+
             try (InputStream input = new FileInputStream(part.getFile())) {
                 byte[] buffer = new byte[1024];
                 String data = new String(buffer, 0, input.read(buffer)).toLowerCase(Locale.ENGLISH);
