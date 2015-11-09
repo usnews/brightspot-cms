@@ -411,6 +411,8 @@ define([
 
                 if (self.doubleClickTimestamp && (now - self.doubleClickTimestamp < 500) ) {
 
+                    delete self.doubleClickTimestamp;
+                    
                     // Figure out the line and character based on the mouse coord that was clicked
                     pos = editor.coordsChar({left:event.pageX, top:event.pageY}, 'page');
 
@@ -3513,6 +3515,47 @@ define([
             self.codeMirror.setCursor(line, ch);
         },
 
+
+        /**
+         * Returns the range for a mark.
+         * @returns {Object}
+         * The range of the mark (with from and to parameters)
+         * or an empty object if the mark has been cleared.
+         */
+        markGetRange: function(mark) {
+            var pos, self;
+            self = this;
+            pos = {};
+            if (mark.find) {
+                pos = mark.find() || {};
+            }
+            return pos;
+        },
+
+        
+        /**
+         * Given a CodeMirror mark, replace the text within it
+         * without destroying the mark.
+         * Normally if you were to use the CodeMirror functions to replace a range,
+         * the mark would be destroyed.
+         */
+        replaceMarkText: function(mark, text) {
+            var pos, self;
+
+            self = this;
+
+            pos = self.markGetRange(mark);
+            if (!pos.from) {
+                return;
+            }
+
+            // Replacing the entire mark range will remove the mark so we need
+            // to add text at the end of the mark, then remove the original text
+            self.codeMirror.replaceRange(text, pos.to, pos.to);
+            if (!(pos.from.line === pos.to.line && pos.from.ch === pos.to.ch)) {
+                self.codeMirror.replaceRange('', pos.from, pos.to);
+            }
+        },
         
         /**
          * Determine if an element is a "container" for another element.
