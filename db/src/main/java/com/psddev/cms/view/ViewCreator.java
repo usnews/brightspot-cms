@@ -58,6 +58,14 @@ public interface ViewCreator<M, V> {
                     Arrays.stream(annotatableClass.getAnnotationsByType(ViewMapping.class))
                             .map(ViewMapping::value)
                             .collect(Collectors.toList()));
+
+            if (annotatableClass.isAnnotationPresent(StaticNestedViewMappings.class)) {
+                allCreatorClasses.addAll(
+                        Arrays.stream(annotatableClass.getClasses())
+                                .filter(ViewCreator.class::isAssignableFrom)
+                                .map((klass) -> (Class<? extends ViewCreator>) klass)
+                                .collect(Collectors.toList()));
+            }
         }
 
         allCreatorClasses.forEach(creatorClass -> {
