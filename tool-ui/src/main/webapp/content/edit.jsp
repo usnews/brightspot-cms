@@ -845,12 +845,13 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                                 }
 
                                                 if (draft == null
-                                                        && workflow.getTransitionsTo(currentState)
+                                                        && (wp.hasPermission("type/" + editingState.getTypeId() + "/workflow.saveAllowed." + currentState)
+                                                        || workflow.getTransitionsTo(currentState)
                                                                 .keySet()
                                                                 .stream()
                                                                 .filter(name -> wp.hasPermission("type/" + editingState.getTypeId() + "/" + name))
                                                                 .findFirst()
-                                                                .isPresent()) {
+                                                                .isPresent())) {
                                                     wp.writeStart("div", "class", "actions");
                                                         wp.writeStart("button",
                                                                 "class", "link icon icon-action-save",

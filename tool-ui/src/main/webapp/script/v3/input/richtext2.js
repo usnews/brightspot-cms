@@ -679,6 +679,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             
             // Set up periodic update of the textarea
             self.previewInit();
+
+            self.$editor.closest('.inputContainer').on('focus', '.rte2-toolbar a', function () {
+                self.rte.focus();
+            });
         },
 
 

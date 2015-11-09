@@ -306,9 +306,16 @@ ul {
 
 .state-placeholder {
   color: @color-placeholder;
-  font-style: italic;
+
+  &:not([data-editable-placeholder]) {
+    font-style: italic;
+  }
 }
 
 ::placeholder {
   .state-placeholder;
+}
+
+[data-editable-placeholder]::placeholder {
+  font-style: normal;
 }

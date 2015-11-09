@@ -1911,6 +1911,7 @@ public class ToolPageContext extends WebPageContext {
             write("var DISABLE_TOOL_CHECKS = ", getCmsTool().isDisableToolChecks(), ';');
             write("var COMMON_TIMES = ", ObjectUtils.toJson(commonTimes), ';');
             write("var DISABLE_CODE_MIRROR_RICH_TEXT_EDITOR = ", getCmsTool().isDisableCodeMirrorRichTextEditor(), ';');
+            write("var DISABLE_RTC = ", getCmsTool().isDisableRtc(), ';');
         writeEnd();
 
         writeStart("script", "type", "text/javascript", "src", "//www.google.com/jsapi");

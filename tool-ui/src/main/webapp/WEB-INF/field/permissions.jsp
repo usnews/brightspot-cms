@@ -7,6 +7,7 @@ com.psddev.cms.db.ToolRole,
 com.psddev.cms.db.ToolUi,
 com.psddev.cms.db.ToolUser,
 com.psddev.cms.db.Workflow,
+com.psddev.cms.db.WorkflowState,
 com.psddev.cms.db.WorkflowTransition,
 com.psddev.cms.tool.Area,
 com.psddev.cms.tool.Plugin,
@@ -340,7 +341,13 @@ wp.writeStart("div", "class", "inputSmall permissions");
                                     String transitionDisplay = entry2.getValue().getDisplayName();
 
                                     wp.writeStart("li");
-                                        writeChild(wp, permissions, "Workflow: " + transitionDisplay, typePermissionId + "/" + transition);
+                                        writeChild(wp, permissions, "Workflow Transition: " + transitionDisplay, typePermissionId + "/" + transition);
+                                    wp.writeEnd();
+                                }
+
+                                for (WorkflowState workflowState : workflow.getStates()) {
+                                    wp.writeStart("li");
+                                        writeChild(wp, permissions, "Workflow Save Allowed: " + workflowState.getDisplayName(), typePermissionId + "/workflow.saveAllowed." + workflowState.getName());
                                     wp.writeEnd();
                                 }
                             }

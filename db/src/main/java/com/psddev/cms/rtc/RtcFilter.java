@@ -1,7 +1,9 @@
 package com.psddev.cms.rtc;
 
 import com.google.common.collect.ImmutableMap;
+import com.psddev.cms.tool.CmsTool;
 import com.psddev.dari.db.Database;
+import com.psddev.dari.db.Query;
 import com.psddev.dari.util.AbstractFilter;
 import org.atmosphere.client.TrackMessageSizeInterceptor;
 import org.atmosphere.cpr.ApplicationConfig;
@@ -128,12 +130,17 @@ public class RtcFilter extends AbstractFilter implements AbstractFilter.Auto {
     @Override
     protected void doRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         if (request.getServletPath().startsWith(PATH)) {
-            initializer.framework().doCometSupport(
-                    AtmosphereRequest.wrap(request),
-                    AtmosphereResponse.wrap(response));
+            CmsTool cms = Query.from(CmsTool.class).first();
 
-        } else {
-            chain.doFilter(request, response);
+            if (cms == null || !cms.isDisableRtc()) {
+                initializer.framework().doCometSupport(
+                        AtmosphereRequest.wrap(request),
+                        AtmosphereResponse.wrap(response));
+
+                return;
+            }
         }
+
+        chain.doFilter(request, response);
     }
 }
