@@ -291,9 +291,9 @@ public class StorageItemField extends PageServlet {
                                 ((AbstractStorageItem) newItem).setPart(part);
                             }
 
-                            new MetadataBeforeSave().beforeSave(newItem);
-
                             newItem.setData(new FileInputStream(file));
+
+                            newItem.save();
                         }
 
                     } finally {
@@ -392,12 +392,6 @@ public class StorageItemField extends PageServlet {
 
             if (newItem != null) {
                 newItem.setMetadata(fieldValueMetadata);
-            }
-
-            if (newItem != null
-                    && ("newUpload".equals(action)
-                    || "dropbox".equals(action))) {
-                newItem.save();
             }
 
             state.putValue(fieldName, newItem);
