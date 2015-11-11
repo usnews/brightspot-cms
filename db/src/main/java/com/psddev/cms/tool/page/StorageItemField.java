@@ -284,8 +284,6 @@ public class StorageItemField extends PageServlet {
                                 ((AbstractStorageItem) newItem).setPart(part);
                             }
 
-                            new MetadataBeforeSave().beforeSave(newItem);
-
                             newItem.setData(new FileInputStream(file));
                             newItem.save();
                         }
