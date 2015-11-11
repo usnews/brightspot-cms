@@ -1,15 +1,11 @@
 package com.psddev.cms.tool.page;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -17,9 +13,9 @@ import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.fileupload.FileItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.base.Preconditions;
 import com.psddev.cms.db.BulkUploadDraft;
 import com.psddev.cms.db.ImageTag;
 import com.psddev.cms.db.Site;
@@ -36,14 +32,13 @@ import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectFieldComparator;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.State;
-import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.MultipartRequest;
 import com.psddev.dari.util.MultipartRequestFilter;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.Settings;
-import com.psddev.dari.util.SparseSet;
 import com.psddev.dari.util.StorageItem;
+import com.psddev.dari.util.StorageItemFilter;
 import com.psddev.dari.util.StringUtils;
 
 @RoutingFilter.Path(application = "cms", value = "/content/uploadFiles")
@@ -79,6 +74,9 @@ public class UploadFiles extends PageServlet {
         ObjectType selectedType = environment.getTypeById(page.param(UUID.class, "type"));
         String containerId = page.param(String.class, "containerId");
 
+        // TODO: param to use should be sent by fe uploader
+        String fileParamName = "file";
+
         if (page.isFormPost()) {
             database.beginWrites();
 
@@ -89,135 +87,15 @@ public class UploadFiles extends PageServlet {
                     throw new IllegalStateException("Not multipart!");
                 }
 
-                ErrorUtils.errorIfNull(selectedType, "type");
+                Preconditions.checkNotNull(selectedType, "Param for [type] is empty.");
 
-                ObjectField previewField = getPreviewField(selectedType);
+                ObjectField previewField = Preconditions.checkNotNull(getPreviewField(selectedType), "Preview field for type [" + selectedType.getId() + "] is null.");
 
-                if (previewField == null) {
-                    throw new IllegalStateException("No file field!");
-                }
-
-                String inputName = ObjectUtils.firstNonBlank(page.param(String.class, "inputName"), (String) page.getRequest().getAttribute("inputName"), "file");
-                String pathName = inputName + ".path";
-                List<String> paths = page.params(String.class, pathName);
-                List<StorageItem> newStorageItems = new ArrayList<>();
-                FileItem[] files = request.getFileItems("file");
                 StringBuilder js = new StringBuilder();
                 Object common = selectedType.createObject(page.param(UUID.class, "typeForm-" + selectedType.getId()));
                 page.updateUsingParameters(common);
 
-                if (!ObjectUtils.isBlank(paths)) {
-                    //get existing storage item
-                    for (String path : paths) {
-                        String defaultStorageSetting = Settings.get(String.class, StorageItem.DEFAULT_STORAGE_SETTING);
-                        String fieldStorageSetting = previewField.as(ToolUi.class).getStorageSetting();
-                        StorageItem newStorageItem = StorageItem.Static.createIn(defaultStorageSetting);
-                        newStorageItem.setPath(path);
-                        if (!StringUtils.isBlank(fieldStorageSetting) && !fieldStorageSetting.equals(defaultStorageSetting)) {
-                            newStorageItem = StorageItem.Static.copy(newStorageItem, fieldStorageSetting);
-                        }
-
-                        newStorageItems.add(newStorageItem);
-
-                    }
-                } else {
-                    if (files != null && files.length > 0) {
-
-                        for (FileItem file : files) {
-
-                            // Checks to make sure the file's content type is valid
-                            String groupsPattern = Settings.get(String.class, "cms/tool/fileContentTypeGroups");
-                            Set<String> contentTypeGroups = new SparseSet(ObjectUtils.isBlank(groupsPattern) ? "+/" : groupsPattern);
-
-                            if (!contentTypeGroups.contains(file.getContentType())) {
-                                page.getErrors().add(new IllegalArgumentException(String.format(
-                                        "Invalid content type [%s]. Must match the pattern [%s].",
-                                        file.getContentType(), contentTypeGroups)));
-                                continue;
-                            }
-
-                            // Disallow HTML disguising as other content types per:
-                            // http://www.adambarth.com/papers/2009/barth-caballero-song.pdf
-                            if (!contentTypeGroups.contains("text/html")) {
-                                InputStream input = file.getInputStream();
-
-                                try {
-                                    byte[] buffer = new byte[1024];
-                                    String data = new String(buffer, 0, input.read(buffer)).toLowerCase(Locale.ENGLISH);
-                                    String ptr = data.trim();
-
-                                    if (ptr.startsWith("<!")
-                                            || ptr.startsWith("<?")
-                                            || data.startsWith("<html")
-                                            || data.startsWith("<script")
-                                            || data.startsWith("<title")
-                                            || data.startsWith("<body")
-                                            || data.startsWith("<head")
-                                            || data.startsWith("<plaintext")
-                                            || data.startsWith("<table")
-                                            || data.startsWith("<img")
-                                            || data.startsWith("<pre")
-                                            || data.startsWith("text/html")
-                                            || data.startsWith("<a")
-                                            || ptr.startsWith("<frameset")
-                                            || ptr.startsWith("<iframe")
-                                            || ptr.startsWith("<link")
-                                            || ptr.startsWith("<base")
-                                            || ptr.startsWith("<style")
-                                            || ptr.startsWith("<div")
-                                            || ptr.startsWith("<p")
-                                            || ptr.startsWith("<font")
-                                            || ptr.startsWith("<applet")
-                                            || ptr.startsWith("<meta")
-                                            || ptr.startsWith("<center")
-                                            || ptr.startsWith("<form")
-                                            || ptr.startsWith("<isindex")
-                                            || ptr.startsWith("<h1")
-                                            || ptr.startsWith("<h2")
-                                            || ptr.startsWith("<h3")
-                                            || ptr.startsWith("<h4")
-                                            || ptr.startsWith("<h5")
-                                            || ptr.startsWith("<h6")
-                                            || ptr.startsWith("<b")
-                                            || ptr.startsWith("<br")) {
-                                        page.getErrors().add(new IllegalArgumentException(String.format(
-                                                "Can't upload [%s] file disguising as HTML!",
-                                                file.getContentType())));
-                                        continue;
-                                    }
-
-                                } finally {
-                                    input.close();
-                                }
-                            }
-
-                            if (file.getSize() == 0) {
-                                continue;
-                            }
-
-                            String fileName = file.getName();
-                            String path = StorageItemField.createStorageItemPath(null, fileName);
-
-                            Map<String, List<String>> httpHeaders = new LinkedHashMap<String, List<String>>();
-
-                            httpHeaders.put("Cache-Control", Collections.singletonList("public, max-age=31536000"));
-                            httpHeaders.put("Content-Length", Collections.singletonList(String.valueOf(file.getSize())));
-                            httpHeaders.put("Content-Type", Collections.singletonList(file.getContentType()));
-
-                            String storageSetting = previewField.as(ToolUi.class).getStorageSetting();
-                            StorageItem item = StorageItem.Static.createIn(storageSetting != null ? Settings.getOrDefault(String.class, storageSetting, null) : null);
-                            String contentType = file.getContentType();
-
-                            item.setPath(path);
-                            item.setContentType(contentType);
-                            item.getMetadata().put("http.headers", httpHeaders);
-                            item.getMetadata().put("originalFilename", fileName);
-                            item.setData(file.getInputStream());
-
-                            newStorageItems.add(item);
-                        }
-                    }
-                }
+                List<StorageItem> newStorageItems = StorageItemFilter.getMultiple(page.getRequest(), fileParamName, StorageItemField.getStorageSetting(Optional.of(previewField)));
 
                 List<UUID> newObjectIds = new ArrayList<>();
                 if (!ObjectUtils.isBlank(newStorageItems)) {
@@ -225,10 +103,6 @@ public class UploadFiles extends PageServlet {
                         if (item == null) {
                             continue;
                         }
-
-                        item.save();
-
-                        StorageItemField.tryExtractMetadata(item, item.getMetadata(), Optional.empty());
 
                         Object object = selectedType.createObject(null);
                         State state = State.getInstance(object);
