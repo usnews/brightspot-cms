@@ -26,11 +26,13 @@ import com.psddev.cms.db.ImageTag;
 import com.psddev.cms.db.ImageTextOverlay;
 import com.psddev.cms.db.StandardImageSize;
 import com.psddev.cms.db.ToolUi;
+import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.FileContentType;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.cms.tool.file.ContentTypeValidator;
 import com.psddev.cms.tool.file.MetadataBeforeSave;
+import com.psddev.dari.db.Application;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
@@ -65,11 +67,8 @@ public class StorageItemField extends PageServlet {
 
         String inputName = ObjectUtils.firstNonBlank((String) request.getAttribute("inputName"), page.param(String.class, "inputName"));
         String actionName = inputName + ".action";
-        String storageName = inputName + ".storage";
-        String pathName = inputName + ".path";
-        String contentTypeName = inputName + ".contentType";
         String fileParamName = inputName + ".file";
-        String fileKeepParamName = fileParamName + ".keep";
+        String fileJsonParamName = fileParamName + ".json";
         String urlName = inputName + ".url";
         String dropboxName = inputName + ".dropbox";
         String cropsName = inputName + ".crops.";
@@ -96,16 +95,10 @@ public class StorageItemField extends PageServlet {
         } else {
             // handles processing of files uploaded on frontend
             UUID typeId = page.param(UUID.class, "typeId");
-            ObjectType type = Query.findById(ObjectType.class, typeId);
+            ObjectType type = ObjectType.getInstance(typeId);
             field = type.getField(fieldName);
-            state = State.getInstance(ObjectType.getInstance(page.param(UUID.class, "typeId")));
-        }
-
-        String storageItemPath = page.param(String.class, pathName);
-        if (!StringUtils.isBlank(storageItemPath)) {
-            StorageItem newItem = StorageItem.Static.createIn(page.param(storageName));
-            newItem.setPath(storageItemPath);
-            fieldValue = newItem;
+            state = State.getInstance(type.createObject(null));
+            fieldValue = StorageItemFilter.getParameter(request, fileJsonParamName, getStorageSetting(Optional.of(field)));
         }
 
         String metadataFieldName = fieldName + ".metadata";
@@ -250,7 +243,7 @@ public class StorageItemField extends PageServlet {
             }
 
             if ("keep".equals(action)) {
-                newItem = StorageItemFilter.getParameter(request, fileKeepParamName, getStorageSetting(Optional.of(field)));
+                newItem = StorageItemFilter.getParameter(request, fileJsonParamName, getStorageSetting(Optional.of(field)));
 
             } else if ("newUpload".equals(action)) {
                 newItem = StorageItemFilter.getParameter(request, fileParamName, getStorageSetting(Optional.of(field)));
@@ -294,6 +287,7 @@ public class StorageItemField extends PageServlet {
                             new MetadataBeforeSave().beforeSave(newItem);
 
                             newItem.setData(new FileInputStream(file));
+                            newItem.save();
                         }
 
                     } finally {
@@ -394,12 +388,6 @@ public class StorageItemField extends PageServlet {
                 newItem.setMetadata(fieldValueMetadata);
             }
 
-            if (newItem != null
-                    && ("newUpload".equals(action)
-                    || "dropbox".equals(action))) {
-                newItem.save();
-            }
-
             state.putValue(fieldName, newItem);
 
             if (projectUsingBrightSpotImage) {
@@ -409,15 +397,8 @@ public class StorageItemField extends PageServlet {
 
         }
 
-        Optional<ObjectField> fieldOptional = Optional.of(field);
-        Uploader uploader = Uploader.getUploader(fieldOptional);
-
         // --- Presentation ---
         page.writeStart("div", "class", "inputSmall");
-
-            if (uploader != null) {
-                uploader.writeHtml(page, fieldOptional);
-            }
 
             page.writeStart("div", "class", "fileSelector");
 
@@ -467,10 +448,12 @@ public class StorageItemField extends PageServlet {
                 page.writeEnd();
 
                 page.writeTag("input",
-                        "class", "fileSelectorItem fileSelectorNewUpload " + (uploader != null ? ObjectUtils.firstNonNull(uploader.getClassIdentifier(), "") : ""),
+                        "class", "fileSelectorItem fileSelectorNewUpload",
                         "type", "file",
+                        page.getCmsTool().isEnableFrontEndUploader() ? "data-bsp-uploader" : "", "",
                         "name", page.h(fileParamName),
-                        "data-input-name", inputName);
+                        "data-input-name", inputName,
+                        "data-type-id", state.getTypeId());
 
                 page.writeTag("input",
                         "class", "fileSelectorItem fileSelectorNewUrl",
@@ -480,7 +463,7 @@ public class StorageItemField extends PageServlet {
                 if (fieldValue != null) {
                     page.writeTag("input",
                             "type", "hidden",
-                            "name", fileKeepParamName,
+                            "name", fileJsonParamName,
                             "value", ObjectUtils.toJson(fieldValue));
                 }
 
@@ -504,13 +487,9 @@ public class StorageItemField extends PageServlet {
             page.writeEnd();
 
             if (fieldValue != null) {
-                String contentType = fieldValue.getContentType();
 
                 page.writeStart("div",
                         "class", "fileSelectorItem fileSelectorExisting filePreview");
-                    page.writeTag("input", "name", page.h(storageName), "type", "hidden", "value", page.h(fieldValue.getStorage()));
-                    page.writeTag("input", "name", page.h(pathName), "type", "hidden", "value", page.h(fieldValue.getPath()));
-                    page.writeTag("input", "name", page.h(contentTypeName), "type", "hidden", "value", page.h(contentType));
 
                     if (field.as(ToolUi.class).getStoragePreviewProcessorApplication() != null) {
 

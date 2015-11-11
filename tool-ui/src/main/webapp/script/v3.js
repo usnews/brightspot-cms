@@ -30,6 +30,7 @@ require([
 
   'bsp-autoexpand',
   'bsp-autosubmit',
+  'bsp-uploader',
   'bsp-utils',
   'jquery.mousewheel',
   'velocity',
@@ -38,6 +39,7 @@ require([
   'v3/input/change',
   'input/code',
   'input/color',
+  'v3/input/file',
   'input/focus',
   'input/grid',
   'v3/input/image',
@@ -86,7 +88,7 @@ function() {
   var $ = arguments[0];
   var bsp_autoExpand = arguments[2];
   var bsp_autoSubmit = arguments[3];
-  var bsp_utils = arguments[4];
+  var bsp_utils = arguments[5];
   var win = window;
   var undef;
   var $win = $(win),
