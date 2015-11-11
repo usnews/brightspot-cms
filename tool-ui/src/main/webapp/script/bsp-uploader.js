@@ -45,25 +45,25 @@
 
       request.upload.addEventListener("progress", (function (plugin) {
         return function (event) {
-          plugin.progress(event, plugin)
+          plugin.progress(event)
         };
       })(plugin), false);
 
       request.upload.addEventListener("load", (function (plugin) {
         return function (event) {
-          plugin.loaded(event, plugin);
+          plugin.loaded(event);
         }
       })(plugin), false);
 
       request.upload.addEventListener("error", (function (plugin) {
         return function (event) {
-          plugin.error(event, plugin);
+          plugin.error(event);
         }
       })(plugin), false);
 
       request.upload.addEventListener("abort", (function (plugin) {
         return function (event) {
-          plugin.abort(event, plugin);
+          plugin.abort(event);
         }
       })(plugin), false);
 
