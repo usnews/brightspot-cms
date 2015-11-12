@@ -66,7 +66,7 @@ function ($, bsp_utils, uploader) {
     $uploadPreview.removeClass('loading');
 
     $.ajax({
-      url: window.CONTEXT_PATH + 'storageItemField',
+      url: window.CONTEXT_PATH + 'content/field/storageItem',
       dataType: 'html',
       data: params
     }).done(function (response) {
