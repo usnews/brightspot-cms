@@ -243,6 +243,7 @@ public class UploadFiles extends PageServlet {
                 page.writeStart("div", "class", "inputSmall");
                     page.writeElement("input",
                             "id", page.getId(),
+                            page.getCmsTool().isEnableFrontEndUploader() ? "data-bsp-uploader" : "", "",
                             "type", "file",
                             "name", "file",
                             "multiple", "multiple");
