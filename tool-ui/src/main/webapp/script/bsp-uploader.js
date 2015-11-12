@@ -11,8 +11,7 @@
   return {
 
     '_defaultOptions': {
-      path: '/_upload',
-      maxConcurrent: 3
+      path: '/_upload'
     },
 
     'init': function (input, options) {
