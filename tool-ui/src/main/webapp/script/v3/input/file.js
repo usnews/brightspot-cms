@@ -103,9 +103,6 @@ function ($, bsp_utils, uploader) {
     } else {
       var json = JSON.parse(responseText);
 
-      // file input will be replaced
-      // with json valued inputs
-
       params = {};
       inputName = $input.attr('name');
       params['preview'] = true;
@@ -133,6 +130,8 @@ function ($, bsp_utils, uploader) {
   function after() {
     var plugin = this;
 
+    // original file input has been replaced
+    // with hidden inputs with json values
     if (plugin.isMultiple) {
       plugin.el.detach();
     }
