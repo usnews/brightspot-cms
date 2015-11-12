@@ -7,90 +7,137 @@ function ($, bsp_utils, uploader) {
   function before() {
     var plugin = this;
     var $input = plugin.el;
-    var files = plugin.files;
 
-    var $fileSelector = $input.closest('.fileSelector');
-    var $inputWrapper = $input.closest('.inputSmall');
+    if (!plugin.isMultiple) {
+      var $fileSelector = $input.closest('.fileSelector');
 
-    $.each(files, function(i, file) {
-      $inputWrapper.append(_createProgressHtml());
-      var $uploadPreview = $inputWrapper.find('.upload-preview').eq(i);
+      var $select = $fileSelector.find('select').first();
 
-      if (file.type.match('image.*') && !($input.attr('multiple'))) {
-        _displayImgPreview($uploadPreview.find('img').first(), file);
-      } else {
-        _displayDefaultPreview($uploadPreview);
-        $uploadPreview.addClass('loading');
+      if ($select.find('option[value="keep"]').size() < 1) {
+        $select.prepend($('<option/>', {
+          'data-hide': '.fileSelectorItem',
+          'data-show': '.fileSelectorExisting',
+          'value': 'keep',
+          'text': 'Keep Existing'
+        }));
       }
-    });
 
-    var $select = $fileSelector.find('select').first();
-
-    if ($select.find('option[value="keep"]').size() < 1) {
-      $select.prepend($('<option/>', {
-        'data-hide': '.fileSelectorItem',
-        'data-show': '.fileSelectorExisting',
-        'value': 'keep',
-        'text': 'Keep Existing'
-      }));
+      $select.val('keep');
+    } else {
+      $input.hide();
     }
-
-    $select.val('keep');
   }
 
-  function progress(event) {
+  function beforeEach(request, i) {
+    var plugin = this;
+    var $input = plugin.el;
+    var file = plugin.files[i];
+    var $inputWrapper = $input.closest('.inputSmall');
+
+    $inputWrapper.append(_createProgressHtml());
+    var $uploadPreview = $inputWrapper.find('.upload-preview').eq(i);
+
+    if (file.type.match('image.*') && !plugin.isMultiple) {
+      _displayImgPreview($uploadPreview.find('img').first(), file);
+    } else {
+      _displayDefaultPreview($uploadPreview);
+      $uploadPreview.addClass('loading');
+    }
+  }
+
+  function progress(event, i) {
+    var plugin = this;
+
+    plugin.el
+      .closest('.inputSmall')
+      .find('[data-progress]')
+      .eq(i)
+      .attr('data-progress', Math.round(event.loaded * 100 / event.total));
+  }
+
+  function afterEach(responseText, i) {
+    console.log('after each');
     var plugin = this;
     var $input = plugin.el;
     var $inputWrapper = $input.closest('.inputSmall');
+    var $uploadPreview = $inputWrapper.find('.upload-preview').eq(i);
 
-    $inputWrapper.find('[data-progress]').attr('data-progress', Math.round(event.loaded * 100 / event.total));
+    var inputName, params;
+
+    if (!plugin.isMultiple) {
+      inputName = $input.attr('data-input-name');
+      var jsonParamName = inputName + '.file.json';
+      //var localImg = $uploadPreview.find('img');
+      //var localSrc = localImg.first().attr('src');
+
+      params = {};
+      params['inputName'] = inputName;
+      params['fieldName'] = $inputWrapper.parent().attr('data-field-name');
+      params['typeId'] = $input.data('type-id');
+      params[jsonParamName] = responseText;
+      params[inputName + '.action'] = 'keep';
+
+      $uploadPreview.removeClass('loading');
+
+      $.ajax({
+        url: window.CONTEXT_PATH + 'storageItemField',
+        dataType: 'html',
+        data: params
+      }).done(function (response) {
+        $uploadPreview.detach();
+        var $response = $(response);
+
+        $inputWrapper.replaceWith($response);
+        $response.find('.fileSelectorItem:not(.fileSelectorExisting)').hide();
+
+        //// prevents image pop-in
+        //var img = $inputWrapper.find('.imageEditor-image').find('img').first();
+        //img.attr('style', 'max-width: ' + width + 'px;');
+        //var remoteSrc = img.attr('src');
+        //img.attr('src', localSrc);
+        //$.ajax({
+        //  url: remoteSrc
+        //}).done(function (html) {
+        //  $inputWrapper.find('img').attr('src', remoteSrc);
+        //});
+      });
+    } else {
+      console.log('MULTIPLE');
+      var json = JSON.parse(responseText);
+
+      // file input will be replaced
+      // with json valued inputs
+
+      params = {};
+      inputName = $input.attr('name');
+      params['preview'] = true;
+      params['inputName'] = inputName;
+      params[inputName] = responseText;
+
+      // gets dims image preview
+      $.ajax({
+        url: window.CONTEXT_PATH + 'content/uploadFiles',
+        dataType: 'html',
+        data: params
+      }).done(function (html) {
+        var $html = $(html);
+        $uploadPreview.removeClass('loading');
+        $uploadPreview.prepend($html.find('img'));
+        $inputWrapper.prepend($('<input />', {
+          'type': 'hidden',
+          'name': inputName,
+          'value': responseText
+        }));
+      });
+    }
   }
 
-  function success(json) {
+  function after() {
     var plugin = this;
-    var $input = plugin.el;
-    var $inputWrapper = $input.closest('.inputSmall');
-    var $uploadPreview = $inputWrapper.find('.upload-preview');
-    var inputName = $input.attr('data-input-name');
-    var jsonParamName = inputName + '.file.json';
-    //var localImg = $uploadPreview.find('img');
-    //var localSrc = localImg.first().attr('src');
 
-    var params = {};
-    params['inputName'] = inputName;
-    params['fieldName'] = $inputWrapper.parent().attr('data-field-name');
-    params['typeId'] = $input.data('type-id');
-    params[jsonParamName] = json;
-    params[inputName + '.action'] = 'keep';
-
-    $uploadPreview.removeClass('loading');
-
-    $.ajax({
-      url: window.CONTEXT_PATH + 'storageItemField',
-      dataType: 'html',
-      data: params
-    }).done(function (response) {
-      $uploadPreview.detach();
-      var $response = $(response);
-
-      $inputWrapper.replaceWith($response);
-      $response.find('.fileSelectorItem:not(.fileSelectorExisting)').hide();
-
-      //// prevents image pop-in
-      //var img = $inputWrapper.find('.imageEditor-image').find('img').first();
-      //img.attr('style', 'max-width: ' + width + 'px;');
-      //var remoteSrc = img.attr('src');
-      //img.attr('src', localSrc);
-      //$.ajax({
-      //  url: remoteSrc
-      //}).done(function (html) {
-      //  $inputWrapper.find('img').attr('src', remoteSrc);
-      //});
-    });
-  }
-
-  function error() {
-    // TODO: error handling
+    if (plugin.isMultiple) {
+      plugin.el.detach();
+    }
   }
 
   // TODO: move this to bsp-uploader
@@ -156,10 +203,11 @@ function ($, bsp_utils, uploader) {
         path : window.UPLOAD_PATH
       });
 
-      plugin.progress = progress;
       plugin.before = before;
-      plugin.success = success;
-      plugin.errror = error;
+      plugin.beforeEach = beforeEach;
+      plugin.progress = progress;
+      plugin.afterEach = afterEach;
+      plugin.after = after;
     }
   });
 

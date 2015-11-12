@@ -60,8 +60,8 @@ public class UploadFiles extends PageServlet {
             return;
         }
 
-        if (page.paramOrDefault(Boolean.class, "writeInputsOnly", false)) {
-            writeFileInput(page);
+        if (page.paramOrDefault(Boolean.class, "preview", false)) {
+            writeFilePreview(page);
         } else {
             reallyDoService(page);
         }
@@ -95,7 +95,10 @@ public class UploadFiles extends PageServlet {
                 Object common = selectedType.createObject(page.param(UUID.class, "typeForm-" + selectedType.getId()));
                 page.updateUsingParameters(common);
 
-                List<StorageItem> newStorageItems = StorageItemFilter.getMultiple(page.getRequest(), fileParamName, StorageItemField.getStorageSetting(Optional.of(previewField)));
+                List<StorageItem> newStorageItems = StorageItemFilter.getMultiple(
+                        page.getRequest(),
+                        fileParamName,
+                        StorageItemField.getStorageSetting(Optional.of(previewField)));
 
                 List<UUID> newObjectIds = new ArrayList<>();
                 if (!ObjectUtils.isBlank(newStorageItems)) {
@@ -244,6 +247,7 @@ public class UploadFiles extends PageServlet {
                 page.writeStart("div", "class", "inputSmall");
                     page.writeElement("input",
                             "id", page.getId(),
+                            page.getCmsTool().isEnableFrontEndUploader() ? "data-bsp-uploader" : "", "",
                             "type", "file",
                             "name", "file",
                             "multiple", "multiple");
@@ -307,27 +311,24 @@ public class UploadFiles extends PageServlet {
         page.writeEnd();
     }
 
-    public static void writeFileInput(ToolPageContext page) throws IOException, ServletException {
 
+    private static void writeFilePreview(ToolPageContext page) throws IOException, ServletException {
         String inputName = ObjectUtils.firstNonBlank(page.param(String.class, "inputName"), (String) page.getRequest().getAttribute("inputName"), "file");
-        String pathName = inputName + ".path";
-
-        String path = page.param(String.class, pathName);
-        if (ObjectUtils.isBlank(path)) {
-            return;
-        }
+        StorageItem storageItem = StorageItemFilter.getParameter(page.getRequest(), inputName, null);
 
         HttpServletResponse response = page.getResponse();
-        StorageItem newStorageItem = StorageItem.Static.createIn(Settings.get(String.class, StorageItem.DEFAULT_STORAGE_SETTING));
-        newStorageItem.setPath(path);
-        ImageTag.Builder imageTagBuilder = new ImageTag.Builder(newStorageItem);
+        ImageTag.Builder imageTagBuilder = new ImageTag.Builder(storageItem);
         imageTagBuilder.setWidth(170);
 
         response.setContentType("text/html");
         page.writeStart("div");
-            page.write(imageTagBuilder.toHtml());
-            page.writeTag("input", "type", "hidden", "name", pathName, "value", page.h(path));
+        page.write(imageTagBuilder.toHtml());
         page.writeEnd();
+    }
+
+    @Deprecated
+    public static void writeFileInput(ToolPageContext page) throws IOException, ServletException {
+        writeFilePreview(page);
     }
 
     private static ObjectField getPreviewField(ObjectType type) {
