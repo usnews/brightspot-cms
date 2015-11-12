@@ -292,7 +292,9 @@ public class StorageItemField extends PageServlet {
                             }
 
                             newItem.setData(new FileInputStream(file));
+                            new MetadataBeforeSave().beforeSave(newItem);
                             newItem.save();
+                            new MetadataAfterSave().afterSave(newItem);
                         }
 
                     } finally {
