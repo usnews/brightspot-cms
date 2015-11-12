@@ -62,8 +62,7 @@ function ($, bsp_utils, uploader) {
     var $inputWrapper = $input.closest('.inputSmall');
     var $uploadPreview = $inputWrapper.find('.upload-preview').eq(i);
 
-    $input
-      .closest('.inputSmall')
+    $inputWrapper
       .find('[data-progress]')
       .eq(i)
       .attr('data-progress', 100);
