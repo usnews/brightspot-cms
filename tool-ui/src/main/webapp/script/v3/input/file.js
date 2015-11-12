@@ -48,11 +48,12 @@ function ($, bsp_utils, uploader) {
   function progress(event, i) {
     var plugin = this;
 
+    // max out FE progress at 82%
     plugin.el
       .closest('.inputSmall')
       .find('[data-progress]')
       .eq(i)
-      .attr('data-progress', Math.round(event.loaded * 100 / event.total));
+      .attr('data-progress', Math.min(Math.round(event.loaded * 100 / event.total), 82));
   }
 
   function afterEach(responseText, i) {
@@ -60,6 +61,12 @@ function ($, bsp_utils, uploader) {
     var $input = plugin.el;
     var $inputWrapper = $input.closest('.inputSmall');
     var $uploadPreview = $inputWrapper.find('.upload-preview').eq(i);
+
+    $input
+      .closest('.inputSmall')
+      .find('[data-progress]')
+      .eq(i)
+      .attr('data-progress', 100);
 
     var inputName, params;
 
