@@ -20,7 +20,7 @@ Prepare the project:
 
     mvn generate-resources
 
-Install Brightspot Base:
+(Optional) Install Brightspot Base and any other libraries:
 
     target/bin/grunt install-library --endpoint perfectsense/brightspot-base#feature/refactor
 
@@ -51,12 +51,15 @@ Change into the newly created project directory:
 Prepare the project:
 
     npm install
-    npm run grunt
 
-Install Brightspot Base:
+(Optional) Install Brightspot Base and any other libraries:
 
     npm run grunt -- install-library --endpoint perfectsense/brightspot-base#feature/refactor
     
+Build the project:
+
+    npm run grunt
+
 Run Brightspot Styleguide:
 
     npm run styleguide
