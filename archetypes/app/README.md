@@ -22,7 +22,7 @@ Prepare the project:
 
 (Optional) Install Brightspot Base and any other libraries:
 
-    target/bin/grunt install-library --endpoint perfectsense/brightspot-base#feature/refactor
+    target/bin/grunt install-library --endpoint perfectsense/brightspot-base#master
 
 Build and run the project:
 
@@ -54,7 +54,7 @@ Prepare the project:
 
 (Optional) Install Brightspot Base and any other libraries:
 
-    npm run grunt -- install-library --endpoint perfectsense/brightspot-base#feature/refactor
+    npm run grunt -- install-library --endpoint perfectsense/brightspot-base#master
     
 Build the project:
 
