@@ -200,7 +200,7 @@
     <repositories>
         <repository>
             <id>public.psddev</id>
-            <url>http://public.psddev.com/maven</url>
+            <url>https://artifactory.psdops.com/public</url>
             <snapshots>
                 <updatePolicy>always</updatePolicy>
             </snapshots>
@@ -210,7 +210,7 @@
     <pluginRepositories>
         <pluginRepository>
             <id>public.psddev</id>
-            <url>http://public.psddev.com/maven</url>
+            <url>https://artifactory.psdops.com/public</url>
             <snapshots>
                 <updatePolicy>always</updatePolicy>
             </snapshots>
