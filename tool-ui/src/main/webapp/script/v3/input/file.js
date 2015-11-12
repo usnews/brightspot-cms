@@ -56,7 +56,6 @@ function ($, bsp_utils, uploader) {
   }
 
   function afterEach(responseText, i) {
-    console.log('after each');
     var plugin = this;
     var $input = plugin.el;
     var $inputWrapper = $input.closest('.inputSmall');
@@ -80,7 +79,7 @@ function ($, bsp_utils, uploader) {
       $uploadPreview.removeClass('loading');
 
       $.ajax({
-        url: window.CONTEXT_PATH + 'storageItemField',
+        url: window.CONTEXT_PATH + 'content/field/storageItem',
         dataType: 'html',
         data: params
       }).done(function (response) {
@@ -102,7 +101,6 @@ function ($, bsp_utils, uploader) {
         //});
       });
     } else {
-      console.log('MULTIPLE');
       var json = JSON.parse(responseText);
 
       // file input will be replaced
