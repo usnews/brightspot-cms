@@ -48,27 +48,9 @@
 
       request.upload.addEventListener("progress", (function (plugin, i) {
         return function (event) {
-          plugin.progress(event, i)
+          plugin.progress(event, i);
         };
       })(plugin, i), false);
-
-      //request.upload.addEventListener("load", (function (plugin, i) {
-      //  return function (event) {
-      //    plugin.loaded(event, i);
-      //  }
-      //})(plugin), false);
-
-      //request.upload.addEventListener("error", (function (plugin, i) {
-      //  return function (event) {
-      //    plugin.error(event, i);
-      //  }
-      //})(plugin, i), false);
-
-      //request.upload.addEventListener("abort", (function (plugin, i) {
-      //  return function (event) {
-      //    plugin.abort(event, data, i);
-      //  }
-      //})(plugin, i), false);
 
       request.onreadystatechange = function() {
         if (request.readyState !== XMLHttpRequest.DONE) {
