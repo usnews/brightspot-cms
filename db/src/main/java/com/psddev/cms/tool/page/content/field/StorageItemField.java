@@ -30,6 +30,7 @@ import com.psddev.cms.tool.FileContentType;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.cms.tool.file.ContentTypeValidator;
+import com.psddev.cms.tool.file.MetadataAfterSave;
 import com.psddev.cms.tool.file.MetadataBeforeSave;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
@@ -37,9 +38,7 @@ import com.psddev.dari.db.Query;
 import com.psddev.dari.db.ReferentialText;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.AbstractStorageItem;
-import com.psddev.dari.util.AggregateException;
 import com.psddev.dari.util.ClassFinder;
-import com.psddev.dari.util.ImageMetadataMap;
 import com.psddev.dari.util.IoUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RandomUuidStorageItemPathGenerator;
@@ -293,7 +292,6 @@ public class StorageItemField extends PageServlet {
                             }
 
                             newItem.setData(new FileInputStream(file));
-
                             newItem.save();
                         }
 
@@ -314,7 +312,7 @@ public class StorageItemField extends PageServlet {
             fieldValueMetadata.put("cms.edits", edits);
 
             // Standard sizes.
-            for (Iterator<Map.Entry<String, ImageCrop>> i = crops.entrySet().iterator(); i.hasNext(); ) {
+            for (Iterator<Map.Entry<String, ImageCrop>> i = crops.entrySet().iterator(); i.hasNext();) {
                 Map.Entry<String, ImageCrop> e = i.next();
                 String cropId = e.getKey();
                 double x = page.doubleParam(cropsName + cropId + ".x");
@@ -338,7 +336,7 @@ public class StorageItemField extends PageServlet {
                     crop.setTextYs(textYs);
                     crop.setTextWidths(textWidths);
 
-                    for (Iterator<ImageTextOverlay> j = crop.getTextOverlays().iterator(); j.hasNext(); ) {
+                    for (Iterator<ImageTextOverlay> j = crop.getTextOverlays().iterator(); j.hasNext();) {
                         ImageTextOverlay textOverlay = j.next();
                         String text = textOverlay.getText();
 
@@ -404,15 +402,8 @@ public class StorageItemField extends PageServlet {
 
         }
 
-        Optional<ObjectField> fieldOptional = Optional.of(field);
-        Uploader uploader = Uploader.getUploader(fieldOptional);
-
         // --- Presentation ---
         page.writeStart("div", "class", "inputSmall");
-
-        if (uploader != null) {
-            uploader.writeHtml(page, fieldOptional);
-        }
 
         page.writeStart("div", "class", "fileSelector");
 
@@ -462,7 +453,7 @@ public class StorageItemField extends PageServlet {
         page.writeEnd();
 
         page.writeTag("input",
-                "class", "fileSelectorItem fileSelectorNewUpload " + (uploader != null ? ObjectUtils.firstNonNull(uploader.getClassIdentifier(), "") : ""),
+                "class", "fileSelectorItem fileSelectorNewUpload",
                 "type", "file",
                 "name", page.h(fileParamName),
                 "data-input-name", inputName);

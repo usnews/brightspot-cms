@@ -521,15 +521,8 @@ public class StorageItemField extends PageServlet {
             }
         }
 
-        Optional<ObjectField> fieldOptional = Optional.of(field);
-        Uploader uploader = Uploader.getUploader(fieldOptional);
-
         // --- Presentation ---
         page.writeStart("div", "class", "inputSmall");
-
-            if (uploader != null) {
-                uploader.writeHtml(page, fieldOptional);
-            }
 
             page.writeStart("div", "class", "fileSelector");
 
@@ -579,7 +572,7 @@ public class StorageItemField extends PageServlet {
                 page.writeEnd();
 
                 page.writeTag("input",
-                        "class", "fileSelectorItem fileSelectorNewUpload " + (uploader != null ? ObjectUtils.firstNonNull(uploader.getClassIdentifier(), "") : ""),
+                        "class", "fileSelectorItem fileSelectorNewUpload",
                         "type", "file",
                         "name", page.h(fileName),
                         "data-input-name", inputName);
