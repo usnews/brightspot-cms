@@ -34,7 +34,6 @@ import com.psddev.cms.tool.file.MetadataAfterSave;
 import com.psddev.cms.tool.file.MetadataBeforeSave;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
-import com.psddev.dari.db.Query;
 import com.psddev.dari.db.ReferentialText;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.AbstractStorageItem;
@@ -65,11 +64,8 @@ public class StorageItemField extends PageServlet {
 
         String inputName = ObjectUtils.firstNonBlank((String) request.getAttribute("inputName"), page.param(String.class, "inputName"));
         String actionName = inputName + ".action";
-        String storageName = inputName + ".storage";
-        String pathName = inputName + ".path";
-        String contentTypeName = inputName + ".contentType";
         String fileParamName = inputName + ".file";
-        String fileKeepParamName = fileParamName + ".keep";
+        String fileJsonParamName = fileParamName + ".json";
         String urlName = inputName + ".url";
         String dropboxName = inputName + ".dropbox";
         String cropsName = inputName + ".crops.";
@@ -96,16 +92,10 @@ public class StorageItemField extends PageServlet {
         } else {
             // handles processing of files uploaded on frontend
             UUID typeId = page.param(UUID.class, "typeId");
-            ObjectType type = Query.findById(ObjectType.class, typeId);
+            ObjectType type = ObjectType.getInstance(typeId);
             field = type.getField(fieldName);
-            state = State.getInstance(ObjectType.getInstance(page.param(UUID.class, "typeId")));
-        }
-
-        String storageItemPath = page.param(String.class, pathName);
-        if (!StringUtils.isBlank(storageItemPath)) {
-            StorageItem newItem = StorageItem.Static.createIn(page.param(storageName));
-            newItem.setPath(storageItemPath);
-            fieldValue = newItem;
+            state = State.getInstance(type.createObject(null));
+            fieldValue = StorageItemFilter.getParameter(request, fileJsonParamName, getStorageSetting(Optional.of(field)));
         }
 
         String metadataFieldName = fieldName + ".metadata";
@@ -250,7 +240,7 @@ public class StorageItemField extends PageServlet {
             }
 
             if ("keep".equals(action)) {
-                newItem = StorageItemFilter.getParameter(request, fileKeepParamName, getStorageSetting(Optional.of(field)));
+                newItem = StorageItemFilter.getParameter(request, fileJsonParamName, getStorageSetting(Optional.of(field)));
 
             } else if ("newUpload".equals(action)) {
                 newItem = StorageItemFilter.getParameter(request, fileParamName, getStorageSetting(Optional.of(field)));
@@ -292,6 +282,7 @@ public class StorageItemField extends PageServlet {
                             }
 
                             newItem.setData(new FileInputStream(file));
+
                             new MetadataBeforeSave().beforeSave(newItem);
                             newItem.save();
                             new MetadataAfterSave().afterSave(newItem);
@@ -407,112 +398,110 @@ public class StorageItemField extends PageServlet {
         // --- Presentation ---
         page.writeStart("div", "class", "inputSmall");
 
-        page.writeStart("div", "class", "fileSelector");
+            page.writeStart("div", "class", "fileSelector");
 
-        page.writeStart("select",
-                "class", "toggleable",
-                "data-root", ".inputSmall",
-                "name", page.h(actionName));
+                page.writeStart("select",
+                        "class", "toggleable",
+                        "data-root", ".inputSmall",
+                        "name", page.h(actionName));
 
-        if (fieldValue != null) {
-            page.writeStart("option",
-                    "data-hide", ".fileSelectorItem",
-                    "data-show", ".fileSelectorExisting",
-                    "value", "keep");
-            page.writeHtml(page.localize(StorageItemField.class, "option.keep"));
-            page.writeEnd();
-        }
+                    if (fieldValue != null) {
+                        page.writeStart("option",
+                                "data-hide", ".fileSelectorItem",
+                                "data-show", ".fileSelectorExisting",
+                                "value", "keep");
+                            page.writeHtml(page.localize(StorageItemField.class, "option.keep"));
+                        page.writeEnd();
+                    }
 
-        page.writeStart("option",
-                "data-hide", ".fileSelectorItem",
-                "value", "none");
-        page.writeHtml(page.localize(StorageItemField.class, "option.none"));
-        page.writeEnd();
+                    page.writeStart("option",
+                            "data-hide", ".fileSelectorItem",
+                            "value", "none");
+                        page.writeHtml(page.localize(StorageItemField.class, "option.none"));
+                    page.writeEnd();
 
-        page.writeStart("option",
-                "data-hide", ".fileSelectorItem",
-                "data-show", ".fileSelectorNewUpload",
-                "value", "newUpload",
-                fieldValue == null && field.isRequired() ? " selected" : "");
-        page.writeHtml(page.localize(StorageItemField.class, "option.newUpload"));
-        page.writeEnd();
+                    page.writeStart("option",
+                            "data-hide", ".fileSelectorItem",
+                            "data-show", ".fileSelectorNewUpload",
+                            "value", "newUpload",
+                            fieldValue == null && field.isRequired() ? " selected" : "");
+                        page.writeHtml(page.localize(StorageItemField.class, "option.newUpload"));
+                    page.writeEnd();
 
-        page.writeStart("option",
-                "data-hide", ".fileSelectorItem",
-                "data-show", ".fileSelectorNewUrl",
-                "value", "newUrl");
-        page.writeHtml(page.localize(StorageItemField.class, "option.newUrl"));
-        page.writeEnd();
+                    page.writeStart("option",
+                            "data-hide", ".fileSelectorItem",
+                            "data-show", ".fileSelectorNewUrl",
+                            "value", "newUrl");
+                        page.writeHtml(page.localize(StorageItemField.class, "option.newUrl"));
+                    page.writeEnd();
 
-        if (!ObjectUtils.isBlank(page.getCmsTool().getDropboxApplicationKey())) {
-            page.writeStart("option",
-                    "data-hide", ".fileSelectorItem",
-                    "data-show", ".fileSelectorDropbox",
-                    "value", "dropbox");
-            page.write("Dropbox");
-            page.writeEnd();
-        }
-        page.writeEnd();
+                    if (!ObjectUtils.isBlank(page.getCmsTool().getDropboxApplicationKey())) {
+                        page.writeStart("option",
+                                "data-hide", ".fileSelectorItem",
+                                "data-show", ".fileSelectorDropbox",
+                                "value", "dropbox");
+                            page.write("Dropbox");
+                        page.writeEnd();
+                    }
+                page.writeEnd();
 
-        page.writeTag("input",
-                "class", "fileSelectorItem fileSelectorNewUpload",
-                "type", "file",
-                "name", page.h(fileParamName),
-                "data-input-name", inputName);
+                page.writeTag("input",
+                        "class", "fileSelectorItem fileSelectorNewUpload",
+                        "type", "file",
+                        page.getCmsTool().isEnableFrontEndUploader() ? "data-bsp-uploader" : "", "",
+                        "name", page.h(fileParamName),
+                        "data-input-name", inputName,
+                        "data-type-id", state.getTypeId());
 
-        page.writeTag("input",
-                "class", "fileSelectorItem fileSelectorNewUrl",
-                "type", "text",
-                "name", page.h(urlName));
+                page.writeTag("input",
+                        "class", "fileSelectorItem fileSelectorNewUrl",
+                        "type", "text",
+                        "name", page.h(urlName));
 
-        if (fieldValue != null) {
-            page.writeTag("input",
-                    "type", "hidden",
-                    "name", fileKeepParamName,
-                    "value", ObjectUtils.toJson(fieldValue));
-        }
-
-        if (!ObjectUtils.isBlank(page.getCmsTool().getDropboxApplicationKey())) {
-            page.writeStart("span", "class", "fileSelectorItem fileSelectorDropbox", "style", page.cssString("display", "inline-block", "vertical-align", "bottom"));
-            page.writeTag("input",
-                    "type", "dropbox-chooser",
-                    "name", page.h(dropboxName),
-                    "data-link-type", "direct",
-                    "style", page.cssString("visibility", "hidden"));
-            page.writeEnd();
-
-            page.writeStart("script", "type", "text/javascript");
-            page.writeRaw(
-                    "$('.fileSelectorDropbox input').on('DbxChooserSuccess', function(event) {\n"
-                            + "   $(this).val(JSON.stringify(event.originalEvent.files[0]));\n"
-                            + "});"
-            );
-            page.writeEnd();
-        }
-        page.writeEnd();
-
-        if (fieldValue != null) {
-            String contentType = fieldValue.getContentType();
-
-            page.writeStart("div",
-                    "class", "fileSelectorItem fileSelectorExisting filePreview");
-            page.writeTag("input", "name", page.h(storageName), "type", "hidden", "value", page.h(fieldValue.getStorage()));
-            page.writeTag("input", "name", page.h(pathName), "type", "hidden", "value", page.h(fieldValue.getPath()));
-            page.writeTag("input", "name", page.h(contentTypeName), "type", "hidden", "value", page.h(contentType));
-
-            if (field.as(ToolUi.class).getStoragePreviewProcessorApplication() != null) {
-
-                ToolUi ui = field.as(ToolUi.class);
-                String processorPath = ui.getStoragePreviewProcessorPath();
-                if (processorPath != null) {
-                    page.include(RoutingFilter.Static.getApplicationPath(ui.getStoragePreviewProcessorApplication())
-                            + StringUtils.ensureStart(processorPath, "/"));
+                if (fieldValue != null) {
+                    page.writeTag("input",
+                            "type", "hidden",
+                            "name", fileJsonParamName,
+                            "value", ObjectUtils.toJson(fieldValue));
                 }
-            } else {
-                FileContentType.writeFilePreview(page, state, fieldValue);
-            }
+
+                if (!ObjectUtils.isBlank(page.getCmsTool().getDropboxApplicationKey())) {
+                    page.writeStart("span", "class", "fileSelectorItem fileSelectorDropbox", "style", page.cssString("display", "inline-block", "vertical-align", "bottom"));
+                        page.writeTag("input",
+                                "type", "dropbox-chooser",
+                                "name", page.h(dropboxName),
+                                "data-link-type", "direct",
+                                "style", page.cssString("visibility", "hidden"));
+                    page.writeEnd();
+
+                    page.writeStart("script", "type", "text/javascript");
+                        page.writeRaw(
+                                "$('.fileSelectorDropbox input').on('DbxChooserSuccess', function(event) {\n"
+                                        + "   $(this).val(JSON.stringify(event.originalEvent.files[0]));\n"
+                                        + "});"
+                        );
+                    page.writeEnd();
+                }
             page.writeEnd();
-        }
+
+            if (fieldValue != null) {
+
+                page.writeStart("div",
+                        "class", "fileSelectorItem fileSelectorExisting filePreview");
+
+                    if (field.as(ToolUi.class).getStoragePreviewProcessorApplication() != null) {
+
+                        ToolUi ui = field.as(ToolUi.class);
+                        String processorPath = ui.getStoragePreviewProcessorPath();
+                        if (processorPath != null) {
+                            page.include(RoutingFilter.Static.getApplicationPath(ui.getStoragePreviewProcessorApplication())
+                                    + StringUtils.ensureStart(processorPath, "/"));
+                        }
+                    } else {
+                        FileContentType.writeFilePreview(page, state, fieldValue);
+                    }
+                page.writeEnd();
+            }
         page.writeEnd();
 
         if (projectUsingBrightSpotImage) {
