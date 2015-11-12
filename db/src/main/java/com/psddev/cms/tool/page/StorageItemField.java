@@ -420,7 +420,7 @@ public class StorageItemField extends PageServlet {
                 }
 
                 // Standard sizes.
-                for (Iterator<Map.Entry<String, ImageCrop>> i = crops.entrySet().iterator(); i.hasNext(); ) {
+                for (Iterator<Map.Entry<String, ImageCrop>> i = crops.entrySet().iterator(); i.hasNext();) {
                     Map.Entry<String, ImageCrop> e = i.next();
                     String cropId = e.getKey();
                     double x = page.doubleParam(cropsName + cropId + ".x");
@@ -444,7 +444,7 @@ public class StorageItemField extends PageServlet {
                         crop.setTextYs(textYs);
                         crop.setTextWidths(textWidths);
 
-                        for (Iterator<ImageTextOverlay> j = crop.getTextOverlays().iterator(); j.hasNext(); ) {
+                        for (Iterator<ImageTextOverlay> j = crop.getTextOverlays().iterator(); j.hasNext();) {
                             ImageTextOverlay textOverlay = j.next();
                             String text = textOverlay.getText();
 
@@ -527,109 +527,109 @@ public class StorageItemField extends PageServlet {
         // --- Presentation ---
         page.writeStart("div", "class", "inputSmall");
 
-        if (uploader != null) {
-            uploader.writeHtml(page, fieldOptional);
-        }
-
-        page.writeStart("div", "class", "fileSelector");
-
-        page.writeStart("select",
-                "class", "toggleable",
-                "data-root", ".inputSmall",
-                "name", page.h(actionName));
-
-        if (fieldValue != null) {
-            page.writeStart("option",
-                    "data-hide", ".fileSelectorItem",
-                    "data-show", ".fileSelectorExisting",
-                    "value", "keep");
-            page.writeHtml(page.localize(StorageItemField.class, "option.keep"));
-            page.writeEnd();
-        }
-
-        page.writeStart("option",
-                "data-hide", ".fileSelectorItem",
-                "value", "none");
-        page.writeHtml(page.localize(StorageItemField.class, "option.none"));
-        page.writeEnd();
-
-        page.writeStart("option",
-                "data-hide", ".fileSelectorItem",
-                "data-show", ".fileSelectorNewUpload",
-                "value", "newUpload",
-                fieldValue == null && field.isRequired() ? " selected" : "");
-        page.writeHtml(page.localize(StorageItemField.class, "option.newUpload"));
-        page.writeEnd();
-
-        page.writeStart("option",
-                "data-hide", ".fileSelectorItem",
-                "data-show", ".fileSelectorNewUrl",
-                "value", "newUrl");
-        page.writeHtml(page.localize(StorageItemField.class, "option.newUrl"));
-        page.writeEnd();
-
-        if (!ObjectUtils.isBlank(page.getCmsTool().getDropboxApplicationKey())) {
-            page.writeStart("option",
-                    "data-hide", ".fileSelectorItem",
-                    "data-show", ".fileSelectorDropbox",
-                    "value", "dropbox");
-            page.write("Dropbox");
-            page.writeEnd();
-        }
-        page.writeEnd();
-
-        page.writeTag("input",
-                "class", "fileSelectorItem fileSelectorNewUpload " + (uploader != null ? ObjectUtils.firstNonNull(uploader.getClassIdentifier(), "") : ""),
-                "type", "file",
-                "name", page.h(fileName),
-                "data-input-name", inputName);
-
-        page.writeTag("input",
-                "class", "fileSelectorItem fileSelectorNewUrl",
-                "type", "text",
-                "name", page.h(urlName));
-
-        if (!ObjectUtils.isBlank(page.getCmsTool().getDropboxApplicationKey())) {
-            page.writeStart("span", "class", "fileSelectorItem fileSelectorDropbox", "style", page.cssString("display", "inline-block", "vertical-align", "bottom"));
-            page.writeTag("input",
-                    "type", "dropbox-chooser",
-                    "name", page.h(dropboxName),
-                    "data-link-type", "direct",
-                    "style", page.cssString("visibility", "hidden"));
-            page.writeEnd();
-
-            page.writeStart("script", "type", "text/javascript");
-            page.writeRaw(
-                    "$('.fileSelectorDropbox input').on('DbxChooserSuccess', function(event) {\n"
-                            + "   $(this).val(JSON.stringify(event.originalEvent.files[0]));\n"
-                            + "});"
-            );
-            page.writeEnd();
-        }
-        page.writeEnd();
-
-        if (fieldValue != null) {
-            String contentType = fieldValue.getContentType();
-
-            page.writeStart("div",
-                    "class", "fileSelectorItem fileSelectorExisting filePreview");
-            page.writeTag("input", "name", page.h(storageName), "type", "hidden", "value", page.h(fieldValue.getStorage()));
-            page.writeTag("input", "name", page.h(pathName), "type", "hidden", "value", page.h(fieldValue.getPath()));
-            page.writeTag("input", "name", page.h(contentTypeName), "type", "hidden", "value", page.h(contentType));
-
-            if (field.as(ToolUi.class).getStoragePreviewProcessorApplication() != null) {
-
-                ToolUi ui = field.as(ToolUi.class);
-                String processorPath = ui.getStoragePreviewProcessorPath();
-                if (processorPath != null) {
-                    page.include(RoutingFilter.Static.getApplicationPath(ui.getStoragePreviewProcessorApplication())
-                            + StringUtils.ensureStart(processorPath, "/"));
-                }
-            } else {
-                FileContentType.writeFilePreview(page, state, fieldValue);
+            if (uploader != null) {
+                uploader.writeHtml(page, fieldOptional);
             }
+
+            page.writeStart("div", "class", "fileSelector");
+
+                page.writeStart("select",
+                        "class", "toggleable",
+                        "data-root", ".inputSmall",
+                        "name", page.h(actionName));
+
+                    if (fieldValue != null) {
+                        page.writeStart("option",
+                                "data-hide", ".fileSelectorItem",
+                                "data-show", ".fileSelectorExisting",
+                                "value", "keep");
+                            page.writeHtml(page.localize(StorageItemField.class, "option.keep"));
+                        page.writeEnd();
+                    }
+
+                    page.writeStart("option",
+                            "data-hide", ".fileSelectorItem",
+                            "value", "none");
+                        page.writeHtml(page.localize(StorageItemField.class, "option.none"));
+                    page.writeEnd();
+
+                    page.writeStart("option",
+                            "data-hide", ".fileSelectorItem",
+                            "data-show", ".fileSelectorNewUpload",
+                            "value", "newUpload",
+                            fieldValue == null && field.isRequired() ? " selected" : "");
+                        page.writeHtml(page.localize(StorageItemField.class, "option.newUpload"));
+                    page.writeEnd();
+
+                    page.writeStart("option",
+                            "data-hide", ".fileSelectorItem",
+                            "data-show", ".fileSelectorNewUrl",
+                            "value", "newUrl");
+                        page.writeHtml(page.localize(StorageItemField.class, "option.newUrl"));
+                    page.writeEnd();
+
+                    if (!ObjectUtils.isBlank(page.getCmsTool().getDropboxApplicationKey())) {
+                        page.writeStart("option",
+                                "data-hide", ".fileSelectorItem",
+                                "data-show", ".fileSelectorDropbox",
+                                "value", "dropbox");
+                            page.write("Dropbox");
+                        page.writeEnd();
+                    }
+                page.writeEnd();
+
+                page.writeTag("input",
+                        "class", "fileSelectorItem fileSelectorNewUpload " + (uploader != null ? ObjectUtils.firstNonNull(uploader.getClassIdentifier(), "") : ""),
+                        "type", "file",
+                        "name", page.h(fileName),
+                        "data-input-name", inputName);
+
+                page.writeTag("input",
+                        "class", "fileSelectorItem fileSelectorNewUrl",
+                        "type", "text",
+                        "name", page.h(urlName));
+
+                if (!ObjectUtils.isBlank(page.getCmsTool().getDropboxApplicationKey())) {
+                    page.writeStart("span", "class", "fileSelectorItem fileSelectorDropbox", "style", page.cssString("display", "inline-block", "vertical-align", "bottom"));
+                        page.writeTag("input",
+                                "type", "dropbox-chooser",
+                                "name", page.h(dropboxName),
+                                "data-link-type", "direct",
+                                "style", page.cssString("visibility", "hidden"));
+                    page.writeEnd();
+
+                    page.writeStart("script", "type", "text/javascript");
+                        page.writeRaw(
+                                "$('.fileSelectorDropbox input').on('DbxChooserSuccess', function(event) {\n"
+                                        + "   $(this).val(JSON.stringify(event.originalEvent.files[0]));\n"
+                                        + "});"
+                        );
+                    page.writeEnd();
+                }
             page.writeEnd();
-        }
+
+            if (fieldValue != null) {
+                String contentType = fieldValue.getContentType();
+
+                page.writeStart("div",
+                        "class", "fileSelectorItem fileSelectorExisting filePreview");
+                    page.writeTag("input", "name", page.h(storageName), "type", "hidden", "value", page.h(fieldValue.getStorage()));
+                    page.writeTag("input", "name", page.h(pathName), "type", "hidden", "value", page.h(fieldValue.getPath()));
+                    page.writeTag("input", "name", page.h(contentTypeName), "type", "hidden", "value", page.h(contentType));
+
+                    if (field.as(ToolUi.class).getStoragePreviewProcessorApplication() != null) {
+
+                        ToolUi ui = field.as(ToolUi.class);
+                        String processorPath = ui.getStoragePreviewProcessorPath();
+                        if (processorPath != null) {
+                            page.include(RoutingFilter.Static.getApplicationPath(ui.getStoragePreviewProcessorApplication())
+                                    + StringUtils.ensureStart(processorPath, "/"));
+                        }
+                    } else {
+                        FileContentType.writeFilePreview(page, state, fieldValue);
+                    }
+                page.writeEnd();
+            }
         page.writeEnd();
 
         if (projectUsingBrightSpotImage) {
