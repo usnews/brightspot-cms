@@ -25,6 +25,7 @@ import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.SearchResultSelection;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.cms.tool.page.content.field.StorageItemField;
 import com.psddev.cms.tool.search.MixedSearchResultView;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.DatabaseEnvironment;

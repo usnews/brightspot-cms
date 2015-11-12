@@ -526,7 +526,7 @@ public class StorageItemField extends PageServlet {
      *
      * @param field to check for storage setting
      */
-    static String getStorageSetting(Optional<ObjectField> field) {
+    public static String getStorageSetting(Optional<ObjectField> field) {
         String storageSetting = null;
 
         if (field.isPresent()) {
