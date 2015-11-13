@@ -1,6 +1,6 @@
 {
-    "name": "${artifactId}",
-    "private": true,
-    "dependencies": {
-    }
+  "name": "${artifactId}",
+  "private": true,
+  "dependencies": {
+  }
 }
