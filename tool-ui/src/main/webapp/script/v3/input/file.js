@@ -178,6 +178,12 @@ function ($, bsp_utils, uploader) {
 
   function handleError(plugin, request, file, i) {
 
+    var $input, $inputWrapper, inputName, params, $uploadPreview, response;
+
+    $input = plugin.el;
+    $inputWrapper = $input.closest('.inputSmall');
+    $uploadPreview = $inputWrapper.find('.upload-preview').eq(i);
+    $uploadPreview.addClass('error');
   }
 
   // TODO: move this to bsp-uploader

@@ -96,6 +96,10 @@
       .fill {
         clip: rect(0px, @circle-size/2, @circle-size, 0px);
         background-color: @color-publish;
+
+        .error & {
+          background-color: @color-remove;
+        }
       }
     }
   }
@@ -118,6 +122,10 @@
         position: absolute;
         top: 1px;
       }
+
+      .error & {
+        display: none;
+      }
     }
   }
 }
@@ -137,6 +145,11 @@
       }
       .inset .percentage:before {
         content: "@{i}";
+
+        .error & {
+          content: "ERROR";
+          font-size: 18px;
+        }
       }
     }
     .loop(@i + 1);
