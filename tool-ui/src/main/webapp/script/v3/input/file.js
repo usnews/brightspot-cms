@@ -28,7 +28,7 @@ function ($, bsp_utils, uploader) {
     }
   }
 
-  function beforeEach(request, i) {
+  function beforeEach(request, file, i) {
     var plugin = this;
     var $input = plugin.el;
     var file = plugin.files[i];
@@ -56,20 +56,46 @@ function ($, bsp_utils, uploader) {
       .attr('data-progress', Math.min(Math.round(event.loaded * 100 / event.total), 82));
   }
 
-  function afterEach(responseText, i) {
+  function afterEach(request, file, i) {
     var plugin = this;
     var $input = plugin.el;
     var $inputWrapper = $input.closest('.inputSmall');
-    var $uploadPreview = $inputWrapper.find('.upload-preview').eq(i);
 
-    $inputWrapper
-      .find('[data-progress]')
-      .eq(i)
-      .attr('data-progress', 100);
+    if (request.status == 200) {
+      $inputWrapper
+        .find('[data-progress]')
+        .eq(i)
+        .attr('data-progress', 100);
 
-    var inputName, params;
+      handleSuccess(plugin, request, file, i);
+    } else {
+      handleError(plugin, request, file, i);
+    }
+  }
+
+  function after() {
+    var plugin = this;
+
+    // original file input has been replaced
+    // with hidden inputs with json values
+    if (plugin.isMultiple) {
+      plugin.el.attr('name', '');
+    }
+  }
+
+  function handleSuccess(plugin, request, file, i) {
+
+    var $input, $inputWrapper, inputName, params, $uploadPreview, response;
+
+    $input = plugin.el;
+    $inputWrapper = $input.closest('.inputSmall');
+    $uploadPreview = $inputWrapper.find('.upload-preview').eq(i);
+    response = request.responseText;
 
     if (!plugin.isMultiple) {
+
+      // Handle field upload UI
+
       inputName = $input.attr('data-input-name');
       var jsonParamName = inputName + '.file.json';
       //var localImg = $uploadPreview.find('img');
@@ -79,7 +105,7 @@ function ($, bsp_utils, uploader) {
       params['inputName'] = inputName;
       params['fieldName'] = $inputWrapper.parent().attr('data-field-name');
       params['typeId'] = $input.data('type-id');
-      params[jsonParamName] = responseText;
+      params[jsonParamName] = response;
       params[inputName + '.action'] = 'keep';
 
       $uploadPreview.removeClass('loading');
@@ -88,9 +114,9 @@ function ($, bsp_utils, uploader) {
         url: window.CONTEXT_PATH + 'content/field/storageItem',
         dataType: 'html',
         data: params
-      }).done(function (response) {
+      }).done(function (htmlResponse) {
         $uploadPreview.detach();
-        var $response = $(response);
+        var $response = $(htmlResponse);
 
         $inputWrapper.replaceWith($response);
         $response.find('.fileSelectorItem:not(.fileSelectorExisting)').hide();
@@ -107,13 +133,14 @@ function ($, bsp_utils, uploader) {
         //});
       });
     } else {
-      var json = JSON.parse(responseText);
+
+      // Handle Bulk Upload UI
 
       params = {};
       inputName = $input.attr('name');
       params['preview'] = true;
       params['inputName'] = inputName;
-      params[inputName] = responseText;
+      params[inputName] = response;
 
       // gets dims image preview
       $.ajax({
@@ -122,25 +149,35 @@ function ($, bsp_utils, uploader) {
         data: params
       }).done(function (html) {
         var $html = $(html);
-        $uploadPreview.removeClass('loading');
-        $uploadPreview.prepend($html.find('img'));
+
+        var img = $html.find('img');
+        if (img.size() > 0) {
+
+          // prevent image pop-in
+          $.ajax({
+            url: $(img).attr('src')
+          }).done(function(html) {
+            $uploadPreview.removeClass('loading');
+
+            $uploadPreview.prepend(img);
+            $uploadPreview.find('.upload-progress').detach();
+            $uploadPreview.append($('<div/>', {
+              'class' : 'upload-preview-label'
+            }).text(file.name));
+          });
+        }
+
         $inputWrapper.prepend($('<input />', {
           'type': 'hidden',
           'name': inputName,
-          'value': responseText
+          'value': response
         }));
       });
     }
   }
 
-  function after() {
-    var plugin = this;
+  function handleError(plugin, request, file, i) {
 
-    // original file input has been replaced
-    // with hidden inputs with json values
-    if (plugin.isMultiple) {
-      plugin.el.detach();
-    }
   }
 
   // TODO: move this to bsp-uploader

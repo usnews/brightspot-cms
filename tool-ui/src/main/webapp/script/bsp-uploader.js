@@ -39,10 +39,11 @@
      * plugin scoping.
      *
      * @param {XMLHttpRequest} request
+     * @param {File} file
      * @param {Deferred} deferred
      * @param {Integer} i
      */
-    '_attachEventHandlers': function(request, deferred, i) {
+    '_attachEventHandlers': function(request, file, deferred, i) {
 
       var plugin = this;
 
@@ -57,7 +58,7 @@
           return;
         }
 
-        plugin.afterEach(request.responseText, i);
+        plugin.afterEach(request, file, i);
         deferred.resolve();
       };
     },
@@ -90,8 +91,8 @@
         plugin.requestsData.push(data);
         plugin.deferreds.push($.Deferred());
 
-        plugin._attachEventHandlers(request, plugin.deferreds[i], i);
-        plugin.beforeEach(request, i);
+        plugin._attachEventHandlers(request, file, plugin.deferreds[i], i);
+        plugin.beforeEach(request, file, i);
 
         request.open("POST", plugin.settings.path);
         request.send(data);
@@ -113,9 +114,10 @@
      * Will be invoked once before EACH request.
      *
      * @param {XMLHttpRequest} request
+     * @param {File} file
      * @param {Integer} i
      */
-    'beforeEach': function (request, i) {
+    'beforeEach': function (request, file, i) {
       // No default
     },
 
@@ -134,10 +136,11 @@
      * Will be invoked once after EACH request has a response
      *
      * @param {XMLHttpRequest} request
+     * @param {File} file
      * @param {Integer} i
      */
-    'afterEach': function (request, i) {
-      console.log('AFTER EACH');
+    'afterEach': function (request, file, i) {
+      // No default
     },
 
     /**
@@ -145,7 +148,7 @@
      *
      */
     'after': function () {
-      console.log('AFTER');
+      // No default
     }
   };
 });

@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.psddev.cms.db.BulkUploadDraft;
 import com.psddev.cms.db.ImageTag;
+import com.psddev.cms.db.ResizeOption;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.db.Variation;
@@ -312,13 +313,25 @@ public class UploadFiles extends PageServlet {
         StorageItem storageItem = StorageItemFilter.getParameter(page.getRequest(), inputName, null);
 
         HttpServletResponse response = page.getResponse();
-        ImageTag.Builder imageTagBuilder = new ImageTag.Builder(storageItem);
-        imageTagBuilder.setWidth(170);
-
         response.setContentType("text/html");
-        page.writeStart("div");
-        page.write(imageTagBuilder.toHtml());
-        page.writeEnd();
+
+        String contentType = storageItem.getContentType();
+
+        if (StringUtils.isBlank(contentType)) {
+            return;
+        }
+
+        if (contentType.startsWith("image/")) {
+            ImageTag.Builder imageTagBuilder = new ImageTag.Builder(storageItem);
+            imageTagBuilder.setWidth(150);
+            imageTagBuilder.setHeight(110);
+            imageTagBuilder.setResizeOption(ResizeOption.ONLY_SHRINK_LARGER);
+
+            page.writeStart("div");
+            page.write(imageTagBuilder.toHtml());
+            page.writeEnd();
+
+        }
     }
 
     private static ObjectField getPreviewField(ObjectType type) {
