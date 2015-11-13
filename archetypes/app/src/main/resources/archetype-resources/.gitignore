@@ -1,1 +1,5 @@
-target/
+bower_components
+node
+node_modules
+target
+
