@@ -26,7 +26,7 @@ public class PdfFileType implements FileContentType {
 
     @Override
     public void writePreview(ToolPageContext page, State state, StorageItem fieldValue) throws IOException, ServletException {
-        
+
         page.writeStart("a",
                 "href", page.h(fieldValue.getPublicUrl()),
                 "target", "_blank");
