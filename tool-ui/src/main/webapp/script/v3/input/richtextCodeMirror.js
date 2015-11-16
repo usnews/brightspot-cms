@@ -276,6 +276,7 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
             self.clipboardInit();
             self.trackInit();
             self.spellcheckInit();
+            self.modeInit();
         },
 
         
@@ -3187,7 +3188,85 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
 
         },
 
+        //==================================================
+        // Mode Functions
+        // Switch between plain text and rich text modes
+        //==================================================
+        
+        modeInit: function() {
+            var self = this;
+            self.mode = 'rich';
+        },
 
+
+        /**
+         * Returns the current mode.
+         * @returns {String} 'plain' or 'rich'
+         */
+        modeGet: function() {
+            var self = this;
+            return self.mode === 'plain' ? 'plain' : 'rich';
+        },
+
+        
+        modeToggle: function() {
+            
+            var self = this;
+            var mode;
+
+            mode = self.modeGet();
+
+            if (mode === 'rich') {
+                self.modeSetPlain();
+            } else {
+                self.modeSetRich();
+            }
+        },
+
+        
+        modeSetPlain: function() {
+            var self = this;
+            var editor = self.codeMirror;
+            var $wrapper = $(editor.getWrapperElement());
+
+            self.mode = 'plain';
+            
+            $wrapper.hide();
+
+            if (self.$el.is('textarea')) {
+                self.$el.show();
+            }
+            
+            // Trigger an event on the textarea to notify other code that the mode has been changed
+            self.modeTriggerEvent();
+        },
+
+        
+        modeSetRich: function() {
+            var self = this;
+            var editor = self.codeMirror;
+            var $wrapper = $(editor.getWrapperElement());
+            
+            self.mode = 'rich';
+            
+            if (self.$el.is('textarea')) {
+                self.$el.hide();
+            }
+            $wrapper.show();
+            
+            // Trigger an event on the textarea to notify other code that the mode has been changed
+            self.modeTriggerEvent();
+        },
+
+        
+        /**
+         * Trigger an event on the textarea to notify other code that the mode has been changed.
+         */
+        modeTriggerEvent: function() {
+            var self = this;
+            self.$el.trigger('rteModeChange', [self.modeGet()]);
+        },
+        
         //==================================================
         // Miscelaneous Functions
         //==================================================
