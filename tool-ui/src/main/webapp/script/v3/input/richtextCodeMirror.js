@@ -3384,12 +3384,13 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
         empty: function() {
             var editor, self;
             self = this;
-            self.codeMirror.setValue('');
-
+            
             // Destroy all enhancements
             $.each(self.enhancementCache, function(i, mark) {
                 self.enhancementRemove(mark);
             });
+            
+            self.codeMirror.setValue('');
         },
 
 
