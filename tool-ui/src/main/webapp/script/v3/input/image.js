@@ -1679,13 +1679,24 @@ define([
                 width = sizeInfo.width;
                 height = sizeInfo.height;
 
+                // If no cropping values, and there is an aspect ratio for this size,
+                // make the crop area as big as possible while staying within the aspect ratio
                 if (sizeAspectRatio) {
-                    
-                    height = area.totalHeight;
-                    width = area.totalWidth;
-                    
-                    left = 0;
-                    top = 0;
+
+                    width = imageHeight * sizeAspectRatio;
+                    height = imageWidth / sizeAspectRatio;
+
+                    if (width > imageWidth) {
+                        width = height * sizeAspectRatio;
+                    } else {
+                        height = width / sizeAspectRatio;
+                    }
+
+                    var widthDiff = area.totalWidth - imageWidth;
+                    var heightDiff = area.totalHeight - imageHeight;
+
+                    left = widthDiff !== 0 ? widthDiff / 2 :  (imageWidth - width) / 2;
+                    top = heightDiff !== 0 ? heightDiff / 2 : (imageHeight - height) / 2;
                     
                 } else {
                     
