@@ -26,7 +26,7 @@ public class PdfFileType implements FileContentType {
 
     @Override
     public void writePreview(ToolPageContext page, State state, StorageItem fieldValue) throws IOException, ServletException {
-
+        
         page.writeStart("a",
                 "href", page.h(fieldValue.getPublicUrl()),
                 "target", "_blank");
@@ -34,9 +34,9 @@ public class PdfFileType implements FileContentType {
             page.write(": ");
             page.write(page.h(fieldValue.getPath()));
         page.writeEnd();
-        page.writeStart("embed",
+        page.writeStart("object",
                 "style", "display:block;",
-                "src", fieldValue.getPublicUrl(),
+                "data", fieldValue.getPublicUrl(),
                 "width", "200",
                 "height", "200",
                 "type", "application/pdf");
