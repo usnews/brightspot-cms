@@ -18,6 +18,8 @@ public interface ViewRequest {
      */
     <V> V createView(Class<V> viewClass, Object model);
 
+    Object createView(String viewType, Object model);
+
     /**
      * Gets a stream of the HTTP request parameter values for the given {@code name}.
      *

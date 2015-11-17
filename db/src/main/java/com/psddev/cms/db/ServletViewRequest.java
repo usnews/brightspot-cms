@@ -42,6 +42,18 @@ class ServletViewRequest implements ViewRequest {
     }
 
     @Override
+    public Object createView(String viewType, Object model) {
+        ViewCreator<Object, ?> vc = ViewCreator.createCreator(model, viewType);
+
+        if (vc != null) {
+            return vc.createView(model, this);
+
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public <T> Stream<T> getParameter(Class<T> returnType, String name) {
         String[] values = request.getParameterValues(name);
         return values != null ? Arrays.stream(values).map((param) -> ObjectUtils.to(returnType, param)).filter((value) -> value != null) : Stream.empty();
