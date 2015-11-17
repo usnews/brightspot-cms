@@ -38,21 +38,21 @@ public class ContentTypeValidatorTest {
 
     @Test
     public void nullPart() throws IOException {
-        validator.beforeCreate(null);
+        validator.beforeSave(null, null);
         verify(part, times(0)).getContentType();
     }
 
     @Test
     public void nullContentType() throws IOException {
         when(part.getContentType()).thenReturn(null);
-        validator.beforeCreate(part);
+        validator.beforeSave(null, part);
     }
 
     @Test(expected = IllegalStateException.class)
     public void invalidContentType() throws IOException, URISyntaxException {
         Settings.setOverride("cms/tool/fileContentTypeGroups", "+image/jpeg");
         when(part.getContentType()).thenReturn("image/png");
-        validator.beforeCreate(part);
+        validator.beforeSave(null, part);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class ContentTypeValidatorTest {
         contentTypeGroups.add("text/html");
         Settings.setOverride("cms/tool/fileContentTypeGroups", contentTypeGroups.toString());
 
-        validator.beforeCreate(part);
+        validator.beforeSave(null, part);
     }
 
     @Test(expected = IOException.class)
@@ -78,7 +78,7 @@ public class ContentTypeValidatorTest {
         when(part.getContentType()).thenReturn("image/jpeg");
         when(part.getFile()).thenReturn(new File(getClass().getClassLoader().getResource(RESOURCE_PATH_PREFIX + fileName).toURI()));
 
-        validator.beforeCreate(part);
+        validator.beforeSave(null, part);
     }
 
     @Test
@@ -88,6 +88,6 @@ public class ContentTypeValidatorTest {
         String fileName = "test.png";
         when(part.getContentType()).thenReturn("image/png");
         when(part.getFile()).thenReturn(new File(getClass().getClassLoader().getResource(RESOURCE_PATH_PREFIX + fileName).toURI()));
-        validator.beforeCreate(part);
+        validator.beforeSave(null, part);
     }
 }

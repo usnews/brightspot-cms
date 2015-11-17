@@ -26,7 +26,6 @@ public class MetadataBeforeSaveTest {
     @Before
     public void before() {
         item.setMetadata(null);
-        when(item.getPart()).thenReturn(part);
     }
 
     @Test
@@ -35,7 +34,7 @@ public class MetadataBeforeSaveTest {
 
         when(part.getName()).thenReturn(originalFilename);
 
-        new MetadataBeforeSave().beforeSave(item);
+        new MetadataBeforeSave().beforeSave(item, part);
 
         assertEquals(item.getMetadata().get("originalFilename"), originalFilename);
     }
@@ -48,7 +47,7 @@ public class MetadataBeforeSaveTest {
         when(part.getSize()).thenReturn(fileSize);
         when(part.getContentType()).thenReturn(fileContentType);
 
-        new MetadataBeforeSave().beforeSave(item);
+        new MetadataBeforeSave().beforeSave(item, part);
 
         Map<String, Object> httpHeaders = (Map<String, Object>) item.getMetadata().get("http.headers");
 

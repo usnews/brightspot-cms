@@ -5,7 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.psddev.dari.util.AbstractStorageItem;
 import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StorageItemBeforeSave;
 import com.psddev.dari.util.StorageItemUploadPart;
@@ -13,15 +12,11 @@ import com.psddev.dari.util.StorageItemUploadPart;
 public class MetadataBeforeSave implements StorageItemBeforeSave {
 
     @Override
-    public void beforeSave(StorageItem storageItem) {
+    public void beforeSave(StorageItem storageItem, StorageItemUploadPart part) {
 
-        if (!(storageItem instanceof AbstractStorageItem)) {
-            return;
-        }
-
-        Map<String, Object> metadata = new LinkedHashMap<>();
-        StorageItemUploadPart part = ((AbstractStorageItem) storageItem).getPart();
         if (part != null) {
+
+            Map<String, Object> metadata = new LinkedHashMap<>();
             metadata.put("originalFilename", part.getName());
 
             Map<String, List<String>> httpHeaders = new LinkedHashMap<>();

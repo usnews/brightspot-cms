@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.psddev.dari.util.AbstractStorageItem;
 import com.psddev.dari.util.AggregateException;
 import com.psddev.dari.util.ImageMetadataMap;
 import com.psddev.dari.util.IoUtils;
@@ -20,7 +19,7 @@ public class MetadataAfterSave implements StorageItemAfterSave {
 
     @Override
     public void afterSave(StorageItem storageItem) {
-        if (storageItem == null || !(storageItem instanceof AbstractStorageItem)) {
+        if (storageItem == null) {
             return;
         }
 

@@ -36,7 +36,6 @@ import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.ReferentialText;
 import com.psddev.dari.db.State;
-import com.psddev.dari.util.AbstractStorageItem;
 import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.IoUtils;
 import com.psddev.dari.util.ObjectUtils;
@@ -269,7 +268,7 @@ public class StorageItemField extends PageServlet {
 
                         if (name != null
                                 && fileContentType != null) {
-                            new ContentTypeValidator().beforeCreate(part);
+                            new ContentTypeValidator().beforeSave(null, part);
                         }
 
                         if (fileSize > 0) {
@@ -277,13 +276,9 @@ public class StorageItemField extends PageServlet {
                             newItem = StorageItem.Static.createIn(getStorageSetting(Optional.of(field)));
                             newItem.setPath(new RandomUuidStorageItemPathGenerator().createPath(name));
                             newItem.setContentType(fileContentType);
-                            if (newItem instanceof AbstractStorageItem) {
-                                ((AbstractStorageItem) newItem).setPart(part);
-                            }
-
                             newItem.setData(new FileInputStream(file));
 
-                            new MetadataBeforeSave().beforeSave(newItem);
+                            new MetadataBeforeSave().beforeSave(newItem, part);
                             newItem.save();
                             new MetadataAfterSave().afterSave(newItem);
                         }
