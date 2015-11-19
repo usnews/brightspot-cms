@@ -21,6 +21,7 @@ import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.DynamicAttributes;
 import javax.servlet.jsp.tagext.TagSupport;
 
+import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.HtmlWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -348,6 +349,95 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         paddedCrop.setHeight(Math.min(Math.max(imageCrop.getY() + imageCrop.getHeight(), 0.0), 1.0) - paddedCrop.getY());
 
         return paddedCrop;
+    }
+
+    protected static ImageCrop getFocusCrop(StorageItem item, StandardImageSize standardImageSize) {
+
+        if (item == null
+                || ObjectUtils.isBlank(item.getMetadata())
+                || standardImageSize == null) {
+            return null;
+        }
+
+        CompactMap<String, Double> focusPoint = ObjectUtils.to(
+                new TypeReference<CompactMap<String, Double>>() { },
+                item.getMetadata().get("cms.focus"));
+
+        if (ObjectUtils.isBlank(focusPoint)) {
+            return null;
+        }
+
+        Double focusX = ObjectUtils.to(Double.class, focusPoint.get("x"));
+        Double focusY = ObjectUtils.to(Double.class, focusPoint.get("y"));
+
+        if (focusX == null || focusY == null) {
+            return null;
+        }
+
+        Integer imageWidth = findDimension(item, "width");
+        Integer imageHeight = findDimension(item, "height");
+
+        Double imageAspectRatio = null;
+        if (imageWidth != null && imageHeight != null) {
+            imageAspectRatio = (double) imageWidth / (double) imageHeight;
+        }
+
+        if (imageAspectRatio == null) {
+            return null;
+        }
+
+        Integer sizeWidth = standardImageSize.getWidth();
+        Integer sizeHeight = standardImageSize.getHeight();
+
+        if (sizeWidth <= 0 || sizeHeight <=0 ) {
+            return null;
+        }
+
+        Double sizeAspectRatio = (double) sizeWidth / (double) sizeHeight;
+
+        ImageCrop crop = new ImageCrop();
+
+        Double adjustedValue;
+        Double adjustedDifference;
+        Double adjustedPercentage;
+        Double focusDifference;
+
+        if (imageAspectRatio > sizeAspectRatio) {
+            adjustedValue = imageHeight * sizeAspectRatio;
+            adjustedDifference = imageWidth - adjustedValue;
+            adjustedPercentage = adjustedDifference / imageWidth;
+
+            crop.setWidth(1 - adjustedPercentage);
+            crop.setHeight(1);
+
+            Double tempX = adjustedPercentage / 2;
+            focusDifference = Math.max(tempX - (0.5 - focusX), 0);
+
+            if (focusDifference + crop.getWidth() > 1) {
+                focusDifference = 1 - crop.getWidth();
+            }
+
+            crop.setX(focusDifference);
+
+        } else if (imageAspectRatio < sizeAspectRatio) {
+            adjustedValue = imageWidth / sizeAspectRatio;
+            adjustedDifference = imageHeight - adjustedValue;
+            adjustedPercentage = adjustedDifference / imageHeight;
+
+            crop.setHeight(1 - adjustedPercentage);
+            crop.setWidth(1);
+
+            Double tempY = adjustedPercentage / 2;
+            focusDifference = Math.max(tempY - (0.5 - focusY), 0);
+
+            if (focusDifference + crop.getHeight() > 1) {
+                focusDifference = 1 - crop.getHeight();
+            }
+
+            crop.setY(focusDifference);
+        }
+
+        return crop;
     }
 
     /**
@@ -1039,25 +1129,46 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                     }
 
                     // get the crop coordinates
-                    ImageCrop crop;
-                    if (crops != null && (crop = crops.get(standardImageSize.getId().toString())) != null
-                            && originalWidth != null && originalHeight != null) {
+                    ImageCrop crop = null;
+                    if (crops != null) {
 
-                        boolean isPaddedCrop = isPaddedCrop(crop);
+                        if (originalWidth != null && originalHeight != null) {
 
-                        ImageCrop originalCrop = crop;
+                            crop = crops.get(standardImageSize.getId().toString());
 
-                        if (isPaddedCrop) {
-                            crop = getPaddedCrop(crop);
+                            if (crop != null) {
+                                boolean isPaddedCrop = isPaddedCrop(crop);
+
+                                ImageCrop originalCrop = crop;
+
+                                if (isPaddedCrop) {
+                                    crop = getPaddedCrop(crop);
+                                }
+
+                                cropX = (int) (crop.getX() * originalWidth);
+                                cropY = (int) (crop.getY() * originalHeight);
+                                cropWidth = (int) (crop.getWidth() * originalWidth);
+                                cropHeight = (int) (crop.getHeight() * originalHeight);
+
+                                height = (int) ((double) height * crop.getHeight() / originalCrop.getHeight());
+                                width = (int) ((double) width * crop.getWidth() / originalCrop.getWidth());
+
+                            } else {
+                                crop = getFocusCrop(item, standardImageSize);
+
+                                cropX = (int) (crop.getX() * originalWidth);
+                                cropY = (int) (crop.getY() * originalHeight);
+                                cropWidth = (int) (crop.getWidth() * originalWidth);
+
+                                if (standardAspectRatio != null) {
+                                    cropHeight = (int) Math.round(cropWidth / standardAspectRatio);
+
+                                } else {
+                                    cropHeight = (int) (crop.getHeight() * originalHeight);
+                                }
+                            }
+
                         }
-
-                        cropX = (int) (crop.getX() * originalWidth);
-                        cropY = (int) (crop.getY() * originalHeight);
-                        cropWidth = (int) (crop.getWidth() * originalWidth);
-                        cropHeight = (int) (crop.getHeight() * originalHeight);
-
-                        height = (int) ((double) height * crop.getHeight() / originalCrop.getHeight());
-                        width = (int) ((double) width * crop.getWidth() / originalCrop.getWidth());
                     }
                 }
 
