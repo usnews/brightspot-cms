@@ -1129,12 +1129,11 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                     }
 
                     // get the crop coordinates
-                    ImageCrop crop = null;
                     if (crops != null) {
 
                         if (originalWidth != null && originalHeight != null) {
 
-                            crop = crops.get(standardImageSize.getId().toString());
+                            ImageCrop crop = crops.get(standardImageSize.getId().toString());
 
                             if (crop != null) {
                                 boolean isPaddedCrop = isPaddedCrop(crop);
