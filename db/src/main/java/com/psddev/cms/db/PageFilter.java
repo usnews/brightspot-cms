@@ -106,6 +106,7 @@ public class PageFilter extends AbstractFilter {
 
     public static final String MAIN_OBJECT_RENDERER_CONTEXT = "_main";
     public static final String EMBED_OBJECT_RENDERER_CONTEXT = "_embed";
+    public static final String PAGE_VIEW_TYPE = "cms.page";
 
     private boolean poweredBy;
 
@@ -1090,60 +1091,68 @@ public class PageFilter extends AbstractFilter {
         }
     };
 
-    private static boolean tryRenderView(HttpServletRequest request,
-                                        HttpServletResponse response,
-                                        Writer writer,
-                                        Object object)
-                                        throws IOException, ServletException {
+    private static boolean tryRenderView(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Writer writer,
+            Object object)
+            throws IOException, ServletException {
 
         ViewRequest viewRequest = new ServletViewRequest(request);
+        Object view = viewRequest.createView(PAGE_VIEW_TYPE, object);
 
-        PageViewClass annotation = object.getClass().getAnnotation(PageViewClass.class);
+        if (view == null) {
+            PageViewClass annotation = object.getClass().getAnnotation(PageViewClass.class);
+            Class<?> layoutViewClass = annotation != null ? annotation.value() : null;
 
-        Class<?> layoutViewClass = annotation != null ? annotation.value() : null;
-        if (layoutViewClass != null) {
+            if (layoutViewClass != null) {
+                view = viewRequest.createView(layoutViewClass, object);
 
-            Object view = viewRequest.createView(layoutViewClass, object);
-            if (view != null) {
-
-                ViewRenderer renderer;
-                if ("json".equals(request.getParameter("_renderer"))) {
-
-                    JsonViewRenderer jsonViewRenderer = new JsonViewRenderer();
-                    jsonViewRenderer.setIndented(!Settings.isProduction());
-                    jsonViewRenderer.setIncludeClassNames(!Settings.isProduction());
-                    renderer = jsonViewRenderer;
-
-                    response.setContentType("application/json");
-
-                } else {
-                    renderer = ViewRenderer.createRenderer(view);
+                if (view == null) {
+                    LOGGER.warn("Could not create view of type ["
+                            + layoutViewClass.getName()
+                            + "] for object of type ["
+                            + object.getClass()
+                            + "]!");
                 }
-
-                if (renderer != null) {
-
-                    ViewOutput result = renderer.render(view);
-                    String output = result.get();
-                    if (output != null) {
-                        writer.write(output);
-                    }
-
-                } else {
-                    LOGGER.warn("Could not create renderer for view of type ["
-                            + view.getClass().getName() + "]!");
-                }
-
-            } else {
-                LOGGER.warn("Could not create view of type ["
-                        + layoutViewClass.getName() + "] for object of type ["
-                        + object.getClass() + "]!");
             }
+        }
 
-            return true;
-
-        } else {
+        if (view == null) {
             return false;
         }
+
+        ViewRenderer renderer;
+
+        if ("json".equals(request.getParameter("_renderer"))) {
+            JsonViewRenderer jsonViewRenderer = new JsonViewRenderer();
+
+            jsonViewRenderer.setIndented(!Settings.isProduction());
+            jsonViewRenderer.setIncludeClassNames(!Settings.isProduction());
+
+            renderer = jsonViewRenderer;
+
+            response.setContentType("application/json");
+
+        } else {
+            renderer = ViewRenderer.createRenderer(view);
+        }
+
+        if (renderer != null) {
+            ViewOutput result = renderer.render(view);
+            String output = result.get();
+
+            if (output != null) {
+                writer.write(output);
+            }
+
+        } else {
+            LOGGER.warn("Could not create renderer for view of type ["
+                    + view.getClass().getName()
+                    + "]!");
+        }
+
+        return true;
     }
 
     /** Renders the given {@code object}. */

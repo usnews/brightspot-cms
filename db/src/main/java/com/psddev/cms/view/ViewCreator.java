@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -58,6 +59,14 @@ public interface ViewCreator<M, V> {
                     Arrays.stream(annotatableClass.getAnnotationsByType(ViewMapping.class))
                             .map(ViewMapping::value)
                             .collect(Collectors.toList()));
+
+            if (annotatableClass.isAnnotationPresent(StaticNestedViewMappings.class)) {
+                allCreatorClasses.addAll(
+                        Arrays.stream(annotatableClass.getClasses())
+                                .filter(ViewCreator.class::isAssignableFrom)
+                                .map((klass) -> (Class<? extends ViewCreator>) klass)
+                                .collect(Collectors.toList()));
+            }
         }
 
         allCreatorClasses.forEach(creatorClass -> {
@@ -119,6 +128,22 @@ public interface ViewCreator<M, V> {
                     .warn("No view creator mappings found for model type ["
                             + model.getClass() + "] and view type [" + viewClass + "]");
         }
+        return null;
+    }
+
+    static <M> ViewCreator<M, ?> createCreator(M model, String viewType) {
+        for (Class<?> c : ViewUtils.getAnnotatableClasses(model.getClass())) {
+            for (ViewMapping mapping : c.getAnnotationsByType(ViewMapping.class)) {
+                Optional<String> name = Arrays.stream(mapping.types())
+                        .filter(n -> n.equals(viewType))
+                        .findFirst();
+
+                if (name.isPresent()) {
+                    return (ViewCreator<M, ?>) TypeDefinition.getInstance(mapping.value()).newInstance();
+                }
+            }
+        }
+
         return null;
     }
 }

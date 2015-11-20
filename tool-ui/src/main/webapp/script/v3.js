@@ -338,7 +338,7 @@ function() {
         var $input, $container, html, $html, text;
 
         $input = rte.$el;
-        $container = $input.next('.rte2-wrapper').find('> .rte2-toolbar');
+        $container = $input.closest('.rte2-wrapper').find('> .rte2-toolbar');
 
         html = rte.toHTML();
         $html = $(new DOMParser().parseFromString(html, "text/html").body);

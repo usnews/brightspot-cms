@@ -139,6 +139,8 @@
   .rte2-toolbar-removeCompletely { .icon; .icon-remove; color: @color-remove; }
 
   .rte2-toolbar-custom { width:auto; padding: 0 0.5em; }
+  
+  .rte2-toolbar-noicon { width:auto; padding: 0 0.5em; }
 
   .rte2-toolbar-submenu > span {
     .icon;
@@ -339,12 +341,15 @@ li.CodeMirror-hint-active {
 
 // For enhancements, let the enhancement toolbar overflow the codemirror widget,
 // and reset the z-index because it was causing problems with the submenu hover
-.CodeMirror, .CodeMirror-scroll {
-  overflow:visible !important;
-}
-.CodeMirror-linewidget {
-  overflow:visible;
-  z-index:inherit;
+.rte2-codemirror {
+  .CodeMirror,
+  .CodeMirror-scroll {
+    overflow: visible !important;
+  }
+  .CodeMirror-linewidget {
+    overflow: visible;
+    z-index: inherit;
+  }
 }
 
 .rte2-wrapper {
