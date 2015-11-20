@@ -1384,25 +1384,25 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             containerTop = $container.offset().top;
             toolbarHeight = $toolbar.outerHeight();
 
-            // Do nothing if the container is small
-            if ($container.outerHeight() < 3 * toolbarHeight) {
-                return;
-            }
 
             // Is the rich text editor completely in view?
-            if (windowTop < containerTop) {
+            // Or is the editor so small that moving the toolbar wouldn't be wise?
+            if (($container.outerHeight() < 3 * toolbarHeight) || windowTop < containerTop) {
 
-                // Yes, completely in view. So remove positioning from the toolbar
-                raf(function() {
+                if ($toolbar.hasClass('rte2-toolbar-fixed')) {
+                    
+                    // Yes, completely in view. So remove positioning from the toolbar
+                    raf(function() {
 
-                     // Remove extra padding  above the editor because the toolbar will no longer be fixed
-                    $container.css('padding-top', 0);
+                        // Remove extra padding  above the editor because the toolbar will no longer be fixed position
+                        $container.css('padding-top', 0);
 
-                    // Restore toolbar to original styles
-                    $toolbar.removeClass('rte2-toolbar-fixed');
-                    $toolbar.attr('style', self._toolbarOldStyle);
-                    self._toolbarOldStyle = null;
-                });
+                        // Restore toolbar to original styles
+                        $toolbar.removeClass('rte2-toolbar-fixed');
+                        $toolbar.attr('style', self._toolbarOldStyle);
+                        self._toolbarOldStyle = null;
+                    });
+                }
 
             } else {
 
