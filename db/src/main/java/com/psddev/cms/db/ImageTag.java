@@ -389,7 +389,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         Integer sizeWidth = standardImageSize.getWidth();
         Integer sizeHeight = standardImageSize.getHeight();
 
-        if (sizeWidth <= 0 || sizeHeight <=0 ) {
+        if (sizeWidth <= 0 || sizeHeight <= 0) {
             return null;
         }
 
