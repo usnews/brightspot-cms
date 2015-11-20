@@ -1203,7 +1203,8 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
                 if (styleObj.onClick) {
 
-                    mark = rte.inlineGetMark(item.style) || rte.setStyle(item.style);
+                    // Create a new mark then call the onclick function on it
+                    mark = rte.setStyle(item.style);
                     if (mark) {
                         styleObj.onClick(event, mark);
                     }
