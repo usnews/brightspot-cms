@@ -374,6 +374,16 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
             return null;
         }
 
+        // Handle legacy focus point values set as
+        // percentage instead of value from 0 - 1
+        if (focusX > 1 && focusX < 100) {
+            focusX /= 100;
+        }
+
+        if (focusY > 1 && focusY < 100) {
+            focusY /= 100;
+        }
+
         Integer imageWidth = findDimension(item, "width");
         Integer imageHeight = findDimension(item, "height");
 
