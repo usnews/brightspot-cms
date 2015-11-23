@@ -157,21 +157,24 @@ function ($, bsp_utils, uploader) {
       }).done(function (html) {
         var $html = $(html);
 
-        var img = $html.find('img');
-        if (img.size() > 0) {
+        var $img = $($html.find('img'));
 
-          // prevent image pop-in
-          $.ajax({
-            url: $(img).attr('src')
-          }).done(function(html) {
-            $uploadPreview.removeClass('loading');
+        if ($img.size() > 0) {
+          var src = $img.attr('src');
+          $img.attr('src', '');
 
-            $uploadPreview.prepend(img);
+          $img.load(function() {
             $uploadPreview.find('.upload-progress').detach();
+            $img.show();
+            $uploadPreview.removeClass('loading');
             $uploadPreview.append($('<div/>', {
               'class' : 'upload-preview-label'
             }).text(file.name));
           });
+
+          $img.hide();
+          $uploadPreview.prepend($img);
+          $img.attr('src', src);
         }
 
         $inputWrapper.prepend($('<input />', {
