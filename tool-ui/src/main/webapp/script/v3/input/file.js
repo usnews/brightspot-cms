@@ -48,12 +48,19 @@ function ($, bsp_utils, uploader) {
   function progress(event, i) {
     var plugin = this;
 
-    // max out FE progress at 82%
-    plugin.el
+    var prog =  plugin.el
       .closest('.inputSmall')
       .find('[data-progress]')
-      .eq(i)
-      .attr('data-progress', Math.min(Math.round(event.loaded * 100 / event.total), 82));
+      .eq(i);
+
+    // Updates progress bar to a randomized maximum between 80 and 94.
+    prog.attr('data-progress', Math.min(
+      Math.round(event.loaded * 100 / event.total),
+      Math.max(
+        prog.attr('data-progress'),
+        Math.round(Math.random() * (94 - 80) + 80)
+      ))
+    );
   }
 
   function afterEach(request, file, i) {
