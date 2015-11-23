@@ -21,6 +21,7 @@ import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.UuidUtils;
 
 /** Unpublished object or unsaved changes to an existing object. */
 @Draft.DisplayName("Content Update")
@@ -157,6 +158,12 @@ public class Draft extends Content {
             String id = ObjectUtils.to(String.class, map.get(State.ID_KEY));
 
             if (id != null) {
+                if (valuesById.containsKey(id)) {
+                    id = UuidUtils.createSequentialUuid().toString();
+
+                    map.put(State.ID_KEY, id);
+                }
+
                 valuesById.put(id, new CompactMap<>(map));
             }
 
