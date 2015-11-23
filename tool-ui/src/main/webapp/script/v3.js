@@ -482,7 +482,7 @@ function() {
           replaceFileInput();
 
           //re-initialize uploader plugin, if necessary (not necessary for uploadFile-legacy servlet)
-          if ($dropLink.attr('href').startsWith('/cms/content/uploadFiles?') ) {
+          if ($dropLink.attr('href').indexOf('uploadFiles-legacy') === -1) {
             $fileInput.attr('data-bsp-uploader', ' ');
           }
         });
