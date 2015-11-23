@@ -2720,6 +2720,9 @@ public class ToolPageContext extends WebPageContext {
                         fields.addAll(lasts);
                     }
 
+                    // prevents empty tab from displaying on Singletons
+                    fields.removeIf(f -> f.getInternalName().equals("dari.singleton.key"));
+
                     DependencyResolver<ObjectField> resolver = new DependencyResolver<>();
                     Map<String, ObjectField> fieldByName = fields.stream()
                             .collect(Collectors.toMap(ObjectField::getInternalName, Function.identity()));
