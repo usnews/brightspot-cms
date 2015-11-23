@@ -56,7 +56,6 @@ require([
   'jquery.calendar',
   'v3/jquery.dropdown',
   'jquery.editableplaceholder',
-  'evaporate',
   'v3/plugin/popup',
   'v3/plugin/fixed-scrollable',
   'v3/jquery.frame',
