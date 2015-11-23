@@ -687,10 +687,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             
             // Set up periodic update of the textarea
             self.previewInit();
-
-            self.$editor.closest('.inputContainer').on('focus', '.rte2-toolbar a', function () {
-                self.rte.focus();
-            });
         },
 
 
@@ -1228,7 +1224,8 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
                 if (styleObj.onClick) {
 
-                    mark = rte.inlineGetMark(item.style) || rte.setStyle(item.style);
+                    // Create a new mark then call the onclick function on it
+                    mark = rte.setStyle(item.style);
                     if (mark) {
                         styleObj.onClick(event, mark);
                     }
@@ -1409,25 +1406,25 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             containerTop = $container.offset().top;
             toolbarHeight = $toolbar.outerHeight();
 
-            // Do nothing if the container is small
-            if ($container.outerHeight() < 3 * toolbarHeight) {
-                return;
-            }
 
             // Is the rich text editor completely in view?
-            if (windowTop < containerTop) {
+            // Or is the editor so small that moving the toolbar wouldn't be wise?
+            if (($container.outerHeight() < 3 * toolbarHeight) || windowTop < containerTop) {
 
-                // Yes, completely in view. So remove positioning from the toolbar
-                raf(function() {
+                if ($toolbar.hasClass('rte2-toolbar-fixed')) {
+                    
+                    // Yes, completely in view. So remove positioning from the toolbar
+                    raf(function() {
 
-                     // Remove extra padding  above the editor because the toolbar will no longer be fixed
-                    $container.css('padding-top', 0);
+                        // Remove extra padding  above the editor because the toolbar will no longer be fixed position
+                        $container.css('padding-top', 0);
 
-                    // Restore toolbar to original styles
-                    $toolbar.removeClass('rte2-toolbar-fixed');
-                    $toolbar.attr('style', self._toolbarOldStyle);
-                    self._toolbarOldStyle = null;
-                });
+                        // Restore toolbar to original styles
+                        $toolbar.removeClass('rte2-toolbar-fixed');
+                        $toolbar.attr('style', self._toolbarOldStyle);
+                        self._toolbarOldStyle = null;
+                    });
+                }
 
             } else {
 
