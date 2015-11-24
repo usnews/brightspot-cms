@@ -4699,4 +4699,4 @@ define([
 ======================================================================***/
 
 // Set filename for debugging tools to allow breakpoints even when using a cachebuster
-//# sourceURL=image.js
+//# sourceURL=image2.js
