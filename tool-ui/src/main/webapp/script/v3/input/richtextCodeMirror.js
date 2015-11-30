@@ -1450,7 +1450,7 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
                     to = pos.to;
 
                     // Determine if there are other marks in this range
-                    marks = editor.findMarks(from, {line:to.line, ch:to.ch - 1});
+                    marks = editor.findMarks(from, to);
                     if (marks.length > 1) {
 
                         $.each(marks, function(i, markInside) {
