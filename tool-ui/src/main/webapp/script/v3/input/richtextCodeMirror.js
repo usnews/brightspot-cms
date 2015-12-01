@@ -529,8 +529,6 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
                 }
             }
 
-            self.rawCleanup();
-
             return mark;
         },
 
@@ -1436,7 +1434,7 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
             
             $.each(editor.getAllMarks(), function(i, mark) {
 
-                var pos, styleObj, from, to;
+                var pos, styleObj, from, to, marks;
                 
                 // Is this a "raw" mark?
                 styleObj = self.classes[mark.className] || {};
@@ -1451,8 +1449,38 @@ define(['jquery', 'codemirror/lib/codemirror', 'codemirror/addon/hint/show-hint'
                     from = pos.from;
                     to = pos.to;
 
-                    // Clear other styles
-                    self.inlineRemoveStyle('', {from:from, to:to}, {includeTrack:true, except:mark.className, triggerChange:false});
+                    // Determine if there are other marks in this range
+                    marks = editor.findMarks(from, to);
+                    if (marks.length > 1) {
+
+                        $.each(marks, function(i, markInside) {
+
+                            var posInside;
+
+                            // Skip this mark if it is the raw mark
+                            if (markInside.className === mark.className) {
+                                return;
+                            }
+
+                            posInside = markInside.find() || {};
+                            
+                            // Make sure the mark is actually inside the raw area
+                            if (posInside.from.ch === pos.to.ch || posInside.to.ch === pos.from.ch) {
+                                
+                                // Don't do anything because the mark is next to the raw mark, not inside it
+                                
+                            } else {
+                                
+                                // Clear other styles within the raw mark
+                                self.inlineRemoveStyle('', {from:from, to:to}, {includeTrack:true, except:mark.className, triggerChange:false});
+
+                                // Return false to exit the each loop
+                                return false;
+                            }
+                            
+                        });
+
+                    }
                 }
                 
             });
