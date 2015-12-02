@@ -147,6 +147,10 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.2.1</version>
 
+                <configuration>
+                    <skip>${maven.generate.views.skip}</skip>
+                </configuration>
+
                 <dependencies>
                     <dependency>
                         <groupId>com.psddev</groupId>
@@ -158,7 +162,7 @@
                 <executions>
                     <execution>
                         <id>generate-view-classes</id>
-                        <phase>generate-sources</phase>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>java</goal>
                         </goals>
@@ -167,8 +171,13 @@
                             <includePluginDependencies>true</includePluginDependencies>
                             <mainClass>com.psddev.styleguide.ViewClassGenerator</mainClass>
                             <arguments>
-                                <argument>\${project.basedir}</argument>
-                                <argument>\${package}.view</argument>
+                                <argument>--json-dir=${project.basedir}/bower_components/brightspot-base/styleguide
+                                </argument>
+                                <argument>--java-package-prefix=com.inspireconfidence.view</argument>
+                                <argument>--build-dir=${project.build.directory}/generated-sources/styleguide</argument>
+                                <argument>--map-templates=assets/templates/base/common/attributes</argument>
+                                <argument>--map-templates=/assets/templates/base/common/json-object</argument>
+                                <argument>--ignore-files=_config.json</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -188,7 +197,7 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>\${project.build.directory}/generated-sources/styleguide</source>
+                                <source>${project.build.directory}/generated-sources/styleguide</source>
                             </sources>
                         </configuration>
                     </execution>
