@@ -274,6 +274,17 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                     }
 
                     return html;
+                },
+
+                // Function to return a label for the enhancement
+                // This lets the user identify and select between multiple enhancements
+                getLabel: function(mark) {
+                    var label;
+                    label = mark.className;
+                    if (mark.reference) {
+                        label = mark.reference.label;
+                    }
+                    return label;
                 }
             }
         },
@@ -1343,7 +1354,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 // Get the toolbar config object (added to the link when the link was created in toolbarInit()
                 config = $link.data('toolbarConfig');
 
-                if (config.action) {
+                // For toolbar actions we need special logic to determine if the button should be "active"
+                // One exception is for inline enhancements, which are treated as a normal style
+                if (config.action && config.action !== 'enhancementInline') {
 
                     switch (config.action) {
 
@@ -1377,7 +1390,8 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                         $link.toggleClass('active', mode === 'plain');
                         $link.parent().show();
                         break;
-                    }
+                        
+                    } // switch
 
                 } else {
 
@@ -2733,7 +2747,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Add onclick function to each style that is marked for inline enhancements
             $.each(self.rte.styles, function(styleKey, styleObj) {
                 if (styleObj.enhancementInline && !styleObj.onClick) {
-                    styleObj.onClick = self.inlineEnhancementHandleClick;
+                    styleObj.onClick = function(event, mark){
+                        self.inlineEnhancementHandleClick(event, mark);
+                    };
                 }
             });
         },
