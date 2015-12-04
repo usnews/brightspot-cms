@@ -65,8 +65,8 @@ public class BulkUploadWidget extends DefaultDashboardWidget {
                 } else {
                     //TODO: LOCALIZE
                     String uploadFilesPath = page.getCmsTool().isEnableFrontEndUploader()
-                            ? "/content/uploadFiles"
-                            : "/content/uploadFiles-legacy";
+                            ? "/content/upload"
+                            : "/content/uploadFiles";
 
                     page.writeHtml("Drag and drop or ");
                     page.writeStart("a",

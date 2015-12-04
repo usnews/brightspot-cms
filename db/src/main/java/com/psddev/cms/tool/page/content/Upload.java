@@ -42,12 +42,12 @@ import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StorageItemFilter;
 import com.psddev.dari.util.StringUtils;
 
-@RoutingFilter.Path(application = "cms", value = "/content/uploadFiles")
+@RoutingFilter.Path(application = "cms", value = "/content/upload")
 @SuppressWarnings("serial")
-public class UploadFiles extends PageServlet {
+public class Upload extends PageServlet {
 
     private static final String CONTAINER_ID_PARAMETER = "containerId";
-    private static final Logger LOGGER = LoggerFactory.getLogger(UploadFiles.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Upload.class);
 
     @Override
     protected String getPermissionId() {
@@ -205,7 +205,7 @@ public class UploadFiles extends PageServlet {
         Collections.sort(types, new ObjectFieldComparator("name", false));
 
         page.writeStart("h1");
-            page.writeHtml(page.localize(UploadFiles.class, "title"));
+            page.writeHtml(page.localize(Upload.class, "title"));
         page.writeEnd();
 
         page.writeStart("form",
@@ -238,7 +238,7 @@ public class UploadFiles extends PageServlet {
             page.writeStart("div", "class", "inputContainer bulk-upload-files");
                 page.writeStart("div", "class", "inputLabel");
                     page.writeStart("label", "for", page.createId());
-                        page.writeHtml(page.localize(UploadFiles.class, "label.files"));
+                        page.writeHtml(page.localize(Upload.class, "label.files"));
                     page.writeEnd();
                 page.writeEnd();
                 page.writeStart("div", "class", "inputSmall");
@@ -254,7 +254,7 @@ public class UploadFiles extends PageServlet {
             page.writeStart("div", "class", "inputContainer");
                 page.writeStart("div", "class", "inputLabel");
                     page.writeStart("label", "for", page.createId());
-                        page.writeHtml(page.localize(UploadFiles.class, "label.type"));
+                        page.writeHtml(page.localize(Upload.class, "label.type"));
                     page.writeEnd();
                 page.writeEnd();
                 page.writeStart("div", "class", "inputSmall");
@@ -301,7 +301,7 @@ public class UploadFiles extends PageServlet {
 
             page.writeStart("div", "class", "buttons");
                 page.writeStart("button", "name", "action-upload");
-                    page.writeHtml(page.localize(UploadFiles.class, "action.upload"));
+                    page.writeHtml(page.localize(Upload.class, "action.upload"));
                 page.writeEnd();
             page.writeEnd();
 

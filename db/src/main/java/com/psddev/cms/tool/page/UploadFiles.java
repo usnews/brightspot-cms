@@ -46,7 +46,7 @@ import com.psddev.dari.util.SparseSet;
 import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StringUtils;
 
-@RoutingFilter.Path(application = "cms", value = "/content/uploadFiles-legacy")
+@RoutingFilter.Path(application = "cms", value = "/content/uploadFiles")
 @SuppressWarnings("serial")
 public class UploadFiles extends PageServlet {
 
