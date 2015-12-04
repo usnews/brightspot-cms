@@ -56,7 +56,7 @@ import com.psddev.dari.util.TypeReference;
  * @deprecated
  *
  * Legacy StorageItemField implementation. Will be replaced
- * by com.psddev.cms.tool.page.content.field.StorageItemField.
+ * by {@link com.psddev.cms.tool.page.content.field.FileField}.
  *
  */
 

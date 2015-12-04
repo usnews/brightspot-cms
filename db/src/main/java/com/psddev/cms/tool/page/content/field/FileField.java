@@ -48,10 +48,10 @@ import com.psddev.dari.util.StorageItemUploadPart;
 import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.TypeReference;
 
-@RoutingFilter.Path(application = "cms", value = "/content/field/storageItem")
-public class StorageItemField extends PageServlet {
+@RoutingFilter.Path(application = "cms", value = "/content/field/file")
+public class FileField extends PageServlet {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(StorageItemField.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileField.class);
 
     public static void processField(ToolPageContext page) throws IOException, ServletException {
 
@@ -405,14 +405,14 @@ public class StorageItemField extends PageServlet {
                                 "data-hide", ".fileSelectorItem",
                                 "data-show", ".fileSelectorExisting",
                                 "value", "keep");
-                            page.writeHtml(page.localize(StorageItemField.class, "option.keep"));
+                            page.writeHtml(page.localize(FileField.class, "option.keep"));
                         page.writeEnd();
                     }
 
                     page.writeStart("option",
                             "data-hide", ".fileSelectorItem",
                             "value", "none");
-                        page.writeHtml(page.localize(StorageItemField.class, "option.none"));
+                        page.writeHtml(page.localize(FileField.class, "option.none"));
                     page.writeEnd();
 
                     page.writeStart("option",
@@ -420,14 +420,14 @@ public class StorageItemField extends PageServlet {
                             "data-show", ".fileSelectorNewUpload",
                             "value", "newUpload",
                             fieldValue == null && field.isRequired() ? " selected" : "");
-                        page.writeHtml(page.localize(StorageItemField.class, "option.newUpload"));
+                        page.writeHtml(page.localize(FileField.class, "option.newUpload"));
                     page.writeEnd();
 
                     page.writeStart("option",
                             "data-hide", ".fileSelectorItem",
                             "data-show", ".fileSelectorNewUrl",
                             "value", "newUrl");
-                        page.writeHtml(page.localize(StorageItemField.class, "option.newUrl"));
+                        page.writeHtml(page.localize(FileField.class, "option.newUrl"));
                     page.writeEnd();
 
                     if (!ObjectUtils.isBlank(page.getCmsTool().getDropboxApplicationKey())) {

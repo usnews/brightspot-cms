@@ -26,7 +26,7 @@ import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.SearchResultSelection;
 import com.psddev.cms.tool.ToolPageContext;
-import com.psddev.cms.tool.page.content.field.StorageItemField;
+import com.psddev.cms.tool.page.content.field.FileField;
 import com.psddev.cms.tool.search.MixedSearchResultView;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.DatabaseEnvironment;
@@ -95,7 +95,7 @@ public class Upload extends PageServlet {
                 Object common = selectedType.createObject(page.param(UUID.class, "typeForm-" + selectedType.getId()));
                 page.updateUsingParameters(common);
 
-                List<StorageItem> newStorageItems = StorageItemFilter.getParameters(page.getRequest(), fileParamName, StorageItemField.getStorageSetting(Optional.of(previewField)));
+                List<StorageItem> newStorageItems = StorageItemFilter.getParameters(page.getRequest(), fileParamName, FileField.getStorageSetting(Optional.of(previewField)));
 
                 List<UUID> newObjectIds = new ArrayList<>();
                 if (!ObjectUtils.isBlank(newStorageItems)) {
