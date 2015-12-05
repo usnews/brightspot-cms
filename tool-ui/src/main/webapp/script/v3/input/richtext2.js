@@ -228,67 +228,8 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                     'class': 'cms-textAlign-right'
                 },
                 clear: ['alignLeft', 'alignCenter', 'ol', 'ul']
-            },
-
-            enhancementInline: {
-                
-                className: 'rte2-style-enhancement-inline',
-                element: 'cms-inline-enhancement',
-                elementAttrAny: true, // Allow any attributes for this element
-                singleLine: true, // Do not span multiple lines
-
-                // Indicate this is an inline enhancement style
-                // so we can handle clicks on the mark and allow editing
-                enhancementInline: true,
-
-                // Optional:
-                // If you provide the enhancement type, then the user will be asked to create a new enhancement of that type.
-                // If you do not provide the enhancement type then the user can search all types of enhancements
-                // to find an existing enhancement or create a new enhancement of any type.
-                // enhancementType: '00000150-67bb-d6a8-a555-ffbb2fca0029',
-                
-                // Function to read attributes from the element and save them on the mark
-                fromHTML: function($el, mark) {
-                    // Get the data-reference attribute, parse it as JSON, then store the
-                    // resulting object on the mark so it can be used later
-                    mark.reference = $el.data('reference');
-                },
-
-                // Function to return the opening HTML element for the inline enhancement
-                toHTML: function(mark) {
-
-                    var href, html, rel, target, title, cmsId;
-
-                    function htmlEncode(s) {
-                        return String(s)
-                            .replace(/&/g, '&amp;')
-                            .replace(/"/g, '&quot;')
-                            .replace(/'/g, '&#39;')
-                            .replace(/</g, '&lt;')
-                            .replace(/>/g, '&gt;');
-                    }
-
-                    html = '';
-                    if (mark.reference) {
-                        html = '<cms-inline-enhancement data-reference="' + htmlEncode(JSON.stringify(mark.reference)) + '"/>';
-                    }
-
-                    return html;
-                },
-
-                // Function to return a label for the enhancement
-                // This lets the user identify and select between multiple enhancements
-                getLabel: function(mark) {
-                    var label;
-                    label = mark.className;
-                    if (mark.reference) {
-                        label = mark.reference.label;
-                    }
-                    return label;
-                }
             }
         },
-
         
         /**
          * Rules for cleaning up the clipboard data when content is pasted
@@ -439,7 +380,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
             { separator:true, inline:false },
             { action:'enhancement', text: 'Enhancement', className: 'rte2-toolbar-enhancement', tooltip: 'Add Block Enhancement', inline:false },
-            { action:'enhancementInline', style: 'enhancementInline', text: 'Inline', className: 'rte2-toolbar-noicon', tooltip: 'Add Inline Enhancement', inline:false },
             { action:'marker', text: 'Marker', className: 'rte2-toolbar-marker', tooltip: 'Add Marker', inline:false },
 
             { separator:true },
@@ -1224,15 +1164,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                     self.enhancementCreate();
                     break;
 
-                case 'enhancementInline':
-                    
-                    // Stop the event from propagating, otherwise it will close the enhancement popup
-                    event.stopPropagation();
-                    event.preventDefault();
-
-                    self.inlineEnhancementCreate(event, item.style);
-                    break;
-                    
                 case 'fullscreen':
                     self.fullscreenToggle();
                     break;
@@ -1287,6 +1218,13 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                     break;
                 }
 
+            } else if (styleObj.enhancementType) {
+
+                // Stop the event from propagating, otherwise it will close the enhancement popup
+                event.stopPropagation();
+                event.preventDefault();
+
+                self.inlineEnhancementCreate(event, item.style);
 
             } else if (item.style) {
 
@@ -2746,7 +2684,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
             // Add onclick function to each style that is marked for inline enhancements
             $.each(self.rte.styles, function(styleKey, styleObj) {
-                if (styleObj.enhancementInline && !styleObj.onClick) {
+                if (styleObj.enhancementType && !styleObj.onClick) {
                     styleObj.onClick = function(event, mark){
                         self.inlineEnhancementHandleClick(event, mark);
                     };
