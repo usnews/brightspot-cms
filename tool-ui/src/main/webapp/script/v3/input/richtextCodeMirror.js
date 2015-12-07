@@ -3993,10 +3993,12 @@ define([
              * An object containing additional attributes to add to the element.
              * For example: {'style': 'font-weight:bold'}
              */
-            function openElement(styleObj) {
+            function openElement(styleObj, attributes) {
                 
                 var html = '';
 
+                attributes = attributes || {};
+                
                 if (styleObj.markToHTML) {
                     html = styleObj.markToHTML();
                 } else if (styleObj.element) {
@@ -4007,6 +4009,16 @@ define([
                             html += ' ' + attr + '="' + value + '"';
                         });
                     }
+                    
+                    if (styleObj.attributes) {
+                        $.each(styleObj.attributes, function(attr, value) {
+                            html += ' ' + attr + '="' + value + '"';
+                        });
+                    }
+                    
+                    $.each(attributes, function(attr, value) {
+                        html += ' ' + attr + '="' + value + '"';
+                    });
 
                     // For void elements add a closing slash when closing, like <br/>
                     if (self.voidElements[ styleObj.element ]) {
@@ -4253,8 +4265,10 @@ define([
                         } else {
 
                             // There is no custom toHTML function for this
-                            // style, so we'll just use the style object
-                            annotationStart[startCh].push(styleObj);
+                            // style, so we'll just use the style object,
+                            // but we'll also include any attributes that
+                            // were stored on the mark
+                            annotationStart[startCh].push( $.extend(true, {}, styleObj, {attributes:mark.attributes}) );
                         }
                         
                         // Add the element to the start and end annotations for this character
@@ -4538,6 +4552,8 @@ define([
 
                 while (next) {
 
+                    elementAttributes = {};
+
                     // Check if we got a text node or an element
                     if (next.nodeType === 3) {
 
@@ -4682,6 +4698,12 @@ define([
                                         matchStyleObj = styleObj;
                                     }
 
+                                    /***
+
+                                        // Not needed anymore (?) since we assume that rules are set up to match elements with specified
+                                        // attribues. You can match <span myattr1> and <span myattr2> but if you tried to match
+                                        // just <span> then that might match in a different order so it might cause problems.
+
                                     // Check if the element has other attributes that are unexpected
                                     if (matchStyleObj && !styleObj.elementAttrAny) {
                                         $.each(elementAttributes, function(attr, value) {
@@ -4693,6 +4715,7 @@ define([
                                             }
                                         });
                                     }
+                                    ***/
 
 
                                     // Stop after the first style that matches
@@ -4846,7 +4869,8 @@ define([
                                 annotations.push({
                                     styleObj:matchStyleObj,
                                     from:from,
-                                    to:to
+                                    to:to,
+                                    attributes: elementAttributes
                                 });
                             }
                         }
@@ -4958,7 +4982,7 @@ define([
                 if (styleObj.line) {
                     self.blockSetStyle(styleObj, annotation, {triggerChange:false});
                 } else {
-                    self.inlineSetStyle(styleObj, annotation, {addToHistory:false, triggerChange:false});
+                    self.inlineSetStyle(styleObj, annotation, {addToHistory:false, triggerChange:false, attributes:annotation.attributes});
                 }
             });
 
