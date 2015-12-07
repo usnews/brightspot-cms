@@ -2763,6 +2763,17 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 $divLink.on('enhancementUpdate', function(event, reference){
                     updateMark(mark, reference);
                 });
+
+                // Listen for an 'enhancementRead' event that will be triggered on
+                // the edit link, so we can communicate the mark back to the popup
+                // form. The enhancement edit form can trigger this event.
+                $divLink.on('enhancementRead', function(event, callback){
+                    // Call the callback, passing it the mark.
+                    // Also within the callback ensure that "this" refers to this instance of the rte.
+                    if (callback) {
+                        callback.call(self, mark)
+                    }
+                });
                 
                 // Do a fake "click" on the link so it will trigger the popup
                 // but first wait for the current click to finish so it doesn't interfere
