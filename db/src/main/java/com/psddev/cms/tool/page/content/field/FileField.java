@@ -38,6 +38,7 @@ import com.psddev.dari.db.ReferentialText;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.IoUtils;
+import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RandomUuidStorageItemPathGenerator;
 import com.psddev.dari.util.RoutingFilter;
@@ -489,8 +490,9 @@ public class FileField extends PageServlet {
                         ToolUi ui = field.as(ToolUi.class);
                         String processorPath = ui.getStoragePreviewProcessorPath();
                         if (processorPath != null) {
-                            page.include(RoutingFilter.Static.getApplicationPath(ui.getStoragePreviewProcessorApplication())
-                                    + StringUtils.ensureStart(processorPath, "/"));
+                            JspUtils.include(request, page.getResponse(), page.getWriter(),
+                                    RoutingFilter.Static.getApplicationPath(ui.getStoragePreviewProcessorApplication())
+                                            + StringUtils.ensureStart(processorPath, "/"));
                         }
                     } else {
                         FileContentType.writeFilePreview(page, state, fieldValue);
