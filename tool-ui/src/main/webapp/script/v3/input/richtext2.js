@@ -2675,12 +2675,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Create a new mark then call the onclick function on it
             mark = self.rte.setStyle(style);
             if (mark) {
-
-                // In case the style was designed to support only a single enhancement type,
-                // save it on the mark so that enhancement will be created instead of searching
-                // all enhancements
-                mark.enhancementType = styleObj.enhancementType;
-                
                 self.inlineEnhancementHandleClick(event, mark);
             }
 
@@ -2688,10 +2682,15 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
         inlineEnhancementHandleClick: function(event, mark) {
 
-            var enhancementEditUrl, enhancementSelectUrl, $div, $divLink, formAction, formId, formTypeId, text, self;
+            var enhancementEditUrl, $div, $divLink, html, self, styleObj;
 
             self = this;
 
+            styleObj = self.rte.classes[mark.className] || {};
+            if (!styleObj.enhancementType) {
+                return;
+            }
+            
             // Stop the click from propagating up to the window
             // because if it did, it would close the popup we will be opening.
             if (event) {
@@ -2699,223 +2698,87 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 event.stopPropagation();
             }
 
-            // Helper function to update the mark after
-            // an enhancement is selected or edited
-            function updateMark(mark, reference) {
+            enhancementEditUrl = $.addQueryParameters(window.CONTEXT_PATH + '/content/enhancement.jsp',
+                                                      'typeId', styleObj.enhancementType);
+
+            range = self.rte.markGetRange(mark);
+            html = self.rte.toHTML(range);
+            
+            // Create a link for editing the enhancement and position it at the click event
+            $div = $('<div/>', {
+                'class': 'rte2-frame-enhancement-inline',
+                'style': 'position:absolute;top:0;left:0;height:1px;overflow:hidden;',
+                html: $('<a/>', {
+                    target: 'rte2-frame-enhancement-inline',
+                    href: enhancementEditUrl,
+                    style: 'width:100%;display:block;',
+                    text: '.'
+                })
                 
-                var range;
+            }).appendTo('body').css({
+                'top': event.pageY,
+                'left': event.pageX
+            });
 
-                // When creating a new enhancement object, initially a temp object is created
-                // where the label is a similar to the ID of the object; however, we do not
-                // want to use this temporary enhancmeent until it is saved.
-                if (reference.label.substring(0,8) !== reference._id.substring(0,8)) {
-                    
-                    // Save the data on the mark
-                    mark.reference = reference;
+            $divLink = $div.find('a');
 
-                    // If a range of text was not selected, then add text to the label
-                    range = self.rte.markGetRange(mark);
-                    if (range.from &&
-                        range.from.line === range.to.line &&
-                        range.from.ch === range.to.ch &&
-                        reference.label.substring(0,8) !== reference._id.substring(0,8)) {
-                    
-                        self.rte.replaceMarkText(mark, reference.label || 'Enhancement');
-                    }
+            // Add data to the link with the rte and the mark,
+            // so any popup form can access them
+            $divLink.data('rte', self);
+            $divLink.data('mark', mark);
+            
+            // Listen for an 'enhancementUpdate' event that will be triggered on
+            // the edit link, so we can tell when the enhancement is updated.
+            // The enhancement edit form will trigger this event.
+            $divLink.on('enhancementUpdate', function(event, html){
+                self.inlineEnhancementReplaceMark(mark, html);
+            });
+
+            // Listen for an 'enhancementRead' event that will be triggered on
+            // the edit popup, so we can communicate the mark back to the popup form.
+            // The enhancement edit form can trigger this event.
+            // Alternately the popup form can get the rte and mark from the data on the source link.
+            $divLink.on('enhancementRead', function(event, callback){
+                // Call the callback, passing it the mark.
+                // Also within the callback ensure that "this" refers to this instance of the rte.
+                if (callback) {
+                    callback.call(self, mark, html);
+                }
+            });
+
+            // Do a fake "click" on the link so it will trigger the popup
+            // but first wait for the current click to finish so it doesn't interfere
+            // with any popups
+            setTimeout(function(){
+                $divLink.click();
+            }, 100);
+
+        },
+
+        
+        /**
+         * Given an existing mark, replace the entire mark with new HTML.
+         * Note after calling this function, the original mark is no longer
+         * valid and you will not have a pointer to the new mark.
+         *
+         * @param Object mark
+         * A CodeMirror mark.
+         *
+         * @param String html
+         * The HTML to replace the mark.
+         */
+        inlineEnhancementReplaceMark: function(mark, html) {
+            
+            var range, self;
+
+            self = this;
+            
+            if (html && $.type(html) === 'string') {
+                range = self.rte.markGetRange(mark);
+                if (range.from) {
+                    self.rte.fromHTML(html, range);
                 }
             }
-
-            // Check to see if this mark already has an enhancement selected.
-            // If so let the user edit the enhancement.
-            if (mark.enhancementType || (mark.reference && mark.reference.record)) {
-
-                if (mark.reference && mark.reference.record) {
-                    // Get the URL to edit an existing enhancement
-                    enhancementEditUrl = $.addQueryParameters(window.CONTEXT_PATH + '/content/enhancement.jsp',
-                                                              'id', mark.reference.record._ref,
-                                                              'reference', JSON.stringify(mark.reference));
-                } else {
-                    enhancementEditUrl = $.addQueryParameters(window.CONTEXT_PATH + '/content/enhancement.jsp',
-                                                              'typeId', mark.enhancementType);
-                }
-
-                // Create a link for editing the enhancement and position it at the click event
-                $div = $('<div/>', {
-                    'class': 'rte2-frame-enhancement-inline',
-                    'style': 'position:absolute;top:0;left:0;height:1px;overflow:hidden;',
-                    html: $('<a/>', {
-                        target: 'rte2-frame-enhancement-inline',
-                        href: enhancementEditUrl,
-                        style: 'width:100%;display:block;',
-                        text: '.'
-                    })
-                    
-                }).appendTo('body').css({
-                    'top': event.pageY,
-                    'left': event.pageX
-                });
-
-                $divLink = $div.find('a');
-
-                // Listen for an 'enhancementUpdate' event that will be triggered on
-                // the edit link, so we can tell when the enhancement is updated.
-                // The enhancement edit form will trigger this event.
-                $divLink.on('enhancementUpdate', function(event, reference){
-                    updateMark(mark, reference);
-                });
-
-                // Listen for an 'enhancementRead' event that will be triggered on
-                // the edit link, so we can communicate the mark back to the popup
-                // form. The enhancement edit form can trigger this event.
-                $divLink.on('enhancementRead', function(event, callback){
-                    // Call the callback, passing it the mark.
-                    // Also within the callback ensure that "this" refers to this instance of the rte.
-                    if (callback) {
-                        callback.call(self, mark)
-                    }
-                });
-                
-                // Do a fake "click" on the link so it will trigger the popup
-                // but first wait for the current click to finish so it doesn't interfere
-                // with any popups
-                setTimeout(function(){
-                    $divLink.click();
-                }, 100);
-
-            } else {
-
-                // The mark is not attached to an enhancement, so
-                // let the user choose one.
-                
-                // For the select enhancement popup, include parameters for the form id and typeId
-                formAction = self.$el.closest('form').attr('action') || '';
-                formId = (/id=([^&]+)/.exec(formAction) || [ ])[1] || '';
-                formTypeId = (/typeId=([^&]+)/.exec(formAction) || [ ])[1] || '';
-
-                // Get the URL to select an enhancement
-                enhancementSelectUrl = window.CONTEXT_PATH + '/enhancementSelect' + '?pt=' + encodeURIComponent(formId) + '&py=' + encodeURIComponent(formTypeId);
-
-                // Create a link to trigger the enhancement select to appear in a popup frame
-                self.$container.find('.rte2-frame-enhancement-inline').remove();
-
-                $div = $('<div/>', {
-                    'class': 'rte2-frame-enhancement-inline',
-                    'style': 'position:absolute;top:0;left:0;height:1px;overflow:hidden;',
-                    html: $('<a/>', {
-                        target: 'rte2-frame-enhancement-inline',
-                        href: enhancementSelectUrl,
-                        style: 'width:100%;display:block;',
-                        text: '.'
-                    })
-                }).appendTo('body');
-
-                // Position the div at the point of the click
-                $div.css({
-                    'top': event.pageY,
-                    'left': event.pageX
-                });
-
-                // Do a fake "click" on the link so it will trigger the popup
-                $divLink = $div.find('a');
-
-                // In case the user creates a new enhancement,
-                // the "enhancementUpdate" event will occur
-                // so we can get the enhancement info
-                $divLink.on('enhancementUpdate', function(event, reference){
-                    updateMark(mark, reference);
-                });
-
-                // We use a timeout before we click the link because of the way we're using mousedown event
-                // to detect the double click. The timeout gives time for the original click event to complete
-                // so it will not interfere with things like popups.
-                setTimeout(function(){
-                    $divLink.click();
-                }, 100);
-
-                // Okay, this is a hack so prepare yourself.
-                // Set up a global click event to detect when user clicks on an enhancement in the popup.
-                // However, since there can be multiple enhancements in the editor,
-                // (and multiple rich text editors on the page) we must determine where the popup originated.
-                // If the popup did not originate in our rich text editor, we will ignore the event and let
-                // somebody else deal with it.
-                // We use .one() so we'll handle the event only once then get rid of the event handler.
-                $(document.body).one('click', '[data-enhancement]', function(event) {
-
-                    var data, $enhancement, $popupTrigger, $target;
-
-                    // The enhancement link that the user clicked
-                    $target = $(this);
-
-                    // Get the link that triggered the popup to appear.
-                    // This link will be inside the enhancement that is being changed.
-                    $popupTrigger = $target.popup('source');
-
-                    // Determine if that link is inside our rich text editor
-                    if (! $popupTrigger.is($divLink)) {
-                        // Not our popup!
-                        return;
-                    }
-
-                    // Get the data for the selected enhancement
-                    // Note the .data() function will automatically convert from JSON string to a javacript object.
-                    // For example, the link might look like this:
-                    // <a data-enhancement='{"label":"Test Raw HTML","record":{"_ref":"0000014d-018f-da9a-a5cf-4fef59b30000",
-                    // "_type":"0000014b-75ea-d559-a95f-fdffd32f005f"},"_id":"0000014d-590f-d32d-abed-fdef3ad50001",
-                    // "_type":"0000014b-75ea-d559-a95f-fdffd3300055"}' href="#">Test Raw HTML</a>
-                    data = $target.data('enhancement');
-
-                    // Save the data on the mark
-                    mark.reference = data;
-
-                    // Update the label for the mark
-                    updateMark(mark, data);
-
-                    // Close the popup
-                    $target.popup('close');
-                    
-                    // Put focus back on the editor
-                    self.focus();
-
-                    event.preventDefault();
-                    event.stopImmediatePropagation();
-                    
-                    return false;
-                    
-                }); // click event
-
-                // Set up a global close event to determine when the enhancement popup is closed
-                // so we can update the enhancement display (or remove the enhancement)
-                $(document.body).one('closed', '.popup[name="rte2-frame-enhancement-inline"]', function() {
-                    
-                    var $enhancement, $popupTrigger, $popup;
-
-                    // The popup that was closed
-                    $popup = $(this);
-
-                    // Get the link that triggered the popup to appear.
-                    // This link will be inside the enhancement that is being changed.
-                    $popupTrigger = $popup.popup('source');
-
-                    // Determine if that link is ours
-                    if (!$divLink.is($popupTrigger)) {
-                        // Not in our editor - must be from some other editor so we will ignore
-                        return;
-                    }
-
-                    // Clear the mark if a reference was not selected
-                    if (!mark.reference || !mark.reference.record) {
-                        mark.clear();
-                    }
-
-                    // Remove the popup
-                    $popup.remove();
-
-                    self.focus();
-                    
-                }); // on popup closed
-                
-            } // else mark does not have an enhancment
-
         },
 
         
