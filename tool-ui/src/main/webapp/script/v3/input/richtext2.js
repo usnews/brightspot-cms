@@ -101,50 +101,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 
                 // Do not allow links to span multiple lines
                 singleLine: true,
-
-                // Function to read attributes from a link and save them on the mark
-                fromHTML: function($el, mark) {
-
-                    mark.attributes = {
-                        href: $el.attr('href'),
-                        target: $el.attr('target'),
-                        rel: $el.attr('rel'),
-                        title: $el.attr('title'),
-                        cmsId: $el.attr('data-cms-id'),
-                        cmsHref: $el.attr('data-cms-href')
-                    };
-                },
-
-                // Function to return the opening HTML element for a link
-                toHTML: function(mark) {
-
-                    var href, html, rel, target, title, cmsId;
-
-                    // For a link set the attributes on the element that were set on the mark
-                    html = '<a';
-
-                    if (mark.attributes) {
-                        href = mark.attributes.href || '';
-                        title = mark.attributes.title || '';
-                        target = mark.attributes.target || '';
-                        rel = mark.attributes.rel || '';
-                        cmsId = mark.attributes.cmsId || '';
-                    }
-
-                    if (href) { html += ' href="' + href + '"'; }
-                    if (title) { html += ' title="' + title + '"'; }
-                    if (target) { html += ' target="' + target + '"'; }
-                    if (rel) { html += ' rel="' + rel + '"'; }
-                    if (cmsId) {
-                        html += ' data-cms-id="' + cmsId + '"';
-                        html += ' data-cms-href="' + href + '"';
-                    }
-
-                    html += '>';
-
-                    return html;
-                },
-
+                
                 onClick: function(event, mark) {
 
                     var self;
@@ -172,8 +129,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                                 mark.clear();
                             } else {
                                 // Update the link attributes
-                                mark.attributes = mark.attributes || {};
-                                $.extend(mark.attributes, attributes);
+                                mark.attributes = attributes;
                             }
                         }).fail(function(){
 
@@ -1614,17 +1570,32 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
         linkSave: function() {
 
             var attributes, $linkDialog, self;
+            var href, rel, target, title, cmsId;
 
             self = this;
 
             $linkDialog = self.$linkDialog;
 
-            attributes = {
-                href: $linkDialog.find('.rte2-dialogLinkHref').val() || '',
-                target: $linkDialog.find('.rte2-dialogLinkTarget').val() || '',
-                rel: $linkDialog.find('.rte2-dialogLinkRel').val() || '',
-                cmsId: $linkDialog.find('.rte2-dialogLinkId').val() || ''
-            };
+            href = $linkDialog.find('.rte2-dialogLinkHref').val() || '';
+            target = $linkDialog.find('.rte2-dialogLinkTarget').val() || '';
+            rel = $linkDialog.find('.rte2-dialogLinkRel').val() || '';
+            cmsId = $linkDialog.find('.rte2-dialogLinkId').val() || '';
+            
+            attributes = {};
+            attributes.href = href;
+
+            if (target) {
+                attributes.target = $linkDialog.find('.rte2-dialogLinkTarget').val() || '';
+            }
+
+            if (rel) {
+                attributes.rel = $linkDialog.find('.rte2-dialogLinkRel').val() || '';
+            }
+
+            if (cmsId) {
+                attributes['data-cms-id'] = cmsId;
+                attributes['data-cms-href'] = href;
+            }
 
             // Resolve the deferred object with the new attributes,
             // so whoever called linkEdit will be notified with the final results.
