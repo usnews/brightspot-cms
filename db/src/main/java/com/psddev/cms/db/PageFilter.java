@@ -1089,7 +1089,7 @@ public class PageFilter extends AbstractFilter {
             throws IOException, ServletException {
 
         ViewRequest viewRequest = new ServletViewRequest(request);
-        Object view = viewRequest.createView(PAGE_VIEW_TYPE, object);
+        Object view = viewRequest.createView(ObjectUtils.firstNonBlank(request.getParameter("_viewType"), PAGE_VIEW_TYPE), object);
 
         if (view == null) {
             PageViewClass annotation = object.getClass().getAnnotation(PageViewClass.class);
