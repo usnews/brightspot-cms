@@ -4,13 +4,16 @@
   position: relative;
   vertical-align: top;
 
-  // Give a higher z-index than the rich text editor.
-  z-index: 3;
+  .rte2-wrapper > & {
 
-  // When hovering the toolbar, give it a higher z-index than other toolbars
-  // below so that the submenu will be on top of other toolbars.
-  &:hover {
-    z-index: 4;
+    // Give a higher z-index than the rich text editor.
+    z-index: 3;
+
+    // When hovering the toolbar, give it a higher z-index than other toolbars
+    // below so that the submenu will be on top of other toolbars.
+    &:hover {
+      z-index: 4;
+    }
   }
 
   &.rte2-toolbar-fixed {
@@ -61,7 +64,7 @@
     color: @color-placeholder;
     cursor: pointer;
     display: inline-block;
-    font-size: 80%;
+    font-size: floor(@fontSize-default * 0.8);
     height: 20px;
     line-height: 20px;
     margin: 0 5px 0 0;
@@ -93,6 +96,7 @@
     &:not(.active):hover {
       box-shadow: 0 1px 2px fade(black, 20%);
       color: @color-text;
+      text-decoration: none;
     }
   }
 
@@ -388,7 +392,7 @@ li.CodeMirror-hint-active {
     width: 100%;
     z-index: 49;
 
-    .rte2-toolbar {
+    > .rte2-toolbar {
       background: white;
       border-bottom: 1px solid @color-separator;
       left: 0 !important;
@@ -396,6 +400,12 @@ li.CodeMirror-hint-active {
       padding-right: 5px;
       right: 0 !important;
       width: auto !important;
+    }
+
+    .rte2-toolbar {
+      a, span, .rte2-toolbar-separator {
+        font-size: 12px;
+      }
     }
 
     .CodeMirror {
@@ -448,31 +458,33 @@ li.CodeMirror-hint-active {
   }
 
   .rte2-enhancement {
-  
-    .background-striped(@color-heading);
     box-sizing: border-box;
-    padding: 4px;
+    padding: 0 5px (@lineHeight-default + 5px) 5px;
+    position: relative;
+
+    &:before {
+      .background-striped(@color-heading);
+      bottom: @lineHeight-default;
+      content: '';
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
 
     .rte2-enhancement-label {
- 
+      overflow: hidden;
       position:relative;
     }
     
     figure {
+      float: left;
       height: 153px;
     }
 
     img {
       max-height: 100%;
       max-width: 100%;
-    }
-
-    a {
-      color: @color-placeholder;
-
-      &:hover {
-        background-color: fade(white, 93%);
-      }
     }
 
     .rte2-enhancement-size {
@@ -482,6 +494,22 @@ li.CodeMirror-hint-active {
       width:auto;
       background-color: fade(white, 85%);
       padding:0.25em;
+    }
+
+    &.toBeRemoved {
+      .background-striped(lighten(@color-remove, 10%));
+    }
+
+    &,
+    &.toBeRemoved {
+      a {
+        color: @color-placeholder;
+
+        &:hover {
+          background-color: fade(white, 93%);
+          text-decoration: none;
+        }
+      }
     }
   }
 }

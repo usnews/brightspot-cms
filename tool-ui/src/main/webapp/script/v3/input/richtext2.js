@@ -1405,7 +1405,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             $toolbar = self.$toolbar;
             containerTop = $container.offset().top;
             toolbarHeight = $toolbar.outerHeight();
-
+            containerTop -= toolbarHeight;
 
             // Is the rich text editor completely in view?
             // Or is the editor so small that moving the toolbar wouldn't be wise?
