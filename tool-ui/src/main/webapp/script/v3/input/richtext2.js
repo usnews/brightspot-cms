@@ -2698,8 +2698,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 event.stopPropagation();
             }
 
-            enhancementEditUrl = $.addQueryParameters(window.CONTEXT_PATH + '/content/enhancement.jsp',
-                                                      'typeId', styleObj.enhancementType);
+            enhancementEditUrl = $.addQueryParameters(
+                window.CONTEXT_PATH + '/content/enhancement.jsp',
+                'typeId', styleObj.enhancementType,
+                'attributes', JSON.stringify(mark.attributes));
 
             range = self.rte.markGetRange(mark);
             html = self.rte.toHTML(range);
@@ -2946,6 +2948,30 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
     };
 
+    if (RICH_TEXT_ELEMENTS.length > 0) {
+        Rte.toolbarConfig.push({
+            separator: true
+        });
+
+        $.each(RICH_TEXT_ELEMENTS, function (index, rtElement) {
+            var tag = rtElement.tag;
+            var styleName = rtElement.styleName;
+
+            Rte.styles[styleName] = {
+                className: 'rte2-style-' + styleName,
+                enhancementType: rtElement.typeId,
+                element: tag,
+                elementAttrAny: true,
+                singleLine: true
+            };
+
+            Rte.toolbarConfig.push({
+                className: 'rte2-toolbar-noicon',
+                style: styleName,
+                text: rtElement.displayName
+            });
+        });
+    }
 
     // Expose as a jQuery plugin.
     $.plugin2('rte2', {
