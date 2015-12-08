@@ -123,6 +123,8 @@
   .rte2-toolbar-enhancement { width:auto; padding-left:0.5em; padding-right:0.5em; }
   .rte2-toolbar-marker { width:auto; padding-left:0.5em; padding-right:0.5em; }
 
+  .rte2-toolbar-enhancement-inline { width:auto; padding-left:0.5em; padding-right:0.5em; }
+
   .rte2-toolbar-track-changes { width:auto; padding-left:0.5em; padding-right:0.5em; }
   .rte2-toolbar-track-changes-accept { .icon; .icon-ok; }
   .rte2-toolbar-track-changes-reject { .icon; .icon-remove; }
@@ -238,6 +240,11 @@
   display:inline-block;
   padding:0.1em 0.5em;
   background-color:#ddd;
+}
+.rte2-style-enhancement-inline {
+  padding:0;
+  background-color:rgba(180, 180, 180, 0.3);
+  outline:1px solid rgba(100, 100, 100, 0.5);
 }
 .rte2-style-enhancement {
   display:inline-block;
@@ -554,9 +561,21 @@ li.CodeMirror-hint-active {
   float: right;
 }
 
+.popup[name=rte2-frame-enhancement-inline] {
+  max-width:1000px;
+  width:70%;
+}
+  
+
 // Div that is used as a paste clipboard
 // Note this cannot be hidden because it needs to get focus
 .rte2-clipboard {
   max-height:1px;
   overflow:hidden;
+}
+
+.rte2-onclick-selector {
+  ul {
+    margin:0 1em;
+  }
 }
