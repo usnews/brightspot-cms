@@ -4006,18 +4006,18 @@ define([
 
                     if (styleObj.elementAttr) {
                         $.each(styleObj.elementAttr, function(attr, value) {
-                            html += ' ' + attr + '="' + value + '"';
+                            html += ' ' + attr + '="' + self.htmlEncode(value) + '"';
                         });
                     }
                     
                     if (styleObj.attributes) {
                         $.each(styleObj.attributes, function(attr, value) {
-                            html += ' ' + attr + '="' + value + '"';
+                            html += ' ' + attr + '="' + self.htmlEncode(value) + '"';
                         });
                     }
                     
                     $.each(attributes, function(attr, value) {
-                        html += ' ' + attr + '="' + value + '"';
+                        html += ' ' + attr + '="' + self.htmlEncode(value) + '"';
                     });
 
                     // For void elements add a closing slash when closing, like <br/>
