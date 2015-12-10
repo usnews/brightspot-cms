@@ -2962,6 +2962,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             Rte.styles[styleName] = {
                 className: 'rte2-style-' + styleName,
                 enhancementType: rtElement.typeId,
+                enhancementName: rtElement.displayName,
                 element: tag,
                 elementAttrAny: true,
                 singleLine: true
