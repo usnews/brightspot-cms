@@ -2953,6 +2953,8 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             separator: true
         });
 
+        var richTextElementsSubmenu = [];
+        
         $.each(RICH_TEXT_ELEMENTS, function (index, rtElement) {
             var tag = rtElement.tag;
             var styleName = rtElement.styleName;
@@ -2965,11 +2967,16 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 singleLine: true
             };
 
-            Rte.toolbarConfig.push({
+            richTextElementsSubmenu.push({
                 className: 'rte2-toolbar-noicon',
                 style: styleName,
                 text: rtElement.displayName
             });
+        });
+
+        Rte.toolbarConfig.push({
+            text: 'Inline',
+            submenu: richTextElementsSubmenu
         });
     }
 
