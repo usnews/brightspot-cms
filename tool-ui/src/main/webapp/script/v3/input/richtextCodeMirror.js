@@ -2347,8 +2347,8 @@ define([
                 // It defaults to the className of the style.
                 // Of if the style definition has a getLabel() function
                 // call that and use the return value
-                styleObj = self.classes[mark.className];
-                label = mark.className;
+                styleObj = self.classes[mark.className] || {};
+                label = styleObj.enhancementName || mark.className;
                 if (styleObj.getLabel) {
                     label = styleObj.getLabel(mark);
                 }

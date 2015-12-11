@@ -2953,6 +2953,8 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             separator: true
         });
 
+        var richTextElementsSubmenu = [];
+        
         $.each(RICH_TEXT_ELEMENTS, function (index, rtElement) {
             var tag = rtElement.tag;
             var styleName = rtElement.styleName;
@@ -2960,16 +2962,22 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             Rte.styles[styleName] = {
                 className: 'rte2-style-' + styleName,
                 enhancementType: rtElement.typeId,
+                enhancementName: rtElement.displayName,
                 element: tag,
                 elementAttrAny: true,
                 singleLine: true
             };
 
-            Rte.toolbarConfig.push({
+            richTextElementsSubmenu.push({
                 className: 'rte2-toolbar-noicon',
                 style: styleName,
                 text: rtElement.displayName
             });
+        });
+
+        Rte.toolbarConfig.push({
+            text: 'Inline',
+            submenu: richTextElementsSubmenu
         });
     }
 
