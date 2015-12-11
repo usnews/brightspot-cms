@@ -4946,7 +4946,10 @@ define([
             history = editor.getHistory();
             
             // Set up all the annotations
-            $.each(annotations, function(i, annotation) {
+            // We reverse the order of the annotations because the parsing was done
+            // depth first, and we want to create the marks for parent elements before
+            // the marks for child elements (so elements can later be created in the same order)
+            $.each(annotations.reverse(), function(i, annotation) {
 
                 var styleObj;
 
