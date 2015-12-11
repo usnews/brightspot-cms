@@ -5,10 +5,13 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 
 import com.psddev.cms.db.RichTextReference;
+import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.SearchResultRenderer;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.dari.db.Database;
+import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Reference;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ObjectUtils;
@@ -31,9 +34,28 @@ public class EnhancementSearchResult extends PageServlet {
 
             @Override
             public void renderBeforeItem(Object item) throws IOException {
-                Reference enhancement = new Reference();
-                RichTextReference rt = enhancement.as(RichTextReference.class);
+                Reference enhancement = null;
+
                 State state = State.getInstance(item);
+
+                ObjectType refType = null;
+                Class<? extends Reference> referenceClass = state.getType().as(ToolUi.class).getReferenceableViaClass();
+                if (referenceClass != null) {
+                    refType = Database.Static.getDefault().getEnvironment().getTypeByClass(referenceClass);
+                }
+
+                if (refType != null) {
+                    Object refObject = refType.createObject(null);
+                    if (refObject instanceof Reference) {
+                        enhancement = (Reference) refObject;
+                    }
+                }
+
+                if (enhancement == null) {
+                    enhancement = new Reference();
+                }
+
+                RichTextReference rt = enhancement.as(RichTextReference.class);
 
                 enhancement.setObject(item);
                 rt.setLabel(state.getLabel());
