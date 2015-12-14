@@ -100,7 +100,7 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
             page.writeEnd();
 
         } else {
-            drawPagination(page, results, limit);
+            writePaginationHtml(page, results, limit);
 
             // Results
             List<WorkStream> workStreams = results.getItems();
@@ -234,7 +234,7 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
         page.writeFooter();
     }
 
-    public void drawPagination(ToolPageContext page, PaginatedResult<WorkStream> results, int limit) throws IOException {
+    public void writePaginationHtml(ToolPageContext page, PaginatedResult<WorkStream> results, int limit) throws IOException {
         if (!hasPagination(page, results)) {
             return;
         }
