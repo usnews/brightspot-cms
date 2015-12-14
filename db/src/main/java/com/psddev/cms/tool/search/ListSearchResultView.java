@@ -181,7 +181,7 @@ public class ListSearchResultView extends AbstractSearchResultView {
                             : item.getPublicUrl());
         });
 
-        String selectAllUrl = page.toolUrl(CmsTool.class, "/searchResultActions",
+        String selectAllUrl = page.cmsUrl("/searchResultActions",
                 "search", ObjectUtils.toJson(search.getState().getSimpleValues()));
 
         page.writeStart("table", "class", "searchResultTable links table-striped pageThumbnails");
@@ -191,8 +191,10 @@ public class ListSearchResultView extends AbstractSearchResultView {
                         page.writeElement("input",
                                 "type", "checkbox",
                                 "class", "searchResult-checkAll",
-                                "data-frame-check-base", StringUtils.addQueryParameters(selectAllUrl, SearchResultActions.ACTION_PARAMETER, SearchResultActions.ACTION_ADD),
-                                "data-frame-uncheck-base", StringUtils.addQueryParameters(selectAllUrl, SearchResultActions.ACTION_PARAMETER, SearchResultActions.ACTION_REMOVE));
+                                "value", "",
+                                "data-frame-target", "searchResultActions",
+                                "data-frame-check", StringUtils.addQueryParameters(selectAllUrl, SearchResultActions.ACTION_PARAMETER, SearchResultActions.ACTION_ADD),
+                                "data-frame-uncheck", StringUtils.addQueryParameters(selectAllUrl, SearchResultActions.ACTION_PARAMETER, SearchResultActions.ACTION_REMOVE));
                     page.writeEnd();
 
                     if (sortField != null
