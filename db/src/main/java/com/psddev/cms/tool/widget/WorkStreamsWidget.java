@@ -234,7 +234,7 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
         page.writeFooter();
     }
 
-    public void writePaginationHtml(ToolPageContext page, PaginatedResult<WorkStream> results, int limit) throws IOException {
+    private void writePaginationHtml(ToolPageContext page, PaginatedResult<WorkStream> results, int limit) throws IOException {
         if (!hasPagination(page, results)) {
             return;
         }
