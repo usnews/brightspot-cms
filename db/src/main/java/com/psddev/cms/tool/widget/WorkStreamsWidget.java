@@ -16,10 +16,8 @@ import com.psddev.dari.db.Query;
 import com.psddev.dari.util.PaginatedResult;
 import org.apache.commons.lang.StringUtils;
 
-// TODO: Replace localization page.localize(RecentActivityWidget.class, "pagination.newest") calls with this class - add to localization data
 public class WorkStreamsWidget extends DefaultDashboardWidget {
     private static final int[] LIMITS = { 10, 20, 50 };
-    //private static final int[] LIMITS = {2, 4, 10};
     public static final String PARAM_ASSIGNED_USERS = "assignedTo";
     public static final String PARAM_ASSIGNED_USERS_ANYONE = "anyone";
     public static final String PARAM_ASSIGNED_USERS_ME = "me";
@@ -61,7 +59,6 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
             query.and("assignedUsers = ?", page.getUser());
         }
         PaginatedResult<WorkStream> results = query.select(offset, limit);
-        //List<WorkStream> workStreams = query.selectAll();
 
         page.writeHeader();
         page.writeStart("div", "class", "widget p-workStreams");
