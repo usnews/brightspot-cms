@@ -49,7 +49,7 @@ public class DashboardWidgetPage extends PageServlet {
                 break;
 
             case "default" :
-                dashboard = Dashboard.getDefaultDashboard();
+                dashboard = Dashboard.createDefaultDashboard();
                 break;
 
             default :

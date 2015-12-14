@@ -24,4 +24,6 @@ public @interface ViewMapping {
      * annotated model class.
      */
     Class<? extends ViewCreator> value();
+
+    String[] types() default { };
 }

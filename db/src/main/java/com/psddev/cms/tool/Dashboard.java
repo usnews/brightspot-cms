@@ -4,50 +4,66 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.ListIterator;
+import java.util.stream.IntStream;
 
 import com.psddev.dari.db.Record;
-import com.psddev.dari.db.Recordable.Embedded;
 import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.TypeDefinition;
+import com.psddev.dari.util.UuidUtils;
 
-@Embedded
+@Dashboard.Embedded
 public class Dashboard extends Record {
+
+    private static final String WIDGET_ID_NAME_PREFIX = Dashboard.class.getName() + "/";
 
     private List<DashboardColumn> columns;
 
-    public static Dashboard getDefaultDashboard() {
+    /**
+     * Creates a default dashboard containing instances of all classes that
+     * implement {@link DefaultDashboardWidget}.
+     *
+     * @return Never {@code null}.
+     */
+    public static Dashboard createDefaultDashboard() {
         Dashboard dashboard = new Dashboard();
         List<DashboardColumn> columns = dashboard.getColumns();
 
-        for (Class<? extends DefaultDashboardWidget> c : ClassFinder.Static.findClasses(DefaultDashboardWidget.class)) {
+        ClassFinder.findConcreteClasses(DefaultDashboardWidget.class).forEach(c -> {
             DefaultDashboardWidget widget = TypeDefinition.getInstance(c).newInstance();
             int columnIndex = widget.getColumnIndex();
 
-            while (columns.size() - 1 < columnIndex) {
-                columns.add(new DashboardColumn());
-            }
+            widget.getState().setId(UuidUtils.createVersion3Uuid(WIDGET_ID_NAME_PREFIX + c.getName()));
 
-            columns.get(columnIndex).getWidgets().add(widget);
-        }
+            IntStream.range(0, columnIndex - columns.size() + 1)
+                    .forEach(i -> columns.add(new DashboardColumn()));
+
+            columns.get(columnIndex)
+                    .getWidgets()
+                    .add(widget);
+        });
 
         double width = 1.0;
 
-        for (ListIterator<DashboardColumn> i = columns.listIterator(columns.size()); i.hasPrevious();) {
-            DashboardColumn column = i.previous();
-            width *= 1.61803398875;
+        for (DashboardColumn column : columns) {
+            width /= 1.61803398875;
 
             column.setWidth(width);
-            Collections.sort(column.getWidgets(), new Comparator<DashboardWidget>() {
 
-                @Override
-                public int compare(DashboardWidget x, DashboardWidget y) {
-                    return ((DefaultDashboardWidget) x).getWidgetIndex() - ((DefaultDashboardWidget) y).getWidgetIndex();
-                }
-            });
+            Collections.sort(
+                    column.getWidgets(),
+                    Comparator.comparingInt(w -> ((DefaultDashboardWidget) w).getWidgetIndex())
+                            .thenComparing(w -> w.getClass().getName()));
         }
 
         return dashboard;
+    }
+
+    /**
+     * @deprecated Use {@link #createDefaultDashboard()} instead.
+     */
+    @Deprecated
+    public static Dashboard getDefaultDashboard() {
+        return createDefaultDashboard();
     }
 
     public List<DashboardColumn> getColumns() {

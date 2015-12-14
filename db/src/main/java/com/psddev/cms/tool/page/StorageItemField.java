@@ -42,6 +42,7 @@ import com.psddev.dari.util.AggregateException;
 import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.ImageMetadataMap;
 import com.psddev.dari.util.IoUtils;
+import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.MultipartRequest;
 import com.psddev.dari.util.MultipartRequestFilter;
 import com.psddev.dari.util.ObjectUtils;
@@ -613,8 +614,9 @@ public class StorageItemField extends PageServlet {
                         ToolUi ui = field.as(ToolUi.class);
                         String processorPath = ui.getStoragePreviewProcessorPath();
                         if (processorPath != null) {
-                            page.include(RoutingFilter.Static.getApplicationPath(ui.getStoragePreviewProcessorApplication())
-                                    + StringUtils.ensureStart(processorPath, "/"));
+                            JspUtils.include(request, page.getResponse(), page.getWriter(),
+                                    RoutingFilter.Static.getApplicationPath(ui.getStoragePreviewProcessorApplication())
+                                            + StringUtils.ensureStart(processorPath, "/"));
                         }
                     } else {
                         FileContentType.writeFilePreview(page, state, fieldValue);

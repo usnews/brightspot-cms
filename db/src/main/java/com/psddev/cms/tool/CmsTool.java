@@ -169,6 +169,9 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Debug")
     private boolean disableCodeMirrorRichTextEditor;
 
+    @ToolUi.Tab("Debug")
+    private boolean disableRtc;
+
     @Embedded
     public static class CommonTime extends Record {
 
@@ -762,6 +765,14 @@ public class CmsTool extends Tool {
         this.disableCodeMirrorRichTextEditor = disableCodeMirrorRichTextEditor;
     }
 
+    public boolean isDisableRtc() {
+        return disableRtc;
+    }
+
+    public void setDisableRtc(boolean disableRtc) {
+        this.disableRtc = disableRtc;
+    }
+
     /** Returns the preview URL. */
     public String getPreviewUrl() {
         String url = getDefaultSiteUrl();
@@ -826,6 +837,7 @@ public class CmsTool extends Tool {
         // Areas.
         plugins.add(createArea2("Content", "dashboard", "dashboard", null));
         plugins.add(createArea2("Dashboard", "cms.dashboard", "dashboard/dashboard", "/"));
+        plugins.add(createArea2("Production Guides", "viewGuides", "dashboard/viewGuides", "/viewGuides.jsp"));
         plugins.add(createArea2("Admin", "admin", "admin", null));
         plugins.add(createArea2("Content Types", "cms.adminContentTypes", "admin/contentTypes", "/adminContentTypes"));
         plugins.add(createArea2("Production Guides", "adminGuides", "admin/adminGuides", "/admin/guides.jsp"));

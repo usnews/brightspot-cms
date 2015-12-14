@@ -4,13 +4,16 @@
   position: relative;
   vertical-align: top;
 
-  // Give a higher z-index than the rich text editor.
-  z-index: 3;
+  .rte2-wrapper > & {
 
-  // When hovering the toolbar, give it a higher z-index than other toolbars
-  // below so that the submenu will be on top of other toolbars.
-  &:hover {
-    z-index: 4;
+    // Give a higher z-index than the rich text editor.
+    z-index: 3;
+
+    // When hovering the toolbar, give it a higher z-index than other toolbars
+    // below so that the submenu will be on top of other toolbars.
+    &:hover {
+      z-index: 4;
+    }
   }
 
   &.rte2-toolbar-fixed {
@@ -49,13 +52,19 @@
         display:block;
       }
     }
+
+  }
+
+  // To leave room for the word count, make sure there is space after the last toolbar item
+  > li:last-of-type {
+      margin-right: 7em;
   }
   
   a, span, .rte2-toolbar-separator {
     color: @color-placeholder;
     cursor: pointer;
     display: inline-block;
-    font-size: 80%;
+    font-size: floor(@fontSize-default * 0.8);
     height: 20px;
     line-height: 20px;
     margin: 0 5px 0 0;
@@ -87,9 +96,11 @@
     &:not(.active):hover {
       box-shadow: 0 1px 2px fade(black, 20%);
       color: @color-text;
+      text-decoration: none;
     }
   }
 
+  .rte2-toolbar-noicon { width:auto; padding-left:0.5em; padding-right:0.5em; }
   .rte2-toolbar-bold { .icon; .icon-bold; }
   .rte2-toolbar-italic { .icon; .icon-italic; }
   .rte2-toolbar-underline { .icon; .icon-underline; }
@@ -112,6 +123,8 @@
   .rte2-toolbar-enhancement { width:auto; padding-left:0.5em; padding-right:0.5em; }
   .rte2-toolbar-marker { width:auto; padding-left:0.5em; padding-right:0.5em; }
 
+  .rte2-toolbar-enhancement-inline { width:auto; padding-left:0.5em; padding-right:0.5em; }
+
   .rte2-toolbar-track-changes { width:auto; padding-left:0.5em; padding-right:0.5em; }
   .rte2-toolbar-track-changes-accept { .icon; .icon-ok; }
   .rte2-toolbar-track-changes-reject { .icon; .icon-remove; }
@@ -132,6 +145,8 @@
   .rte2-toolbar-removeCompletely { .icon; .icon-remove; color: @color-remove; }
 
   .rte2-toolbar-custom { width:auto; padding: 0 0.5em; }
+  
+  .rte2-toolbar-noicon { width:auto; padding: 0 0.5em; }
 
   .rte2-toolbar-submenu > span {
     .icon;
@@ -226,6 +241,11 @@
   padding:0.1em 0.5em;
   background-color:#ddd;
 }
+.rte2-style-enhancement-inline {
+  padding:0;
+  background-color:rgba(180, 180, 180, 0.3);
+  outline:1px solid rgba(100, 100, 100, 0.5);
+}
 .rte2-style-enhancement {
   display:inline-block;
   padding:2em;
@@ -253,6 +273,94 @@
 .rte2-style-track-display .rte2-style-track-insert {
   background-color: rgba(125, 255, 125, 0.3);
   color:black;
+}
+.rte2-style-spelling {
+  border-bottom:1px dotted red;
+}
+
+.CodeMirror-hints {
+  position: absolute;
+  z-index: 10;
+  overflow: hidden;
+  list-style: none;
+
+  margin: 0;
+  padding: 2px;
+
+  -webkit-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+  -moz-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+  box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+  border-radius: 3px;
+  border: 1px solid silver;
+
+  background: white;
+  font-size: 90%;
+  font-family: monospace;
+
+  max-height: 20em;
+  overflow-y: auto;
+}
+
+.CodeMirror-hint {
+  margin: 0;
+  padding: 0 4px;
+  border-radius: 2px;
+  max-width: 19em;
+  overflow: hidden;
+  white-space: pre;
+  color: black;
+  cursor: pointer;
+}
+
+li.CodeMirror-hint-active {
+  background: #08f;
+  color: white;
+}
+
+.CodeMirror-dialog {
+  position: absolute;
+  left: 0; right: 0;
+  background: white;
+  z-index: 15;
+  padding: .1em .8em;
+  overflow: hidden;
+  color: #333;
+}
+
+.CodeMirror-dialog-top {
+  border-bottom: 1px solid #eee;
+  top: 0;
+}
+
+.CodeMirror-dialog-bottom {
+  border-top: 1px solid #eee;
+  bottom: 0;
+}
+
+.CodeMirror-dialog input {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 20em;
+  color: inherit;
+  font-family: monospace;
+}
+
+.CodeMirror-dialog button {
+  font-size: 70%;
+}
+
+// For enhancements, let the enhancement toolbar overflow the codemirror widget,
+// and reset the z-index because it was causing problems with the submenu hover
+.rte2-codemirror {
+  .CodeMirror,
+  .CodeMirror-scroll {
+    overflow: visible !important;
+  }
+  .CodeMirror-linewidget {
+    overflow: visible;
+    z-index: inherit;
+  }
 }
 
 .rte2-wrapper {
@@ -291,7 +399,7 @@
     width: 100%;
     z-index: 49;
 
-    .rte2-toolbar {
+    > .rte2-toolbar {
       background: white;
       border-bottom: 1px solid @color-separator;
       left: 0 !important;
@@ -299,6 +407,12 @@
       padding-right: 5px;
       right: 0 !important;
       width: auto !important;
+    }
+
+    .rte2-toolbar {
+      a, span, .rte2-toolbar-separator {
+        font-size: 12px;
+      }
     }
 
     .CodeMirror {
@@ -351,31 +465,33 @@
   }
 
   .rte2-enhancement {
-  
-    .background-striped(@color-heading);
     box-sizing: border-box;
-    padding: 4px;
+    padding: 0 5px (@lineHeight-default + 5px) 5px;
+    position: relative;
+
+    &:before {
+      .background-striped(@color-heading);
+      bottom: @lineHeight-default;
+      content: '';
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
 
     .rte2-enhancement-label {
- 
+      overflow: hidden;
       position:relative;
     }
     
     figure {
+      float: left;
       height: 153px;
     }
 
     img {
       max-height: 100%;
       max-width: 100%;
-    }
-
-    a {
-      color: @color-placeholder;
-
-      &:hover {
-        background-color: fade(white, 93%);
-      }
     }
 
     .rte2-enhancement-size {
@@ -385,6 +501,22 @@
       width:auto;
       background-color: fade(white, 85%);
       padding:0.25em;
+    }
+
+    &.toBeRemoved {
+      .background-striped(lighten(@color-remove, 10%));
+    }
+
+    &,
+    &.toBeRemoved {
+      a {
+        color: @color-placeholder;
+
+        &:hover {
+          background-color: fade(white, 93%);
+          text-decoration: none;
+        }
+      }
     }
   }
 }
@@ -429,9 +561,21 @@
   float: right;
 }
 
+.popup[name=rte2-frame-enhancement-inline] {
+  max-width:1000px;
+  width:70%;
+}
+  
+
 // Div that is used as a paste clipboard
 // Note this cannot be hidden because it needs to get focus
 .rte2-clipboard {
   max-height:1px;
   overflow:hidden;
+}
+
+.rte2-onclick-selector {
+  ul {
+    margin:0 1em;
+  }
 }

@@ -1,4 +1,4 @@
-define([ ], function() {
+define([ 'jquery' ], function($) {
   $(document).on('change', '.searchResult-checkAll', function() {
     var $checkbox = $(this);
     var checked = $checkbox.prop('checked');
@@ -23,5 +23,9 @@ define([ ], function() {
         ($checkbox.attr('data-frame-uncheck-base') + '&' + itemIds);
 
     $frame.data('framePlugin').loadPage($frame, $checkbox, 'get', url, null, event);
+  });
+
+  $(document).on('click', '.searchResult-images img', function() {
+    $(this).closest('figure').find(':checkbox').click();
   });
 });

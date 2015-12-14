@@ -46,9 +46,16 @@ if (wp.getOverlaidDraft(object) == null) {
         for (Object contentUpdateObject : contentUpdates) {
             if (contentUpdateObject instanceof Draft) {
                 Draft contentUpdate = (Draft) contentUpdateObject;
+                String contentUpdateName = contentUpdate.getName();
 
                 wp.writeStart("li");
                 wp.writeStart("a", "href", wp.objectUrl(null, contentUpdate));
+
+                if (!ObjectUtils.isBlank(contentUpdateName)) {
+                    wp.writeHtml(contentUpdateName);
+                    wp.writeHtml(" - ");
+                }
+
                 wp.writeHtml(wp.formatUserDateTime(contentUpdate.as(Content.ObjectModification.class).getUpdateDate()));
                 wp.writeHtml(" by ");
                 wp.writeObjectLabel(contentUpdate.getUpdateUser());

@@ -167,5 +167,20 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
     $form.on('submit', function() {
       $.data($form[0], 'content-edit-submit', true);
     })
+
+    // Tab navigation from textarea to RTE.
+    $(document).on('keydown', '.contentForm :text, .contentForm textarea', function (event) {
+      if (event.which === 9) {
+        var $container = $(this).closest('.inputContainer');
+        var rte2 = $container.next('.inputContainer').find('> .inputSmall > .rte2-wrapper').data('rte2');
+
+        if (rte2) {
+          rte2.rte.focus();
+          return false;
+        }
+      }
+
+      return true;
+    });
   });
 });

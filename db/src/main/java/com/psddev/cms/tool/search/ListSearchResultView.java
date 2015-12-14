@@ -244,6 +244,14 @@ public class ListSearchResultView extends AbstractSearchResultView {
                                 }
                             }
 
+                            if (selectedType != null) {
+                                for (ObjectField field : selectedType.getFields()) {
+                                    if (Boolean.TRUE.equals(field.as(ToolUi.class).getDefaultSearchResult())) {
+                                        writeHeaderCell(field);
+                                    }
+                                }
+                            }
+
                         } else {
                             for (String fieldName : fieldNames) {
                                 Class<?> fieldNameClass = ObjectUtils.getClassByName(fieldName);
@@ -267,9 +275,7 @@ public class ListSearchResultView extends AbstractSearchResultView {
                                     }
 
                                     if (field != null && !ObjectUtils.equals(sortField, field)) {
-                                        page.writeStart("th");
-                                            page.writeHtml(field.getDisplayName());
-                                        page.writeEnd();
+                                        writeHeaderCell(field);
                                     }
                                 }
                             }
@@ -472,6 +478,14 @@ public class ListSearchResultView extends AbstractSearchResultView {
                                     }
                                 }
 
+                                if (selectedType != null) {
+                                    for (ObjectField field : selectedType.getFields()) {
+                                        if (Boolean.TRUE.equals(field.as(ToolUi.class).getDefaultSearchResult())) {
+                                            writeDataCell(itemState, field.getInternalName());
+                                        }
+                                    }
+                                }
+
                             } else {
                                 for (String fieldName : fieldNames) {
                                     Class<?> fieldNameClass = ObjectUtils.getClassByName(fieldName);
@@ -485,7 +499,6 @@ public class ListSearchResultView extends AbstractSearchResultView {
                                         }
 
                                     } else {
-
                                         ObjectField field = itemState.getField(fieldName);
 
                                         if (field == null) {
@@ -493,17 +506,7 @@ public class ListSearchResultView extends AbstractSearchResultView {
                                         }
 
                                         if (field != null && !ObjectUtils.equals(sortField, field)) {
-                                            page.writeStart("td");
-                                            for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.getByPath(fieldName)).iterator(); i.hasNext();) {
-                                                Object value = i.next();
-
-                                                page.writeObject(value);
-
-                                                if (i.hasNext()) {
-                                                    page.writeHtml(", ");
-                                                }
-                                            }
-                                            page.writeEnd();
+                                            writeDataCell(itemState, fieldName);
                                         }
                                     }
                                 }
@@ -524,6 +527,28 @@ public class ListSearchResultView extends AbstractSearchResultView {
         page.writeRaw("        return false;");
         page.writeRaw("    }");
         page.writeRaw(" });");
+        page.writeEnd();
+    }
+
+    private void writeHeaderCell(ObjectField field) throws IOException {
+        page.writeStart("th");
+            page.writeHtml(field.getDisplayName());
+        page.writeEnd();
+    }
+
+    private void writeDataCell(State itemState, String fieldName) throws IOException {
+        page.writeStart("td");
+
+        for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.getByPath(fieldName)).iterator(); i.hasNext();) {
+            Object value = i.next();
+
+            page.writeObject(value);
+
+            if (i.hasNext()) {
+                page.writeHtml(", ");
+            }
+        }
+
         page.writeEnd();
     }
 }

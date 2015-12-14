@@ -106,6 +106,9 @@ public class PageFilter extends AbstractFilter {
 
     public static final String MAIN_OBJECT_RENDERER_CONTEXT = "_main";
     public static final String EMBED_OBJECT_RENDERER_CONTEXT = "_embed";
+    public static final String PAGE_VIEW_TYPE = "cms.page";
+
+    private boolean poweredBy;
 
     /**
      * Returns {@code true} if rendering the given {@code request} has
@@ -242,6 +245,11 @@ public class PageFilter extends AbstractFilter {
     }
 
     @Override
+    protected void doInit() throws Exception {
+        poweredBy = Settings.getOrDefault(boolean.class, "brightspot/poweredBy", Boolean.TRUE);
+    }
+
+    @Override
     protected void doError(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -292,6 +300,10 @@ public class PageFilter extends AbstractFilter {
             HttpServletResponse response,
             FilterChain chain)
             throws IOException, ServletException {
+
+        if (poweredBy) {
+            response.setHeader("X-Powered-By", "Brightspot");
+        }
 
         if (request.getMethod().equalsIgnoreCase("HEAD")
                 && ObjectUtils.to(boolean.class, request.getHeader("Brightspot-Main-Object-Id-Query"))) {
@@ -396,6 +408,11 @@ public class PageFilter extends AbstractFilter {
                 }
             }
 
+            if (Static.isPreview(request) || user != null) {
+                response.setHeader("Cache-Control", "private, no-cache");
+                response.setHeader("Brightspot-Cache", "none");
+            }
+
             // Not handled by the CMS.
             if (mainObject == null) {
                 chain.doFilter(request, response);
@@ -463,11 +480,6 @@ public class PageFilter extends AbstractFilter {
             }
 
             Static.pushObject(request, mainObject);
-
-            if (Static.isPreview(request) || user != null) {
-                response.setHeader("Cache-Control", "private, no-cache");
-                response.setHeader("Brightspot-Cache", "none");
-            }
 
             final State mainState = State.getInstance(mainObject);
 
@@ -1079,60 +1091,68 @@ public class PageFilter extends AbstractFilter {
         }
     };
 
-    private static boolean tryRenderView(HttpServletRequest request,
-                                        HttpServletResponse response,
-                                        Writer writer,
-                                        Object object)
-                                        throws IOException, ServletException {
+    private static boolean tryRenderView(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Writer writer,
+            Object object)
+            throws IOException, ServletException {
 
         ViewRequest viewRequest = new ServletViewRequest(request);
+        Object view = viewRequest.createView(ObjectUtils.firstNonBlank(request.getParameter("_viewType"), PAGE_VIEW_TYPE), object);
 
-        PageViewClass annotation = object.getClass().getAnnotation(PageViewClass.class);
+        if (view == null) {
+            PageViewClass annotation = object.getClass().getAnnotation(PageViewClass.class);
+            Class<?> layoutViewClass = annotation != null ? annotation.value() : null;
 
-        Class<?> layoutViewClass = annotation != null ? annotation.value() : null;
-        if (layoutViewClass != null) {
+            if (layoutViewClass != null) {
+                view = viewRequest.createView(layoutViewClass, object);
 
-            Object view = viewRequest.createView(layoutViewClass, object);
-            if (view != null) {
-
-                ViewRenderer renderer;
-                if ("json".equals(request.getParameter("_renderer"))) {
-
-                    JsonViewRenderer jsonViewRenderer = new JsonViewRenderer();
-                    jsonViewRenderer.setIndented(!Settings.isProduction());
-                    jsonViewRenderer.setIncludeClassNames(!Settings.isProduction());
-                    renderer = jsonViewRenderer;
-
-                    response.setContentType("application/json");
-
-                } else {
-                    renderer = ViewRenderer.createRenderer(view);
+                if (view == null) {
+                    LOGGER.warn("Could not create view of type ["
+                            + layoutViewClass.getName()
+                            + "] for object of type ["
+                            + object.getClass()
+                            + "]!");
                 }
-
-                if (renderer != null) {
-
-                    ViewOutput result = renderer.render(view);
-                    String output = result.get();
-                    if (output != null) {
-                        writer.write(output);
-                    }
-
-                } else {
-                    LOGGER.warn("Could not create renderer for view of type ["
-                            + view.getClass().getName() + "]!");
-                }
-
-            } else {
-                LOGGER.warn("Could not create view of type ["
-                        + layoutViewClass.getName() + "] for object of type ["
-                        + object.getClass() + "]!");
             }
+        }
 
-            return true;
-
-        } else {
+        if (view == null) {
             return false;
         }
+
+        ViewRenderer renderer;
+
+        if ("json".equals(request.getParameter("_renderer"))) {
+            JsonViewRenderer jsonViewRenderer = new JsonViewRenderer();
+
+            jsonViewRenderer.setIndented(!Settings.isProduction());
+            jsonViewRenderer.setIncludeClassNames(!Settings.isProduction());
+
+            renderer = jsonViewRenderer;
+
+            response.setContentType("application/json");
+
+        } else {
+            renderer = ViewRenderer.createRenderer(view);
+        }
+
+        if (renderer != null) {
+            ViewOutput result = renderer.render(view);
+            String output = result.get();
+
+            if (output != null) {
+                writer.write(output);
+            }
+
+        } else {
+            LOGGER.warn("Could not create renderer for view of type ["
+                    + view.getClass().getName()
+                    + "]!");
+        }
+
+        return true;
     }
 
     /** Renders the given {@code object}. */

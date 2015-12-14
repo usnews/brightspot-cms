@@ -44,6 +44,7 @@ require([
   'input/location',
   'v3/input/object',
   'input/query',
+  'v3/input/read-only',
   'input/region',
   'v3/input/richtext',
   'v3/input/richtext2',
@@ -79,7 +80,8 @@ require([
   'content/layout-element',
   'v3/content/state',
   'v3/csrf',
-  'v3/search-result-check-all',
+  'v3/search-filters',
+  'v3/search-result-check',
   'v3/tabs' ],
 
 function() {
@@ -336,8 +338,8 @@ function() {
         var $input, $container, html, $html, text;
 
         $input = rte.$el;
-        $container = $input.closest('.inputContainer');
-        
+        $container = $input.closest('.rte2-wrapper').find('> .rte2-toolbar');
+
         html = rte.toHTML();
         $html = $(new DOMParser().parseFromString(html, "text/html").body);
         $html.find('del,.rte-comment').remove();
@@ -621,6 +623,13 @@ function() {
     var $frame = $(event.target);
     var $parent = $frame.popup('source').closest('.popup, .toolContent');
 
+    // Since the edit popup might contain other popups within it,
+    // only run this code when the edit popup is opened
+    // (not when the internal popups are opened)
+    if (!$frame.is('.popup[data-popup-source-class~="objectId-edit"]')) {
+      return;
+    }
+    
     $frame.popup('container').removeClass('popup-objectId-edit-hide');
     $parent.addClass('popup-objectId-edit popup-objectId-edit-loading');
     $win.resize();
@@ -711,11 +720,20 @@ function() {
   });
 
   $doc.on('close', '.popup[data-popup-source-class~="objectId-edit"]', function(event) {
-    scrollTops.pop();
-
+    
     var $frame = $(event.target);
+
+    // Since the edit popup might contain other popups within it,
+    // only run this code when the edit popup is opened
+    // (not when the internal popups are opened)
+    if (!$frame.is('.popup[data-popup-source-class~="objectId-edit"]')) {
+      return;
+    }
+
     var $source = $frame.popup('source');
     var $popup = $frame.popup('container');
+
+    scrollTops.pop();
 
     if ($.data($popup[0], 'popup-close-cancelled')) {
       return;

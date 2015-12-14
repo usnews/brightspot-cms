@@ -297,6 +297,7 @@ writer.start("div", "class", "searchForm");
                             State filterState = State.getInstance(Query.from(Object.class).where("_id = ?", search.getGlobalFilters().get(filterId)).first());
 
                             writer.start("div", "class", "searchFilter");
+                                writer.writeStart("div", "class", "searchFilterItem");
                                 writer.writeElement("input",
                                         "type", "text",
                                         "class", "objectId",
@@ -307,6 +308,7 @@ writer.start("div", "class", "searchForm");
                                         "data-restorable", false,
                                         "data-typeIds", filterId,
                                         "value", filterState != null ? filterState.getId() : null);
+                                writer.writeEnd();
                             writer.end();
                         }
                     writer.end();
@@ -457,12 +459,14 @@ writer.start("div", "class", "searchForm");
                             } else {
                                 State fieldState = State.getInstance(Query.from(Object.class).where("_id = ?", fieldValue).first());
 
+                                wp.writeStart("div", "class", "searchFilterItem");
                                 wp.writeObjectSelect(field, fieldState,
                                         "name", inputName,
                                         "placeholder", displayName,
                                         "data-dynamic-placeholder", "",
                                         "data-editable", false,
                                         "data-restorable", false);
+                                wp.writeEnd();
 
                                 writer.writeElement("input",
                                         "type", "checkbox",
