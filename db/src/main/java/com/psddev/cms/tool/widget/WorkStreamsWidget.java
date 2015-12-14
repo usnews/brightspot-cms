@@ -239,46 +239,46 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
         // Pagination
         page.writeStart("ul", "class", "pagination");
 
-        if (results.hasPrevious()) {
-            page.writeStart("li", "class", "first");
-            page.writeStart("a", "href", page.url("", PARAM_OFFSET, results.getFirstOffset()));
-            page.writeHtml(page.localize(WorkStreamsWidget.class, "pagination.newest"));
-            page.writeEnd();
-            page.writeEnd();
+            if (results.hasPrevious()) {
+                page.writeStart("li", "class", "first");
+                    page.writeStart("a", "href", page.url("", PARAM_OFFSET, results.getFirstOffset()));
+                        page.writeHtml(page.localize(WorkStreamsWidget.class, "pagination.newest"));
+                    page.writeEnd();
+                page.writeEnd();
 
-            page.writeStart("li", "class", "previous");
-            page.writeStart("a", "href", page.url("", PARAM_OFFSET, results.getPreviousOffset()));
-            page.writeHtml(page.localize(ImmutableMap.of("count", limit), "pagination.newerCount"));
-            page.writeEnd();
-            page.writeEnd();
-        }
-
-        if (results.getOffset() > 0 || results.hasNext() || results.getItems().size() > LIMITS[0]) {
-            page.writeStart("li");
-            page.writeStart("form",
-                    "data-bsp-autosubmit", "",
-                    "method", "get",
-                    "action", page.url(null));
-            page.writeStart("select", "name", PARAM_LIMIT);
-            for (int l : LIMITS) {
-                page.writeStart("option",
-                        "value", l,
-                        "selected", limit == l ? "selected" : null);
-                page.writeHtml(page.localize(WorkStreamsWidget.class, ImmutableMap.of("count", l), "option.showCount"));
+                page.writeStart("li", "class", "previous");
+                    page.writeStart("a", "href", page.url("", PARAM_OFFSET, results.getPreviousOffset()));
+                        page.writeHtml(page.localize(ImmutableMap.of("count", limit), "pagination.newerCount"));
+                    page.writeEnd();
                 page.writeEnd();
             }
-            page.writeEnd();
-            page.writeEnd();
-            page.writeEnd();
-        }
 
-        if (results.hasNext()) {
-            page.writeStart("li", "class", "next");
-            page.writeStart("a", "href", page.url("", "offset", results.getNextOffset()));
-            page.writeHtml(page.localize(WorkStreamsWidget.class, ImmutableMap.of("count", limit), "pagination.olderCount"));
-            page.writeEnd();
-            page.writeEnd();
-        }
+            if (results.getOffset() > 0 || results.hasNext() || results.getItems().size() > LIMITS[0]) {
+                page.writeStart("li");
+                    page.writeStart("form",
+                            "data-bsp-autosubmit", "",
+                            "method", "get",
+                            "action", page.url(null));
+                        page.writeStart("select", "name", PARAM_LIMIT);
+                        for (int l : LIMITS) {
+                            page.writeStart("option",
+                                    "value", l,
+                                    "selected", limit == l ? "selected" : null);
+                                page.writeHtml(page.localize(WorkStreamsWidget.class, ImmutableMap.of("count", l), "option.showCount"));
+                            page.writeEnd();
+                        }
+                        page.writeEnd();
+                    page.writeEnd();
+                page.writeEnd();
+            }
+
+            if (results.hasNext()) {
+                page.writeStart("li", "class", "next");
+                    page.writeStart("a", "href", page.url("", "offset", results.getNextOffset()));
+                        page.writeHtml(page.localize(WorkStreamsWidget.class, ImmutableMap.of("count", limit), "pagination.olderCount"));
+                    page.writeEnd();
+                page.writeEnd();
+            }
 
         page.writeEnd();
 
