@@ -235,9 +235,6 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
     }
 
     private void writePaginationHtml(ToolPageContext page, PaginatedResult<WorkStream> results, int limit) throws IOException {
-        if (!hasPagination(page, results)) {
-            return;
-        }
 
         // Pagination
         page.writeStart("ul", "class", "pagination");
@@ -285,19 +282,5 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
 
         page.writeEnd();
 
-    }
-
-    public boolean hasPagination(ToolPageContext page, PaginatedResult<WorkStream> results) {
-        if (results.hasPrevious()) {
-            return true;
-        }
-        if (results.getOffset() > 0 || results.hasNext() || results.getItems().size() > LIMITS[0]) {
-            return true;
-        }
-        if (results.hasNext()) {
-            return true;
-        }
-
-        return false;
     }
 }
