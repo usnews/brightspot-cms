@@ -82,12 +82,12 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
                     page.writeStart("option",
                             "value", PARAM_ASSIGNED_USERS_ANYONE,
                             "selected", (StringUtils.equals(queryAssignedTo, PARAM_ASSIGNED_USERS_ANYONE) || StringUtils.isBlank(queryAssignedTo)) ? "selected" : null);
-                        page.writeHtml(page.localize(WorkStreamsWidget.class, "assignedTo.anyone"));
+                        page.writeHtml(page.localize(WorkStreamsWidget.class, "label.anyone"));
                     page.writeEnd();
                     page.writeStart("option",
                             "value", PARAM_ASSIGNED_USERS_ME,
                             "selected", StringUtils.equals(queryAssignedTo, PARAM_ASSIGNED_USERS_ME) ? "selected" : null);
-                        page.writeHtml(page.localize(WorkStreamsWidget.class, "assignedTo.me"));
+                        page.writeHtml(page.localize(WorkStreamsWidget.class, "label.me"));
                     page.writeEnd();
                 page.writeEnd();
 
