@@ -21,6 +21,7 @@ com.psddev.dari.db.Singleton,
 com.psddev.dari.db.State,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.Utf8Filter,
+com.psddev.dari.util.UrlBuilder,
 
 java.util.ArrayList,
 java.util.Collections,
@@ -506,6 +507,13 @@ writer.start("div", "class", "searchForm");
                 writer.writeEnd();
             writer.end();
 
+            if (request.getAttribute("name") != null && request.getAttribute("name").equals("fullScreen")) {
+                writer.start("a", "class", "action action-cancel",
+                                  "href", new UrlBuilder(request).currentScheme().currentHost().currentPath());
+                    writer.html("Reset");
+                writer.end();
+
+            } else {
             writer.start("a",
                     "class", "action action-cancel search-reset",
                     "onclick",
@@ -522,6 +530,7 @@ writer.start("div", "class", "searchForm");
                             "return false;");
                 writer.html("Reset");
             writer.end();
+            }
 
         writer.end();
 
