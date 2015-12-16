@@ -1374,6 +1374,7 @@ public class ToolUi extends Modification<Object> {
 
     /** Specifies whether the target is read-only. */
     @Documented
+    @Inherited
     @ObjectField.AnnotationProcessorClass(ReadOnlyProcessor.class)
     @ObjectType.AnnotationProcessorClass(ReadOnlyProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
