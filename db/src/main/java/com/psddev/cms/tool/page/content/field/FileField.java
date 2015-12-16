@@ -87,15 +87,17 @@ public class FileField extends PageServlet {
         String fieldName = field != null ? field.getInternalName() : page.param(String.class, "fieldName");
         StorageItem fieldValue = null;
 
-        if (state != null) {
-            fieldValue = (StorageItem) state.getValue(fieldName);
-        } else {
-            // handles processing of files uploaded on frontend
+        if (page.isAjaxRequest()) {
+            // Handles requests from front end upload
             UUID typeId = page.param(UUID.class, "typeId");
             ObjectType type = ObjectType.getInstance(typeId);
             field = type.getField(fieldName);
             state = State.getInstance(type.createObject(null));
             fieldValue = StorageItemFilter.getParameter(request, fileJsonParamName, getStorageSetting(Optional.of(field)));
+            request.setAttribute("object", state);
+            request.setAttribute("field", field);
+        } else {
+            fieldValue = (StorageItem) state.getValue(fieldName);
         }
 
         String metadataFieldName = fieldName + ".metadata";
@@ -385,7 +387,7 @@ public class FileField extends PageServlet {
             state.putValue(fieldName, newItem);
 
             if (projectUsingBrightSpotImage) {
-                page.include("set/hotSpot.jsp");
+                page.include("/WEB-INF/field/set/hotSpot.jsp");
             }
             return;
 
@@ -502,7 +504,7 @@ public class FileField extends PageServlet {
         page.writeEnd();
 
         if (projectUsingBrightSpotImage) {
-            page.include("set/hotSpot.jsp");
+            page.include("/WEB-INF/field/set/hotSpot.jsp");
         }
     }
 
