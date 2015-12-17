@@ -87,7 +87,9 @@ public class FileField extends PageServlet {
         String fieldName = field != null ? field.getInternalName() : page.param(String.class, "fieldName");
         StorageItem fieldValue = null;
 
-        if (page.isAjaxRequest()) {
+        if (state != null) {
+            fieldValue = (StorageItem) state.getValue(fieldName);
+        } else if (page.isAjaxRequest()) {
             // Handles requests from front end upload
             UUID typeId = page.param(UUID.class, "typeId");
             ObjectType type = ObjectType.getInstance(typeId);
@@ -96,8 +98,6 @@ public class FileField extends PageServlet {
             fieldValue = StorageItemFilter.getParameter(request, fileJsonParamName, getStorageSetting(Optional.of(field)));
             request.setAttribute("object", state);
             request.setAttribute("field", field);
-        } else {
-            fieldValue = (StorageItem) state.getValue(fieldName);
         }
 
         String metadataFieldName = fieldName + ".metadata";
