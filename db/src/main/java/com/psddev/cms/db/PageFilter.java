@@ -108,6 +108,14 @@ public class PageFilter extends AbstractFilter {
     public static final String EMBED_OBJECT_RENDERER_CONTEXT = "_embed";
     public static final String PAGE_VIEW_TYPE = "cms.page";
 
+    public static final String VIEW_REQUEST_HTTP_REQUEST_URI = "http.request.uri";
+    public static final String VIEW_REQUEST_HTTP_REQUEST_URL = "http.request.url";
+    public static final String VIEW_REQUEST_HTTP_REQUEST_METHOD = "http.request.method";
+    public static final String VIEW_REQUEST_HTTP_REQUEST_REMOTE_ADDRESS = "http.request.remoteAddress";
+    public static final String VIEW_REQUEST_HTTP_HEADER_PREFIX = "http.header.";
+    public static final String VIEW_REQUEST_HTTP_PARAMETER_PREFIX = "http.parameter.";
+    public static final String VIEW_REQUEST_SERVLET_ATTRIBUTE_PREFIX = "servlet.attribute.";
+
     private boolean poweredBy;
 
     /**
