@@ -12,8 +12,10 @@ import com.psddev.dari.util.ObjectUtils;
 
 /**
  * Base implementation of {@link ViewRequest} that handles the creation of views
- * and the conversion of attribute values into their correct return types.
- * Sub-classes must implement {@link #getParameterValue(String)}.
+ * and the conversion of parameter values into their correct return types.
+ * Sub-classes must implement {@link #getParameterValue(String, String)} defined
+ * on this class, as well as {@link #getParameterNames(String)} and
+ * {@link #getParameterNamespaces()} defined on {@link ViewRequest}.
  */
 public abstract class AbstractViewRequest implements ViewRequest {
 
@@ -47,9 +49,10 @@ public abstract class AbstractViewRequest implements ViewRequest {
     }
 
     @Override
-    public <T> Stream<T> getParameter(Class<T> returnType, String name) {
+    public <T> Stream<T> getParameter(Class<T> returnType, String namespace, String name) {
 
-        Object rawValue = getParameterValue(name);
+        Object rawValue = getParameterValue(namespace, name);
+
         if (rawValue instanceof Iterable) {
 
             List<T> values = new ArrayList<>();
@@ -70,11 +73,13 @@ public abstract class AbstractViewRequest implements ViewRequest {
     }
 
     /**
-     * Gets the attribute value with the given {@code name}. If there is more
-     * than one value, then an iterable of those values should be returned.
+     * Gets the parameter value with the given {@code name} in the given
+     * {@code namespace}. If there is more than one value, then an
+     * {@link java.lang.Iterable} of those values should be returned.
      *
-     * @param name the name of the attribute to get.
-     * @return the value of the attribute with the given {@code name}.
+     * @param namespace the namespace to look for the parameter.
+     * @param name the name of the parameter to get.
+     * @return the value of the parameter.
      */
-    protected abstract Object getParameterValue(String name);
+    protected abstract Object getParameterValue(String namespace, String name);
 }

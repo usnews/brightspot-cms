@@ -1,6 +1,5 @@
 package com.psddev.cms.view;
 
-import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -32,26 +31,41 @@ public interface ViewRequest {
     Object createView(String viewType, Object model);
 
     /**
-     * Gets a stream of the request parameter values for the given {@code name}.
-     * A "parameter" is any arbitrary value or attribute of the view request,
-     * and is not restricted to just HTTP request parameters. Use
-     * {@link #getParameterNames()} to get a list of all the parameters
-     * available from the current request.
+     * @deprecated Use {@link #getParameter(Class, String, String)} instead.
+     */
+    @Deprecated
+    default <T> Stream<T> getParameter(Class<T> returnType, String name) {
+        return getParameter(returnType, null, name);
+    }
+
+    /**
+     * Gets a stream of parameter values for the given {@code namespace} and
+     * {@code name}. A "parameter" is any arbitrary value or attribute of the
+     * view request, and is not restricted to just HTTP request parameters. Use
+     * {@link #getParameterNamespaces()} to get a list of all the namespaces
+     * containing parameters that are available on the current request, and use
+     * {@link #getParameterNames(String)} to get a list of all the parameter
+     * names available within a particular namespace for the current request.
      *
      * @param returnType the stream type.
+     * @param namespace the namespace the parameter lives in.
      * @param name the parameter name.
      * @param <T> the stream type.
      * @return a stream of the parameter values.
      */
-    <T> Stream<T> getParameter(Class<T> returnType, String name);
+    <T> Stream<T> getParameter(Class<T> returnType, String namespace, String name);
 
     /**
-     * Gets all the attribute names available to a call to
-     * {@link #getParameter(Class, String)}.
+     * Gets all the parameter names available within the given {@code namespace}.
      *
      * @return the available parameter names.
      */
-    default Set<String> getParameterNames() {
-        return Collections.emptySet();
-    }
+    Set<String> getParameterNames(String namespace);
+
+    /**
+     * Gets all the available parameter namespaces.
+     *
+     * @return the available parameter namespaces.
+     */
+    Set<String> getParameterNamespaces();
 }

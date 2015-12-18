@@ -16,7 +16,19 @@
     <difference>
         <className>com/psddev/cms/view/ViewRequest</className>
         <differenceType>7012</differenceType>
-        <method>java.util.Set getParameterNames()</method>
+        <method>java.util.stream.Stream getParameter(java.lang.Class, java.lang.String, java.lang.String)</method>
+    </difference>
+
+    <difference>
+        <className>com/psddev/cms/view/ViewRequest</className>
+        <differenceType>7012</differenceType>
+        <method>java.util.Set getParameterNames(java.lang.String)</method>
+    </difference>
+
+    <difference>
+        <className>com/psddev/cms/view/ViewRequest</className>
+        <differenceType>7012</differenceType>
+        <method>java.util.Set getParameterNamespaces()</method>
     </difference>
 
 </differences>
