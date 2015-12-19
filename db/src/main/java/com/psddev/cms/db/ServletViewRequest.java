@@ -158,14 +158,14 @@ public class ServletViewRequest extends AbstractViewRequest {
     /**
      * Get an HTTP Servlet Request attribute.
      *
-     * @param returnType the stream type.
+     * @param returnType the return type.
      * @param name the HTTP Servlet request attribute name.
      * @param request the current view request.
-     * @param <T> the stream type.
-     * @return the HTTP Servlet request attribute value as a Stream.
+     * @param <T> the return type.
+     * @return the HTTP Servlet request attribute value.
      */
-    public static <T> Stream<T> getServletRequestAttribute(Class<T> returnType, String name, ViewRequest request) {
-        return request.getParameter(returnType, SERVLET_ATTRIBUTE_NAMESPACE, name);
+    public static <T> T getServletRequestAttribute(Class<T> returnType, String name, ViewRequest request) {
+        return request.getParameter(returnType, SERVLET_ATTRIBUTE_NAMESPACE, name).findFirst().orElse(null);
     }
 
     private static interface Namespace {
