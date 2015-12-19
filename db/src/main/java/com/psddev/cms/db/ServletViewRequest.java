@@ -28,7 +28,7 @@ public class ServletViewRequest extends AbstractViewRequest {
     private static final String HTTP_PARAMETER_NAMESPACE = "http.parameter";
     private static final String HTTP_HEADER_NAMESPACE = "http.header";
     private static final String SERVLET_ATTRIBUTE_NAMESPACE = "servlet.attribute";
-    private static final String CMS_OBJECTS_NAMESPACE = "cms.objects.";
+    private static final String CMS_OBJECTS_NAMESPACE = "cms.objects";
 
     private HttpServletRequest request;
     private Map<String, Namespace> namespaces = new HashMap<>();
