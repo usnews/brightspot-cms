@@ -7,23 +7,24 @@ import java.util.UUID;
 import javax.servlet.ServletException;
 
 import com.google.common.collect.ImmutableMap;
+import com.psddev.cms.db.ToolRole;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.db.WorkStream;
 import com.psddev.cms.tool.Dashboard;
 import com.psddev.cms.tool.DefaultDashboardWidget;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
+import com.psddev.dari.db.State;
 import com.psddev.dari.util.PaginatedResult;
-import com.psddev.dari.util.StringUtils;
 
 public class WorkStreamsWidget extends DefaultDashboardWidget {
     private static final int[] LIMITS = { 10, 20, 50 };
-    private static final String PARAM_ASSIGNED_USERS = "assignedTo";
-    private static final String PARAM_ASSIGNED_USERS_ANYONE = "anyone";
-    private static final String PARAM_ASSIGNED_USERS_ME = "me";
-    private static final String PARAM_OFFSET = "offset";
-    private static final String PARAM_LIMIT = "limit";
-    private static final String PARAM_STOP = "stop";
+    private static final String TOOL_ENTITY_TYPE_PARAMETER = "toolEntityType";
+    private static final String TOOL_ENTITY_VALUE_PARAMETER = "toolEntity";
+    private static final String OFFSET_PARAMETER = "offset";
+    private static final String LIMIT_PARAMETER = "limit";
+    private static final String STOP_PARAMETER = "stop";
 
     @Override
     public int getColumnIndex() {
@@ -37,10 +38,8 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
 
     @Override
     public void writeHtml(ToolPageContext page, Dashboard dashboard) throws IOException, ServletException {
-        String queryAssignedTo = page.pageParam(String.class, PARAM_ASSIGNED_USERS, PARAM_ASSIGNED_USERS_ANYONE);
-        long offset = page.param(long.class, PARAM_OFFSET);
-        int limit = page.pageParam(Integer.class, PARAM_LIMIT, LIMITS[0]);
-        UUID stop = page.param(UUID.class, PARAM_STOP);
+        int limit = page.pageParam(Integer.class, LIMIT_PARAMETER, LIMITS[0]);
+        UUID stop = page.param(UUID.class, STOP_PARAMETER);
 
         ToolUser user = page.getUser();
 
@@ -54,11 +53,7 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
             return;
         }
 
-        Query<WorkStream> query = Query.from(WorkStream.class).where(page.siteItemsPredicate());
-        if (StringUtils.equals(queryAssignedTo, PARAM_ASSIGNED_USERS_ME)) {
-            query.and("assignedUsers = ?", page.getUser());
-        }
-        PaginatedResult<WorkStream> results = query.select(offset, limit);
+        PaginatedResult<WorkStream> results = getResults(page);
 
         page.writeHeader();
         page.writeStart("div", "class", "widget p-workStreams");
@@ -66,30 +61,7 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
                 page.writeHtml(page.localize(WorkStreamsWidget.class, "title"));
             page.writeEnd();
 
-            // Filters
-            page.writeStart("div", "class", "widget-filters");
-                page.writeStart("form",
-                        "method", "get",
-                        "action", page.url(null));
-
-                page.writeStart("select",
-                        "data-bsp-autosubmit", "",
-                        "name", PARAM_ASSIGNED_USERS,
-                        "data-searchable", "true");
-                    page.writeStart("option",
-                            "value", PARAM_ASSIGNED_USERS_ANYONE,
-                            "selected", (StringUtils.equals(queryAssignedTo, PARAM_ASSIGNED_USERS_ANYONE) || StringUtils.isBlank(queryAssignedTo)) ? "selected" : null);
-                        page.writeHtml(page.localize(WorkStreamsWidget.class, "label.anyone"));
-                    page.writeEnd();
-                    page.writeStart("option",
-                            "value", PARAM_ASSIGNED_USERS_ME,
-                            "selected", StringUtils.equals(queryAssignedTo, PARAM_ASSIGNED_USERS_ME) ? "selected" : null);
-                        page.writeHtml(page.localize(WorkStreamsWidget.class, "label.me"));
-                    page.writeEnd();
-                page.writeEnd();
-
-            page.writeEnd();
-        page.writeEnd();
+            writeFilters(page);
 
         if (!results.hasPages()) { //workStreams.isEmpty()) {
             page.writeStart("div", "class", "message message-info");
@@ -231,6 +203,100 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
         page.writeFooter();
     }
 
+    private PaginatedResult<WorkStream> getResults(ToolPageContext page) {
+
+        Query<WorkStream> query = Query.from(WorkStream.class).where(page.siteItemsPredicate());
+
+        ToolEntityType entityType = page.pageParam(ToolEntityType.class, TOOL_ENTITY_TYPE_PARAMETER, ToolEntityType.ANYONE);
+
+        UUID entityId = null;
+
+        if (entityType == ToolEntityType.USER || entityType == ToolEntityType.ROLE) {
+            entityId = page.pageParam(UUID.class, TOOL_ENTITY_VALUE_PARAMETER, null);
+        } else if (entityType == ToolEntityType.ME) {
+            entityId = page.getUser().getId();
+        }
+
+        if (entityId != null) {
+            query.and("assignedEntities = ?", entityId);
+        }
+
+        return query.select(page.param(long.class, OFFSET_PARAMETER), page.paramOrDefault(int.class, LIMIT_PARAMETER, LIMITS[0]));
+    }
+
+    private void writeFilters(ToolPageContext page) throws IOException {
+        page.writeStart("div", "class", "widget-filters");
+            page.writeStart("form",
+                    "method", "get",
+                    "action", page.url(null));
+                page.writeStart("select",
+                        "data-bsp-autosubmit", "",
+                        "name", TOOL_ENTITY_TYPE_PARAMETER,
+                        "data-searchable", "true");
+        
+                    ToolEntityType userType = page.pageParam(ToolEntityType.class, TOOL_ENTITY_TYPE_PARAMETER, ToolEntityType.ANYONE);
+                    for (ToolEntityType t : ToolEntityType.values()) {
+                        if (t != ToolEntityType.ROLE || Query.from(ToolRole.class).first() != null) {
+                            page.writeStart("option",
+                                    "selected", t.equals(userType) ? "selected" : null,
+                                    "value", t.name());
+                            page.writeHtml(page.localize(null, t.getResourceKey()));
+                            page.writeEnd();
+                        }
+                    }
+
+                page.writeEnd();
+
+                // TODO: move somewhere reusable (duplicated in other widgets)
+                Query<?> toolEntityQuery;
+
+                if (userType == ToolEntityType.ROLE) {
+                    toolEntityQuery = Query.from(ToolRole.class).sortAscending("name");
+
+                } else if (userType == ToolEntityType.USER) {
+                    toolEntityQuery = Query.from(ToolUser.class).sortAscending("name");
+
+                } else {
+                    toolEntityQuery = null;
+                }
+
+                if (toolEntityQuery != null) {
+                    Object toolEntity = Query.from(Object.class).where("_id = ?", page.pageParam(UUID.class, TOOL_ENTITY_VALUE_PARAMETER, null)).first();
+                    if (toolEntityQuery.hasMoreThan(250)) {
+                        State toolEntityState = State.getInstance(toolEntity);
+
+                        page.writeElement("input",
+                                "type", "text",
+                                "class", "objectId",
+                                "data-bsp-autosubmit", "",
+                                "data-editable", false,
+                                "data-label", toolEntityState != null ? toolEntityState.getLabel() : null,
+                                "data-typeIds", ObjectType.getInstance(ToolRole.class).getId(),
+                                "name", TOOL_ENTITY_VALUE_PARAMETER,
+                                "value", toolEntityState != null ? toolEntityState.getId() : null);
+
+                    } else {
+                        page.writeStart("select",
+                                "name", TOOL_ENTITY_VALUE_PARAMETER,
+                                "data-bsp-autosubmit", "",
+                                "data-searchable", "true");
+                            page.writeStart("option", "value", "").writeEnd();
+                            for (Object v : toolEntityQuery.selectAll()) {
+                                State userState = State.getInstance(v);
+
+                                page.writeStart("option",
+                                        "value", userState.getId(),
+                                        "selected", v.equals(toolEntity) ? "selected" : null);
+                                page.writeHtml(userState.getLabel());
+                                page.writeEnd();
+                            }
+                        page.writeEnd();
+                    }
+                }
+            page.writeEnd();
+        page.writeEnd();
+    }
+
     private void writePaginationHtml(ToolPageContext page, PaginatedResult<WorkStream> results, int limit) throws IOException {
 
         // Pagination
@@ -238,13 +304,13 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
 
             if (results.hasPrevious()) {
                 page.writeStart("li", "class", "first");
-                    page.writeStart("a", "href", page.url("", PARAM_OFFSET, results.getFirstOffset()));
+                    page.writeStart("a", "href", page.url("", OFFSET_PARAMETER, results.getFirstOffset()));
                         page.writeHtml(page.localize(WorkStreamsWidget.class, "pagination.newest"));
                     page.writeEnd();
                 page.writeEnd();
 
                 page.writeStart("li", "class", "previous");
-                    page.writeStart("a", "href", page.url("", PARAM_OFFSET, results.getPreviousOffset()));
+                    page.writeStart("a", "href", page.url("", OFFSET_PARAMETER, results.getPreviousOffset()));
                         page.writeHtml(page.localize(ImmutableMap.of("count", limit), "pagination.newerCount"));
                     page.writeEnd();
                 page.writeEnd();
@@ -256,7 +322,7 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
                             "data-bsp-autosubmit", "",
                             "method", "get",
                             "action", page.url(null));
-                        page.writeStart("select", "name", PARAM_LIMIT);
+                        page.writeStart("select", "name", LIMIT_PARAMETER);
                         for (int l : LIMITS) {
                             page.writeStart("option",
                                     "value", l,
@@ -279,5 +345,23 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
 
         page.writeEnd();
 
+    }
+
+    private enum ToolEntityType {
+
+        ANYONE("label.anyone"),
+        ME("label.me"),
+        ROLE("label.role"),
+        USER("label.user");
+
+        private String resourceKey;
+
+        ToolEntityType(String resourceKey) {
+            this.resourceKey = resourceKey;
+        }
+
+        public String getResourceKey() {
+            return resourceKey;
+        }
     }
 }
