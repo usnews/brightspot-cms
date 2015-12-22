@@ -14,16 +14,16 @@ import com.psddev.cms.tool.DefaultDashboardWidget;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.util.PaginatedResult;
-import org.apache.commons.lang.StringUtils;
+import com.psddev.dari.util.StringUtils;
 
 public class WorkStreamsWidget extends DefaultDashboardWidget {
     private static final int[] LIMITS = { 10, 20, 50 };
-    public static final String PARAM_ASSIGNED_USERS = "assignedTo";
-    public static final String PARAM_ASSIGNED_USERS_ANYONE = "anyone";
-    public static final String PARAM_ASSIGNED_USERS_ME = "me";
-    public static final String PARAM_OFFSET = "offset";
-    public static final String PARAM_LIMIT = "limit";
-    public static final String PARAM_STOP = "stop";
+    private static final String PARAM_ASSIGNED_USERS = "assignedTo";
+    private static final String PARAM_ASSIGNED_USERS_ANYONE = "anyone";
+    private static final String PARAM_ASSIGNED_USERS_ME = "me";
+    private static final String PARAM_OFFSET = "offset";
+    private static final String PARAM_LIMIT = "limit";
+    private static final String PARAM_STOP = "stop";
 
     @Override
     public int getColumnIndex() {
