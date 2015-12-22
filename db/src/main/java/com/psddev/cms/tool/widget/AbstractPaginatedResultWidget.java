@@ -25,8 +25,8 @@ import com.psddev.dari.util.PaginatedResult;
 public abstract class AbstractPaginatedResultWidget<T extends Record> extends DashboardWidget {
 
     private static final int[] LIMITS = {10, 20, 50};
-    public static final String PARAM_OFFSET = "offset";
-    public static final String PARAM_LIMIT = "limit";
+    public static final String OFFSET_PARAMETER = "offset";
+    public static final String LIMIT_PARAMETER = "limit";
 
     /**
      * It is recommended that implementations of this method produce
@@ -55,7 +55,7 @@ public abstract class AbstractPaginatedResultWidget<T extends Record> extends Da
      * @return the {@link PaginatedResult} to be displayed by the widget.
      */
     public PaginatedResult<T> getPaginatedResult(ToolPageContext page) {
-        return getQuery(page).select(page.param(long.class, PARAM_OFFSET), page.paramOrDefault(int.class, PARAM_LIMIT, LIMITS[0]));
+        return getQuery(page).select(page.param(long.class, OFFSET_PARAMETER), page.paramOrDefault(int.class, LIMIT_PARAMETER, LIMITS[0]));
     }
 
     /**
@@ -152,13 +152,13 @@ public abstract class AbstractPaginatedResultWidget<T extends Record> extends Da
 
             if (result.hasPrevious()) {
                 page.writeStart("li", "class", "first");
-                    page.writeStart("a", "href", page.url("", PARAM_OFFSET, result.getFirstOffset()));
+                    page.writeStart("a", "href", page.url("", OFFSET_PARAMETER, result.getFirstOffset()));
                         page.writeHtml(page.localize(WorkStreamsWidget.class, "pagination.newest"));
                     page.writeEnd();
                 page.writeEnd();
 
                 page.writeStart("li", "class", "previous");
-                    page.writeStart("a", "href", page.url("", PARAM_OFFSET, result.getPreviousOffset()));
+                    page.writeStart("a", "href", page.url("", OFFSET_PARAMETER, result.getPreviousOffset()));
                         page.writeHtml(page.localize(ImmutableMap.of("count", limit), "pagination.newerCount"));
                     page.writeEnd();
                 page.writeEnd();
@@ -170,7 +170,7 @@ public abstract class AbstractPaginatedResultWidget<T extends Record> extends Da
                             "data-bsp-autosubmit", "",
                             "method", "get",
                             "action", page.url(null));
-                        page.writeStart("select", "name", PARAM_LIMIT);
+                        page.writeStart("select", "name", LIMIT_PARAMETER);
                         for (int l : LIMITS) {
                             page.writeStart("option",
                                     "value", l,
