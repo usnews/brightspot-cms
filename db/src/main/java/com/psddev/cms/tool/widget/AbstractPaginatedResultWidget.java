@@ -28,7 +28,6 @@ public abstract class AbstractPaginatedResultWidget<T extends Record> extends Da
     public static final String PARAM_OFFSET = "offset";
     public static final String PARAM_LIMIT = "limit";
 
-
     /**
      * It is recommended that implementations of this method produce
      * a localized title.
