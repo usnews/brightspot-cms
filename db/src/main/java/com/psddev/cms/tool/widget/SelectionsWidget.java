@@ -140,7 +140,6 @@ public class SelectionsWidget extends AbstractPaginatedResultWidget<SearchResult
         page.writeEnd();
     }
 
-
     private enum ToolEntityType {
 
         ANYONE("label.anyone"),
