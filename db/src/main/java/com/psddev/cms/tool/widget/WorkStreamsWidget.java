@@ -233,7 +233,7 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
                         "data-bsp-autosubmit", "",
                         "name", TOOL_ENTITY_TYPE_PARAMETER,
                         "data-searchable", "true");
-        
+
                     ToolEntityType userType = page.pageParam(ToolEntityType.class, TOOL_ENTITY_TYPE_PARAMETER, ToolEntityType.ANYONE);
                     for (ToolEntityType t : ToolEntityType.values()) {
                         if (t != ToolEntityType.ROLE || Query.from(ToolRole.class).first() != null) {
