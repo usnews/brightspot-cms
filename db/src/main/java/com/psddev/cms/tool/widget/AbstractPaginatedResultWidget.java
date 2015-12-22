@@ -88,6 +88,14 @@ public abstract class AbstractPaginatedResultWidget<T extends Record> extends Da
 
     }
 
+    public void writeEmpty(ToolPageContext page) throws IOException {
+        page.writeStart("div", "class", "message message-info");
+            page.writeStart("p");
+                page.writeHtml(page.localize(AbstractPaginatedResultWidget.class, "message.noResults"));
+            page.writeEnd();
+        page.writeEnd();
+    }
+
     /**
      * Optionally override to customize appearance of a row in the table.
      *
@@ -140,7 +148,12 @@ public abstract class AbstractPaginatedResultWidget<T extends Record> extends Da
             PaginatedResult<T> result = getPaginatedResult(page);
 
             writePaginationHtml(page, result, 0);
-            writeResults(page, result);
+
+            if (result.hasPages()) {
+                writeResults(page, result);
+            } else {
+                writeEmpty(page);
+            }
 
         page.writeEnd();
     }
