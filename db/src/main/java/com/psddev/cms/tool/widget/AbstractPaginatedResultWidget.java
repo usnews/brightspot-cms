@@ -81,9 +81,7 @@ public abstract class AbstractPaginatedResultWidget<T extends Record> extends Da
         page.writeStart("table", "class", "links table-striped pageThumbnails").writeStart("tbody");
 
         for (T record : result.getItems()) {
-            page.writeStart("tr");
-                writeResultsItem(page, record);
-            page.writeEnd();
+            writeResultsItem(page, record);
         }
 
         page.writeEnd().writeEnd();
@@ -99,24 +97,26 @@ public abstract class AbstractPaginatedResultWidget<T extends Record> extends Da
      */
     public void writeResultsItem(ToolPageContext page, T record) throws IOException {
 
-        page.writeStart("td");
-            page.writeTypeLabel(record);
-        page.writeEnd();
+        page.writeStart("tr");
+            page.writeStart("td");
+                page.writeTypeLabel(record);
+            page.writeEnd();
 
-        page.writeStart("td");
+            page.writeStart("td");
 
-            if (record instanceof Content) {
-                page.writeStart("a",
-                        "target", "_top",
-                        "href", page.objectUrl("/content/edit.jsp", record));
-            }
+                if (record instanceof Content) {
+                    page.writeStart("a",
+                            "target", "_top",
+                            "href", page.objectUrl("/content/edit.jsp", record));
+                }
 
-                page.writeObjectLabel(record);
+                    page.writeObjectLabel(record);
 
-            if (record instanceof Content) {
-                page.writeEnd();
-            }
+                if (record instanceof Content) {
+                    page.writeEnd();
+                }
 
+            page.writeEnd();
         page.writeEnd();
     }
 
@@ -138,7 +138,7 @@ public abstract class AbstractPaginatedResultWidget<T extends Record> extends Da
             page.writeEnd();
 
             PaginatedResult<T> result = getPaginatedResult(page);
-        
+
             writePaginationHtml(page, result, 0);
             writeResults(page, result);
 

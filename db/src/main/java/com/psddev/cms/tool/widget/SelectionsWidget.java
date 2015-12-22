@@ -8,6 +8,7 @@ import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.cms.tool.search.MixedSearchResultView;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
 
 public class SelectionsWidget extends AbstractPaginatedResultWidget<SearchResultSelection> {
 
@@ -18,11 +19,15 @@ public class SelectionsWidget extends AbstractPaginatedResultWidget<SearchResult
 
     @Override
     Query<SearchResultSelection> getQuery(ToolPageContext page) {
-        return Query.from(SearchResultSelection.class).where("");
+        return Query.from(SearchResultSelection.class);
     }
 
     @Override
     public void writeResultsItem(ToolPageContext page, SearchResultSelection selection) throws IOException {
+
+        if (StringUtils.isBlank(selection.getName())) {
+            return;
+        }
 
         Search search = new Search();
         search.setAdditionalPredicate(selection.createItemsQuery().getPredicate().toString());
