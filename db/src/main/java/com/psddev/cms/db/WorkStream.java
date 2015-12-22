@@ -37,7 +37,7 @@ public class WorkStream extends Record {
     private Map<String, UUID> currentItems;
 
     @Indexed
-    private Set<ToolUser> assignedUsers;
+    private Set<ToolEntity> assignedEntities;
 
     @ToolUi.Hidden
     private Map<String, List<UUID>> skippedItems;
@@ -60,12 +60,12 @@ public class WorkStream extends Record {
         this.instructions = instructions;
     }
 
-    public Set<ToolUser> getAssignedUsers() {
-        return assignedUsers;
+    public Set<ToolEntity> getAssignedEntities() {
+        return assignedEntities;
     }
 
-    public void setAssignedUsers(Set<ToolUser> assignedUsers) {
-        this.assignedUsers = assignedUsers;
+    public void setAssignedEntities(Set<ToolEntity> assignedEntities) {
+        this.assignedEntities = assignedEntities;
     }
 
     /** Returns the tool search that can return all items to be worked on. */
