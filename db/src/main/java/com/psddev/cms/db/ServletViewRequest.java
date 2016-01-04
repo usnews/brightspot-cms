@@ -9,7 +9,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.psddev.cms.view.AbstractViewRequest;
@@ -179,7 +178,7 @@ public class ServletViewRequest extends AbstractViewRequest {
 
         @Override
         public Set<String> getParameterNames(HttpServletRequest request) {
-            return new LinkedHashSet<>(Collections.list(request.getParameterNames()).stream().collect(Collectors.toList()));
+            return new LinkedHashSet<>(Collections.list(request.getParameterNames()));
         }
 
         @Override
@@ -201,7 +200,7 @@ public class ServletViewRequest extends AbstractViewRequest {
 
         @Override
         public Set<String> getParameterNames(HttpServletRequest request) {
-            return new LinkedHashSet<>(Collections.list(request.getHeaderNames()).stream().collect(Collectors.toList()));
+            return new LinkedHashSet<>(Collections.list(request.getHeaderNames()));
         }
 
         @Override
@@ -219,7 +218,7 @@ public class ServletViewRequest extends AbstractViewRequest {
 
         @Override
         public Set<String> getParameterNames(HttpServletRequest request) {
-            return new LinkedHashSet<>(Collections.list(request.getAttributeNames()).stream().collect(Collectors.toList()));
+            return new LinkedHashSet<>(Collections.list(request.getAttributeNames()));
         }
 
         @Override
