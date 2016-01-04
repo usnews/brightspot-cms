@@ -119,6 +119,7 @@ function ($, bsp_utils, uploader) {
 
       $.ajax({
         url: window.CONTEXT_PATH + 'content/field/file',
+        type: 'POST',
         dataType: 'html',
         data: params
       }).done(function (htmlResponse) {
@@ -152,6 +153,7 @@ function ($, bsp_utils, uploader) {
       // gets dims image preview
       $.ajax({
         url: window.CONTEXT_PATH + 'content/upload',
+        type: 'POST',
         dataType: 'html',
         data: params
       }).done(function (html) {
