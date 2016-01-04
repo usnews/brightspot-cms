@@ -97,18 +97,12 @@ public class SearchCarousel extends PageServlet {
                     }
 
                     if (itemPreviewImage) {
-                        String itemPreviewUrl = ImageEditor.Static.getDefault() != null
-                                ? new ImageTag.Builder(itemPreview)
-                                .setHeight(300)
-                                .setResizeOption(ResizeOption.ONLY_SHRINK_LARGER)
-                                .toUrl()
-                                : itemPreview.getPublicUrl();
 
                         Site owner = itemState.as(Site.ObjectModification.class).getOwner();
 
                         page.writeStart("figure");
                             page.writeElement("img",
-                                    "src", itemPreviewUrl,
+                                    "src", page.getPreviewThumbnailUrl(itemPreview),
                                     "alt", ((owner != null ? (page.getObjectLabel(owner) + ": ") : "")
                                             + (page.getTypeLabel(item) + ": ") + page.getObjectLabel(item)));
 
