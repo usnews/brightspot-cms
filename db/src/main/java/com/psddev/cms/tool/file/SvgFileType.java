@@ -15,11 +15,13 @@ import com.psddev.dari.util.StringUtils;
  */
 public class SvgFileType implements FileContentType {
 
+    public static final String CONTENT_TYPE = "image/svg+xml";
+
     @Override
     public double getPriority(StorageItem storageItem) {
         String contentType = storageItem.getContentType();
 
-        if (StringUtils.isBlank(contentType) || !contentType.startsWith("image/svg")) {
+        if (StringUtils.isBlank(contentType) || !contentType.equals(CONTENT_TYPE)) {
             return DEFAULT_PRIORITY_LEVEL - 1;
         }
 
