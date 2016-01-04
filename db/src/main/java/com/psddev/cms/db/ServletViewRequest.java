@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -245,7 +244,7 @@ public class ServletViewRequest extends AbstractViewRequest {
 
         @Override
         public Set<String> getParameterNames(HttpServletRequest request) {
-            return new HashSet<>(Arrays.asList(URI_KEY, URL_KEY, METHOD_KEY, REMOTE_ADDRESS_KEY));
+            return new LinkedHashSet<>(Arrays.asList(URI_KEY, URL_KEY, METHOD_KEY, REMOTE_ADDRESS_KEY));
         }
 
         @Override
@@ -275,7 +274,7 @@ public class ServletViewRequest extends AbstractViewRequest {
 
         @Override
         public Set<String> getParameterNames(HttpServletRequest request) {
-            return new HashSet<>(Arrays.asList(MAIN_OBJECT_KEY, PAGE_KEY, PATH_KEY, PROFILE_KEY, SITE_KEY));
+            return new LinkedHashSet<>(Arrays.asList(MAIN_OBJECT_KEY, PAGE_KEY, PATH_KEY, PROFILE_KEY, SITE_KEY));
         }
 
         @Override
