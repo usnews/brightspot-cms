@@ -1,9 +1,8 @@
 package com.psddev.cms.view;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,17 +53,9 @@ public abstract class AbstractViewRequest implements ViewRequest {
         Object rawValue = getParameterValue(namespace, name);
 
         if (rawValue instanceof Iterable) {
-
-            List<T> values = new ArrayList<>();
-
-            for (Object rawItem : (Iterable<?>) rawValue) {
-                T item = ObjectUtils.to(returnType, rawItem);
-                if (item != null) {
-                    values.add(item);
-                }
-            }
-
-            return values.stream();
+            return StreamSupport.stream(((Iterable<?>) rawValue).spliterator(), false)
+                    .map(rawItem -> ObjectUtils.to(returnType, rawItem))
+                    .filter(item -> item != null);
 
         } else {
             T value = ObjectUtils.to(returnType, rawValue);
