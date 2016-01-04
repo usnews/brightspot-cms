@@ -38,7 +38,8 @@ java.util.TreeSet,
 java.util.stream.Stream
 " %>
 <%@ page import="com.psddev.dari.util.StringUtils" %>
-<%@ page import="com.psddev.dari.db.DatabaseEnvironment" %><%
+<%@ page import="com.psddev.dari.db.DatabaseEnvironment" %>
+<%@ page import="com.google.common.collect.ImmutableMap" %><%
 
 // --- Logic ---
 
@@ -204,6 +205,35 @@ wp.writeStart("div", "class", "inputSmall permissions");
             }
         }
     }
+
+    wp.writeStart("div", "class", "permissionsSection");
+        writeParent(wp, permissions, "UI", "ui");
+
+        wp.writeStart("ul");
+            for (Map.Entry<String, String> entry : new ImmutableMap.Builder<String, String>()
+                        .put("contentLock", "Content Unlock")
+                        .build()
+                        .entrySet()) {
+
+                String permissionId = "ui/" + entry.getKey();
+
+                wp.writeStart("li");
+                    wp.writeElement("input",
+                            "type", "checkbox",
+                            "id", wp.createId(),
+                            "name", wp.getRequest().getAttribute("inputName"),
+                            "value", permissionId,
+                            "checked", permissions.contains(permissionId) ? "checked" : null);
+
+                    wp.writeHtml(" ");
+
+                    wp.writeStart("label", "for", wp.getId());
+                        wp.writeHtml(entry.getValue());
+                    wp.writeEnd();
+                wp.writeEnd();
+            }
+        wp.writeEnd();
+    wp.writeEnd();
 
     if (!tabNames.isEmpty()) {
         wp.writeStart("div", "class", "permissionsSection");

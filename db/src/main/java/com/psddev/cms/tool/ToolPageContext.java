@@ -3395,6 +3395,8 @@ public class ToolPageContext extends WebPageContext {
                 Map<String, Map<String, Object>> differences;
 
                 if (draft != null) {
+                    draft.update(findOldValuesInForm(state), object);
+
                     differences = draft.getDifferences();
                     Map<String, Object> newValues = differences.get(state.getId().toString());
 
