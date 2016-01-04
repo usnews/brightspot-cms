@@ -51,6 +51,13 @@ public class ServletViewRequest extends AbstractViewRequest {
         return ns != null ? ns.getParameterNames(request) : Collections.emptySet();
     }
 
+    // To support backward compatibility from 3.1 when the concept of namespace
+    // had not yet been introduced.
+    @Deprecated
+    public <T> Stream<T> getParameter(Class<T> returnType, String name) {
+        return getParameter(returnType, HTTP_PARAMETER_NAMESPACE, name);
+    }
+
     @Override
     protected Object getParameterValue(String namespace, String name) {
         Namespace ns = namespaces.get(namespace);
