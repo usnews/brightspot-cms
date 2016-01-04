@@ -1,7 +1,5 @@
 package com.psddev.cms.tool.page;
 
-import com.psddev.cms.db.ImageTag;
-import com.psddev.cms.db.ResizeOption;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.PageServlet;
@@ -9,7 +7,6 @@ import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
-import com.psddev.dari.util.ImageEditor;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PaginatedResult;
 import com.psddev.dari.util.RoutingFilter;
