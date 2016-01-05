@@ -45,6 +45,7 @@ import com.google.common.base.MoreObjects;
 import com.ibm.icu.text.MessageFormat;
 import com.psddev.cms.db.PageFilter;
 import com.psddev.cms.db.RichTextElement;
+import com.psddev.cms.tool.file.SvgFileType;
 import com.psddev.cms.view.PageViewClass;
 import com.psddev.cms.view.ViewCreator;
 import com.psddev.dari.db.Recordable;
@@ -566,8 +567,11 @@ public class ToolPageContext extends WebPageContext {
         try {
             String pattern = bundle.getString(key);
 
-            return new String(pattern.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-
+            if (bundle instanceof ObjectTypeResourceBundle) {
+                return pattern;
+            } else {
+                return new String(pattern.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+            }
         } catch (MissingResourceException error) {
             return null;
         }
@@ -1280,10 +1284,18 @@ public class ToolPageContext extends WebPageContext {
      */
     public String getPreviewThumbnailUrl(Object object) {
         if (object != null) {
-            StorageItem preview = State.getInstance(object).getPreview();
+
+            StorageItem preview = object instanceof StorageItem
+                    ? (StorageItem) object
+                    : State.getInstance(object).getPreview();
 
             if (preview != null) {
-                if (ImageEditor.Static.getDefault() != null) {
+
+                String contentType = preview.getContentType();
+
+                if (ImageEditor.Static.getDefault() != null
+                        && (contentType != null && !contentType.equals(SvgFileType.CONTENT_TYPE))) {
+
                     return new ImageTag.Builder(preview)
                             .setHeight(300)
                             .setResizeOption(ResizeOption.ONLY_SHRINK_LARGER)
