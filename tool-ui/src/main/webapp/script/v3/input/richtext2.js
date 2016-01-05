@@ -2878,10 +2878,20 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                     // Workaround - after a row or column is added a cell is selected.
                     // Do not pop up the editor in that case.
                     self.tableCancelEdit = true;
-                    
                 },
                 afterCreateCol: function() {
                     // Workaround - after a row or column is added a cell is selected.
+                    // Do not pop up the editor in that case.
+                    self.tableCancelEdit = true;
+                },
+                afterRemoveRow: function() {
+                    // Workaround - after a row or column is removed a cell is selected.
+                    // Do not pop up the editor in that case.
+                    self.tableCancelEdit = true;
+                    
+                },
+                afterRemoveCol: function() {
+                    // Workaround - after a row or column is removed a cell is selected.
                     // Do not pop up the editor in that case.
                     self.tableCancelEdit = true;
                 }
