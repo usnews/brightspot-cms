@@ -3166,7 +3166,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // (but only do this once)
             self.tableEditInit();
 
-            value = $el.handsontable('getValue');
+            value = $el.handsontable('getValue') || '';
 
             self.$tableEditDiv.popup('open');
             self.tableEditRte.fromHTML(value);
