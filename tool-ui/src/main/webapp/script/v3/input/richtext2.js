@@ -2828,6 +2828,11 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Note it appears you must set the style directly on the element or table resizing doesn't work correctly.
             $placeholder = $('<div/>', {'class':'rte2-table-placeholder', style:'overflow:hidden;height:auto;width:100%;'}).appendTo($div);
 
+            // Listen for double click to edit the selected cell
+            $placeholder.on('dblclick', function(event) {
+                self.tableEditSelection($placeholder);
+            });
+            
             // Initialize the table.
             $placeholder.handsontable({
                 'data': data,
