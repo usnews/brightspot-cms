@@ -2828,11 +2828,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Note it appears you must set the style directly on the element or table resizing doesn't work correctly.
             $placeholder = $('<div/>', {'class':'rte2-table-placeholder', style:'overflow:hidden;height:auto;width:100%;'}).appendTo($div);
 
-            // Listen for double click to edit the selected cell
-            $placeholder.on('dblclick', function(event) {
-                self.tableEditSelection($placeholder);
-            });
-            
             // Initialize the table.
             $placeholder.handsontable({
                 'data': data,
@@ -2864,7 +2859,33 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 renderer: 'html',
                 wordWrap:true,
                 outsideClickDeselects:false,
-                editor:false
+                editor:false,
+                afterSelectionEnd: function(){
+
+                    // Workaround - after a row or column is added a cell is selected.
+                    // Do not pop up the editor in that case.
+                    if (self.tableCancelEdit) {
+                        self.tableCancelEdit = false;
+                        return;
+                    }
+                    
+                    // Use a timeout to prevent the popup from being closed due to the click event
+                    setTimeout(function(){
+                        self.tableEditSelection($placeholder);
+                    }, 10);
+                },
+                afterCreateRow: function() {
+                    // Workaround - after a row or column is added a cell is selected.
+                    // Do not pop up the editor in that case.
+                    self.tableCancelEdit = true;
+                    
+                },
+                afterCreateCol: function() {
+                    // Workaround - after a row or column is added a cell is selected.
+                    // Do not pop up the editor in that case.
+                    self.tableCancelEdit = true;
+                }
+                 
             });
 
             // Problem with "null" appearing in new rows, might be fixed soon with this issue
@@ -3149,6 +3170,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self.tableEditRte.init(self.$tableEditTextarea);
             
             self.$tableEditDiv.popup().popup('close');
+            
+            // Give the popup a name so we can control the width
+            self.$tableEditDiv.popup('container').attr('name', 'rte2-frame-table-editor');
         },
 
         
@@ -3158,9 +3182,12 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          */
         tableEditSelection: function($el) {
 
-            var self, value;
+            var range, self, value;
 
             self = this;
+            
+            range = $el.handsontable('getSelected');
+
 
             // Set up a nested rich text editor in a popup
             // (but only do this once)
@@ -3173,13 +3200,12 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self.tableEditRte.focus();
             self.tableEditRte.refresh();
 
-            // Give the popup a name so we can control the width
-            self.$tableEditDiv.popup('container').attr('name', 'rte2-frame-table-editor');
+            // Due to a bug in handsontable, it steals the arrow keys even when it does not have focus.
+            // So until that bug is fixed we must deselect the current cell to allow the editor to get the arrow keys.
+            $el.handsontable('deselectCell');
             
             self.$tableEditDiv.popup('container').one('closed', function(){
-                var range;
                 value = self.tableEditRte.toHTML();
-                range = $el.handsontable('getSelected');
                 $el.handsontable('setDataAtCell', range[0], range[1], value);
             });
 
