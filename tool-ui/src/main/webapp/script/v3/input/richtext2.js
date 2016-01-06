@@ -627,6 +627,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Initialize the editor
             self.rte.init(self.$editor);
 
+            // Set to read only mode if necessary
+            self.rte.readOnlySet( self.$el.closest('.inputContainer-readOnly').length );
+            
             // Override the rich text editor to tell it how enhancements should be imported from HTML
             self.rte.enhancementFromHTML = function($content, line) {
 
@@ -842,6 +845,12 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 $toolbar.insertBefore(self.$editor);
             }
             self.$toolbar = $toolbar;
+
+            // If in read only mode hide the toolbar.
+            // Note there is no way to switch from read only to editable at this time.
+            if (self.rte.readOnlyGet()) {
+                self.$toolbar.hide();
+            }
 
             // Recursive function for setting up toolbar menu and submenus
             function toolbarProcess(config, $toolbar) {
@@ -1786,7 +1795,13 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Create wrapper element for the enhancement and add the toolbar
             $enhancement = $('<div/>', {
                 'class': 'rte2-enhancement'
-            }).append( self.enhancementToolbarCreate(config) );
+            });
+
+            // If in read only mode do not create toolbar.
+            // Note there is no way to switch from read only to editable at this time.
+            if (!self.rte.readOnlyGet()) {
+                $enhancement.append( self.enhancementToolbarCreate(config) );
+            }
 
             if (config.marker) {
                 $enhancement.addClass('rte2-marker');
