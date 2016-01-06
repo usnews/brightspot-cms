@@ -9,11 +9,11 @@
     <parent>
         <groupId>com.psddev</groupId>
         <artifactId>dari-parent</artifactId>
-        <version>3.1.2007-15acd0</version>
+        <version>3.1.2041-52bf43</version>
     </parent>
 
     <properties>
-        <dari.version>3.1.2007-15acd0</dari.version>
+        <dari.version>3.1.2041-52bf43</dari.version>
     </properties>
 
     <groupId>com.psddev</groupId>
@@ -108,6 +108,18 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-jdk14</artifactId>
                 <version>1.6.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.12</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>2.0.28-beta</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
