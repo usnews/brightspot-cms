@@ -107,7 +107,7 @@ if (object != null && wp.isFormPost()) {
             wp.publish(object);
             state.endWrites();
 
-            if (ObjectUtils.isBlank(state.hasAnyErrors())) {
+            if (!state.hasAnyErrors()) {
                 wp.writeStart("div", "id", pageId);
                 wp.writeEnd();
                 wp.writeStart("script", "type", "text/javascript");
