@@ -600,6 +600,8 @@ define([
             
             markOptions = $.extend({
                 className: className,
+                startStyle: className + '-start',
+                endStyle: className + '-end',
                 inclusiveRight: true,
                 addToHistory: true
             }, options);
