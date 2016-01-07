@@ -74,6 +74,13 @@ public class ContentState extends PageServlet {
 
         try {
             state.beginWrites();
+
+            // simulate a non-embedded object
+            ObjectType type = state.getType();
+            if (type != null) {
+                type.setEmbedded(false);
+            }
+
             page.updateUsingParameters(object);
             page.updateUsingAllWidgets(object);
             page.publish(object);
