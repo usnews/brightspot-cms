@@ -1731,10 +1731,8 @@ private static void renderWidgets(ToolPageContext wp, Object object, String posi
         wp.write(wp.h(position));
         wp.write("\">");
 
-        List<String> hiddenWidgets = state.getType().as(ToolUi.class).getHiddenWidgets();
-
         for (Widget widget : widgets) {
-            if (wp.hasPermission(widget.getPermissionId()) && !hiddenWidgets.contains(widget.getInternalName())) {
+            if (wp.hasPermission(widget.getPermissionId())) {
 
                 wp.write("<input type=\"hidden\" name=\"");
                 wp.write(wp.h(state.getId()));
