@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -76,8 +76,8 @@ class ViewMap implements Map<String, Object> {
     public ViewMap(Object view, boolean includeClassName) {
         this.includeClassName = includeClassName;
         this.view = view;
-        this.unresolved = new HashMap<>();
-        this.resolved = new HashMap<>();
+        this.unresolved = new LinkedHashMap<>();
+        this.resolved = new LinkedHashMap<>();
 
         try {
             Arrays.stream(Introspector.getBeanInfo(view.getClass()).getPropertyDescriptors())
