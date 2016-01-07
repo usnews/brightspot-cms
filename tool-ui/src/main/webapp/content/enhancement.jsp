@@ -95,17 +95,20 @@ if (object != null && wp.isFormPost()) {
         request.setAttribute("excludeFields", null);
 
         if (state != null && object instanceof RichTextElement) {
-            state.beginWrites();
+            try {
+                state.beginWrites();
 
-            ObjectType type = state.getType();
-            if (type != null) {
-                type.setEmbedded(false);
+                ObjectType type = state.getType();
+                if (type != null) {
+                    type.setEmbedded(false);
+                }
+
+                wp.updateUsingParameters(object);
+                state.validate();
+                wp.publish(object);
+            } finally {
+                state.endWrites();
             }
-
-            wp.updateUsingParameters(object);
-            state.validate();
-            wp.publish(object);
-            state.endWrites();
 
             if (!state.hasAnyErrors()) {
                 wp.writeStart("div", "id", pageId);
