@@ -54,7 +54,7 @@ class ViewMap implements Map<String, Object> {
     private Once resolver = new Once() {
         @Override
         protected void run() throws Exception {
-            ViewMap.this.keySet().forEach(ViewMap.this::get);
+            ViewMap.this.unresolved.keySet().forEach(ViewMap.this::get);
         }
     };
 
@@ -71,6 +71,7 @@ class ViewMap implements Map<String, Object> {
      * Creates a new Map backed by the specified view.
      *
      * @param view the view to wrap.
+     * @param includeClassName true if class names for each view should be included in the map.
      */
     public ViewMap(Object view, boolean includeClassName) {
         this.includeClassName = includeClassName;
@@ -98,17 +99,20 @@ class ViewMap implements Map<String, Object> {
 
     @Override
     public int size() {
-        return unresolved.size();
+        resolver.ensure();
+        return resolved.size();
     }
 
     @Override
     public boolean isEmpty() {
-        return unresolved.isEmpty();
+        resolver.ensure();
+        return resolved.isEmpty();
     }
 
     @Override
     public boolean containsKey(Object key) {
-        return unresolved.containsKey(key);
+        resolver.ensure();
+        return resolved.containsKey(key);
     }
 
     @Override
@@ -129,7 +133,9 @@ class ViewMap implements Map<String, Object> {
 
                 if (supplier != null) {
                     Object value = convertValue(supplier.get());
-                    resolved.put((String) key, value);
+                    if (value != null) {
+                        resolved.put((String) key, value);
+                    }
                     return value;
 
                 } else {
@@ -152,7 +158,7 @@ class ViewMap implements Map<String, Object> {
     }
 
     @Override
-    public void putAll(Map<? extends String, ?> m) {
+    public void putAll(Map<? extends String, ?> map) {
         throw new UnsupportedOperationException();
     }
 
@@ -163,7 +169,8 @@ class ViewMap implements Map<String, Object> {
 
     @Override
     public Set<String> keySet() {
-        return Collections.unmodifiableSet(unresolved.keySet());
+        resolver.ensure();
+        return Collections.unmodifiableSet(resolved.keySet());
     }
 
     @Override
