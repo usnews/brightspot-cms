@@ -229,10 +229,27 @@
 .rte2-style-align-right {
   text-align:right;
 }
+.rte2-style-spelling {
+  border-bottom:1px dotted red;
+}
+@rte2-style-comment-border: 1px solid rgba(0, 0, 0, 0.3);
 .rte2-style-comment {
   font-style:italic;
-  outline:1px solid #333;
-  padding:0.1em;
+  border-top: @rte2-style-comment-border;
+  border-bottom:@rte2-style-comment-border;
+  background-color: rgba(0,0,0,0.1);
+}
+.rte2-style-comment-start {
+  padding-left:0.1em;
+  border-left: @rte2-style-comment-border;
+
+  .icon;
+  .icon-comment-alt;
+
+}
+.rte2-style-comment-end {
+  padding-right:0.1em;
+  border-right:  @rte2-style-comment-border;
 }
 .rte2-style-collapsed {
   font-style:italic;
@@ -273,9 +290,6 @@
 .rte2-style-track-display .rte2-style-track-insert {
   background-color: rgba(125, 255, 125, 0.3);
   color:black;
-}
-.rte2-style-spelling {
-  border-bottom:1px dotted red;
 }
 
 .CodeMirror-hints {

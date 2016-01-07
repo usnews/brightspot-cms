@@ -589,7 +589,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                     wp.writeEnd();
                 }
 
-                boolean isWritable = wp.hasPermission("type/" + editingState.getTypeId() + "/write");
+                boolean isWritable = wp.hasPermission("type/" + editingState.getTypeId() + "/write") && !editingState.getType().as(ToolUi.class).isReadOnly();
                 boolean isDraft = !editingState.isNew() && (contentData.isDraft() || draft != null);
                 boolean isHistory = history != null;
                 boolean isTrash = contentData.isTrash();

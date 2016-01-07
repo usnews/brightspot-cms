@@ -600,6 +600,8 @@ define([
             
             markOptions = $.extend({
                 className: className,
+                startStyle: className + '-start',
+                endStyle: className + '-end',
                 inclusiveRight: true,
                 addToHistory: true
             }, options);
@@ -4002,24 +4004,13 @@ define([
                 if (styleObj.markToHTML) {
                     html = styleObj.markToHTML();
                 } else if (styleObj.element) {
+                    
                     html = '<' + styleObj.element;
 
-                    if (styleObj.elementAttr) {
-                        $.each(styleObj.elementAttr, function(attr, value) {
-                            html += ' ' + attr + '="' + self.htmlEncode(value) + '"';
-                        });
-                    }
-                    
-                    if (styleObj.attributes) {
-                        $.each(styleObj.attributes, function(attr, value) {
-                            html += ' ' + attr + '="' + self.htmlEncode(value) + '"';
-                        });
-                    }
-                    
-                    $.each(attributes, function(attr, value) {
+                    $.each($.extend({}, styleObj.elementAttr, styleObj.attributes, attributes), function(attr, value) {
                         html += ' ' + attr + '="' + self.htmlEncode(value) + '"';
                     });
-
+                
                     // For void elements add a closing slash when closing, like <br/>
                     if (self.voidElements[ styleObj.element ]) {
                         html += '/';

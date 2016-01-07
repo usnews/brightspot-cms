@@ -7,6 +7,7 @@
 
 .upload-preview {
   &:extend(.imageEditor-image);
+  background:none;
   box-sizing: border-box;
   margin-top: 5px;
   position: relative;
@@ -56,6 +57,13 @@
       max-height: 100%;
       max-width: 100%;
     }
+
+    .upload-preview-label {
+      width: 100%;
+      height: 40px;
+      padding: 4px;
+      overflow: hidden;
+    }
   }
 }
 
@@ -88,6 +96,10 @@
       .fill {
         clip: rect(0px, @circle-size/2, @circle-size, 0px);
         background-color: @color-publish;
+
+        .error & {
+          background-color: @color-remove;
+        }
       }
     }
   }
@@ -110,6 +122,10 @@
         position: absolute;
         top: 1px;
       }
+
+      .error & {
+        display: none;
+      }
     }
   }
 }
@@ -129,6 +145,11 @@
       }
       .inset .percentage:before {
         content: "@{i}";
+
+        .error & {
+          content: "ERROR";
+          font-size: 18px;
+        }
       }
     }
     .loop(@i + 1);
