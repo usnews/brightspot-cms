@@ -95,16 +95,28 @@ if (object != null && wp.isFormPost()) {
         request.setAttribute("excludeFields", null);
 
         if (state != null && object instanceof RichTextElement) {
-            wp.updateUsingParameters(object);
+            state.beginWrites();
 
-            wp.writeStart("div", "id", pageId);
-            wp.writeEnd();
-            wp.writeStart("script", "type", "text/javascript");
-            wp.writeRaw("var $page = $('#" + pageId + "');");
-            wp.writeRaw("$page.popup('source').data('mark').attributes = " + ObjectUtils.toJson(((RichTextElement) object).toAttributes()) + ";");
-            wp.writeRaw("$page.popup('close');");
-            wp.writeEnd();
-            return;
+            ObjectType type = state.getType();
+            if (type != null) {
+                type.setEmbedded(false);
+            }
+
+            wp.updateUsingParameters(object);
+            state.validate();
+            wp.publish(object);
+            state.endWrites();
+
+            if (ObjectUtils.isBlank(state.hasAnyErrors())) {
+                wp.writeStart("div", "id", pageId);
+                wp.writeEnd();
+                wp.writeStart("script", "type", "text/javascript");
+                wp.writeRaw("var $page = $('#" + pageId + "');");
+                wp.writeRaw("$page.popup('source').data('mark').attributes = " + ObjectUtils.toJson(((RichTextElement) object).toAttributes()) + ";");
+                wp.writeRaw("$page.popup('close');");
+                wp.writeEnd();
+                return;
+            }
 
         } else if (wp.param(boolean.class, "isEditObject")) {
             wp.updateUsingParameters(object);
@@ -246,7 +258,7 @@ if (object == null) {
 
         // Update the rich text editor so it points to this enhancement
         if (typeof jQuery !== 'undefined') (function($) {
-        
+
             var $source = $('#<%= pageId %>').popup('source');
             var id = '<%= state.getId() %>';
             var label = '<%= wp.js(state.getLabel()) %>';
@@ -291,14 +303,14 @@ if (object == null) {
                 // and get the rte2 object from there
                 var rte2 = $source.closest('.rte2-wrapper').data('rte2');
                 if (rte2) {
-                    
+
                     // Save the enhancement data on the enhancement
                     // Enhancement will be updated automaticaly when the popup closes
                     rte2.enhancementSetReference($source, reference);
 
                 }
             }
-                
+
         })(jQuery);
     </script>
 <% } %>
