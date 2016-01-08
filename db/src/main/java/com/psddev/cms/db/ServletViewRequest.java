@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 import com.psddev.cms.view.ViewCreator;
 import com.psddev.cms.view.ViewRequest;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.TypeDefinition;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -31,7 +32,7 @@ class ServletViewRequest implements ViewRequest {
 
         Class<? extends ViewCreator<? super Object, V, ? super ServletViewRequest>> viewCreatorClass = ViewCreator.findCreatorClass(model, viewClass, this);
         if (viewCreatorClass != null) {
-            ViewCreator<? super Object, ? extends V, ? super ServletViewRequest> vc = ViewCreator.createCreator(viewCreatorClass);
+            ViewCreator<? super Object, ? extends V, ? super ServletViewRequest> vc = TypeDefinition.getInstance(viewCreatorClass).newInstance();
             return vc.createView(model, this);
 
         } else {
@@ -46,7 +47,7 @@ class ServletViewRequest implements ViewRequest {
 
         Class<? extends ViewCreator<? super Object, ?, ? super ServletViewRequest>> viewCreatorClass = ViewCreator.findCreatorClass(model, viewType, this);
         if (viewCreatorClass != null) {
-            ViewCreator<? super Object, ?, ? super ServletViewRequest> vc = ViewCreator.createCreator(viewCreatorClass);
+            ViewCreator<? super Object, ?, ? super ServletViewRequest> vc = TypeDefinition.getInstance(viewCreatorClass).newInstance();
             return vc.createView(model, this);
 
         } else {

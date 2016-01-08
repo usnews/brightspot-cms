@@ -152,10 +152,6 @@ public interface ViewCreator<M, V, VR> {
         return null;
     }
 
-    static <M, V, VR> ViewCreator<? super M, ? extends V, ? super VR> createCreator(Class<? extends ViewCreator<? super M, ? extends V, ? super VR>> viewCreatorClass) {
-        return TypeDefinition.getInstance(viewCreatorClass).newInstance();
-    }
-
     /**
      * @deprecated Use {@link #findCreatorClass(Object, Class)} instead.
      */

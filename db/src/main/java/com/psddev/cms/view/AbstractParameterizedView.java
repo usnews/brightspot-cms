@@ -1,5 +1,7 @@
 package com.psddev.cms.view;
 
+import com.psddev.dari.util.TypeDefinition;
+
 /**
  * A base implementation of a ViewCreator that facilitates sub-classes to act
  * as both ViewCreator and view interface implementation. Ex.
@@ -73,7 +75,7 @@ public abstract class AbstractParameterizedView<M, VR> implements ViewCreator<M,
         Class<? extends ViewCreator<? super T, V, ? super VR>> viewCreatorClass = ViewCreator.findCreatorClass(model, viewClass, request);
         if (viewCreatorClass != null) {
 
-            ViewCreator<? super T, ? extends V, ? super VR> viewCreator = ViewCreator.createCreator(viewCreatorClass);
+            ViewCreator<? super T, ? extends V, ? super VR> viewCreator = TypeDefinition.getInstance(viewCreatorClass).newInstance();
             if (viewCreator != null) {
 
                 return viewCreator.createView(model, request);
@@ -97,7 +99,7 @@ public abstract class AbstractParameterizedView<M, VR> implements ViewCreator<M,
         Class<? extends ViewCreator<? super T, Object, ? super VR>> viewCreatorClass = ViewCreator.findCreatorClass(model, viewType, request);
         if (viewCreatorClass != null) {
 
-            ViewCreator<? super T, ?, ? super VR> viewCreator = ViewCreator.createCreator(viewCreatorClass);
+            ViewCreator<? super T, ?, ? super VR> viewCreator = TypeDefinition.getInstance(viewCreatorClass).newInstance();
             if (viewCreator != null) {
 
                 return viewCreator.createView(model, request);

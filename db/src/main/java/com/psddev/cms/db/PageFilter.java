@@ -1191,7 +1191,7 @@ public class PageFilter extends AbstractFilter {
         }
 
         // 2. Create ViewCreator
-        ViewCreator<? super T, ?, ? super Object> viewCreator = ViewCreator.createCreator(viewCreatorClass);
+        ViewCreator<? super T, ?, ? super Object> viewCreator = TypeDefinition.getInstance(viewCreatorClass).newInstance();
 
         if (viewCreator == null) {
             LOGGER.warn("Failed to create view creator of type ["
