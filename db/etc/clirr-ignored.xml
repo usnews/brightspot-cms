@@ -23,30 +23,6 @@
     <difference>
         <className>com/psddev/cms/view/ViewCreator</className>
         <differenceType>7012</differenceType>
-        <method>java.lang.Class findCreatorClass(java.lang.Object, java.lang.String)</method>
-    </difference>
-
-    <difference>
-        <className>com/psddev/cms/view/ViewCreator</className>
-        <differenceType>7012</differenceType>
-        <method>java.lang.Class findCreatorClass(java.lang.Object, java.lang.String, java.lang.Object)</method>
-    </difference>
-
-    <difference>
-        <className>com/psddev/cms/view/ViewCreator</className>
-        <differenceType>7012</differenceType>
-        <method>java.lang.Class findCreatorClass(java.lang.Object, java.lang.Class)</method>
-    </difference>
-
-    <difference>
-        <className>com/psddev/cms/view/ViewCreator</className>
-        <differenceType>7012</differenceType>
-        <method>java.lang.Class findCreatorClass(java.lang.Object, java.lang.Class, java.lang.Object)</method>
-    </difference>
-
-    <difference>
-        <className>com/psddev/cms/view/ViewCreator</className>
-        <differenceType>7012</differenceType>
         <method>java.lang.Class findCreatorClass(java.lang.Object, java.lang.Class, java.lang.String, java.lang.Object)</method>
     </difference>
 

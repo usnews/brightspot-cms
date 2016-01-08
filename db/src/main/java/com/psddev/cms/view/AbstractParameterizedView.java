@@ -72,7 +72,7 @@ public abstract class AbstractParameterizedView<M, VR> implements ViewCreator<M,
      */
     public <T, V> V createView(Class<V> viewClass, T model) {
 
-        Class<? extends ViewCreator<? super T, V, ? super VR>> viewCreatorClass = ViewCreator.findCreatorClass(model, viewClass, request);
+        Class<? extends ViewCreator<? super T, V, ? super VR>> viewCreatorClass = ViewCreator.findCreatorClass(model, viewClass, null, request);
         if (viewCreatorClass != null) {
 
             ViewCreator<? super T, ? extends V, ? super VR> viewCreator = TypeDefinition.getInstance(viewCreatorClass).newInstance();
@@ -96,7 +96,7 @@ public abstract class AbstractParameterizedView<M, VR> implements ViewCreator<M,
      */
     public <T> Object createView(String viewType, T model) {
 
-        Class<? extends ViewCreator<? super T, Object, ? super VR>> viewCreatorClass = ViewCreator.findCreatorClass(model, viewType, request);
+        Class<? extends ViewCreator<? super T, Object, ? super VR>> viewCreatorClass = ViewCreator.findCreatorClass(model, null, viewType, request);
         if (viewCreatorClass != null) {
 
             ViewCreator<? super T, ?, ? super VR> viewCreator = TypeDefinition.getInstance(viewCreatorClass).newInstance();

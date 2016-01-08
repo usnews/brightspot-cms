@@ -1128,7 +1128,7 @@ public class PageFilter extends AbstractFilter {
 
         String viewType = request.getParameter(VIEW_TYPE_PARAMETER);
         if (!ObjectUtils.isBlank(viewType)) {
-            viewCreatorClass = ViewCreator.findCreatorClass(object, viewType);
+            viewCreatorClass = ViewCreator.findCreatorClass(object, null, viewType, null);
 
             if (viewCreatorClass == null) {
                 LOGGER.warn("Could not find view creator for object of type ["
@@ -1145,7 +1145,7 @@ public class PageFilter extends AbstractFilter {
 
             // Try to create a view for the PREVIEW_VIEW_TYPE...
             if (Static.isPreview(request)) {
-                viewCreatorClass = ViewCreator.findCreatorClass(object, PREVIEW_VIEW_TYPE);
+                viewCreatorClass = ViewCreator.findCreatorClass(object, null, PREVIEW_VIEW_TYPE, null);
                 viewTypes.add(PREVIEW_VIEW_TYPE);
 
                 if (viewCreatorClass != null) {
@@ -1155,7 +1155,7 @@ public class PageFilter extends AbstractFilter {
 
             // ...but still always fallback to PAGE_VIEW_TYPE if no preview found.
             if (viewCreatorClass == null) {
-                viewCreatorClass = ViewCreator.findCreatorClass(object, PAGE_VIEW_TYPE);
+                viewCreatorClass = ViewCreator.findCreatorClass(object, null, PAGE_VIEW_TYPE, null);
                 viewTypes.add(PAGE_VIEW_TYPE);
 
                 if (viewCreatorClass != null) {
@@ -1168,7 +1168,7 @@ public class PageFilter extends AbstractFilter {
                 Class<?> layoutViewClass = annotation != null ? annotation.value() : null;
 
                 if (layoutViewClass != null) {
-                    viewCreatorClass = ViewCreator.findCreatorClass(object, layoutViewClass);
+                    viewCreatorClass = ViewCreator.findCreatorClass(object, layoutViewClass, null, null);
                     viewTypes.add(layoutViewClass.getName());
 
                     if (viewCreatorClass != null) {

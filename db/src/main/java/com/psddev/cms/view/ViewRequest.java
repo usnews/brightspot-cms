@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 public interface ViewRequest {
 
     /**
-     * @deprecated Use {@link com.psddev.cms.view.ViewCreator#findCreatorClass(Object, Class)}.
+     * @deprecated Use {@link com.psddev.cms.view.ViewCreator#findCreatorClass(Object, Class, String, Object)} instead.
      */
     @Deprecated
     default <V> V createView(Class<V> viewClass, Object model) {
@@ -17,7 +17,7 @@ public interface ViewRequest {
     }
 
     /**
-     * @deprecated Use {@link com.psddev.cms.view.ViewCreator#findCreatorClass(Object, String)}.
+     * @deprecated Use {@link com.psddev.cms.view.ViewCreator#findCreatorClass(Object, Class, String, Object)} instead.
      */
     @Deprecated
     default Object createView(String viewType, Object model) {

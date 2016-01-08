@@ -45,22 +45,6 @@ public interface ViewCreator<M, V, VR> {
         return true;
     }
 
-    static <M> Class<? extends ViewCreator<? super M, Object, ? super Object>> findCreatorClass(M model, String viewType) {
-        return findCreatorClass(model, viewType, null);
-    }
-
-    static <M, VR> Class<? extends ViewCreator<? super M, Object, ? super VR>> findCreatorClass(M model, String viewType, VR viewRequest) {
-        return findCreatorClass(model, null, viewType, viewRequest);
-    }
-
-    static <M, V> Class<? extends ViewCreator<? super M, V, ? super Object>> findCreatorClass(M model, Class<V> viewClass) {
-        return findCreatorClass(model, viewClass, null);
-    }
-
-    static <M, V, VR> Class<? extends ViewCreator<? super M, V, ? super VR>> findCreatorClass(M model, Class<V> viewClass, VR viewRequest) {
-        return findCreatorClass(model, viewClass, null, viewRequest);
-    }
-
     static <M, V, VR> Class<? extends ViewCreator<? super M, V, ? super VR>> findCreatorClass(M model, Class<V> viewClass, String viewType, VR viewRequest) {
 
         if (model == null) {
@@ -153,7 +137,7 @@ public interface ViewCreator<M, V, VR> {
     }
 
     /**
-     * @deprecated Use {@link #findCreatorClass(Object, Class)} instead.
+     * @deprecated Use {@link #findCreatorClass(Object, Class, String, Object)} instead.
      */
     @Deprecated
     static <M, V> ViewCreator<M, V, Object> createCreator(M model, Class<V> viewClass) {
@@ -247,7 +231,7 @@ public interface ViewCreator<M, V, VR> {
     }
 
     /**
-     * @deprecated Use {@link #findCreatorClass(Object, String)} instead.
+     * @deprecated Use {@link #findCreatorClass(Object, Class, String, Object)} instead.
      */
     @Deprecated
     static <M> ViewCreator<M, ?, Object> createCreator(M model, String viewType) {

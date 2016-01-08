@@ -30,7 +30,7 @@ class ServletViewRequest implements ViewRequest {
     @Override
     public <V> V createView(Class<V> viewClass, Object model) {
 
-        Class<? extends ViewCreator<? super Object, V, ? super ServletViewRequest>> viewCreatorClass = ViewCreator.findCreatorClass(model, viewClass, this);
+        Class<? extends ViewCreator<? super Object, V, ? super ServletViewRequest>> viewCreatorClass = ViewCreator.findCreatorClass(model, viewClass, null, this);
         if (viewCreatorClass != null) {
             ViewCreator<? super Object, ? extends V, ? super ServletViewRequest> vc = TypeDefinition.getInstance(viewCreatorClass).newInstance();
             return vc.createView(model, this);
@@ -45,7 +45,7 @@ class ServletViewRequest implements ViewRequest {
     @Override
     public Object createView(String viewType, Object model) {
 
-        Class<? extends ViewCreator<? super Object, ?, ? super ServletViewRequest>> viewCreatorClass = ViewCreator.findCreatorClass(model, viewType, this);
+        Class<? extends ViewCreator<? super Object, ?, ? super ServletViewRequest>> viewCreatorClass = ViewCreator.findCreatorClass(model, null, viewType, this);
         if (viewCreatorClass != null) {
             ViewCreator<? super Object, ?, ? super ServletViewRequest> vc = TypeDefinition.getInstance(viewCreatorClass).newInstance();
             return vc.createView(model, this);
