@@ -97,12 +97,6 @@ if (object != null && wp.isFormPost()) {
         if (state != null && object instanceof RichTextElement) {
             try {
                 state.beginWrites();
-
-                ObjectType type = state.getType();
-                if (type != null) {
-                    type.setEmbedded(false);
-                }
-
                 wp.updateUsingParameters(object);
                 state.validate();
                 wp.publish(object);
