@@ -16,8 +16,7 @@ import org.slf4j.LoggerFactory;
  * ViewRequest implementation that uses the Java Servlet Spec for handling HTTP
  * requests.
  */
-@Deprecated
-public class ServletViewRequest implements ViewRequest {
+class ServletViewRequest implements ViewRequest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServletViewRequest.class);
 
