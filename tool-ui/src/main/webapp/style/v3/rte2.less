@@ -182,12 +182,22 @@
   .rte2-enhancement-toolbar-size { width:auto; }
 }
 
-.rte2-enhancement.toBeRemoved {
+.rte2-enhancement.toBeRemoved, .rte2-table.toBeRemoved {
   .rte2-enhancement-toolbar-remove { display:none; }
   .rte2-enhancement-toolbar-restore { display:inline-block; }
   .rte2-enhancement-toolbar-remove-completely { display:inline-block; }
 }
-
+.rte2-table {
+  box-sizing: border-box;
+  padding: .5em 5px;
+  position: relative;
+  .background-striped(@color-heading);
+}
+.rte2-table-placeholder {
+  overflow:hidden;
+  height:auto;
+  width:100%;
+}
 .rte2-style-html {
   font-family: @fontFamily-code;
   background-color:fade(black, 10%);
@@ -229,10 +239,27 @@
 .rte2-style-align-right {
   text-align:right;
 }
+.rte2-style-spelling {
+  border-bottom:1px dotted red;
+}
+@rte2-style-comment-border: 1px solid rgba(0, 0, 0, 0.3);
 .rte2-style-comment {
   font-style:italic;
-  outline:1px solid #333;
-  padding:0.1em;
+  border-top: @rte2-style-comment-border;
+  border-bottom:@rte2-style-comment-border;
+  background-color: rgba(0,0,0,0.1);
+}
+.rte2-style-comment-start {
+  padding-left:0.1em;
+  border-left: @rte2-style-comment-border;
+
+  .icon;
+  .icon-comment-alt;
+
+}
+.rte2-style-comment-end {
+  padding-right:0.1em;
+  border-right:  @rte2-style-comment-border;
 }
 .rte2-style-collapsed {
   font-style:italic;
@@ -246,7 +273,7 @@
   background-color:rgba(180, 180, 180, 0.3);
   outline:1px solid rgba(100, 100, 100, 0.5);
 }
-.rte2-style-enhancement {
+.rte2-style-enhancement, .rte2-style-table {
   display:inline-block;
   padding:2em;
   background-color:#ddd;
@@ -273,9 +300,6 @@
 .rte2-style-track-display .rte2-style-track-insert {
   background-color: rgba(125, 255, 125, 0.3);
   color:black;
-}
-.rte2-style-spelling {
-  border-bottom:1px dotted red;
 }
 
 .CodeMirror-hints {
@@ -565,7 +589,24 @@ li.CodeMirror-hint-active {
   max-width:1000px;
   width:70%;
 }
+
+.popup[name=rte2-frame-table-editor] {
+  max-width:1000px;
+  width: 60%;
+  margin-left:-40%;
+}
+
+.rte2-table-editor {
+  margin-top:1em;
+}
+
+.rte2-table-placeholder {
+  u { text-decoration:underline; }
+  strike { text-decoration:line-through;}
   
+  // Within the table do not let users click link or button elements
+  a, button { pointer-events:none; }
+}
 
 // Div that is used as a paste clipboard
 // Note this cannot be hidden because it needs to get focus

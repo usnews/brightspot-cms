@@ -616,10 +616,9 @@ public class ToolPageContext extends WebPageContext {
 
                 PageViewClass pageViewClass = object.getClass().getAnnotation(PageViewClass.class);
 
-                // would be better if there was a separate API to just "find" the creator class
-                // rather than incurring the overhead of also creating it.
-                if ((pageViewClass != null && ViewCreator.createCreator(object, pageViewClass.value()) != null)
-                        || ViewCreator.createCreator(object, PageFilter.PAGE_VIEW_TYPE) != null) {
+                if ((pageViewClass != null && ViewCreator.findCreatorClass(object, pageViewClass.value(), null, null) != null)
+                        || ViewCreator.findCreatorClass(object, null, PageFilter.PAGE_VIEW_TYPE, null) != null
+                        || ViewCreator.findCreatorClass(object, null, PageFilter.PREVIEW_VIEW_TYPE, null) != null) {
                     return true;
                 }
             }
@@ -1970,7 +1969,7 @@ public class ToolPageContext extends WebPageContext {
         writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "jquery.extra.js"));
         writeEnd();
 
-        writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "jquery.handsontable.full.js"));
+        writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "handsontable.full.js"));
         writeEnd();
 
         writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "d3.js"));

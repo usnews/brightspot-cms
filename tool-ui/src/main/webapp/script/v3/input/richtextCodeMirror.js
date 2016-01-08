@@ -260,7 +260,6 @@ define([
             self.$el = $(element).first();
 
             codeMirrorOptions = {
-                readOnly: $(element).closest('.inputContainer-readOnly').length,
                 lineWrapping: true,
                 dragDrop: false,
                 mode:null,
@@ -600,6 +599,8 @@ define([
             
             markOptions = $.extend({
                 className: className,
+                startStyle: className + '-start',
+                endStyle: className + '-end',
                 inclusiveRight: true,
                 addToHistory: true
             }, options);
@@ -2233,6 +2234,11 @@ define([
 
                 var $el, marks, now, pos;
 
+                // Don't do clicks if the editor is in read only mode
+                if (self.readOnlyGet()) {
+                    return;
+                }
+                
                 // Generate timestamp
                 now = Date.now();
 
@@ -3848,7 +3854,18 @@ define([
             self.codeMirror.setCursor(line, ch);
         },
 
+        readOnlyGet: function() {
+            var self;
+            self = this;
+            return self.codeMirror.isReadOnly();
+        },
 
+        readOnlySet: function(readOnly) {
+            var self;
+            self = this;
+            self.codeMirror.setOption('readOnly', readOnly);
+        },
+        
         /**
          * Returns the range for a mark.
          * @returns {Object}
@@ -4724,7 +4741,8 @@ define([
                         };
 
                         // Special case - is this an enhancement?
-                        if ((elementName === 'span' || elementName === 'button') && $(next).hasClass('enhancement')) {
+                        // Note we are treating tables as an enhancement as well.
+                        if ((elementName === 'table') || ((elementName === 'span' || elementName === 'button') && $(next).hasClass('enhancement'))) {
 
                             enhancements.push({
                                 line: from.line,
@@ -4735,7 +4753,7 @@ define([
                             next = next.nextSibling;
                             continue;
                         }
-
+                        
                         // For container elements such as "ul" or "ol", do not allow nested lists within.
                         // If we find a nested list treat the whole thing as raw html
                         isContainer = self.elementIsContainer(elementName);
