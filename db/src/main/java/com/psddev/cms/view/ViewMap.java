@@ -5,6 +5,7 @@ import com.psddev.dari.db.Metric;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.Once;
+import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.StringUtils;
 
 import com.google.common.collect.ImmutableMap;
@@ -271,8 +272,19 @@ class ViewMap implements Map<String, Object> {
             return method.invoke(view);
 
         } catch (IllegalAccessException | InvocationTargetException e) {
-            LOGGER.warn("Failed to invoke method: " + method, e);
-            return null;
+
+            String message = "Failed to invoke method: " + method;
+
+            Throwable cause = e.getCause();
+            cause = cause != null ? cause : e;
+
+            LOGGER.error(message, cause);
+
+            if (Settings.isProduction()) {
+                return null;
+            } else {
+                throw new RuntimeException(message, cause);
+            }
         }
     }
 }
