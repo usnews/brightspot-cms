@@ -870,7 +870,11 @@ public class Search extends Record {
                     }
 
                     if ("t".equals(queryType)) {
-                        query.and(fieldName + " matches ?", fieldValue);
+                        if (selectedType == null || Content.Static.isSearchableType(selectedType)) {
+                            query.and(fieldName + " matches ?", fieldValue);
+                        } else {
+                            query.and(fieldName + " contains[c] ?", fieldValue);
+                        }
 
                     } else if ("b".equals(queryType)) {
                         query.and(fieldName + ("true".equals(fieldValue) ? " = true" : " != true"));
