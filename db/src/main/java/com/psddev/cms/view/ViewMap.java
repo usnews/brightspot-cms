@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -54,7 +55,8 @@ class ViewMap implements Map<String, Object> {
     private Once resolver = new Once() {
         @Override
         protected void run() throws Exception {
-            ViewMap.this.unresolved.keySet().forEach(ViewMap.this::get);
+            // copy keys to new set to prevent concurrent modification exception.
+            new LinkedHashSet<>(ViewMap.this.unresolved.keySet()).forEach(ViewMap.this::get);
         }
     };
 
@@ -129,7 +131,7 @@ class ViewMap implements Map<String, Object> {
                 return resolved.get(key);
 
             } else {
-                Supplier<Object> supplier = unresolved.get(key);
+                Supplier<Object> supplier = unresolved.remove(key);
 
                 if (supplier != null) {
                     Object value = convertValue(supplier.get());
