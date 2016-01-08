@@ -17,19 +17,19 @@ import com.psddev.dari.util.StringUtils;
  * specified. An optional expiration duration in milliseconds can be defined
  * such that if the specified duration has passed the field value will be null.
  */
-@ServletViewRequestAnnotationProcessorClass(HttpCookieSignedProcessor.class)
+@ServletViewRequestAnnotationProcessorClass(HttpSignedCookieProcessor.class)
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface HttpCookieSigned {
+public @interface HttpSignedCookie {
     String value() default "";
     long expiry() default 0L;
 }
 
-class HttpCookieSignedProcessor implements ServletViewRequestAnnotationProcessor<HttpCookieSigned> {
+class HttpSignedCookieProcessor implements ServletViewRequestAnnotationProcessor<HttpSignedCookie> {
 
     @Override
-    public Object getValue(HttpServletRequest request, String fieldName, HttpCookieSigned annotation) {
+    public Object getValue(HttpServletRequest request, String fieldName, HttpSignedCookie annotation) {
 
         String cookieName = annotation.value();
         if (StringUtils.isBlank(cookieName)) {

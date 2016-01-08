@@ -15,18 +15,18 @@ import com.psddev.dari.util.StringUtils;
  * based HTTP request. The attribute fetched has the same name as the field it
  * populates unless otherwise specified.
  */
-@ServletViewRequestAnnotationProcessorClass(HttpServletAttributeProcessor.class)
+@ServletViewRequestAnnotationProcessorClass(HttpRequestAttributeProcessor.class)
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface HttpServletAttribute {
+public @interface HttpRequestAttribute {
     String value() default "";
 }
 
-class HttpServletAttributeProcessor implements ServletViewRequestAnnotationProcessor<HttpServletAttribute> {
+class HttpRequestAttributeProcessor implements ServletViewRequestAnnotationProcessor<HttpRequestAttribute> {
 
     @Override
-    public Object getValue(HttpServletRequest request, String fieldName, HttpServletAttribute annotation) {
+    public Object getValue(HttpServletRequest request, String fieldName, HttpRequestAttribute annotation) {
 
         String attributeName = annotation.value();
         if (StringUtils.isBlank(attributeName)) {
