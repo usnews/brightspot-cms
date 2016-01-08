@@ -260,7 +260,6 @@ define([
             self.$el = $(element).first();
 
             codeMirrorOptions = {
-                readOnly: $(element).closest('.inputContainer-readOnly').length,
                 lineWrapping: true,
                 dragDrop: false,
                 mode:null,
@@ -2235,6 +2234,11 @@ define([
 
                 var $el, marks, now, pos;
 
+                // Don't do clicks if the editor is in read only mode
+                if (self.readOnlyGet()) {
+                    return;
+                }
+                
                 // Generate timestamp
                 now = Date.now();
 
@@ -3850,7 +3854,18 @@ define([
             self.codeMirror.setCursor(line, ch);
         },
 
+        readOnlyGet: function() {
+            var self;
+            self = this;
+            return self.codeMirror.isReadOnly();
+        },
 
+        readOnlySet: function(readOnly) {
+            var self;
+            self = this;
+            self.codeMirror.setOption('readOnly', readOnly);
+        },
+        
         /**
          * Returns the range for a mark.
          * @returns {Object}
