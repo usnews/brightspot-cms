@@ -77,7 +77,7 @@
     <difference>
         <className>com/psddev/cms/view/ViewCreator</className>
         <differenceType>7012</differenceType>
-        <method>void processRequest(java.lang.Object, com.psddev.cms.view.ViewResponse)</method>
+        <method>boolean processRequest(java.lang.Object, com.psddev.cms.view.ViewResponse)</method>
     </difference>
 
 </differences>

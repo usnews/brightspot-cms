@@ -21,8 +21,6 @@ public class ViewResponse {
 
     private List<Cookie> signedCookies = new ArrayList<>();
 
-    private boolean finished;
-
     private String redirectUri;
 
     /**
@@ -138,14 +136,12 @@ public class ViewResponse {
 
     /**
      * Signals that the response should contain a redirect to the specified
-     * {@code uri}. This also triggers a call to {@link #finish()}.
+     * {@code uri}.
      *
      * @param uri the uri to redirect to.
-     * @see #finish()
      */
     public void redirect(String uri) {
         redirectUri = uri;
-        finish();
     }
 
     /**
@@ -155,22 +151,5 @@ public class ViewResponse {
      */
     public String getRedirectUri() {
         return redirectUri;
-    }
-
-    /**
-     * Signals that writing to the response is finished, and no further view
-     * processing needs to take place, such as with a {@link #redirect(String)}.
-     *
-     * @see #redirect(String)
-     */
-    public void finish() {
-        finished = true;
-    }
-
-    /**
-     * @return true if {@link #finish()} has been called at least once.
-     */
-    public boolean isFinished() {
-        return finished;
     }
 }

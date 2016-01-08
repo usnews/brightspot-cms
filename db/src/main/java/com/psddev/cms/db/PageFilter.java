@@ -1110,7 +1110,7 @@ public class PageFilter extends AbstractFilter {
      * 4. Create a ViewResponse
      * 5. Call ViewCreator#processRequest
      * 6. Update the real response based on the view response.
-     * 7. Check if the ViewResponse isFinished (if yes, DONE, return)
+     * 7. Check if the request should continue to be processed.
      * 8. Create the View
      * 9. Render the View
      */
@@ -1219,13 +1219,13 @@ public class PageFilter extends AbstractFilter {
         ViewResponse viewResponse = new ViewResponse();
 
         // 5. Call ViewCreator#processRequest
-        viewCreator.processRequest(viewRequest, viewResponse);
+        boolean continueProcessing = viewCreator.processRequest(viewRequest, viewResponse);
 
         // 6. Update the real response based on the view response.
         updateViewResponse(request, (HttpServletResponse) JspUtils.getHeaderResponse(request, response), viewResponse);
 
-        // 7. Check if the ViewResponse isFinished (if yes, DONE, return)
-        if (viewResponse.isFinished()) {
+        // 7. Check if the request should continue to be processed.
+        if (!continueProcessing) {
             return true;
         }
 

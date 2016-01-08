@@ -39,9 +39,10 @@ public interface ViewCreator<M, V, VR> {
      *
      * @param request the current view request.
      * @param response the current view response.
+     * @return true if the request should continue to be processed, false otherwise.
      */
-    default void processRequest(VR request, ViewResponse response) {
-        // does nothing by default
+    default boolean processRequest(VR request, ViewResponse response) {
+        return true;
     }
 
     static <M> Class<? extends ViewCreator<? super M, Object, ? super Object>> findCreatorClass(M model, String viewType) {
