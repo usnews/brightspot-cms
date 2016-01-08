@@ -5,6 +5,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Arrays;
+import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -35,10 +37,6 @@ class HttpParameterProcessor implements ServletViewRequestAnnotationProcessor<Ht
 
         String[] parameterValues = request.getParameterValues(parameterName);
 
-        if (parameterValues != null && parameterValues.length == 1) {
-            return parameterValues[0];
-        } else {
-            return parameterValues;
-        }
+        return parameterValues != null ? Arrays.asList(parameterValues) : Collections.emptyList();
     }
 }

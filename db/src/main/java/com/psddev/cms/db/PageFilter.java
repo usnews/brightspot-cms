@@ -7,6 +7,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -1342,6 +1343,17 @@ public class PageFilter extends AbstractFilter {
 
                 if (fieldValue != null) {
                     try {
+
+                        // Handle the case where the field value is a collection but the field type is not.
+                        if (fieldValue instanceof Collection && !Collection.class.isAssignableFrom(field.getType())) {
+                            if (!((Collection<?>) fieldValue).isEmpty()) {
+                                // get the first value from the collection
+                                fieldValue = ((Collection<?>) fieldValue).iterator().next();
+                            } else {
+                                fieldValue = null;
+                            }
+                        }
+
                         field.set(viewRequest, converter.convert(field.getGenericType(), fieldValue));
                     } catch (IllegalAccessException ex) {
                         throw new IllegalStateException(ex);

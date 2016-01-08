@@ -6,7 +6,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Collections;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -35,12 +34,6 @@ class HttpHeaderProcessor implements ServletViewRequestAnnotationProcessor<HttpH
             headerName = fieldName;
         }
 
-        List<String> headerValues = Collections.list(request.getHeaders(headerName));
-
-        if (headerValues.size() == 1) {
-            return headerValues.get(0);
-        } else {
-            return headerValues;
-        }
+        return Collections.list(request.getHeaders(headerName));
     }
 }
