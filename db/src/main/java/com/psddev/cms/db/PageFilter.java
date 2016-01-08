@@ -3,8 +3,11 @@ package com.psddev.cms.db;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,11 +33,16 @@ import com.psddev.cms.tool.AuthenticationFilter;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.RemoteWidgetFilter;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.cms.view.AbstractViewCreator;
 import com.psddev.cms.view.JsonViewRenderer;
 import com.psddev.cms.view.PageViewClass;
+import com.psddev.cms.view.ViewCreator;
 import com.psddev.cms.view.ViewOutput;
 import com.psddev.cms.view.ViewRenderer;
 import com.psddev.cms.view.ViewRequest;
+import com.psddev.cms.view.servlet.ServletViewRequestAnnotationProcessor;
+import com.psddev.cms.view.servlet.ServletViewRequestAnnotationProcessorClass;
+import com.psddev.cms.view.ViewResponse;
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.ApplicationFilter;
 import com.psddev.dari.db.Database;
@@ -44,6 +52,7 @@ import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.AbstractFilter;
+import com.psddev.dari.util.Converter;
 import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.JspBufferFilter;
@@ -107,6 +116,9 @@ public class PageFilter extends AbstractFilter {
     public static final String MAIN_OBJECT_RENDERER_CONTEXT = "_main";
     public static final String EMBED_OBJECT_RENDERER_CONTEXT = "_embed";
     public static final String PAGE_VIEW_TYPE = "cms.page";
+    public static final String PREVIEW_VIEW_TYPE = "cms.preview";
+
+    public static final String VIEW_TYPE_PARAMETER = "_viewType";
 
     private boolean poweredBy;
 
@@ -692,7 +704,7 @@ public class PageFilter extends AbstractFilter {
                     ((Renderer) mainObject).renderObject(request, response, (HtmlWriter) writer);
                 }
 
-                if (!rendered && tryRenderView(request, response, writer, mainObject)) {
+                if (!rendered && tryProcessView(request, response, writer, mainObject)) {
                     rendered = true;
                 }
 
@@ -1092,37 +1104,144 @@ public class PageFilter extends AbstractFilter {
         }
     };
 
-    private static boolean tryRenderView(
+    /*
+     * 1. Find ViewCreator class (check the different view types, etc.)
+     * 2. Create ViewCreator
+     * 3. Create a ViewRequest based on the ViewCreator class
+     * 4. Create a ViewResponse
+     * 5. Call ViewCreator#processRequest
+     * 6. Update the real response based on the view response.
+     * 7. Check if the request should continue to be processed.
+     * 8. Create the View
+     * 9. Render the View
+     */
+    private static <T> boolean tryProcessView(
             HttpServletRequest request,
             HttpServletResponse response,
             Writer writer,
-            Object object)
+            T object)
             throws IOException, ServletException {
 
-        ViewRequest viewRequest = new ServletViewRequest(request);
-        Object view = viewRequest.createView(ObjectUtils.firstNonBlank(request.getParameter("_viewType"), PAGE_VIEW_TYPE), object);
+        String selectedViewType = null;
 
-        if (view == null) {
-            PageViewClass annotation = object.getClass().getAnnotation(PageViewClass.class);
-            Class<?> layoutViewClass = annotation != null ? annotation.value() : null;
+        // 1. Find ViewCreator class (check the different view types, etc.)
+        Class<? extends ViewCreator<? super T, ?, ? super Object>> viewCreatorClass = null;
 
-            if (layoutViewClass != null) {
-                view = viewRequest.createView(layoutViewClass, object);
+        String viewType = request.getParameter(VIEW_TYPE_PARAMETER);
+        if (!ObjectUtils.isBlank(viewType)) {
+            viewCreatorClass = ViewCreator.findCreatorClass(object, null, viewType, null);
 
-                if (view == null) {
-                    LOGGER.warn("Could not create view of type ["
-                            + layoutViewClass.getName()
-                            + "] for object of type ["
-                            + object.getClass()
-                            + "]!");
+            if (viewCreatorClass == null) {
+                LOGGER.warn("Could not find view creator for object of type ["
+                        + object.getClass().getName()
+                        + "] and view of type ["
+                        + viewType
+                        + "]!");
+            } else {
+                selectedViewType = viewType;
+            }
+
+        } else {
+            List<String> viewTypes = new ArrayList<>();
+
+            // Try to create a view for the PREVIEW_VIEW_TYPE...
+            if (Static.isPreview(request)) {
+                viewCreatorClass = ViewCreator.findCreatorClass(object, null, PREVIEW_VIEW_TYPE, null);
+                viewTypes.add(PREVIEW_VIEW_TYPE);
+
+                if (viewCreatorClass != null) {
+                    selectedViewType = PREVIEW_VIEW_TYPE;
                 }
+            }
+
+            // ...but still always fallback to PAGE_VIEW_TYPE if no preview found.
+            if (viewCreatorClass == null) {
+                viewCreatorClass = ViewCreator.findCreatorClass(object, null, PAGE_VIEW_TYPE, null);
+                viewTypes.add(PAGE_VIEW_TYPE);
+
+                if (viewCreatorClass != null) {
+                    selectedViewType = PAGE_VIEW_TYPE;
+                }
+            }
+
+            if (viewCreatorClass == null) {
+                PageViewClass annotation = object.getClass().getAnnotation(PageViewClass.class);
+                Class<?> layoutViewClass = annotation != null ? annotation.value() : null;
+
+                if (layoutViewClass != null) {
+                    viewCreatorClass = ViewCreator.findCreatorClass(object, layoutViewClass, null, null);
+                    viewTypes.add(layoutViewClass.getName());
+
+                    if (viewCreatorClass != null) {
+                        selectedViewType = layoutViewClass.getName();
+                    }
+                }
+            }
+
+            if (viewCreatorClass == null) {
+                LOGGER.warn("Could not find view creator for object of type ["
+                        + object.getClass().getName()
+                        + "] and view of type ["
+                        + StringUtils.join(viewTypes, ", or ")
+                        + "]!");
             }
         }
 
-        if (view == null) {
+        if (viewCreatorClass == null) {
             return false;
         }
 
+        // 2. Create ViewCreator
+        ViewCreator<? super T, ?, ? super Object> viewCreator = TypeDefinition.getInstance(viewCreatorClass).newInstance();
+
+        if (viewCreator == null) {
+            LOGGER.warn("Failed to create view creator of type ["
+                    + viewCreatorClass.getName()
+                    + "] for object of type ["
+                    + object.getClass().getName()
+                    + "] and view of type ["
+                    + selectedViewType
+                    + "]!");
+            return false;
+        }
+
+        // 3. Create a ViewRequest based on the ViewCreator class
+        Object viewRequest = createViewRequest(request, viewCreator);
+        if (viewRequest == null) {
+            LOGGER.warn("Failed to create view request for object of type ["
+                    + object.getClass().getName()
+                    + "] and view creator of type ["
+                    + viewCreator.getClass().getName()
+                    + "]!");
+            return false;
+        }
+
+        // 4. Create a ViewResponse
+        ViewResponse viewResponse = new ViewResponse();
+
+        // 5. Call ViewCreator#processRequest
+        boolean continueProcessing = viewCreator.processRequest(viewRequest, viewResponse);
+
+        // 6. Update the real response based on the view response.
+        updateViewResponse(request, (HttpServletResponse) JspUtils.getHeaderResponse(request, response), viewResponse);
+
+        // 7. Check if the request should continue to be processed.
+        if (!continueProcessing) {
+            return true;
+        }
+
+        // 8. Create the View
+        Object view = viewCreator.createView(object, viewRequest);
+        if (view == null) {
+            LOGGER.warn("Failed to create view from model of type ["
+                    + object.getClass().toString()
+                    + "] and view creator of type ["
+                    + viewCreator.getClass().getName()
+                    + "]!");
+            return true;
+        }
+
+        // 9. Render the View
         ViewRenderer renderer;
 
         if ("json".equals(request.getParameter("_renderer"))) {
@@ -1148,12 +1267,137 @@ public class PageFilter extends AbstractFilter {
             }
 
         } else {
-            LOGGER.warn("Could not create renderer for view of type ["
+            LOGGER.warn("Could not create view renderer for view of type ["
                     + view.getClass().getName()
                     + "]!");
         }
 
         return true;
+    }
+
+    private static Object createViewRequest(HttpServletRequest request, ViewCreator<?, ?, ? super Object> viewCreator) {
+
+        if (viewCreator != null) {
+
+            Object viewRequest;
+
+            Class<?> viewRequestClass = TypeDefinition.getInstance(viewCreator.getClass())
+                    .getInferredGenericTypeArgumentClass(ViewCreator.class, 2);
+
+            if (ViewRequest.class.equals(viewRequestClass)
+                    && AbstractViewCreator.class.isAssignableFrom(viewCreator.getClass())) {
+
+                // Legacy ViewRequest support
+                viewRequest = new ServletViewRequest(request);
+
+            } else {
+                viewRequest = createViewRequest(request, viewRequestClass);
+            }
+
+            return viewRequest;
+        }
+
+        return null;
+    }
+
+    private static Object createViewRequest(HttpServletRequest request, Class<?> viewRequestClass) {
+
+        Converter converter = new Converter();
+        converter.putAllStandardFunctions();
+
+        try {
+            TypeDefinition<?> viewRequestDefinition = TypeDefinition.getInstance(viewRequestClass);
+
+            Object viewRequest = viewRequestDefinition.newInstance();
+
+            for (Map.Entry<String, List<Field>> entry : viewRequestDefinition.getAllSerializableFields().entrySet()) {
+
+                Field field = entry.getValue().get(entry.getValue().size() - 1);
+                String fieldName = field.getName();
+
+                Object fieldValue = null;
+
+                // check for annotation processors.
+                for (Annotation viewRequestAnnotation : field.getAnnotations()) {
+
+                    Class<?> annotationClass = viewRequestAnnotation.annotationType();
+
+                    ServletViewRequestAnnotationProcessorClass annotation = annotationClass.getAnnotation(
+                            ServletViewRequestAnnotationProcessorClass.class);
+
+                    if (annotation != null) {
+
+                        Class<? extends ServletViewRequestAnnotationProcessor<? extends Annotation>> annotationProcessorClass = annotation.value();
+
+                        if (annotationProcessorClass != null) {
+
+                            @SuppressWarnings("unchecked")
+                            ServletViewRequestAnnotationProcessor<Annotation> annotationProcessor
+                                    = (ServletViewRequestAnnotationProcessor<Annotation>) TypeDefinition.getInstance(annotationProcessorClass).newInstance();
+
+                            fieldValue = annotationProcessor.getValue(request, fieldName, viewRequestAnnotation);
+                            break;
+                        }
+                    }
+                }
+
+                if (fieldValue != null) {
+                    try {
+
+                        // Handle the case where the field value is a collection but the field type is not.
+                        if (fieldValue instanceof Collection && !Collection.class.isAssignableFrom(field.getType())) {
+                            if (!((Collection<?>) fieldValue).isEmpty()) {
+                                // get the first value from the collection
+                                fieldValue = ((Collection<?>) fieldValue).iterator().next();
+                            } else {
+                                fieldValue = null;
+                            }
+                        }
+
+                        field.set(viewRequest, converter.convert(field.getGenericType(), fieldValue));
+                    } catch (IllegalAccessException ex) {
+                        throw new IllegalStateException(ex);
+                    }
+                }
+            }
+
+            return viewRequest;
+
+        } catch (RuntimeException e) {
+            LOGGER.warn("Failed to create view request of type [" + viewRequestClass + "]. Cause: " + e.getMessage(), e);
+            return null;
+        }
+    }
+
+    // Copies the information on the ViewResponse to the actual http servlet response.
+    private static void updateViewResponse(HttpServletRequest request, HttpServletResponse response, ViewResponse viewResponse) {
+
+        Integer status = viewResponse.getStatus();
+        if (status != null) {
+            response.setStatus(status);
+        }
+
+        for (Map.Entry<String, List<String>> entry : viewResponse.getHeaders().entrySet()) {
+
+            String name = entry.getKey();
+            List<String> values = entry.getValue();
+
+            for (String value : values) {
+                response.addHeader(name, value);
+            }
+        }
+
+        viewResponse.getCookies().forEach(response::addCookie);
+        viewResponse.getSignedCookies().forEach(cookie -> JspUtils.setSignedCookie(response, cookie));
+
+        String redirectUrl = viewResponse.getRedirectUri();
+        if (redirectUrl != null) {
+            try {
+                JspUtils.redirect(request, response, redirectUrl);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
     }
 
     /** Renders the given {@code object}. */
@@ -1164,7 +1408,7 @@ public class PageFilter extends AbstractFilter {
             Object object)
             throws IOException, ServletException {
 
-        if (!tryRenderView(request, response, writer, object)) {
+        if (!tryProcessView(request, response, writer, object)) {
 
             if (object instanceof Section) {
                 renderSection(request, response, writer, (Section) object);
