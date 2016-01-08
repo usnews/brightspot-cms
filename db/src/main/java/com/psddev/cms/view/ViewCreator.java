@@ -45,6 +45,20 @@ public interface ViewCreator<M, V, VR> {
         return true;
     }
 
+    /**
+     * Finds an appropriate ViewCreator class based on the given model, view
+     * class, view type, and view request. If more than one class is found, the
+     * result is ambiguous and null is returned.
+     *
+     * @param model the model used to look up available view creator classes, that is also compatible with the returned view creator.
+     * @param viewClass the desired view class that is created with the returned view creator.
+     * @param viewType the desired view type that is created with the returned view creator.
+     * @param viewRequest the desired view request class compatible with the returned view creator.
+     * @param <M> the model type
+     * @param <V> the view type
+     * @param <VR> the view request type
+     * @return the view creator class that matches the bounds of the arguments.
+     */
     static <M, V, VR> Class<? extends ViewCreator<? super M, V, ? super VR>> findCreatorClass(M model, Class<V> viewClass, String viewType, VR viewRequest) {
 
         if (model == null) {
