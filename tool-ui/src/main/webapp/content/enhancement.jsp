@@ -87,6 +87,12 @@ RichTextReference rteRef = ref.as(RichTextReference.class);
 rteRef.setLabel(state != null ? state.getLabel() : null);
 rteRef.setPreview(state != null && state.getPreview() != null ? state.getPreview().getPublicUrl() : null);
 
+final boolean isRichTextElement = object instanceof RichTextElement;
+
+if (isRichTextElement) {
+    ((RichTextElement) object).fromAttributes((Map<String, String>) ObjectUtils.fromJson(wp.param(String.class, "attributes")));
+}
+
 if (object != null && wp.isFormPost()) {
     try {
         request.setAttribute("excludeFields", Arrays.asList("record"));
@@ -94,7 +100,7 @@ if (object != null && wp.isFormPost()) {
 
         request.setAttribute("excludeFields", null);
 
-        if (state != null && object instanceof RichTextElement) {
+        if (state != null && isRichTextElement) {
             try {
                 state.beginWrites();
                 wp.updateUsingParameters(object);
@@ -141,8 +147,7 @@ if (object == null) {
             );
 
 } else {
-    if (object instanceof RichTextElement) {
-        ((RichTextElement) object).fromAttributes((Map<String, String>) ObjectUtils.fromJson(wp.param(String.class, "attributes")));
+    if (isRichTextElement) {
 
         wp.writeStart("h1");
             wp.writeHtml("Edit ");
@@ -153,7 +158,8 @@ if (object == null) {
         wp.writeFormHeading(object);
     }
 
-    int refFieldCount = -1;
+    // -1 accounts for `object` field if object is isntanceof Reference
+    int refFieldCount = isRichTextElement ? 0 : -1;
 
     for (ObjectField f : ref.getState().getType().getFields()) {
         if (!f.as(ToolUi.class).isHidden()) {
@@ -193,12 +199,14 @@ if (object == null) {
             </div>
         </div>
 
-        <%-- Object Edit Form --%>
-        <p id="<%= viewObjectPreviewId %>" style="display:none;">
-            <a target="_top" class="action action-cancel" href="javascript:;">
-                <% wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Enhancement", "action.cancel")); %>
-            </a>
-        </p>
+        <% if (!isRichTextElement) { %>
+            <%-- Object Edit Form --%>
+            <p id="<%= viewObjectPreviewId %>" style="display:none;">
+                <a target="_top" class="action action-cancel" href="javascript:;">
+                    <% wp.writeHtml(wp.localize("com.psddev.cms.tool.page.content.Enhancement", "action.cancel")); %>
+                </a>
+            </p>
+        <% } %>
         <div id="<%= objectFormId %>" style="display:none;">
             <% wp.writeFormFields(object); %>
         </div>
@@ -238,7 +246,7 @@ if (object == null) {
                 $viewObjectForm.show();
 
                 $objectPreview.hide();
-                $objectForm.show();;
+                $objectForm.show();
 
                 $objectForm.find('input[name="isEditObject"]').val(true);
                 $(window).resize();
