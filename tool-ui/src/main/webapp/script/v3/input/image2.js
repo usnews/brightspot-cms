@@ -1394,6 +1394,27 @@ define([
                 $.each(self.inputNames, function(index, name) {
                     inputs[name] = $tr.find(':input[name$=".' + name + '"]');
                 });
+                
+                // Set focus crop info (if available) to be used 
+                // in #sizeBoxShow and #sizesUpdatePreview
+                var focusCrop = { };
+                var focusX = self.dom.$focusInputX.val();
+                var focusY = self.dom.$focusInputY.val();
+                if (focusX !== '' && focusY !== '') {
+                    
+                    var $focusImage = self.dom.$focusImage[0];
+                    
+                    focusCrop = self.focusGetCrop({
+                        x: focusX,
+                        y: focusY
+                    }, {
+                        width: $focusImage.width,
+                        height: $focusImage.height,
+                    }, {
+                        width: sizeWidth,
+                        height: sizeHeight
+                    })
+                }
 
                 // Save the size information so we can use it later
                 sizeInfo = self.sizeInfos[sizeName] = {
@@ -1403,7 +1424,8 @@ define([
                     independent: independent,
                     width: sizeWidth,
                     height: sizeHeight,
-                    aspectRatio: sizeAspectRatio
+                    aspectRatio: sizeAspectRatio,
+                    focusCrop: focusCrop
                 };
 
                 // Group the sizes according to aspect ratio
@@ -1507,6 +1529,24 @@ define([
             self = this;
 
             return self.sizeGroups[groupName].$element.hasClass('imageEditor-sizeSelected');
+        },
+        
+        /**
+         * Determine if a group size has been set.
+         * 
+         * @param String sizeInfo
+         * 
+         * @returns Boolean
+         */
+        sizeInfoIsEmpty: function(sizeInfo) {
+            var inputs;
+            
+            inputs = sizeInfo.inputs;
+            
+            return (inputs.x.val() === '0.0' 
+                        && inputs.y.val() === '0.0'
+                        && inputs.width.val() === '0.0'
+                        && inputs.height.val() === '0.0');
         },
 
         
@@ -1670,11 +1710,21 @@ define([
             var sizeAspectRatio, height, left, self, top, width, area;
 
             self = this;
+            
+            var useFocusCrop = self.sizeInfoIsEmpty(sizeInfo); 
+            
+            if (!useFocusCrop) {
+                left = parseFloat(sizeInfo.inputs.x.val())|| 0.0;
+                top = parseFloat(sizeInfo.inputs.y.val()) || 0.0;
+                width = parseFloat(sizeInfo.inputs.width.val()) || 0.0;
+                height = parseFloat(sizeInfo.inputs.height.val()) || 0.0;
+            } else {
+                left = parseFloat(sizeInfo.focusCrop.x) || 0.0;
+                top = parseFloat(sizeInfo.focusCrop.y) || 0.0;
+                width = parseFloat(sizeInfo.focusCrop.width) || 0.0;
+                height = parseFloat(sizeInfo.focusCrop.height) || 0.0;                
+            }
 
-            left = parseFloat(sizeInfo.inputs.x.val()) || 0.0;
-            top = parseFloat(sizeInfo.inputs.y.val()) || 0.0;
-            width = parseFloat(sizeInfo.inputs.width.val()) || 0.0;
-            height = parseFloat(sizeInfo.inputs.height.val()) || 0.0;
             sizeAspectRatio = sizeInfo.aspectRatio;
             
             area = self.sizesGetImageArea(imageWidth, imageHeight, sizeInfo);
@@ -2413,7 +2463,7 @@ define([
 
 
             if (self.dom.$focusInputX.val() !== '' && self.dom.$focusInputY.val() !== '') {
-                self.insertFocusPoint(self.dom.$focusImage, self.dom.$focusInputX.val(), self.dom.$focusInputY.val());
+                self.insertFocusPoint(self.dom.$focusImage, self.dom.$focusInputX.val() * 100, self.dom.$focusInputY.val() * 100);
             }
 
             focusMessage = '<p>Click inside the image to set a focus point for all image sizes.</p>';
@@ -2462,32 +2512,32 @@ define([
 
                 // Go through all sizes to get the aspect ratio of each
                 $.each(self.sizeGroups, function(groupName) {
-
-                    var aspect, crop, sizeInfo;
-
-                    // Get the aspect ratio values for this size group
-                    sizeInfo = self.sizesGetGroupFirstSizeInfo(groupName);
-                    aspect = {
-                        'width': sizeInfo.width,
-                        'height': sizeInfo.height
-                    };
-
-                    // Calculate the crop for this aspect ratio
-                    crop = self.focusGetCrop({
-                        x: focus.xPercent,
-                        y: focus.yPercent
-                    }, originalAspect, aspect);
-
-                    // Set the cropping for this size group
-                    self.sizesSetGroupBounds(groupName, crop);
-                    self.sizesUpdatePreview(groupName);
+                
+                   var aspect, crop, sizeInfo;
+                
+                   // Get the aspect ratio values for this size group
+                   sizeInfo = self.sizesGetGroupFirstSizeInfo(groupName);
+                   aspect = {
+                       'width': sizeInfo.width,
+                       'height': sizeInfo.height
+                   };
+                
+                   // Update focus crop info to be used 
+                   // in #sizeBoxShow and #sizesUpdatePreview
+                   sizeInfo.focusCrop = self.focusGetCrop({
+                       x: focus.xPercent,
+                       y: focus.yPercent
+                   }, originalAspect, aspect);
+                
+                   // Set the cropping for this size group
+                   self.sizesUpdatePreview(groupName);
                 });
 
                 // When switching to sizes tab, update the thumbnails
                 self.sizesNeedsUpdate = true;
 
-                self.dom.$focusInputX.val(focus.xPercent * 100);
-                self.dom.$focusInputY.val(focus.yPercent * 100);
+                self.dom.$focusInputX.val(focus.xPercent);
+                self.dom.$focusInputY.val(focus.yPercent);
 
                 self.insertFocusPoint(self.dom.$focusImage, focus.xPercent * 100, focus.yPercent * 100);
                 self.dom.$focusPoint.css({left:(focus.xPercent * 100) + '%', top:(focus.yPercent * 100) + '%'});
