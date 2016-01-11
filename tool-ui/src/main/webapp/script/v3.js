@@ -632,8 +632,6 @@ function() {
     $win.resize();
   });
 
-  var scrollTops = [ ];
-
   $doc.on('frame-load', '.popup[data-popup-source-class~="objectId-edit"] > .content > .frame', function(event) {
     var $frame = $(event.target);
     var frameName = $frame.attr('name');
@@ -662,7 +660,7 @@ function() {
     // Move the frame into view.
     var scrollTop = $win.scrollTop();
 
-    scrollTops.push(scrollTop);
+    $.data($frame[0], 'popup-content-edit-scrollTop', scrollTop);
 
     scrollTop += $('.toolHeader').outerHeight(true);
 
@@ -717,8 +715,6 @@ function() {
   });
 
   $doc.on('close', '.popup[data-popup-source-class~="objectId-edit"]', function(event) {
-    scrollTops.pop();
-
     var $frame = $(event.target);
     var $source = $frame.popup('source');
     var $popup = $frame.popup('container');
@@ -767,6 +763,12 @@ function() {
   });
 
   $win.on('mousewheel', function(event, delta, deltaX, deltaY) {
+    var scrollTops = [ ];
+
+    $doc.find('.popup[data-popup-source-class~="objectId-edit"] > .content > .frame').each(function () {
+      scrollTops.push($.data(this, 'popup-content-edit-scrollTop'));
+    });
+
     if (scrollTops.length === 0) {
       return;
     }
