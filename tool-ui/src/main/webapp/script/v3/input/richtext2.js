@@ -2717,6 +2717,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             if (!styleObj.enhancementType) {
                 return;
             }
+            if (styleObj.popup === false) {
+                return;
+            }
             
             // Stop the click from propagating up to the window
             // because if it did, it would close the popup we will be opening.
@@ -3418,9 +3421,11 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 enhancementName: rtElement.displayName,
                 element: tag,
                 elementAttrAny: true,
-                singleLine: true
+                singleLine: true,
+                popup: rtElement.popup === false ? false : true
             };
 
+            // Add to the toolbar submenu
             richTextElementsSubmenu.push({
                 className: 'rte2-toolbar-noicon',
                 style: styleName,
