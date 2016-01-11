@@ -1884,6 +1884,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                                                'reference', JSON.stringify(reference));
                 $edit.attr('href', editUrl);
             }
+
+            // Trigger change event so preview is updated
+            self.rte.triggerChange();
         },
 
 
@@ -2164,6 +2167,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self = this;
             $el = self.enhancementGetWrapper(el);
             $el.addClass('toBeRemoved');
+            
+            // Trigger change event so preview is updated
+            self.rte.triggerChange();
         },
 
 
@@ -2174,6 +2180,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             if (mark) {
                 self.rte.enhancementRemove(mark);
             }
+            
+            // Trigger change event so preview is updated
+            self.rte.triggerChange();
         },
 
 
@@ -2182,6 +2191,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self = this;
             $el = self.enhancementGetWrapper(el);
             $el.removeClass('toBeRemoved');
+            
+            // Trigger change event so preview is updated
+            self.rte.triggerChange();
         },
 
 
