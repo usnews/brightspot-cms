@@ -1165,15 +1165,17 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                             } else {
                                 crop = getFocusCrop(item, standardImageSize);
 
-                                cropX = (int) (crop.getX() * originalWidth);
-                                cropY = (int) (crop.getY() * originalHeight);
-                                cropWidth = (int) (crop.getWidth() * originalWidth);
+                                if (crop != null) {
+                                    cropX = (int) (crop.getX() * originalWidth);
+                                    cropY = (int) (crop.getY() * originalHeight);
+                                    cropWidth = (int) (crop.getWidth() * originalWidth);
 
-                                if (standardAspectRatio != null) {
-                                    cropHeight = (int) Math.round(cropWidth / standardAspectRatio);
+                                    if (standardAspectRatio != null) {
+                                        cropHeight = (int) Math.round(cropWidth / standardAspectRatio);
 
-                                } else {
-                                    cropHeight = (int) (crop.getHeight() * originalHeight);
+                                    } else {
+                                        cropHeight = (int) (crop.getHeight() * originalHeight);
+                                    }
                                 }
                             }
 
