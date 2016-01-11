@@ -1,9 +1,11 @@
+/* global scale */
 /* jshint browser:true, jquery:true, unused:true, undef:true */
 /* global Pixastic, define */
 
 define([
     'jquery',
     'bsp-utils',
+    'v3/input/richtext2',
     'pixastic/pixastic.core',
     'pixastic/actions/blurfast',
     'pixastic/actions/brightness',
@@ -15,8 +17,8 @@ define([
     'pixastic/actions/rotate',
     'pixastic/actions/sepia',
     'pixastic/actions/sharpen'
-], function($, bsp_utils) {
-
+], function($, bsp_utils, rte2) {
+    
     var imageEditorUtility;
 
     // Singleton object for the image editor.
@@ -33,14 +35,14 @@ define([
          */
         inputNames: 'x y width height texts textSizes textXs textYs textWidths'.split(' '),
 
-
+        
         /**
          * The text overlay information comes over in a single string.
          * Split on this delimiter to separate the data.
          */
         textDelimiter: 'aaaf7c5a9e604daaa126f11e23e321d8',
 
-
+        
         /**
          * Names for all the tabs.
          */
@@ -51,7 +53,7 @@ define([
             hotspots: 'Hotspots'
         },
 
-
+        
         /**
          * Call to initialize the image editor.
          *
@@ -76,7 +78,7 @@ define([
 
             // Get other stuff from the DOM
             self.initDOM().done(function() {
-
+            
                 self.tabsInit();
 
                 self.focusInit();
@@ -89,25 +91,25 @@ define([
                 self.adjustmentProcess();
 
                 self.tabsReady();
-
+                
                 // Periodically check if edit inputs have changed
                 // TODO: need to turn this on only when the edit tab is selected?
                 self.adjustmentProcessTimerStart();
             });
         },
 
-
+        
         /**
          * Find stuff on the page and save it for future reference.
          */
         initDOM: function() {
 
             var dom, $el, scale, self;
-
+            
             self = this;
-
+            
             $el = self.$element;
-
+            
             // Set up an object to hold all dom information
             dom = {};
             self.dom = dom;
@@ -137,7 +139,7 @@ define([
 
             dom.$sizes = $el.find('.imageEditor-sizes');
             dom.$sizesTable = dom.$sizes.find('table');
-
+            
             // The data-name attribute is used to create new hidden inputs when needed
             self.dataName = $el.closest('.inputContainer').attr('data-name');
 
@@ -151,7 +153,7 @@ define([
             });
         },
 
-
+        
         //--------------------------------------------------
         // TABS
         //--------------------------------------------------
@@ -159,19 +161,19 @@ define([
         /**
          */
         tabsInit: function() {
-
+            
             var self;
 
             self = this;
-
+            
             self.dom.tabs = {};
         },
 
-
+        
         /**
          */
         tabsCreate: function(tabKey, className) {
-
+            
             var self;
 
             self = this;
@@ -191,22 +193,22 @@ define([
 
         },
 
-
+        
         /**
          * Call this after all tabs have been created and we're ready to go.
          */
         tabsReady: function() {
-
+            
             var self;
 
             self = this;
-
+            
             // Now add all the tabs to the main element
             $.each(self.dom.tabs, function(){
                 var $tab = $(this);
                 $tab.appendTo(self.$element);
             });
-
+            
             // Finally, add "tabber" class to the container to trigger the tab plugin to run
             self.$element.addClass('tabbed');
 
@@ -214,20 +216,20 @@ define([
             self.$element.tabbed();
         },
 
-
+        
         //--------------------------------------------------
         // IMAGE ADJUSTMENTS
         //--------------------------------------------------
-
+        
         /**
          * Sets up the "Edit Image" controls for modifying image adjustments.
          */
         editInit: function() {
-
+            
             var $brightness, $contrast, $filters, $rotateFlip, self;
 
             self = this;
-
+            
             self.tabsCreate('edit');
 
             // Create an image in the edit tab to show the image changes
@@ -244,7 +246,7 @@ define([
 
             // Move the imageEditor-aside element into this tab
             self.dom.$aside.appendTo(self.dom.tabs.edit);
-
+            
             // Create a place to put some hidden inputs
             self.dom.$editInputs = $('<div/>').appendTo(self.dom.$edit);
 
@@ -271,7 +273,7 @@ define([
                 .appendTo($contrast);
 
             // Add rotate and flip controls
-
+            
             $rotateFlip = $('<div class="imageEditor-adjustment"><div class="imageEditor-adjustment-heading">Rotate/Flip</div><ul class="imageEditor-adjustment-icons"></ul></div>')
                 .appendTo(self.dom.$edit)
                 .find('ul');
@@ -286,7 +288,7 @@ define([
                     return false;
                 })
             ).appendTo($rotateFlip);
-
+            
             $('<li/>').append(
                 $('<a/>', {
                     title: 'Rotate Right',
@@ -308,7 +310,7 @@ define([
                     return false;
                 })
             ).appendTo($rotateFlip);
-
+            
             $('<li/>').append(
                 $('<a/>', {
                     title: 'Flip Vertically',
@@ -328,16 +330,16 @@ define([
             });
 
             // Add filter controls for invert, sepia, grayscale
-
+            
             $filters = $('<div class="imageEditor-adjustment"><div class="imageEditor-adjustment-heading">Filters</div><ul></ul></div>')
                 .appendTo(self.dom.$edit)
                 .find('ul');
-
+            
             self.dom.$editInvert = self.dom.$edit.find('table :input[name$=".invert"]');
             $('<li/>', {
                 html: $('<label>Invert</label>').prepend(self.dom.$editInvert)
             }).appendTo($filters);
-
+            
             self.dom.$editSepia = self.dom.$edit.find('table :input[name$=".sepia"]');
             $('<li/>', {
                 html: $('<label>Sepia</label>').prepend(self.dom.$editSepia)
@@ -347,7 +349,7 @@ define([
             $('<li/>', {
                 html: $('<label>Grayscale</label>').prepend(self.dom.$editGrayscale)
             }).appendTo($filters);
-
+            
             // Create the reset button
             self.dom.$editResetButton = $('<button/>', {
                 'type': 'button',
@@ -363,18 +365,18 @@ define([
             self.dom.$edit.on('change', ':input', function(){
 
                 var inputName;
-
+                
                 // Get the name of the input without all the extra crud
                 inputName = self.editParseName($(this).attr('name'));
-
+                
                 // Trigger an event and pass the input element
                 // and the name of the input (like 'rotate' or 'flipH')
                 self.$element.trigger('imageAdjustment', [this, inputName]);
             });
-
+            
         },
 
-
+        
         /**
          * Creates a place to store some additional hidden inputs for the edit controls.
          * These additional inputs will be destroyed and rewritten each time we change the image adjustments.
@@ -384,7 +386,7 @@ define([
          * is created to hold the actual value.
          */
         editInitInputs: function() {
-
+            
             var self;
 
             self = this;
@@ -392,12 +394,12 @@ define([
             self.dom.$editInputs = $('<div/>').appendTo(self.dom.$editButton);
         },
 
-
+        
         /**
          * Open the Adjustments pop up.
          */
         editOpenAdjustments: function() {
-
+            
             var $edit, self;
 
             self = this;
@@ -421,13 +423,13 @@ define([
 
             // Clear all the checkboxes and inputs for the adjustments
             self.dom.$edit.find(':input:not([type=button])').each(function() {
-
+                
                 var $input, name, value;
-
+                
                 $input = $(this);
 
                 value = 0;
-
+                
                 if ($input.is(':checkbox')) {
                     value = 1;
                     $input.removeAttr('checked');
@@ -441,7 +443,7 @@ define([
                     name = self.editParseName($input.attr('name'));
 
                     $input.trigger('change');
-
+                    
                     // Trigger an event and pass the input element
                     // and the name of the input (like 'rotate' or 'flipH')
                     // This is used so other code can learn when the image is rotated.
@@ -481,7 +483,7 @@ define([
             self.adjustmentRotateSet(self.adjustmentRotateGet() - 90);
         },
 
-
+        
         editRotateRight: function() {
             var self;
             self = this;
@@ -494,11 +496,11 @@ define([
          * @param Boolean flag
          */
         editFlipH: function() {
-
+            
             var rotation, self;
 
             self = this;
-
+            
             // Check the current rotation of the image.
             // If it is not rotated, or rotated 180, we will flip horizontally.
             // But if it is rotated on its side we will actually flip vertically.
@@ -510,7 +512,7 @@ define([
             }
         },
 
-
+        
         /**
          * Set or unset the "Flip Vertical" adjustment for the image.
          * @param Boolean flag
@@ -519,7 +521,7 @@ define([
             var rotation, self;
 
             self = this;
-
+            
             // Check the current rotation of the image.
             // If it is not rotated, or rotated 180, we will flip vertically.
             // But if it is rotated on its side we will actually flip horizontally.
@@ -531,7 +533,7 @@ define([
             }
         },
 
-
+        
         /**
          * Start repeatedly processing the image adjustments.
          */
@@ -565,20 +567,20 @@ define([
             }
         },
 
-
+        
         /**
          * Stop repeatedly processing the image adjustments.
          */
         adjustmentProcessTimerStop: function() {
-
+            
             var self;
-
+            
             self = this;
-
+            
             clearTimeout(self.adjustmentProcessTimer);
         },
 
-
+        
         /**
          * Process the image to perform adjustments based on the adjustment inputs.
          * Only actually processes the image if the adjustment settings have changed
@@ -589,7 +591,7 @@ define([
          * after all the processing is done.
          */
         adjustmentProcess: function() {
-
+            
             var operations, operationsJson, promise, self;
 
             self = this;
@@ -633,11 +635,11 @@ define([
 
                     // Trigger an event so other code can tell when the image changed
                     self.$element.trigger('imageUpdated', [self.dom.$editImage]);
-
+                    
                 });
 
             }
-
+            
             // No operations have to be performed, so just return
             // an already resolved promise
             return $.Deferred().resolve().promise();
@@ -656,14 +658,14 @@ define([
             var promise, self;
 
             self = this;
-
+            
             // Create an already resolved promise to start things off.
             // We will modify this promise and add a task for each adjustment.
             promise = $.Deferred().resolve().promise();
 
             // Create the processed image - start from a copy of the original image
             self.dom.processedImage = self.dom.$imageClone.clone().get(0);
-
+            
             // Loop through each of the operations and perform them sequentially
             $.each(operations, function(name, value) {
 
@@ -680,10 +682,10 @@ define([
                     var previousPromise;
 
                     previousPromise = promise;
-
+                    
                     // Chain a new promise to run after the last one
                     promise = previousPromise.then(function(){
-
+                    
                         // Run a single operation.
                         // This will return a new promise that will be used to chain
                         // multiple operations one after another.
@@ -691,13 +693,13 @@ define([
                     });
                 });
             });
-
+            
             // Return a promise that can be used to run additional code
             // after the processing has completed.
             return promise;
         },
 
-
+        
         /**
          * Run a single adjustment operation
          *
@@ -712,7 +714,7 @@ define([
          * Also puts the processed image into self.dom.processedImage.
          */
         adjustmentProcessExecuteSingle: function(operationName, operationValue) {
-
+            
             var deferred, self;
 
             self = this;
@@ -724,17 +726,17 @@ define([
 
                 // Save the processed image so additional operations can be performed on it
                 self.dom.processedImage = newImage;
-
+                    
                 // Resolve the deferred object to indicate it is done
                 deferred.resolve();
             });
-
+            
             // Return a promise so additional code can run after the processing is done
             // to let us chain one operation after another
             return deferred.promise();
         },
-
-
+        
+        
         /**
          * Create hidden inputs for each of the adjustment values.
          */
@@ -743,12 +745,12 @@ define([
             var self;
 
             self = this;
-
+            
             // Remove any of the previous hidden inputs for the adjustments
             self.dom.$editInputs.empty();
 
             self.dom.$edit.find(':input:not([type=button])').each(function() {
-
+                
                 var $input = $(this);
 
                 // Determine if this is a selected checkbox, or an input that is not a checkbox
@@ -765,7 +767,7 @@ define([
 
         },
 
-
+        
         /**
          * Get the Pixastic operations needed for the image adjustment.
          *
@@ -774,22 +776,22 @@ define([
          * This object is also saved in this.operations.
          */
         adjustmentGetOperations: function() {
-
+            
             var self;
-
+            
             self = this;
-
+            
             // Create a list of operations
             self.operations = {};
 
             // Loop through all the inputs in the edit section
             // and add operations for each one
             self.dom.$edit.find(":input:not([type=hidden])").each(function(){
-
+                
                 var $input, name, value, processFunctionName;
-
+                
                 $input = $(this);
-
+                
                 // Get the name of the input and remove the extra junk
                 // to just get the part at the end like "brightness"
                 name = self.editParseName($input.attr('name'));
@@ -807,7 +809,7 @@ define([
                 if (value === false || isNaN(value) || value === 0) {
                     return;
                 }
-
+                
                 // Get the function that will be used to process this adjustment
                 // such as self.adjustmentProcess_brightness
                 processFunctionName = 'adjustmentGetOperation_' + name;
@@ -839,7 +841,7 @@ define([
             operations.brightness.legacy = true;
         },
 
-
+        
         /**
          * Add operations for changing image contrast.
          * @param Number value
@@ -862,7 +864,7 @@ define([
             operations = self.operations;
             operations.fliph = operations.fliph || { };
         },
-
+        
 
         /**
          * Add operations for flipping the image vertically.
@@ -874,7 +876,7 @@ define([
             operations.flipv = operations.flipv || { };
         },
 
-
+        
         /**
          * Add operations for changing image to grayscale.
          */
@@ -885,7 +887,7 @@ define([
             operations.desaturate = operations.desaturate || { };
         },
 
-
+        
         /**
          * Add operations for changing image to sepia.
          */
@@ -896,7 +898,7 @@ define([
             operations.sepia = operations.sepia || { };
         },
 
-
+        
         /**
          * Add operations for inverting the image.
          */
@@ -907,7 +909,7 @@ define([
             operations.invert = operations.desaturate || { };
         },
 
-
+        
         /**
          * Add operations for rotating the image.
          * @param Number value
@@ -920,7 +922,7 @@ define([
             operations.rotate = operations.rotate|| { };
             operations.rotate.angle = -value;
         },
-
+        
 
         /**
          * Add operations for sharpening the image.
@@ -934,7 +936,7 @@ define([
             operations.sharpen.amount = value;
         },
 
-
+        
         /**
          * Add operations for bluring a region of the image.
          * @param String value
@@ -973,7 +975,7 @@ define([
             self = this;
 
             value = parseInt( self.dom.$edit.find(":input[name$='.rotate']").val() || 0, 10 );
-
+            
             return value;
         },
 
@@ -998,7 +1000,7 @@ define([
             if (rotation === -180) {
                 rotation = 180;
             }
-
+            
             // Instead of allowing rotation of 270 or -270,
             // use -90 or 90
             if (rotation === 270) {
@@ -1016,13 +1018,13 @@ define([
          * @returns Boolean
          */
         adjustmentFlipHGet: function() {
-
+            
             var self, value;
 
             self = this;
 
             value = self.dom.$edit.find(":input[name$='.flipH']").is(':checked');
-
+            
             return value;
         },
 
@@ -1037,7 +1039,7 @@ define([
             self.dom.$edit.find(":input[name$='.flipH']").prop('checked', flag);
         },
 
-
+        
         /**
          * Toggle the the FlipH value.
          */
@@ -1047,23 +1049,23 @@ define([
             self.adjustmentFlipHSet(!self.adjustmentFlipHGet());
         },
 
-
+        
         /**
          * Determines if the "flipV" adjustment is checked.
          * @returns Boolean
          */
         adjustmentFlipVGet: function() {
-
+            
             var self, value;
 
             self = this;
 
             value = self.dom.$edit.find(":input[name$='.flipV']").is(':checked');
-
+            
             return value;
         },
 
-
+        
         /**
          * Set or unset the FlipV value.
          * @param Boolean flag
@@ -1074,7 +1076,7 @@ define([
             self.dom.$edit.find(":input[name$='.flipV']").prop('checked', flag);
         },
 
-
+        
         /**
          * Toggle the the FlipH value.
          */
@@ -1084,8 +1086,8 @@ define([
             self.adjustmentFlipVSet(!self.adjustmentFlipVGet());
         },
 
-
-
+        
+        
         //--------------------------------------------------
         // BLUR ADJUSTMENT
         //--------------------------------------------------
@@ -1098,7 +1100,7 @@ define([
             var self;
 
             self = this;
-
+            
             // Check if there are hidden inputs with ".blur", which will contain
             // dimensions for an overlay box to blur part of the image
             self.dom.$edit.find("input[name=\'" + self.dataName + ".blur\']").each(function(){
@@ -1109,7 +1111,7 @@ define([
             });
         },
 
-
+        
         //--------------------------------------------------
         // SIZES
         //--------------------------------------------------
@@ -1119,7 +1121,7 @@ define([
          * then adjust the cropping on the image.
          */
         sizesInit: function() {
-
+            
             var self;
 
             self = this;
@@ -1136,10 +1138,10 @@ define([
 
             // Move the sizes into the sidebar
             self.dom.$sizes.appendTo(self.dom.$sizesAside);
-
+            
             // Set up the "cover" divs that mask off the cropped areas of the image
             self.coverInit();
-
+            
             // Extract all the info about sizes from the DOM
             // After this self.sizeInfos and self.sizeGroups should be available
             self.sizesGetSizeInfo();
@@ -1159,15 +1161,15 @@ define([
 
                 // Save the group name on the group element, so we can retrieve it later on
                 $groupElement.attr('data-group-name', groupName);
-
+                
                 // Save the group LI for later use
                 groupInfo.$element = $groupElement;
-
+                
                 // We'll get the label for the group by combining all the individual size descriptions
                 groupLabel = $('<span/>', {
                     'class': 'imageEditor-sizeLabel'
                 }).appendTo($groupElement);
-
+                
                 // Save the group label so we can use it later when creating the "Add Text" link
                 groupInfo.$groupLabel = groupLabel;
 
@@ -1244,14 +1246,14 @@ define([
                 var $newImage;
 
                 $newImage = $( self.cloneCanvas($image.get(0)) );
-
+                
                 self.dom.$image.before($newImage);
                 self.dom.$image.remove();
                 self.dom.$image = $newImage;
 
                 // Set a flag so next time user switches to tab it will update the thumbnails
                 self.sizesNeedsUpdate = true;
-
+                
             }));
 
             // When user switches to the sizes tab, check if the image has been updated
@@ -1268,16 +1270,16 @@ define([
                     setTimeout(function() {
 
                         var groupName;
-
+                    
                         // Re-select the selected group to update the display
                         groupName = self.sizesGetSelected();
                         if (groupName) {
                             self.sizesSelect(groupName);
                         }
-
+                        
                         // Update (and re-crop) all the thumbnail images
                         self.sizesUpdatePreview();
-
+                        
                     }, 100);
                 }
 
@@ -1285,7 +1287,7 @@ define([
 
         },
 
-
+        
         /**
          * Search the DOM to get all the size information.
          * Combine sizes with similar aspect ratios into groups.
@@ -1293,7 +1295,7 @@ define([
          * self.sizeInfos and self.sizeGroups
          */
         sizesGetSizeInfo: function() {
-
+            
             var groupsApproximate, self;
 
             self = this;
@@ -1316,7 +1318,7 @@ define([
             // Key = the aspect ratio, or the name of an individual size
             // Value = an object that contains the element for the group, and a sizeInfos object
             // with all the sizes in the group.
-            //
+            //   
             // @example
             // {
             //   '1.5': {
@@ -1348,11 +1350,11 @@ define([
             //   '1.22': 'thumb_109x73',
             // }
             groupsApproximate = { };
-
+            
             // Loop through all the TH elements. These are the names of the sizes.
             // From there we can get to the other information about the size.
             self.dom.$sizesTable.find('th').each(function(){
-
+                
                 var group, independent, inputs, sizeAspectRatio, sizeAspectRatioApproximate,
                     sizeDescription, sizeHeight, sizeInfo, sizeName, sizeWidth, sizes, $source, $th, $tr;
 
@@ -1373,7 +1375,7 @@ define([
                     sizeAspectRatio = 0;
                     independent = true;
                 }
-
+                
                 // If we are inside a popup, only make this size selectable
                 // if it a "standard image size" for the page it is on.
                 $source = $th.popup('source');
@@ -1406,9 +1408,9 @@ define([
 
                 // Group the sizes according to aspect ratio
                 // (unless this size is marked as an independent size which should be presented on its own)
-
+                
                 if (independent) {
-
+                    
                     // Create a new group just for this individual item
                     group = self.sizesCreateGroup(sizeName);
 
@@ -1433,7 +1435,7 @@ define([
                         groupsApproximate[sizeAspectRatioApproximate + 0.02] = groupsApproximate[sizeAspectRatioApproximate + 0.02] || group;
                     }
                 }
-
+                
                 // Now add the current size to the group
                 group.sizeInfos[sizeName] = sizeInfo;
 
@@ -1449,7 +1451,7 @@ define([
          * @param String groupName
          */
         sizesSelect: function(groupName) {
-
+            
             var self;
 
             self = this;
@@ -1465,8 +1467,10 @@ define([
 
             // Show the text overlays for this group
             self.textSelectGroup(groupName);
-        },
 
+            // Create the "Reset Crop" button within the group
+            self.resetCropShow(groupName);
+        },
 
         /**
          * Unselect the currently selected size.
@@ -1476,16 +1480,19 @@ define([
             var self;
 
             self = this;
-
+            
             self.dom.$sizeSelectors.find('li').removeClass('imageEditor-sizeSelected');
 
             self.sizeBoxHide();
 
             // Remove the "Add Text" button
             self.textUnselect();
+
+            // Remove the "Reset Crop" button
+            self.resetCropHide();
         },
 
-
+        
         /**
          * Determine if a group of sizes is currently selected.
          *
@@ -1494,7 +1501,7 @@ define([
          * @returns Boolean
          */
         sizesIsSelected: function(groupName) {
-
+            
             var self;
 
             self = this;
@@ -1502,7 +1509,7 @@ define([
             return self.sizeGroups[groupName].$element.hasClass('imageEditor-sizeSelected');
         },
 
-
+        
         /**
          * If there is only a single size group, select it.
          */
@@ -1517,7 +1524,7 @@ define([
             }
         },
 
-
+        
         /**
          * Determine which size group is currently selected.
          *
@@ -1525,13 +1532,13 @@ define([
          * Returns the group name of the currently selected size, or a blank string if none is selected.
          */
         sizesGetSelected: function() {
-
+            
             var self;
             self = this;
             return self.dom.$sizeSelectors.find('.imageEditor-sizeSelected').attr('data-group-name') || '';
         },
 
-
+        
         /**
          * Creates a new group of sizes.
          *
@@ -1539,7 +1546,7 @@ define([
          * The name to use for the group. This can be the size name or an aspect ratio.
          */
         sizesCreateGroup: function(groupName) {
-
+            
             var self;
 
             self = this;
@@ -1559,8 +1566,8 @@ define([
          * Leave this undefined to update all the previews.
          */
         sizesUpdatePreview: function(groupName) {
-
-            var groupInfos, operations, self;
+            
+            var groupInfos, operations, self, area;
 
             self = this;
 
@@ -1580,7 +1587,7 @@ define([
 
                 // Get the sizeInfo from the first size in the group
                 sizeInfoFirst = self.sizesGetGroupFirstSizeInfo(groupName);
-
+            
                 // Find the element wrapping the preview image
                 $imageWrapper = groupInfo.$element.find('.imageEditor-sizePreview');
 
@@ -1596,6 +1603,29 @@ define([
                 }
 
                 bounds = self.sizesGetSizeBounds(width, height, sizeInfoFirst);
+                
+                // Adjust image preview with padding
+                area = self.sizesGetImageArea(width, height, sizeInfoFirst);
+                var inputX, inputY, inputWidth, inputHeight;
+                inputX = Number(sizeInfoFirst.inputs.x.val());
+                inputY = Number(sizeInfoFirst.inputs.y.val());
+                inputWidth = Number(sizeInfoFirst.inputs.width.val());
+                inputHeight = Number(sizeInfoFirst.inputs.height.val()); 
+                
+                var padTop = inputY < 0 ? Math.abs(inputY) / bounds.height * height : 0;
+                var padBottom = inputY + inputHeight > 1 ? (inputY + inputHeight - 1) / bounds.height * height : 0;
+                
+                var padLeft = inputX < 0 ? Math.abs(inputX) / bounds.width * width : 0;
+                var padRight = inputX + inputWidth > 1 ? (inputX + inputWidth - 1) / bounds.width * width : 0;
+                
+                bounds.top -= area.topPadPx;
+                bounds.left -= area.leftPadPx;
+                bounds.height = bounds.height * (1 - padBottom - padTop);
+                bounds.width = bounds.width * (1 - padLeft - padRight);
+                
+                $imageWrapper.css({
+                    'padding' : (padTop * 100) + '% ' + (padRight * 100) + '% ' + (padBottom * 100) + '% ' + (padLeft * 100) + '%'
+                });
 
                 // Crop the image based on the current crop dimension,
                 // then replace the thumbnail image with the newly cropped image
@@ -1636,8 +1666,8 @@ define([
          * @returns Number bounds.height
          */
         sizesGetSizeBounds: function(imageWidth, imageHeight, sizeInfo) {
-
-            var aspectRatio, height, left, self, top, width;
+            
+            var sizeAspectRatio, height, left, self, top, width, area;
 
             self = this;
 
@@ -1645,29 +1675,37 @@ define([
             top = parseFloat(sizeInfo.inputs.y.val()) || 0.0;
             width = parseFloat(sizeInfo.inputs.width.val()) || 0.0;
             height = parseFloat(sizeInfo.inputs.height.val()) || 0.0;
-            aspectRatio = sizeInfo.aspectRatio;
+            sizeAspectRatio = sizeInfo.aspectRatio;
+            
+            area = self.sizesGetImageArea(imageWidth, imageHeight, sizeInfo);
 
             // Check if cropping values have been previously set
             if (width === 0 || height === 0) {
+                
+                width = sizeInfo.width;
+                height = sizeInfo.height;
 
                 // If no cropping values, and there is an aspect ratio for this size,
                 // make the crop area as big as possible while staying within the aspect ratio
-                if (aspectRatio) {
+                if (sizeAspectRatio) {
 
-                    width = imageHeight * aspectRatio;
-                    height = imageWidth / aspectRatio;
+                    width = imageHeight * sizeAspectRatio;
+                    height = imageWidth / sizeAspectRatio;
 
                     if (width > imageWidth) {
-                        width = height * aspectRatio;
+                        width = height * sizeAspectRatio;
                     } else {
-                        height = width / aspectRatio;
+                        height = width / sizeAspectRatio;
                     }
 
-                    left = (imageWidth - width) / 2;
-                    top = 0;
+                    var widthDiff = area.totalWidth - imageWidth;
+                    var heightDiff = area.totalHeight - imageHeight;
 
+                    left = widthDiff !== 0 ? widthDiff / 2 :  (imageWidth - width) / 2;
+                    top = heightDiff !== 0 ? heightDiff / 2 : (imageHeight - height) / 2;
+                    
                 } else {
-
+                    
                     // There is no aspect ratio so just select the whole image
                     left = 0;
                     top = 0;
@@ -1679,8 +1717,8 @@ define([
 
                 // There was a cropping value previously set,
                 // so just convert from percentages to pixels
-                left *= imageWidth;
-                top *= imageHeight;
+                left = (left + area.left) * imageWidth;
+                top = (top + area.top) * imageHeight;
                 width *= imageWidth;
                 height *= imageHeight;
             }
@@ -1693,8 +1731,43 @@ define([
                 height: height
             };
         },
-
-
+        
+        /**
+         * Calculates area dimensions to displaying image for the given size.
+         * Area will be "padded" around the image on the dimension with a greater 
+         * difference in aspect ratios between the image and the crop. The numbers
+         * returned in percentages (top, left) are relative to the image, not the
+         * total area.
+         * 
+         */
+        sizesGetImageArea: function(imageWidth, imageHeight, sizeInfo) {    
+            var imageAspectRatio, sizeAspectRatio, topPad, leftPad, paddedImageHeight, paddedImageWidth;
+            
+            imageAspectRatio = imageWidth / imageHeight;
+            sizeAspectRatio = sizeInfo.aspectRatio;
+            
+            topPad = Math.max((imageAspectRatio / sizeAspectRatio - 1), 0) / 2;
+            leftPad =  Math.max((sizeAspectRatio / imageAspectRatio - 1), 0) / 2;
+            
+            if (leftPad > topPad) {
+                paddedImageHeight = imageHeight;
+                paddedImageWidth = paddedImageHeight * sizeAspectRatio;
+            } else {
+                paddedImageWidth = imageWidth;
+                paddedImageHeight = paddedImageWidth / sizeAspectRatio;
+            }
+            
+            return {
+                top: topPad,
+                left: leftPad,
+                topPadPx: topPad * imageHeight,
+                leftPadPx: leftPad * imageWidth,
+                totalWidth: paddedImageWidth,
+                totalHeight: paddedImageHeight,
+                scale: 1 / (1 + (leftPad * 2))
+            }
+        },
+        
         /**
          * For a size group, update all the inputs.
          *
@@ -1714,7 +1787,7 @@ define([
             groupInfo = self.sizeGroups[groupName];
 
             $.each(groupInfo.sizeInfos, function() {
-
+                
                 var sizeInfo = this;
 
                 $.each(bounds, function(inputName, value) {
@@ -1725,10 +1798,10 @@ define([
 
 
         /**
-         * Clear the cropping
+         * Clear the cropping 
          */
         sizesResetAll: function() {
-
+            
             var self;
 
             self = this;
@@ -1743,15 +1816,15 @@ define([
          * Clear the cropping values for a single group.
          */
         sizesResetGroup: function(groupName) {
-
+            
             var groupInfo, self;
 
             self = this;
-
+            
             groupInfo = self.sizeGroups[groupName];
 
             $.each(groupInfo.sizeInfos, function() {
-
+                
                 var sizeInfo = this;
 
                 sizeInfo.inputs.x.val('0.0');
@@ -1760,8 +1833,8 @@ define([
                 sizeInfo.inputs.height.val('0.0');
             });
         },
-
-
+        
+        
         /**
          * Get the first sizeInfo object for a size group.
          * @returns Object
@@ -1778,7 +1851,7 @@ define([
             return firstSize;
         },
 
-
+        
         /**
          * Get the aspect ratio for a group.
          * @returns Number
@@ -1790,7 +1863,7 @@ define([
             return self.sizesGetGroupFirstSizeInfo(groupName).aspectRatio;
         },
 
-
+        
         //--------------------------------------------------
         // COVER
         // Used to indicate the crop area for a particular size.
@@ -1807,7 +1880,7 @@ define([
             var $cover, self;
 
             self = this;
-
+            
             $cover = $('<div/>', {
                 'class': 'imageEditor-cover',
                 'css': {
@@ -1826,7 +1899,7 @@ define([
                 .add(self.dom.$coverBottom).appendTo(self.dom.tabs.sizes);
         },
 
-
+        
         /**
          * Update the size and position of the cover.
          *
@@ -1836,42 +1909,48 @@ define([
          * @param Number bounds.width
          * @param Number bounds.height
          */
-        coverUpdate: function(bounds) {
-
+        coverUpdate: function(bounds, sizeInfo) {
+            
             var self, imageWidth, imageHeight, boundsRight, boundsBottom;
 
             self = this;
-
+            
             imageWidth = self.dom.$image.width();
             imageHeight = self.dom.$image.height();
-            boundsRight = bounds.left + bounds.width;
-            boundsBottom = bounds.top + bounds.height;
+            
+            var area = self.sizesGetImageArea(imageWidth, imageHeight, sizeInfo);
+            
+            boundsRight = bounds.left + (bounds.width * area.scale);
+            boundsBottom = bounds.top + (bounds.height * area.scale);
+            
+            var scaledAreaWidth = area.totalWidth * area.scale;
+            var scaledAreaHeight = area.totalHeight * area.scale;
 
             self.dom.$coverTop.css({
                 'height': bounds.top,
-                'width': imageWidth
+                'width': scaledAreaWidth
             });
             self.dom.$coverLeft.css({
-                'height': bounds.height,
+                'height': bounds.height * area.scale,
                 'top': bounds.top,
                 'width': bounds.left
             });
             self.dom.$coverRight.css({
-                'height': bounds.height,
+                'height': bounds.height * area.scale,
                 'left': boundsRight,
                 'top': bounds.top,
-                'width': imageWidth - boundsRight
+                'width': scaledAreaWidth - boundsRight
             });
             self.dom.$coverBottom.css({
-                'height': imageHeight - boundsBottom,
+                'height': scaledAreaHeight - boundsBottom,
                 'top': boundsBottom,
-                'width': imageWidth
+                'width': scaledAreaWidth
             });
 
             self.coverShow();
         },
 
-
+        
         /**
          * Hide the cover.
          */
@@ -1881,7 +1960,7 @@ define([
             self.dom.$covers.hide();
         },
 
-
+        
         /**
          * Show the cover.
          */
@@ -1891,7 +1970,7 @@ define([
             self.dom.$covers.show();
         },
 
-
+        
         //--------------------------------------------------
         // SIZEBOX
         // Showing and setting the cropped area of an image.
@@ -1911,13 +1990,13 @@ define([
          * The name of the group from self.sizeGroups for this size box.
          */
         sizeBoxInit: function(groupName) {
-
+            
             var groupInfo, self, $sizeBox, $sizeBoxTopLeft, $sizeBoxBottomRight;
 
             self = this;
 
             groupInfo = self.sizeGroups[groupName];
-
+            
             // Create the sizebox
             $sizeBox = $('<div/>', {
                 'class': 'imageEditor-sizeBox',
@@ -1926,7 +2005,7 @@ define([
 
             // Save the size box along with the group info so we can access it later
             groupInfo.$sizeBox = $sizeBox;
-
+            
             // Create the top/left sizebox handle
             $sizeBoxTopLeft = $('<div/>', {
                 'class': 'imageEditor-resizer imageEditor-resizer-topLeft',
@@ -1938,10 +2017,10 @@ define([
             }).appendTo($sizeBox);
 
             // Set up  event handlers
-
+            
             // Event handler to support dragging the left/top handle
             $sizeBoxTopLeft.on('mousedown', self.sizeBoxMousedownDragHandler(groupName, function(event, original, delta) {
-
+                
                 // When user drags the top left handle,
                 // adjust the top and left position of the size box,
                 // and adjust the width and height
@@ -1955,7 +2034,7 @@ define([
 
             // Event handler to support dragging the bottom/right handle
             $sizeBoxBottomRight.on('mousedown', self.sizeBoxMousedownDragHandler(groupName, function(event, original, delta) {
-
+                
                 // When user drags the bottom right handle, adjust the width and height of the size box
                 return {
                     'width': original.width + delta.constrainedX,
@@ -1965,7 +2044,7 @@ define([
 
             // Event handler to support moving the size box
             $sizeBox.on('mousedown', self.sizeBoxMousedownDragHandler(groupName, function(event, original, delta) {
-
+                
                 // Set the "moving" parameter to prevent the size box from being moved
                 // outside the bounds of the image, and adjust the left and top position
                 return {
@@ -1973,11 +2052,11 @@ define([
                     'left': original.left + delta.x,
                     'top': original.top + delta.y
                 };
-
+                
             }));
         },
 
-
+        
         /**
          * Show the size box and resize it to show the crop settings
          * for a particular group size.
@@ -1985,20 +2064,47 @@ define([
          * @param String groupName
          */
         sizeBoxShow: function(groupName) {
-
-            var bounds, self, sizeInfo;
-
+            
+            var bounds, self, sizeInfo, area;
+            
             self = this;
 
             // Get the first sizeInfo object for this group
             sizeInfo = self.sizesGetGroupFirstSizeInfo(groupName);
 
             // Get the boundaries for the size box, based on the current image size on the page
-            bounds = self.sizesGetSizeBounds(self.dom.$image.width(), self.dom.$image.height(), sizeInfo);
-
-            self.coverUpdate(bounds);
+            var imageWidth = self.dom.$image.width();
+            var imageHeight = self.dom.$image.height();
+            var imageContainer = self.dom.$imageContainer;
+            bounds = self.sizesGetSizeBounds(imageWidth, imageHeight, sizeInfo);
+            area = self.sizesGetImageArea(imageWidth, imageHeight, sizeInfo);
+            
+            if (area.topPadPx < area.leftPadPx) {
+                var originalImageWidth = self.dom.$image.width();
+                var transformCss = {
+                    'transform': 'scale(' + area.scale + ')',
+                    'transform-origin': 'top left'
+                };                
+                imageContainer.css(transformCss);
+                imageContainer.css({
+                    'padding-left' :  area.leftPadPx+ 'px',
+                    'width' : (imageContainer.width() + (area.leftPadPx * 2)) + 'px',
+                });
+                self.dom.$image.width(originalImageWidth);
+            } else {
+                                
+                imageContainer.css({
+                    'padding-top' : area.topPadPx + 'px',
+                    'height' : (imageContainer.height() + (area.topPadPx * 2)) + 'px'
+                });
+            }
+            
+            bounds.left *= area.scale;
+            bounds.top *= area.scale;
+            
+            self.coverUpdate(bounds, sizeInfo);
             self.coverShow();
-
+            
             self.sizeBoxUpdate(groupName, bounds);
 
             self.sizeGroups[groupName].$sizeBox.show();
@@ -2018,12 +2124,26 @@ define([
          * @param Object height
          */
         sizeBoxUpdate: function(groupName, bounds) {
-            var self;
+            var self, $imageContainer, padData, sizeInfo, sizeBox;
+            
             self = this;
-            self.sizeGroups[groupName].$sizeBox.css(bounds);
+            $imageContainer = self.dom.$imageContainer;
+            sizeInfo = self.sizesGetGroupFirstSizeInfo(groupName);
+            padData = self.sizesGetImageArea(self.dom.$image.width(), self.dom.$image.height(), sizeInfo);
+            
+            var transformCss = {
+                'transform': 'scale(' + padData.scale + ')',
+                'transform-origin': 'top left'
+            };
+            
+            sizeBox = self.sizeGroups[groupName].$sizeBox;
+            sizeBox.css(bounds);
+            sizeBox.css(transformCss);
+            sizeBox.data('exactHeight', bounds.height);
+            sizeBox.data('exactWidth', bounds.width);
         },
 
-
+        
         /**
          * Hide all the size boxes.
          */
@@ -2034,9 +2154,22 @@ define([
             $.each(self.sizeGroups, function(groupName, groupInfo) {
                 groupInfo.$sizeBox.hide();
             });
+            
+            // Resets styles injected for padded crop
+            self.dom.$imageContainer.attr('style', '');
         },
 
+        /**
+         * Refreshes the sizebox to display updated bounds.
+         */
+        sizeBoxRefresh: function(groupName) {
+            var self;
+            self = this;
+            self.sizeBoxHide();
+            self.sizeBoxShow(groupName);
+        },
 
+        
         /**
          * Create a mousedown handler function that lets the user drag the size box
          * or the size box handles.
@@ -2060,44 +2193,54 @@ define([
             self = this;
 
             $sizeBox = self.sizeGroups[groupName].$sizeBox;
-
+            
             mousedownHandler = function(mousedownEvent) {
 
-                var aspectRatio, element, imageWidth, imageHeight, original, sizeBoxPosition;
+                var aspectRatio, sizeInfo, element, imageWidth, imageHeight, areaWidth, areaHeight, original, sizeBoxPosition;
 
                 // The element that was dragged
                 element = this;
 
                 // Get the aspect ratio for this group
-                aspectRatio = self.sizesGetGroupAspectRatio(groupName);
+                sizeInfo = self.sizesGetGroupFirstSizeInfo(groupName);
+                aspectRatio = sizeInfo.aspectRatio;
 
                 sizeBoxPosition = $sizeBox.position();
-
+                
                 original = {
                     'left': sizeBoxPosition.left,
                     'top': sizeBoxPosition.top,
                     'width': $sizeBox.width(),
-                    'height': $sizeBox.height(),
+                    'height': $sizeBox.width() / aspectRatio,
                     'pageX': mousedownEvent.pageX,
                     'pageY': mousedownEvent.pageY
                 };
 
                 imageWidth = self.dom.$image.width();
                 imageHeight = self.dom.$image.height();
-
+                
+                // Adjust height and width if padded crop is used
+                var area = self.sizesGetImageArea(imageWidth, imageHeight, sizeInfo);
+                areaWidth = area.totalWidth;
+                areaHeight = area.totalHeight;
+                
+                // Drag and resize boundaries are limited to scaled width/height
+                var scaledWidth = areaWidth * area.scale;
+                var scaledHeight = areaHeight * area.scale;
+                
                 // On mousedown, let the user start dragging the element
                 // The .drag() function takes the following parameters:
                 // (element, event, startCallback, moveCallback, endCallback)
                 $.drag(element, mousedownEvent, function() {
-
+                    
                     // This is the start callback for .drag()
-
+                    
                 }, function(dragEvent) {
-
+                    
                     // This is the move callback for .drag()
 
                     var bounds, deltaX, deltaY, overflow;
-
+                    
                     deltaX = dragEvent.pageX - original.pageX;
                     deltaY = dragEvent.pageY - original.pageY;
 
@@ -2128,18 +2271,18 @@ define([
                             bounds.top = 0;
                         }
 
-                        overflow = bounds.left + bounds.width - imageWidth;
+                        overflow = bounds.left + (bounds.width * area.scale) - scaledWidth;
                         if (overflow > 0) {
                             bounds.left -= overflow;
                         }
 
-                        overflow = bounds.top + bounds.height - imageHeight;
+                        overflow = bounds.top + (bounds.height * area.scale) - scaledHeight;
                         if (overflow > 0) {
                             bounds.top -= overflow;
                         }
 
                     } else {
-
+                        
                         // We're not moving the sizebox so we must be resizing.
                         // We still need to make sure we don't resize past the boundaries of the image.
 
@@ -2174,18 +2317,18 @@ define([
                         }
 
                         // Check if the box extends past the right
-                        overflow = bounds.left + bounds.width - imageWidth;
+                        overflow = bounds.left + (bounds.width * area.scale) - scaledWidth;
                         if (overflow > 0) {
-                            bounds.width -= overflow;
+                            bounds.width -= overflow / area.scale;
                             if (aspectRatio) {
                                 bounds.height = bounds.width / aspectRatio;
                             }
                         }
 
                         // Check if the box extends past the bottom
-                        overflow = bounds.top + bounds.height - imageHeight;
+                        overflow = bounds.top + (bounds.height * area.scale) - scaledHeight;
                         if (overflow > 0) {
-                            bounds.height -= overflow;
+                            bounds.height -= overflow / area.scale;
                             if (aspectRatio) {
                                 bounds.width = bounds.height * aspectRatio;
                             }
@@ -2194,7 +2337,7 @@ define([
 
                     // Now that the bounds have been sanitized,
                     // update the sizebox display
-                    self.coverUpdate(bounds);
+                    self.coverUpdate(bounds, sizeInfo);
                     self.sizeBoxUpdate(groupName, bounds);
 
                     // Trigger an event to tell others the size box has changed size
@@ -2204,24 +2347,27 @@ define([
 
                 }, function() {
 
-                    var sizeBoxHeight, sizeBoxPosition, sizeBoxWidth;
-
+                    var sizeBoxHeight, sizeBoxPosition, sizeBoxWidth, x, y;
+                    
                     // .drag() end callback
 
                     // Now that we're done dragging, update the size box
-
+                    
                     sizeBoxPosition = $sizeBox.position();
-                    sizeBoxWidth = $sizeBox.width();
-                    sizeBoxHeight = $sizeBox.height();
+                    sizeBoxWidth = $sizeBox.data('exactWidth');
+                    sizeBoxHeight = $sizeBox.data('exactHeight');
+                    
+                    x = sizeBoxPosition.left / area.scale / imageWidth - area.left;
+                    y = sizeBoxPosition.top / area.scale / imageHeight - area.top;
 
                     // Set the hidden inputs to the current bounds.
                     self.sizesSetGroupBounds(groupName, {
-                        x: sizeBoxPosition.left / imageWidth,
-                        y: sizeBoxPosition.top / imageHeight,
+                        x: x,
+                        y: y,
                         width: sizeBoxWidth / imageWidth,
                         height: sizeBoxHeight / imageHeight // sizeBoxWidth / aspectRatio / imageHeight
                     });
-
+                    
                     // Update the preview image thumbnail so it will match the new crop values
                     self.sizesUpdatePreview(groupName);
 
@@ -2235,7 +2381,7 @@ define([
             return mousedownHandler;
         },
 
-
+        
         //--------------------------------------------------
         // FOCUS FOR CROPPING
         //--------------------------------------------------
@@ -2282,14 +2428,14 @@ define([
                 var $newImage;
 
                 $newImage = $( self.cloneCanvas($image.get(0)) );
-
+                
                 self.dom.$focusImage.before($newImage);
                 self.dom.$focusImage.remove();
                 self.dom.$focusImage = $newImage;
             });
 
             // Add click event to the main image
-
+            
             // The image might be removed and replaced, so we can't put a click event on the image itself.
             // Add the click event on the element wrapping the image because that is not removed.
 
@@ -2365,7 +2511,7 @@ define([
             }).mouseout(function(){
                 self.dom.$focusTooltip.hide();
             });
-**/
+**/            
         },
 
         /**
@@ -2433,7 +2579,7 @@ define([
             var adjustedDifference;
             var adjustedPercentage;
             var focusDifference;
-
+            
             // Set up crop return value
             crop = {
                 x: 0,
@@ -2452,12 +2598,12 @@ define([
             }
 
             if (targetAspect === 0) {
-
+                
                 // There is no aspect ratio restraint,
                 // so leave the crop return value covering the whole image.
-
+                
             } else if (originalAspect > targetAspect) {
-
+                
                 // We need to crop the WIDTH because the target aspect ratio has less width
 
                 // Determine what the width should be to maintain the aspect ratio
@@ -2483,11 +2629,11 @@ define([
                 }
 
                 crop.x = focusDifference;
-
+                
             } else if (originalAspect < targetAspect) {
-
+                
                 // We need to crop the HEIGHT because the target aspect ratio has less height
-
+                
                 // Determine what the width should be to maintain the same aspect ratio
                 adjustedValue = originalSize.width / targetAspect;
 
@@ -2514,6 +2660,33 @@ define([
             }
 
             return crop;
+        },
+
+        //--------------------------------------------------
+        // SIZES - RESET CROP
+        //--------------------------------------------------
+
+        resetCropShow: function (groupName) {
+            var self;
+
+            self = this;
+
+            $('<a/>', {
+                'class': 'imageEditor-resetCrop',
+                'text': 'Reset Crop',
+                'click': function () {
+                    self.sizesResetGroup(groupName);
+                    self.sizesUpdatePreview(groupName);
+                    self.sizeBoxRefresh(groupName);
+                    return false;
+                }
+            }).insertAfter(self.sizeGroups[groupName].$groupLabel);
+        },
+
+        resetCropHide: function () {
+            var self;
+            self = this;
+            self.$element.find('.imageEditor-resetCrop').remove();
         },
 
         //--------------------------------------------------
@@ -2581,17 +2754,17 @@ define([
          * Removes the "Add Text" link from within all groups.
          */
         textUnselect: function() {
-
+            
             var self;
 
             self = this;
 
             // Remove the "Add Text" link
             self.textButtonRemove();
-
+            
         },
 
-
+        
         /**
          * Create the "Add Text" button and add it to the group selector.
          * Set up an event to add a new text when the button is clicked.
@@ -2599,7 +2772,7 @@ define([
          * @param String groupName
          */
         textButtonCreate: function(groupName) {
-
+            
             var self;
 
             self = this;
@@ -2614,7 +2787,7 @@ define([
             }).insertAfter( self.sizeGroups[groupName].$groupLabel );
         },
 
-
+        
         /**
          * Remove the 'Add Text' button from all size groups.
          */
@@ -2624,14 +2797,14 @@ define([
             self.$element.find('.imageEditor-addTextOverlay').remove();
         },
 
-
+        
         /**
          * Get the text information for a group from the hidden inputs,
          * then transform it from multiple delimited strings into more usable javascript format.
          *
          * @param String groupName
          * Name of the sizes group that contains the text.
-         *
+         * 
          * @returns Object textInfo
          * @returns Object textInfo[n]
          * @returns String textInfo[n].text
@@ -2648,12 +2821,12 @@ define([
 
             groupInfo = self.sizeGroups[groupName];
             sizeInfo = self.sizesGetGroupFirstSizeInfo(groupName);
-
+            
             // If there are no texts return an empty array
             if (!sizeInfo.inputs.texts.val()) {
                 return {};
             }
-
+            
             // Convert the delimited strings to arrays of values
             texts = sizeInfo.inputs.texts.val().split(self.textDelimiter);
             textXs = sizeInfo.inputs.textXs.val().split(self.textDelimiter);
@@ -2662,10 +2835,10 @@ define([
             textSizes = sizeInfo.inputs.textSizes.val().split(self.textDelimiter);
 
             textInfo = {};
-
+            
             // Now loop through the individual arrays and add them to the textInfo object.
             $.each(texts, function(index) {
-
+                
                 // Skip the first item because the delimited string starts with the delimeter
                 // and we end up with an empty item as the first array item.
                 if (index === 0) {
@@ -2673,7 +2846,7 @@ define([
                 }
 
                 textInfo[ self.textInfoIndex++ ] = {
-                    text: texts[index],
+                    text: self.htmlDecode(texts[index]),
                     x: textXs[index],
                     y: textYs[index],
                     width: textWidths[index],
@@ -2692,7 +2865,7 @@ define([
          * Name of the sizes group to update.
          */
         textSetTextInfo: function(groupName) {
-
+            
             var self;
 
             self = this;
@@ -2708,16 +2881,17 @@ define([
                 textYs = '';
                 textWidths = '';
                 textSizes = '';
-
+                
                 // Loop  through all the text blocks within this group
                 $.each(self.sizeGroups[groupName].textInfos, function(textInfoKey, textInfo) {
 
-                    var fontSize, $rteInput;
+                    var fontSize, $rteInput, rte;
 
                     // Update the text from the rich text editor
                     $rteInput = textInfo.$textOverlay.find('.imageEditor-textOverlayInput');
                     if ($rteInput.length) {
-                        textInfo.text = $rteInput.val();
+                        rte = $rteInput.data('rte2');
+                        textInfo.text = rte ? rte.toHTML() : $rteInput.val();
                     }
 
                     texts += self.textDelimiter + textInfo.text;
@@ -2744,7 +2918,7 @@ define([
             });
         },
 
-
+        
         /**
          * Create a new text for a size group.
          *
@@ -2757,10 +2931,10 @@ define([
             self = this;
 
             groupInfo = self.sizeGroups[groupName];
-
+            
             // Create a new text object
             textInfoKey = self.textInfoIndex++;
-
+            
             groupInfo.textInfos[textInfoKey] = {
                 text:'',
                 x:0.25,
@@ -2783,7 +2957,7 @@ define([
          *
          * @param String textInfoKey
          * The key that indexes into the selectedGroupTextInfo object to give the textInfo.
-         *
+         * 
          * @param Boolean focus
          * Set to true if we should focus on the text input after creating the text.
          */
@@ -2822,7 +2996,7 @@ define([
             // Also save the overlay element within the data for the textInfo,
             // so we can retrieve the new value later
             textInfo.$textOverlay = $textOverlay;
-
+            
             // Add the label to drag the text overlay
             $('<div/>', {
                 'class': 'imageEditor-textOverlayLabel',
@@ -2867,7 +3041,7 @@ define([
                     return false;
                 }
             }).appendTo($textOverlay);
-
+            
             // Add the text input and rich text editor
             // Activate rich text editor on the input
             $textOverlayInput = $('<input/>', {
@@ -2876,70 +3050,42 @@ define([
                 'value': textInfo.text || ''
             }).appendTo($textOverlay);
 
-            $textOverlayInput.rte({
-                'initImmediately': true,
-                'useLineBreaks': true
-            });
-
-            // Move the rich text toolbar controls to on top of the image.
-            // Note we need to wrap the toolbar inside another div,
-            // because the rte messes around with the styles on the toolbar,
-            // and we will need to hide and show the toolbar later.
-
+            // Create a div below the image to hold the rich text toolbar
             $textOverlayToolbar = $('<div/>', {'class':'imageEditor-text-toolbar'})
-                .hide()
-                .append( $textOverlay.find('.rte-toolbar-container') )
-                .appendTo(self.dom.tabs.sizes);
+                .hide();
 
-            $textOverlayInput.on('rtefocus', function(){
+            self.dom.tabs.sizes.before($textOverlayToolbar);
+            
+            $textOverlayInput.on('rteFocus', function(){
                 self.$element.find('.imageEditor-text-toolbar').hide();
                 $textOverlayToolbar.show();
                 return false;
             });
 
-            $textOverlayInput.on('rteblur', function(){
-                $textOverlayToolbar.hide();
-                return false;
+            rte = Object.create(rte2);
+            rte.init($textOverlayInput, {
+                inline:true,
+                toolbarLocation: $textOverlayToolbar
             });
-
+            
+            textInfo.rte = rte;
+            
             // Save the toolbar so we can delete it later
             textInfo.$toolbar = $textOverlayToolbar;
-
-            // Try to set the font size after the rich text editor loads
-            // TODO: need a better way to do this, such as a ready event that the RTE fires
-            var wait = 5000;
-
-            var repeatResizeTextOverlayFont = function() {
-
-                var contentDocument, iframe, loaded;
-
-                iframe = $textOverlay.find('.rte-container iframe')[0] || {};
-                contentDocument = iframe.contentDocument || {};
-                loaded = $(contentDocument.body).is('.rte-loaded');
-
-                if (loaded) {
-                    self.textOverlaySetFont(groupName, textInfoKey);
-                } else {
-                    // The RTE isn't loaded.
-                    // Try again after a delay, but give up after a certain number of tries.
-                    wait -= 100;
-                    if (wait > 0) {
-                        setTimeout(repeatResizeTextOverlayFont, 100);
-                    }
-                }
-            };
-
-            repeatResizeTextOverlayFont();
-
+            
+            //repeatResizeTextOverlayFont();
+            self.textOverlaySetFont(groupName, textInfoKey);
+            
             // Focus on the text input
             if (focus) {
                 $textOverlayInput.focus();
+                self.$element.find('.imageEditor-text-toolbar').hide();
                 $textOverlayToolbar.show();
             }
 
         },
 
-
+        
         /**
          * Set the font on all text overlays that are visible,
          * or for a single text overlay.
@@ -2961,16 +3107,16 @@ define([
 
             // Find a single height in the group so we can use it
             // to determine the font size when displaying the text overlay.
-            // Note since each size will scale the font
+            // Note since each size will scale the font 
             $.each(groupInfo.sizeInfos, function(sizeName, sizeInfo) {
-
+                
                 // Special case if there is a variable height, use the width to scale instead
                 if (sizeInfo.height === 0) {
                     scaleBy = 'width';
                     groupSize = sizeInfo.width;
                     return false; // stop looping
                 }
-
+                
                 if (groupSize === undefined || sizeInfo.height > groupSize) {
                     scaleBy = 'height';
                     groupSize = sizeInfo.height;
@@ -2985,7 +3131,7 @@ define([
             // Loop through each text overlay within the sizebox
             $sizeBox.find('.imageEditor-textOverlay').each(function() {
 
-                var originalFontSize, $rteBody, sizeHeight, sizeWidth, $textOverlay, textInfoKey, textInfo;
+                var originalFontSize, $rteBody, rte, sizeHeight, sizeWidth, $textOverlay, textInfoKey, textInfo;
 
                 $textOverlay = $(this);
 
@@ -2995,20 +3141,20 @@ define([
                 if (singleTextInfoKey && textInfoKey !== singleTextInfoKey) {
                     return;
                 }
-
+                
                 textInfo = groupInfo.textInfos[ textInfoKey ];
 
                 // Get the cropped dimensions of the selected group
                 sizeHeight = self.sizesGetGroupFirstSizeInfo(groupName).height;
                 sizeWidth = self.sizesGetGroupFirstSizeInfo(groupName).width;
-
+                
                 // Check to see if we previously saved a font size
                 originalFontSize = $textOverlay.data('imageEditor-originalFontSize');
-
+                
                 // Get the body of the rich text editor
-                $rteBody = $( $textOverlay.find('.rte-container iframe')[0].contentDocument.body );
+                $rteBody = $( $textOverlay );
 
-                if (!originalFontSize && $rteBody.is('.rte-loaded')) {
+                if (!originalFontSize) {
                     originalFontSize = parseFloat($rteBody.css('font-size'));
                     $.data(this, 'imageEditor-originalFontSize', originalFontSize);
                 }
@@ -3026,6 +3172,12 @@ define([
                     textInfo.originalFontSize = originalFontSize;
                 }
 
+                // Refresh the rich text editor after font size has been calculated
+                rte = $textOverlay.find('.imageEditor-textOverlayInput').data('rte2');
+                if (rte) {
+                    rte.refresh();
+                }
+                
             });
 
             // Update the hiden variables with the new textSize values
@@ -3033,30 +3185,30 @@ define([
             self.textSetTextInfo(groupName);
         },
 
-
+        
         textOverlayRemove: function(groupName, textInfoKey) {
-
+            
             var self, textInfos;
-
+            
             self = this;
 
             textInfos = self.sizeGroups[groupName].textInfos;
 
             textInfos[textInfoKey].$toolbar.remove();
-
+            
             delete textInfos[textInfoKey];
-
+            
             // Update the hidden variables
             self.textSetTextInfo(groupName);
         },
-
-
+        
+        
         textMousedownDragHandler: function(filterBoundsFunction) {
-
+            
             var mousedownHandler, self;
 
             self = this;
-
+            
             mousedownHandler = function(mousedownEvent) {
 
                 var element, groupInfo, groupName, textOverlayPosition, original, $textOverlay, textInfo, textInfoKey, $sizeBox, sizeBoxWidth, sizeBoxHeight;
@@ -3071,19 +3223,19 @@ define([
 
                 groupInfo = self.sizeGroups[groupName];
                 $sizeBox = groupInfo.$sizeBox;
-
+                
                 textInfo = groupInfo.textInfos[textInfoKey];
-
+                
                 //resizeTextOverlayFont();
 
                 // When user presses mouse down, get the current position of the
                 // text overlay, plus the size of the sizeBox container
                 // so we can constrain how much we allow it to be dragged.
-
+                
                 textOverlayPosition = $textOverlay.position();
                 sizeBoxWidth = $sizeBox.width();
                 sizeBoxHeight = $sizeBox.height();
-
+                
                 original = {
                     'left': textOverlayPosition.left,
                     'top': textOverlayPosition.top,
@@ -3104,7 +3256,7 @@ define([
                     // This is the move callback for .drag()
 
                     var deltaX, deltaY, bounds;
-
+                    
                     deltaX = dragEvent.pageX - original.pageX;
                     deltaY = dragEvent.pageY - original.pageY;
 
@@ -3131,13 +3283,13 @@ define([
                     if (bounds.top + original.height > sizeBoxHeight) {
                         bounds.top = sizeBoxHeight - original.height;
                     }
-
+                    
                     if (bounds.moving) {
                         if (bounds.left + bounds.width > sizeBoxWidth) {
                             bounds.left = sizeBoxWidth - bounds.width;
                         }
                     } else {
-
+                        
                         if (bounds.left + bounds.width > sizeBoxWidth) {
                             bounds.width = sizeBoxWidth - bounds.left;
                         }
@@ -3153,17 +3305,17 @@ define([
                     bounds.top = (textInfo.y * 100) + '%';
                     bounds.width = (textInfo.width * 100) + '%';
                     bounds.height = 'auto';
-
+                    
                     $textOverlay.css(bounds);
 
                 }, function() {
-
+                    
                     // .drag() end callback
-
+                    
                     // Now that we're done dragging, update the textInfo for this text,
                     // then update the hidden variables
                     self.textSetTextInfo(groupName, groupInfo.textInfos);
-
+                    
                 });
 
                 return false;
@@ -3172,7 +3324,7 @@ define([
             return mousedownHandler;
         },
 
-
+        
         //--------------------------------------------------
         // HOTSPOTS
         // Hotspots use a repeatableForm object on the page.
@@ -3198,7 +3350,7 @@ define([
 
             // Create an area to hold the hotspot popups
             self.dom.$hotspotPopups = $('<div/>', {'class': 'imageEditor-hotSpotPopups'}).appendTo(self.dom.$hotspots.closest('form'));
-
+                                                           
             // Create an image in the hotspot tab to show the hotspots
             // Note this image will need to be kept in sync with image changes
             // to flip and rotate the original image
@@ -3208,7 +3360,7 @@ define([
                 'style': 'position:relative',
                 'html': self.dom.$hotspotImage
             }).appendTo(self.dom.tabs.hotspots);
-
+            
             // Move hotspot form into the hotspot tab so it only shows when that tab is active
             // After moving the hotspots links into the tab, nothing will be left inside the inputContainer,
             // so we will just hide it.
@@ -3246,11 +3398,11 @@ define([
                 var $newImage;
 
                 $newImage = $( self.cloneCanvas($image.get(0)) );
-
+                
                 self.dom.$hotspotImage.before($newImage);
                 self.dom.$hotspotImage.remove();
                 self.dom.$hotspotImage = $newImage;
-
+                
                 self.hotspotOverlayResetAll();
             });
 
@@ -3277,26 +3429,32 @@ define([
             self.hotspotOverlayRemoveAll();
 
             // Loop through all the hotspot inputs that have not yet been moved into popups
-            self.dom.$hotspots.find('.objectInputs').each(function(){
-
+            //
+            // Note there is a possibility that the .objectInputs div might have nested
+            // within it more .objectInputs divs, so we need to be sure only to get the
+            // parent div for the entire hotspot and not any internal divs
+            self.dom.$hotspots.find('> ul > li > .objectInputs').each(function(){
+                
                 var $hotspot, $objectInput;
-
+                
                 $objectInput = $(this);
 
                 // Hide the width, height, x, y inputs
-                $objectInput.find(':input[name$=".x"], :input[name$=".y"], :input[name$=".width"], :input[name$=".height"]').closest('.inputContainer').hide();
+                $objectInput.find(':input[name$="cms.image.x"], :input[name$="cms.image.y"], :input[name$="cms.image.width"], :input[name$="cms.image.height"]')
+                    .closest('.inputContainer').hide();
 
+                // Create a new list for the hotspot LI and move it into a popup
                 $hotspot = $('<ul/>').append( $objectInput.closest('li') );
                 $hotspot.popup({parent:self.dom.$hotspotPopups}).popup('close');
             });
 
             // Loop through all the hotspot data in the popups
-            self.dom.$hotspotPopups.find('.objectInputs').each(function(){
+            self.dom.$hotspotPopups.find('ul > li > .objectInputs').each(function(){
 
                 var data, $objectInput;
 
                 $objectInput = $(this);
-
+                
                 // Get all the data for the hotspot from the inputs
                 data = self.hotspotInputGet($objectInput);
 
@@ -3306,24 +3464,24 @@ define([
             });
         },
 
-
+        
         /**
          * Returns the information for a single hotspot, adjusting based on image rotation and so forth.
          * Note the numbers returned are based on the original image and not based on the image scale that
          * was served to the page, nor on the CSS-styled image size on the page.
          *
-         * @param Element
+         * @param Element 
          * @returns Object
          * Object with x, y, width, height values for the hotspot overlay.
          */
         hotspotInputGet: function(input) {
-
+            
             var heightAdjusted, widthAdjusted, data, heightOriginal, $input, rotation, self, widthOriginal;
 
             self = this;
 
             $input = $(input);
-
+            
             // Get the image height and width and adjust for scale
             widthOriginal = self.dom.imageCloneWidth / self.scale;
             heightOriginal = self.dom.imageCloneHeight / self.scale;
@@ -3332,7 +3490,7 @@ define([
             // keep track of the width and height after rotation
             widthAdjusted = widthOriginal;
             heightAdjusted = heightOriginal;
-
+            
             // Get the form input values
             data = {
                 x: Math.abs(parseInt($input.find(':input[name$="x"]').val()) || 1),
@@ -3365,12 +3523,12 @@ define([
 
             case 90:
             case -270:
-
+                
                 // Adjust the hotspot data for 90 rotation (rotating to the right)
-
+                
                 widthAdjusted = heightOriginal;
                 heightAdjusted = widthOriginal;
-
+                
                 data = {
                     width: data.height,
                     height: data.width,
@@ -3384,7 +3542,7 @@ define([
             case -180:
 
                 // Adjust the hotspot data for 180 rotation
-
+                
                 data = {
                     width: data.width,
                     height: data.height,
@@ -3432,7 +3590,7 @@ define([
             return data;
         },
 
-
+        
         /**
          * Saves the hotspot overlay information, adjusting based on image rotation and so forth.
          * This is meant to be used after the user adjusts the hotspot position.
@@ -3461,7 +3619,7 @@ define([
             // The hotspot data is relative to this image
             widthOnPage = self.dom.$hotspotImage.width();
             heightOnPage = self.dom.$hotspotImage.height();
-
+            
             // Get the dimensions of the original image on the backend.
             // Our final hotspot coordinates must be relative to this image.
             widthOriginal = self.dom.imageCloneWidth / self.scale;
@@ -3471,7 +3629,7 @@ define([
             // keep track of the width and height after rotation
             widthAdjusted = widthOriginal;
             heightAdjusted = heightOriginal;
-
+            
             // Calculate how much our page image differs from the original image
             rotation = self.adjustmentRotateGet();
             if (rotation === 90 || rotation === -90) {
@@ -3487,7 +3645,7 @@ define([
 
             // If the image is rotated we need to change the coordinates so they
             // represent the unrotated state
-
+            
             if (rotation === 90) {
                 // Rotated to the right
                 widthAdjusted = heightOriginal;
@@ -3532,7 +3690,7 @@ define([
          * If hotspot inputs are blank give them reasonable values.
          */
         hotspotInputSetDefaults: function() {
-
+            
             var defaultX, defaultY, defaultWidth, defaultHeight, height, self, width;
 
             self = this;
@@ -3540,7 +3698,7 @@ define([
             // Get the width of the original image
             width = self.dom.imageCloneWidth / self.scale;
             height = self.dom.imageCloneHeight / self.scale;
-
+                
             // If a blank hotspot is added, set up a default size and position in the middle of the image
             defaultX = parseInt(width / 4);
             defaultY = parseInt(height / 4);
@@ -3580,7 +3738,7 @@ define([
             var $hotspotOverlay, $hotspotOverlayBox, $input, $inputPopup, self;
 
             self = this;
-
+            
             $input = $(input);
 
             $hotspotOverlay = $('<div/>', {
@@ -3595,16 +3753,16 @@ define([
                 },
                 //'data-type-id' : $input.find('input[name$="file.hotspots.typeId"]').val(),
                 'click' : function() {
-
+                    
                     self.hotspotEdit($input);
-
+                    
                     // Need to cancel the click here because otherwise it will bubble up
                     // to the window and the popup will get it and assume you have clicked
                     // outside the popup and the popup will be closed.
                     return false;
                 }
             }).appendTo(self.dom.$hotspotImageWrapper);
-
+            
             // Save the input on the overlay, and save the overlay in the input,
             // so it can be used later to link the two.
             $input.data('hotspotOverlay', $hotspotOverlay);
@@ -3613,7 +3771,7 @@ define([
             // Determine if this hotspot is "to be removed" and add a class to the overlay
             // so it displays differently
             $hotspotOverlay.toggleClass('toBeRemoved', $input.hasClass('toBeRemoved'));
-
+            
             $hotspotOverlayBox = $('<div/>', {
                 'class': 'imageEditor-hotSpotOverlayBox',
                 'css': {
@@ -3651,15 +3809,15 @@ define([
 
             // Check if we are a single point or a region
             if (data.width === 0) {
-
+                
                 // This hotspot is a single point so make the box 10x10
                 $hotspotOverlay.css("width", "10px");
                 $hotspotOverlay.css("height", "10px");
-
+                
             } else {
 
                 // This hotspot is a region, so add more controls to resize the region
-
+                
                 $('<div/>', {
                     'class': 'imageEditor-resizer imageEditor-resizer-bottomRight',
                     'mousedown': self.hotspotMousedownDragHandler(function(event, original, delta) {
@@ -3675,22 +3833,22 @@ define([
 
         },
 
-
+        
         /**
          * Select an single hotspot and display the popup edit form.
          * @param Element input
          * The input elements for the hotspot to be selected.
          */
         hotspotEdit: function(input) {
-
+            
             var $hotspotOverlay, $input, $popup, self;
 
             self = this;
 
             $input = $(input);
-
+            
             self.hotspotSelect($input);
-
+            
             $hotspotOverlay = $input.data('hotspotOverlay');
             self.$element.find('.state-focus').removeClass("state-focus");
             $input.addClass("state-focus");
@@ -3698,27 +3856,27 @@ define([
             $input
                 .popup('source', $hotspotOverlay)
                 .popup('open');
-
+            
             // Make sure there are inputs that can be edited within the popup
             if (!$input.find(':input:not(:hidden):not([disabled])').length) {
                 $input.popup('close');
             }
         },
 
-
+        
         /**
          * Mark a single hotspot as selected.
          * @param Element input
          * The input elements for the hotspot to be selected.
          */
         hotspotSelect: function(input) {
-
+            
             var $input, self;
 
             self = this;
-
+            
             self.hotspotUnselect();
-
+            
             $input = $(input);
             $hotspotOverlay = $input.data('hotspotOverlay');
             $hotspotOverlay.addClass("selected");
@@ -3727,7 +3885,7 @@ define([
             $hotspotOverlay.appendTo( $hotspotOverlay.parent() );
         },
 
-
+        
         /**
          * Mark all hotspot overlays as unselected.
          */
@@ -3736,8 +3894,8 @@ define([
             self = this;
             self.$element.find('.imageEditor-hotSpotOverlay').removeClass("selected");
         },
-
-
+        
+        
         /**
          * Remove or restore a hotspot.
          *
@@ -3752,7 +3910,7 @@ define([
             $overlay = $(overlayElement);
 
             overlays = [$overlay];
-
+            
             // Check if there are any overlays of the exact size and position underneath,
             // and if so remove them as well
             left = $overlay.css("left");
@@ -3761,11 +3919,11 @@ define([
             height = $overlay.css("height");
 
             self.$element.find('.imageEditor-hotSpotOverlay').not($overlay).each(function() {
-
+                
                 var $overlay;
-
+                
                 $overlay = $(this);
-
+                
                 if ($overlay.css("left") === left &&
                     $overlay.css("top") === top &&
                     $overlay.css("width") === width &&
@@ -3776,11 +3934,11 @@ define([
             });
 
             $.each(overlays, function(i, $overlay){
-
+                
                 var $input, remove;
 
                 remove = !$overlay.hasClass('toBeRemoved');
-
+                
                 // We previously saved the hotspotInput data on the hotspot element.
                 // We'll get it now so we can mark the input to be removed.
                 $input = $overlay.data('hotspotInput');
@@ -3798,7 +3956,7 @@ define([
 
         },
 
-
+        
         /**
          * Mark a hotspot input to be removed.
          *
@@ -3812,7 +3970,7 @@ define([
             $input.find(":input").prop("disabled", "disabled");
         },
 
-
+        
         /**
          * Remove the "to be removed" mark from the hotspot inputs
          *
@@ -3826,7 +3984,7 @@ define([
             $input.find(":input").prop("disabled", false);
         },
 
-
+        
         /**
          * Remove all hotspot overlays (but do not modify the form inputs).
          */
@@ -3862,14 +4020,14 @@ define([
             mousedownHandler = function(mousedownEvent) {
 
                 var imageHeight, imageWidth, $input, $mousedownElement, original, $overlay, $overlayBox, overlayPosition;
-
+                
                 $mousedownElement = $(this);
                 $overlay = $mousedownElement.closest('.imageEditor-hotSpotOverlay');
                 $overlayBox = $overlay.find('.imageEditor-hotSpotOverlayBox');
                 $input = $overlay.data('hotspotInput');
-
+                
                 overlayPosition = $overlay.position();
-
+                
                 original = {
                     'left': overlayPosition.left,
                     'top': overlayPosition.top,
@@ -3884,15 +4042,15 @@ define([
 
                 // .drag(element, event, startCallback, moveCallback, endCallback)
                 $.drag(this, event, function() {
-
+                    
                     // drag start callback
-
+                    
                 }, function(dragEvent) {
-
+                    
                     // drag move callback
 
                     var bounds, deltaX, deltaY, overflow;
-
+                    
                     deltaX = dragEvent.pageX - original.pageX;
                     deltaY = dragEvent.pageY - original.pageY;
                     bounds = filterBoundsFunction(dragEvent, original, {
@@ -3905,9 +4063,9 @@ define([
 
                     // When moving, don't let it go outside the image.
                     if (bounds.moving) {
-
+                        
                         // We're not resizing the box, we are moving it
-
+                        
                         if (bounds.left < 0) {
                             bounds.left = 0;
                         }
@@ -3938,7 +4096,7 @@ define([
                         if (bounds.width < 10) {
                             bounds.width = 10;
                         }
-
+                        
                         if (bounds.height < 10) {
                             bounds.height = 10;
                         }
@@ -3969,7 +4127,7 @@ define([
                     //$overlayBox.css('height', bounds.height);
 
                 }, function() {
-
+                    
                     // Drag end callback
 
                     // Set the hidden inputs to the current bounds of the overlay
@@ -3984,7 +4142,7 @@ define([
                         width: $overlayBox.width(),
                         height: $overlayBox.height()
                     });
-
+                    
                 });
 
                 return false;
@@ -3997,7 +4155,7 @@ define([
         //--------------------------------------------------
         // MISC SUPPORT FUNCTIONS
         //--------------------------------------------------
-
+        
         /**
          * Fix scrolling behavior of the "aside" scrollable area.
          * If user is scrolling the area and reaches the top or bottom,
@@ -4006,7 +4164,7 @@ define([
         scrollFix: function(element) {
 
             var self;
-
+            
             self = this;
 
             $(element).bind('mouswheel', function(event, delta, deltaX, deltaY) {
@@ -4016,7 +4174,7 @@ define([
             });
         },
 
-
+        
         /**
          * Check if an element (with an internal scrollbar) is already scrolled to the top or the bottom.
          *
@@ -4033,10 +4191,10 @@ define([
         elementIsScrolledToMax: function(element, deltaY) {
 
             var self, $el, attr, maxScrollTop, scrollTop;
-
+            
             self = this;
             $el = $(element);
-
+            
             // Name of the data attribute we will save on the element to remember the scroll position
             attr = 'imageEditor-maxScrollTop';
 
@@ -4045,10 +4203,10 @@ define([
 
             // Get the current scroll position
             scrollTop = $el.scrollTop();
-
+            
             // See if we previously saved the scroll position
             if (typeof maxScrollTop === 'undefined') {
-
+                
                 // We haven't saved the scroll position previously,
                 // so we'll assume the current scroll position is the top
                 maxScrollTop = $el.prop('scrollHeight') - $el.innerHeight();
@@ -4069,7 +4227,7 @@ define([
          * Returns the width of the canvas.
          */
         getCanvasWidth: function() {
-
+            
             var self, value;
 
             self = this;
@@ -4077,16 +4235,16 @@ define([
             return value;
         },
 
-
+        
         /**
          * Returns the width of the canvas.
          */
         getCanvasHeight: function() {
-
+            
             var self, value;
 
             self = this;
-
+            
             value = self.dom.$image.parent().find('canvas').height();
             return value;
         },
@@ -4111,16 +4269,16 @@ define([
          * @returns Number position.height The height of the element that was clicked.
          */
         getClickPositionInElement: function(element, clickEvent) {
-
+            
             var $element, height, offset, width, x, y;
-
+            
             $element = $(element);
             width = $element.width();
             height = $element.height();
             offset = $element.offset();
             x = Math.ceil(clickEvent.pageX - offset.left) || 1;
             y = Math.ceil(clickEvent.pageY - offset.top) || 1;
-
+            
             // Just in case something weird happens check for boundaries
             if (x <= 0) { x = 1; }
             if (y <= 0) { y = 1; }
@@ -4155,7 +4313,7 @@ define([
                 //set dimensions
                 newCanvas.width = oldCanvas.width;
                 newCanvas.height = oldCanvas.height;
-
+ 
                 //apply the old canvas to the new one
                 context.drawImage(oldCanvas, 0, 0);
 
@@ -4166,7 +4324,7 @@ define([
             }
         },
 
-
+        
         /**
          * Get the natural width and height of an image.
          *
@@ -4193,32 +4351,32 @@ define([
             height = $img.prop('naturalHeight');
 
             if (width || height) {
-
+                
                 // Resolve the deferred object to say we are ready
                 deferred.resolve(width, height);
-
+                
             } else {
 
                 // We couldn't get the naturalWidth or naturalHeight
                 // Maybe image has not finished loading,
                 // or maybe those properties are not supported.
-
+                
                 // Create a new image with a load event
                 $('<img/>').on('load', function() {
-
+                    
                     // After the image finishes loading try to get the width and height again
                     var height, $img, width;
                     $img = $(this);
                     width = $img.prop('naturalWidth') || $img.prop('width') || 0;
                     height = $img.prop('naturalHeight') || $img.prop('height') || 0;
                     deferred.resolve(width, height);
-
+                    
                 }).on('error', function() {
 
                     // If there was some kind of problem loading the image,
                     // resolve the deferred so other code can continue
                     deferred.resolve(0,0);
-
+                    
                 }).attr('src', $img.attr('src'));
 
                 // Just in case something goes wrong like the image taking too long,
@@ -4230,30 +4388,44 @@ define([
 
             // Return a promise that can be used to continue running other code
             return deferred.promise();
+        },
+
+        /**
+         * Encode text so it is HTML safe.
+         * @param {String} s
+         * @return {String}
+         */
+        htmlDecode: function(s) {
+            return String(s)
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&amp;/g, '&')
+                .replace(/&quot;/g, '"');
         }
+
 
     }; // END imageEditorUtilty object
 
-
+    
     // Whenever an element with class "imageEditor" is added to the page,
     // we create a new instance of the imageEditorUtility object and initialize it.
-
+    
     bsp_utils.onDomInsert(document, '.imageEditor', {
-
+        
         insert: function(element) {
 
-            // Use image2.js if Padded crops are enabled
-            if (ENABLE_PADDED_CROPS) {
+            // Use image.js if Padded crops are disabled
+            if (!ENABLE_PADDED_CROPS) {
                 return;
             }
 
             var imageEditor;
-
+            
             // Create a copy of the repeatableUtility object
             // This uses prototypal inheritance so we're not actually copying the entire object
             // It allows each repeatable instance to have its own object that saves state
             imageEditor = Object.create(imageEditorUtility);
-
+            
             // Initialize the image editor
             imageEditor.init(element);
 
@@ -4445,7 +4617,7 @@ define([
                             'left': original.left + delta.x,
                             'width': original.width - delta.x
                         };
-                    })
+                    }) 
                 }));
                 $blurOverlayBox.append($('<div/>', {
                     'class': 'imageEditor-resizer imageEditor-resizer-right',
@@ -4525,5 +4697,6 @@ define([
 
 
 ======================================================================***/
+
 // Set filename for debugging tools to allow breakpoints even when using a cachebuster
-//# sourceURL=image.js
+//# sourceURL=image2.js
