@@ -1078,10 +1078,16 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          */
         toolbarHandleClick: function(item, event) {
 
-            var mark, rte, self, styleObj, value;
+            var $button, mark, rte, self, styleObj, value;
 
             self = this;
 
+            // Don't do the click if the button is not allowed in the current context
+            $button = $(event.target);
+            if ($button.hasClass('outOfContext')) {
+                return;
+            }
+            
             rte = self.rte;
 
             styleObj = self.rte.styles[item.style] || {};
@@ -1255,7 +1261,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Go through each link in the toolbar and see if the style is defined
             $links.each(function(){
 
-                var config, $link, makeActive;
+                var activeElements, allRoot, config, $link, makeActive, styleObj;
 
                 $link = $(this);
 
@@ -1329,6 +1335,46 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                         }
 
                     }
+
+                    // Special case if the toolbar style should only be displayed in certain contexts
+                    styleObj = self.styles[config.style] || {};
+                    if (styleObj.context) {
+
+                        validContext = false;
+
+                        // For each of the active styles, determine which elements the styles represent
+                        // so we can check if we are in the context of those elements
+                        activeElements = {};
+                        allRoot = true;
+                        $.each(styles, function(styleName, styleValue) {
+                            var styleObj;
+                            styleObj = self.styles[styleName] || {};
+                            if (styleObj.element) {
+                                allRoot = false;
+                                activeElements[styleObj.element] = styleValue;
+                            }
+                        });
+                        
+                        // Loop through all the elements listed as a required context for this style
+                        $.each(styleObj.context, function (i, contextElement) {
+
+                            // If null is specified as a context, then the style can appear in the "root" context.
+                            // If the entire range is plain text then we'll consider this "root"
+                            if (contextElement === null && allRoot) {
+                                validContext = true;
+                                return false;
+                            }
+
+                            // Check if we are completely in contextStyle
+                            if (activeElements[contextElement]) {
+                                validContext = true;
+                                return false; // stop the loop
+                            }
+                        });
+
+                        $link.toggleClass('outOfContext', !validContext);
+                    }
+                    
                 }
             });
 
@@ -3422,7 +3468,8 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 element: tag,
                 elementAttrAny: true,
                 singleLine: true,
-                popup: rtElement.popup === false ? false : true
+                popup: rtElement.popup === false ? false : true,
+                context: rtElement.context
             };
 
             // Add to the toolbar submenu
