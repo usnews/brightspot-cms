@@ -24,7 +24,7 @@ wp.writeStart("div", "class", "toolSearchSaved");
     wp.writeEnd();
 
     wp.writeStart("div", "class", "frame savedSearches", "name", "savedSearches");
-      wp.writeStart("a", "href", "/cms/misc/savedSearches.jsp");
+      wp.writeStart("a", "href", wp.cmsUrl("/misc/savedSearches.jsp"));
       wp.writeEnd();
     wp.writeEnd();
 wp.writeEnd();
