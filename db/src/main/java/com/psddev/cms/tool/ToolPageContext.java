@@ -1960,6 +1960,11 @@ public class ToolPageContext extends WebPageContext {
                 if (allowedParents.size() > 0) {
                     richTextElement.put("context", allowedParents);
                 }
+
+                String subMenu = tag.subMenu().trim();
+                if (!subMenu.isEmpty()) {
+                    richTextElement.put("submenu", subMenu);
+                }
                 richTextElement.put("styleName", type.getInternalName().replace(".", "-"));
                 richTextElement.put("typeId", type.getId().toString());
                 richTextElement.put("displayName", type.getDisplayName());

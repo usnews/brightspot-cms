@@ -26,5 +26,6 @@ public abstract class RichTextElement extends Record {
         String value();
         boolean isVoid() default false;
         String[] allowedParents() default { };
+        String subMenu() default "";
     }
 }
