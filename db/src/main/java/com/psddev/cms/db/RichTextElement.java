@@ -12,6 +12,8 @@ import java.util.Map;
 @RichTextElement.Embedded
 public abstract class RichTextElement extends Record {
 
+    public static final String ROOT_CONTEXT = "rte.root.context";
+
     public abstract void fromAttributes(Map<String, String> attributes);
 
     public abstract Map<String, String> toAttributes();
@@ -22,5 +24,7 @@ public abstract class RichTextElement extends Record {
     public @interface Tag {
 
         String value();
+        boolean isVoid() default false;
+        String[] allowedParents() default { };
     }
 }
