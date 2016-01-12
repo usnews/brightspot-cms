@@ -327,7 +327,7 @@ public class CreateNewWidget extends DefaultDashboardWidget {
                             page.writeHtml(" ");
 
                             page.writeStart("button", "class", "action action-create");
-                                page.writeHtml(page.localize(CreateNewWidget.class, "new"));
+                                page.writeHtml(page.localize(CreateNewWidget.class, "action.new"));
                             page.writeEnd();
                         page.writeEnd();
                     }

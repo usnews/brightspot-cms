@@ -46,7 +46,7 @@ public class DashboardPage extends PageServlet {
         }
 
         if (dashboard == null) {
-            dashboard = Dashboard.getDefaultDashboard();
+            dashboard = Dashboard.createDefaultDashboard();
             dashboardId = "default";
         }
 

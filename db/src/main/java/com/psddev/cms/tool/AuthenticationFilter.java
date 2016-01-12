@@ -339,6 +339,26 @@ public class AuthenticationFilter extends AbstractFilter {
                 return true;
             }
 
+            Cookie csrfCookie = JspUtils.getCookie(request, "bsp.csrf");
+
+            if (csrfCookie == null) {
+                csrfCookie = new Cookie("bsp.csrf", UUID.randomUUID().toString());
+            }
+
+            csrfCookie.setMaxAge(-1);
+            csrfCookie.setPath("/");
+            csrfCookie.setSecure(JspUtils.isSecure(request));
+            response.addCookie(csrfCookie);
+
+            if (JspUtils.isFormPost(request)
+                    && !csrfCookie.getValue().equals(ObjectUtils.firstNonNull(
+                    request.getHeader("Brightspot-CSRF"),
+                    request.getParameter("_csrf")))) {
+
+                response.sendError(HttpServletResponse.SC_FORBIDDEN);
+                return true;
+            }
+
             return false;
         }
 

@@ -20,6 +20,13 @@ module.exports = function(grunt) {
                             'mode/clike/clike.js',
                             'mode/css/css.js',
                             'addon/mode/multiplex.js', // needed by htmlembedded
+                            'addon/dialog/dialog.js', // needed for rte search
+                            'addon/dialog/dialog.css', // needed for rte search
+                            'addon/search/searchcursor.js', // needed for rte search
+                            'addon/search/search.js', // needed for rte search
+                            'addon/search/search.css', // needed for rte search
+                            'addon/scroll/annotatescrollbar.js', // needed for rte search
+                            'addon/hint/show-hint.js', // needed for spellcheck
                             'mode/htmlembedded/htmlembedded.js',
                             'mode/htmlmixed/htmlmixed.js',
                             'mode/javascript/javascript.js',
@@ -29,8 +36,8 @@ module.exports = function(grunt) {
                 ],
 
                 'handsontable': [
-                    'dist/jquery.handsontable.full.css',
-                    'dist/jquery.handsontable.full.js'
+                    'dist/handsontable.full.css',
+                    'dist/handsontable.full.js'
                 ],
 
                 'husl': [
@@ -107,6 +114,10 @@ module.exports = function(grunt) {
                         expand: true,
                         src: '*.js'
                     }
+                ],
+
+                'string': [
+                  'dist/string.js'
                 ]
 
             },

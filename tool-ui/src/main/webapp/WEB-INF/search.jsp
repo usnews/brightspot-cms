@@ -21,6 +21,7 @@ com.psddev.dari.db.Singleton,
 com.psddev.dari.db.State,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.Utf8Filter,
+com.psddev.dari.util.UrlBuilder,
 
 java.util.ArrayList,
 java.util.Collections,
@@ -283,6 +284,7 @@ writer.start("div", "class", "searchForm");
                             State filterState = State.getInstance(Query.from(Object.class).where("_id = ?", search.getGlobalFilters().get(filterId)).first());
 
                             writer.start("div", "class", "searchFilter");
+                                writer.writeStart("div", "class", "searchFilterItem");
                                 writer.writeElement("input",
                                         "type", "text",
                                         "class", "objectId",
@@ -293,6 +295,7 @@ writer.start("div", "class", "searchForm");
                                         "data-restorable", false,
                                         "data-typeIds", filterId,
                                         "value", filterState != null ? filterState.getId() : null);
+                                writer.writeEnd();
                             writer.end();
                         }
                     writer.end();
@@ -443,12 +446,14 @@ writer.start("div", "class", "searchForm");
                             } else {
                                 State fieldState = State.getInstance(Query.from(Object.class).where("_id = ?", fieldValue).first());
 
+                                wp.writeStart("div", "class", "searchFilterItem");
                                 wp.writeObjectSelect(field, fieldState,
                                         "name", inputName,
                                         "placeholder", displayName,
                                         "data-dynamic-placeholder", "",
                                         "data-editable", false,
                                         "data-restorable", false);
+                                wp.writeEnd();
 
                                 writer.writeElement("input",
                                         "type", "checkbox",
@@ -488,6 +493,13 @@ writer.start("div", "class", "searchForm");
                 writer.writeEnd();
             writer.end();
 
+            if (request.getAttribute("name") != null && request.getAttribute("name").equals("fullScreen")) {
+                writer.start("a", "class", "action action-cancel",
+                                  "href", new UrlBuilder(request).currentScheme().currentHost().currentPath());
+                    writer.html("Reset");
+                writer.end();
+
+            } else {
             writer.start("a",
                     "class", "action action-cancel search-reset",
                     "onclick",
@@ -504,6 +516,7 @@ writer.start("div", "class", "searchForm");
                             "return false;");
                 writer.html("Reset");
             writer.end();
+            }
 
         writer.end();
 

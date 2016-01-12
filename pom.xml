@@ -9,16 +9,16 @@
     <parent>
         <groupId>com.psddev</groupId>
         <artifactId>dari-parent</artifactId>
-        <version>3.1-SNAPSHOT</version>
+        <version>3.2-SNAPSHOT</version>
     </parent>
 
     <properties>
-        <dari.version>3.1-SNAPSHOT</dari.version>
+        <dari.version>3.2-SNAPSHOT</dari.version>
     </properties>
 
     <groupId>com.psddev</groupId>
     <artifactId>cms</artifactId>
-    <version>3.1-SNAPSHOT</version>
+    <version>3.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>BrightSpot CMS</name>
@@ -59,12 +59,24 @@
             <dependency>
                 <groupId>com.psddev</groupId>
                 <artifactId>cms-db</artifactId>
-                <version>3.1-SNAPSHOT</version>
+                <version>3.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.psddev</groupId>
                 <artifactId>dari-db</artifactId>
+                <version>${dari.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.psddev</groupId>
+                <artifactId>dari-mail</artifactId>
+                <version>${dari.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.psddev</groupId>
+                <artifactId>dari-sms</artifactId>
                 <version>${dari.version}</version>
             </dependency>
 
@@ -109,13 +121,37 @@
                 <artifactId>slf4j-jdk14</artifactId>
                 <version>1.6.0</version>
             </dependency>
+
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.12</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>2.0.28-beta</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <distributionManagement>
+        <repository>
+            <id>psddev-releases</id>
+            <url>https://artifactory.psdops.com/psddev-releases</url>
+        </repository>
+
+        <snapshotRepository>
+            <id>psddev-snapshots</id>
+            <url>https://artifactory.psdops.com/psddev-snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <repositories>
         <repository>
             <id>public.psddev</id>
-            <url>http://public.psddev.com/maven</url>
+            <url>https://artifactory.psdops.com/public</url>
             <snapshots>
                 <updatePolicy>always</updatePolicy>
             </snapshots>
@@ -125,7 +161,7 @@
     <pluginRepositories>
         <pluginRepository>
             <id>public.psddev</id>
-            <url>http://public.psddev.com/maven</url>
+            <url>https://artifactory.psdops.com/public</url>
             <snapshots>
                 <updatePolicy>always</updatePolicy>
             </snapshots>
