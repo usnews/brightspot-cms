@@ -16,7 +16,6 @@ if (wp.requireUser()) {
 }
 
 ToolUser user = wp.getUser();
-Map<String, String> savedSearches = user.getSavedSearches();
 
 wp.writeStart("div", "class", "toolSearchSaved");
     wp.writeStart("h2");
