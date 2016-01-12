@@ -36,9 +36,9 @@
                         wp.writeEnd();
                     wp.writeEnd();
             }
-            wp.writeStart("form", "action", wp.cmsUrl("/misc/savedSearches.jsp"), "name", "refreshSavedSearches");
-            wp.writeEnd();
         wp.writeEnd();
-  }
+    }
+    wp.writeStart("form", "action", wp.cmsUrl("/misc/savedSearches.jsp"), "name", "refreshSavedSearches");
+    wp.writeEnd();
 
 %>
