@@ -3467,11 +3467,13 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             separator: true
         });
 
-        var richTextElementsSubmenu = [];
+        var richTextElementsSubmenus = {};
+        richTextElementsSubmenus._default = [];
         
         $.each(RICH_TEXT_ELEMENTS, function (index, rtElement) {
             var tag = rtElement.tag;
             var styleName = rtElement.styleName;
+            var submenu = richTextElementsSubmenus._default;
 
             Rte.styles[styleName] = {
                 className: 'rte2-style-' + styleName,
@@ -3484,17 +3486,36 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 context: rtElement.context
             };
 
+            if (rtElement.submenu) {
+                submenu = richTextElementsSubmenus[rtElement.submenu];
+                if (!submenu) {
+                    submenu = [];
+                    richTextElementsSubmenus[rtElement.submenu] = submenu;
+                }
+            }
+            
             // Add to the toolbar submenu
-            richTextElementsSubmenu.push({
+            submenu.push({
                 className: 'rte2-toolbar-noicon',
                 style: styleName,
                 text: rtElement.displayName
             });
         });
 
-        Rte.toolbarConfig.push({
-            text: 'Inline',
-            submenu: richTextElementsSubmenu
+        $.each(richTextElementsSubmenus, function(submenuName, submenuValues) {
+
+            // Default submenu will be named 'Inline'
+            if (submenuName === '_default') {
+                submenuName = 'Inline';
+            }
+            
+            submenuValues = submenuValues || [];
+            if (submenuValues.length) {
+                Rte.toolbarConfig.push({
+                    text: submenuName,
+                    submenu: submenuValues
+                });
+            }
         });
     }
 
