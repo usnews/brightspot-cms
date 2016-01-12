@@ -1,7 +1,9 @@
 package com.psddev.cms.tool.page;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 
@@ -13,6 +15,7 @@ import com.psddev.cms.tool.DashboardColumn;
 import com.psddev.cms.tool.DashboardWidget;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.dari.db.Query;
 import com.psddev.dari.util.RoutingFilter;
 
 @RoutingFilter.Path(application = "cms", value = "/dashboard")
@@ -60,6 +63,9 @@ public class DashboardPage extends PageServlet {
                     totalWidth += width > 0 ? width : 1;
                 }
 
+                CmsTool cms = Query.from(CmsTool.class).first();
+                Set<String> disabled = cms != null ? cms.getDisabledPlugins() : Collections.emptySet();
+
                 for (int c = 0, cSize = columns.size(); c < cSize; ++ c) {
                     DashboardColumn column = columns.get(c);
                     double width = column.getWidth();
@@ -72,6 +78,11 @@ public class DashboardPage extends PageServlet {
 
                         for (int w = 0, wSize = widgets.size(); w < wSize; ++ w) {
                             DashboardWidget widget = widgets.get(w);
+
+                            if (disabled.contains(widget.getClass().getName())) {
+                                continue;
+                            }
+
                             String widgetUrl = page.toolUrl(CmsTool.class,
                                     "/dashboardWidget/"
                                             + dashboardId + "/"
