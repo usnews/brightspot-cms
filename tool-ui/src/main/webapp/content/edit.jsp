@@ -1738,7 +1738,7 @@ private static void renderWidgets(ToolPageContext wp, Object object, String posi
             }
 
             if (object instanceof ContentEditWidgetDisplay
-                    && !((ContentEditWidgetDisplay) object).isDisplayContentEditWidget(widget.getInternalName())) {
+                    && !((ContentEditWidgetDisplay) object).shouldDisplayContentEditWidget(widget.getInternalName())) {
                 continue;
             }
 

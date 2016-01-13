@@ -7,7 +7,7 @@ package com.psddev.cms.tool;
  * <p><blockquote>
  * <pre><code>
  *     Class Comment implements ContentEditWidgetDisplay {
- *         boolean isDisplayContentEditWidget(String widgetName) {
+ *         boolean shouldDisplayContentEditWidget(String widgetName) {
  *             return !widgetName.equals("urls");
  *         }
  *     }
@@ -21,5 +21,5 @@ public interface ContentEditWidgetDisplay {
      * where {@code widgetName} is {@link Widget#internalName}.
      * @param widgetName {@link Widget#internalName}.
      */
-    boolean isDisplayContentEditWidget(String widgetName);
+    boolean shouldDisplayContentEditWidget(String widgetName);
 }
