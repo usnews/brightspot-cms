@@ -1939,9 +1939,9 @@ public class ToolPageContext extends WebPageContext {
                 ObjectType type = ObjectType.getInstance(c);
 
                 richTextElement.put("tag", tag.value());
-                if (tag.voidElement()) {
-                    richTextElement.put("popup", false);
-                }
+                richTextElement.put("popup", tag.editForm());
+
+                richTextElement.put("void", tag.voidElement());
 
                 List<String> allowedParents = new ArrayList<>();
                 if (tag.allowedContexts().length > 0) {
