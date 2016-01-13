@@ -36,7 +36,7 @@ public abstract class AbstractPaginatedResultWidget<T extends Record> extends Da
      * @return the title
      * @throws IOException
      */
-    abstract String getTitle(ToolPageContext page) throws IOException;
+    public abstract String getTitle(ToolPageContext page) throws IOException;
 
     /**
      * Implementations should produce a Query for the type
@@ -45,7 +45,7 @@ public abstract class AbstractPaginatedResultWidget<T extends Record> extends Da
      * @param page Used for access to request parameters.
      * @return the {@link Query} to produce the {@link PaginatedResult}.
      */
-    abstract Query<T> getQuery(ToolPageContext page);
+    public abstract Query<T> getQuery(ToolPageContext page);
 
     /**
      * Optionally override for more control over the creation of
