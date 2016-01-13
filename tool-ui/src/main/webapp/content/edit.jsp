@@ -22,6 +22,7 @@ com.psddev.cms.db.WorkflowState,
 com.psddev.cms.db.WorkflowTransition,
 com.psddev.cms.db.WorkStream,
 com.psddev.cms.tool.CmsTool,
+com.psddev.cms.tool.ContentEditWidgetDisplay,
 com.psddev.cms.tool.ToolPageContext,
 com.psddev.cms.tool.Widget,
 
@@ -44,8 +45,8 @@ java.util.Map,
 java.util.Set,
 java.util.UUID,
 
-org.joda.time.DateTime
-, com.google.common.collect.ImmutableMap" %><%
+org.joda.time.DateTime,
+com.google.common.collect.ImmutableMap" %><%
 
 // --- Logic ---
 
@@ -589,7 +590,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                     wp.writeEnd();
                 }
 
-                boolean isWritable = wp.hasPermission("type/" + editingState.getTypeId() + "/write");
+                boolean isWritable = wp.hasPermission("type/" + editingState.getTypeId() + "/write") && !editingState.getType().as(ToolUi.class).isReadOnly();
                 boolean isDraft = !editingState.isNew() && (contentData.isDraft() || draft != null);
                 boolean isHistory = history != null;
                 boolean isTrash = contentData.isTrash();
@@ -1732,30 +1733,36 @@ private static void renderWidgets(ToolPageContext wp, Object object, String posi
         wp.write("\">");
 
         for (Widget widget : widgets) {
-            if (wp.hasPermission(widget.getPermissionId())) {
+            if (!wp.hasPermission(widget.getPermissionId())) {
+                continue;
+            }
 
-                wp.write("<input type=\"hidden\" name=\"");
-                wp.write(wp.h(state.getId()));
-                wp.write("/_widget\" value=\"");
-                wp.write(wp.h(widget.getInternalName()));
-                wp.write("\">");
+            if (object instanceof ContentEditWidgetDisplay
+                    && !((ContentEditWidgetDisplay) object).isDisplayContentEditWidget(widget.getInternalName())) {
+                continue;
+            }
 
-                String displayHtml;
+            wp.write("<input type=\"hidden\" name=\"");
+            wp.write(wp.h(state.getId()));
+            wp.write("/_widget\" value=\"");
+            wp.write(wp.h(widget.getInternalName()));
+            wp.write("\">");
 
-                try {
-                    displayHtml = widget.createDisplayHtml(wp, object);
+            String displayHtml;
 
-                } catch (Exception ex) {
-                    StringWriter sw = new StringWriter();
-                    HtmlWriter hw = new HtmlWriter(sw);
-                    hw.putAllStandardDefaults();
-                    hw.start("pre", "class", "message message-error").object(ex).end();
-                    displayHtml = sw.toString();
-                }
+            try {
+                displayHtml = widget.createDisplayHtml(wp, object);
 
-                if (!ObjectUtils.isBlank(displayHtml)) {
-                    wp.write(displayHtml);
-                }
+            } catch (Exception ex) {
+                StringWriter sw = new StringWriter();
+                HtmlWriter hw = new HtmlWriter(sw);
+                hw.putAllStandardDefaults();
+                hw.start("pre", "class", "message message-error").object(ex).end();
+                displayHtml = sw.toString();
+            }
+
+            if (!ObjectUtils.isBlank(displayHtml)) {
+                wp.write(displayHtml);
             }
         }
         wp.write("</div>");

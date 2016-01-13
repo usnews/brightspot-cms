@@ -48,6 +48,13 @@ String fieldName = field.getInternalName();
 List<Object> fieldValue = (List<Object>) state.getValue(fieldName);
 if (fieldValue == null) {
     fieldValue = new ArrayList<Object>();
+
+} else {
+    for (Iterator<Object> i = fieldValue.iterator(); i.hasNext();) {
+        if (i.next() == null) {
+            i.remove();
+        }
+    }
 }
 
 final List<ObjectType> validTypes = field.as(ToolUi.class).findDisplayTypes();
@@ -600,7 +607,7 @@ if (!isValueExternal) {
                         // so if that field is changed the front-end knows that the thumbnail should also be updated
                         "data-preview", wp.getPreviewThumbnailUrl(item),
                         "data-preview-field", itemType.getPreviewField()
-                        
+
                         );
                     wp.writeElement("input",
                             "type", "hidden",
@@ -666,10 +673,13 @@ if (!isValueExternal) {
 
             typeIdsQuery.setLength(typeIdsQuery.length() - 1);
 
+            String uploadFilesPath = wp.getCmsTool().isEnableFrontEndUploader()
+                    ? "/content/upload"
+                    : "/content/uploadFiles";
+
             wp.writeStart("a",
                     "class", "action-upload",
-                    "href", wp.url(
-                            "/content/uploadFiles?" + typeIdsQuery,
+                    "href", wp.url(uploadFilesPath + "?" + typeIdsQuery,
                             "containerId", containerObjectId,
                             "context", UploadFiles.Context.FIELD),
                     "target", "uploadFiles");

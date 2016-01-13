@@ -45,6 +45,7 @@ import com.google.common.base.MoreObjects;
 import com.ibm.icu.text.MessageFormat;
 import com.psddev.cms.db.PageFilter;
 import com.psddev.cms.db.RichTextElement;
+import com.psddev.cms.tool.file.SvgFileType;
 import com.psddev.cms.view.PageViewClass;
 import com.psddev.cms.view.ViewCreator;
 import com.psddev.dari.db.Recordable;
@@ -566,8 +567,11 @@ public class ToolPageContext extends WebPageContext {
         try {
             String pattern = bundle.getString(key);
 
-            return new String(pattern.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-
+            if (bundle instanceof ObjectTypeResourceBundle) {
+                return pattern;
+            } else {
+                return new String(pattern.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+            }
         } catch (MissingResourceException error) {
             return null;
         }
@@ -612,10 +616,9 @@ public class ToolPageContext extends WebPageContext {
 
                 PageViewClass pageViewClass = object.getClass().getAnnotation(PageViewClass.class);
 
-                // would be better if there was a separate API to just "find" the creator class
-                // rather than incurring the overhead of also creating it.
-                if ((pageViewClass != null && ViewCreator.createCreator(object, pageViewClass.value()) != null)
-                        || ViewCreator.createCreator(object, PageFilter.PAGE_VIEW_TYPE) != null) {
+                if ((pageViewClass != null && ViewCreator.findCreatorClass(object, pageViewClass.value(), null, null) != null)
+                        || ViewCreator.findCreatorClass(object, null, PageFilter.PAGE_VIEW_TYPE, null) != null
+                        || ViewCreator.findCreatorClass(object, null, PageFilter.PREVIEW_VIEW_TYPE, null) != null) {
                     return true;
                 }
             }
@@ -1280,10 +1283,18 @@ public class ToolPageContext extends WebPageContext {
      */
     public String getPreviewThumbnailUrl(Object object) {
         if (object != null) {
-            StorageItem preview = State.getInstance(object).getPreview();
+
+            StorageItem preview = object instanceof StorageItem
+                    ? (StorageItem) object
+                    : State.getInstance(object).getPreview();
 
             if (preview != null) {
-                if (ImageEditor.Static.getDefault() != null) {
+
+                String contentType = preview.getContentType();
+
+                if (ImageEditor.Static.getDefault() != null
+                        && (contentType != null && !contentType.equals(SvgFileType.CONTENT_TYPE))) {
+
                     return new ImageTag.Builder(preview)
                             .setHeight(300)
                             .setResizeOption(ResizeOption.ONLY_SHRINK_LARGER)
@@ -1937,6 +1948,7 @@ public class ToolPageContext extends WebPageContext {
 
         writeStart("script", "type", "text/javascript");
             write("var CONTEXT_PATH = '", cmsUrl("/"), "';");
+            write("var UPLOAD_PATH = ", "'" + Settings.getOrDefault(String.class, "dari/upload/path", "/_dari/upload"), "';");
             write("var CSS_CLASS_GROUPS = ", ObjectUtils.toJson(cssClassGroups), ";");
             write("var STANDARD_IMAGE_SIZES = ", ObjectUtils.toJson(standardImageSizes), ";");
             write("var RTE_LEGACY_HTML = ", getCmsTool().isLegacyHtml(), ';');
@@ -1944,6 +1956,7 @@ public class ToolPageContext extends WebPageContext {
             write("var DISABLE_TOOL_CHECKS = ", getCmsTool().isDisableToolChecks(), ';');
             write("var COMMON_TIMES = ", ObjectUtils.toJson(commonTimes), ';');
             write("var RICH_TEXT_ELEMENTS = ", ObjectUtils.toJson(richTextElements), ';');
+            write("var ENABLE_PADDED_CROPS = ", getCmsTool().isEnablePaddedCrop(), ';');
             write("var DISABLE_CODE_MIRROR_RICH_TEXT_EDITOR = ", getCmsTool().isDisableCodeMirrorRichTextEditor(), ';');
             write("var DISABLE_RTC = ", getCmsTool().isDisableRtc(), ';');
         writeEnd();
@@ -1957,7 +1970,7 @@ public class ToolPageContext extends WebPageContext {
         writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "jquery.extra.js"));
         writeEnd();
 
-        writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "jquery.handsontable.full.js"));
+        writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "handsontable.full.js"));
         writeEnd();
 
         writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "d3.js"));
@@ -3417,6 +3430,8 @@ public class ToolPageContext extends WebPageContext {
                 Map<String, Map<String, Object>> differences;
 
                 if (draft != null) {
+                    draft.update(findOldValuesInForm(state), object);
+
                     differences = draft.getDifferences();
                     Map<String, Object> newValues = differences.get(state.getId().toString());
 

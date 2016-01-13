@@ -260,7 +260,6 @@ define([
             self.$el = $(element).first();
 
             codeMirrorOptions = {
-                readOnly: $(element).closest('.inputContainer-readOnly').length,
                 lineWrapping: true,
                 dragDrop: false,
                 mode:null,
@@ -279,6 +278,7 @@ define([
 
             self.enhancementInit();
             self.initListListeners();
+            self.dropdownInit();
             self.onClickInit();
             self.initEvents();
             self.clipboardInit();
@@ -600,6 +600,8 @@ define([
             
             markOptions = $.extend({
                 className: className,
+                startStyle: className + '-start',
+                endStyle: className + '-end',
                 inclusiveRight: true,
                 addToHistory: true
             }, options);
@@ -2211,6 +2213,189 @@ define([
 
 
         //==================================================
+        // Dropdown Handlers
+        //==================================================
+
+        dropdownInit: function() {
+            
+            var editor, self;
+
+            self = this;
+            
+            editor = self.codeMirror;
+
+            self.$dropdown = $('<div/>', {
+                'class': 'rte2-dropdown'
+            }).hide().appendTo( editor.getWrapperElement() );
+            
+            editor.on('cursorActivity', $.debounce(250, function(instance, event) {
+                self.dropdownCheckCursor();
+            }));
+        },
+
+
+        dropdownCheckCursor: function() {
+
+            var marks, self;
+            self = this;
+
+            // Get all the marks from the selected range that have onclick handlers
+            marks = self.dropdownGetMarks();
+            
+            if (marks.length === 0) {
+                self.dropdownHide();
+            } else {
+                self.dropdownShow(marks);
+            }
+        },
+
+        
+        /**
+         * Get all the marks in the current range that have click events.
+         */
+        dropdownGetMarks: function() {
+            var editor, marks, range, self;
+
+            self = this;
+            editor = self.codeMirror;
+            range = self.getRange();
+
+            // Do not return marks if a range of characters is selected
+            if (!(range.from.line === range.to.line && range.from.ch === range.to.ch)) {
+                return [];
+            }
+            
+            // Find all the marks for the clicked position
+            marks = editor.findMarks(range.from, range.to);
+
+            // Only keep the marks that have onClick configs
+            marks = $.map(marks, function(mark, i) {
+                var styleObj;
+                styleObj = self.classes[mark.className];
+                if (styleObj && styleObj.onClick) {
+                    // Keep in the array
+                    return mark;
+                } else {
+                    // Remove from the array
+                    return null;
+                }
+            });
+
+            return marks;
+        },
+
+        
+        /**
+         * @param {Array} marks 
+         */
+        dropdownShow: function(marks) {
+            var self;
+            self = this;
+
+            self.$dropdown.empty();
+            
+            $.each(marks, function(i, mark) {
+                
+                var $div, label, $li, styleObj;
+
+                // Get the label to display for this mark.
+                // It defaults to the className of the style.
+                // Of if the style definition has a getLabel() function
+                // call that and use the return value
+                styleObj = self.classes[mark.className] || {};
+                label = styleObj.enhancementName || mark.className;
+                if (styleObj.getLabel) {
+                    label = styleObj.getLabel(mark);
+                }
+
+                $div = $('<div/>', {
+                    'class': 'rte2-dropdown-item'
+                }).appendTo(self.$dropdown);
+
+                $('<span/>', {
+                    'class':'rte2-dropdown-label',
+                    text: label
+                }).appendTo($div);
+                
+                $('<a/>', {
+                    'class': 'rte2-dropdown-edit',
+                    text: 'Edit'
+                }).on('click', function(event){
+                    event.preventDefault();
+                    self.onClickDoMark(event, mark);
+                    return false;
+                }).appendTo($div);
+                
+                $('<a/>', {
+                    'class': 'rte2-dropdown-clear',
+                    text: 'Clear'
+                }).on('click', function(event){
+                    event.preventDefault();
+                    mark.clear();
+                    self.focus();
+                    self.dropdownCheckCursor();
+                    self.triggerChange();
+                    return false;
+                }).appendTo($div);
+                
+            });
+
+            // Set position of the dropdown
+            self.dropdownSetPosition(marks);
+            
+            self.$dropdown.show();
+        },
+
+        dropdownSetPosition: function(marks) {
+
+            var ch, chMin, editor, left, line, self, top;
+            self = this;
+
+            editor = self.codeMirror;
+
+            line = 0;
+            ch = undefined;
+            
+            // Find the largest line number and the left-most character in all the marks.
+            // If any of the marks extends across multiple lines, use character 0
+            $.each(marks, function(i, mark) {
+                var pos;
+
+                pos = mark.find();
+                
+                if (pos) {
+
+                    if (pos.to.line > line) {
+                        line = pos.to.line;
+                    }
+
+                    if (ch === undefined || pos.from.ch < ch) {
+                        ch = pos.from.ch;
+                    }
+                    
+                    if (pos.from.line !== pos.to.line) {
+                        ch = 0;
+                    }
+                }
+            });
+
+            // Get the position for the line and ch
+            pos = editor.cursorCoords({line:line, ch:(ch||0)}, 'local');
+
+            self.$dropdown.css({
+                left: pos.left,
+                top: pos.bottom
+            });
+        },
+        
+        dropdownHide: function() {
+            var self;
+            self = this;
+            self.$dropdown.hide();
+        },
+
+        
+        //==================================================
         // OnClick Handlers
         //==================================================
         
@@ -2233,6 +2418,11 @@ define([
 
                 var $el, marks, now, pos;
 
+                // Don't do clicks if the editor is in read only mode
+                if (self.readOnlyGet()) {
+                    return;
+                }
+                
                 // Generate timestamp
                 now = Date.now();
 
@@ -3848,7 +4038,18 @@ define([
             self.codeMirror.setCursor(line, ch);
         },
 
+        readOnlyGet: function() {
+            var self;
+            self = this;
+            return self.codeMirror.isReadOnly();
+        },
 
+        readOnlySet: function(readOnly) {
+            var self;
+            self = this;
+            self.codeMirror.setOption('readOnly', readOnly);
+        },
+        
         /**
          * Returns the range for a mark.
          * @returns {Object}
@@ -4002,24 +4203,13 @@ define([
                 if (styleObj.markToHTML) {
                     html = styleObj.markToHTML();
                 } else if (styleObj.element) {
+                    
                     html = '<' + styleObj.element;
 
-                    if (styleObj.elementAttr) {
-                        $.each(styleObj.elementAttr, function(attr, value) {
-                            html += ' ' + attr + '="' + self.htmlEncode(value) + '"';
-                        });
-                    }
-                    
-                    if (styleObj.attributes) {
-                        $.each(styleObj.attributes, function(attr, value) {
-                            html += ' ' + attr + '="' + self.htmlEncode(value) + '"';
-                        });
-                    }
-                    
-                    $.each(attributes, function(attr, value) {
+                    $.each($.extend({}, styleObj.elementAttr, styleObj.attributes, attributes), function(attr, value) {
                         html += ' ' + attr + '="' + self.htmlEncode(value) + '"';
                     });
-
+                
                     // For void elements add a closing slash when closing, like <br/>
                     if (self.voidElements[ styleObj.element ]) {
                         html += '/';
@@ -4735,7 +4925,8 @@ define([
                         };
 
                         // Special case - is this an enhancement?
-                        if ((elementName === 'span' || elementName === 'button') && $(next).hasClass('enhancement')) {
+                        // Note we are treating tables as an enhancement as well.
+                        if ((elementName === 'table') || ((elementName === 'span' || elementName === 'button') && $(next).hasClass('enhancement'))) {
 
                             enhancements.push({
                                 line: from.line,
@@ -4746,7 +4937,7 @@ define([
                             next = next.nextSibling;
                             continue;
                         }
-
+                        
                         // For container elements such as "ul" or "ol", do not allow nested lists within.
                         // If we find a nested list treat the whole thing as raw html
                         isContainer = self.elementIsContainer(elementName);
