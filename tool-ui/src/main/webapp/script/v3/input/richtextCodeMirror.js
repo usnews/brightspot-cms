@@ -2316,15 +2316,18 @@ define([
                     'class':'rte2-dropdown-label',
                     text: label
                 }).appendTo($div);
-                
-                $('<a/>', {
-                    'class': 'rte2-dropdown-edit',
-                    text: 'Edit'
-                }).on('click', function(event){
-                    event.preventDefault();
-                    self.onClickDoMark(event, mark);
-                    return false;
-                }).appendTo($div);
+
+                // Popup edit defaults to true, but if set to false do not include edit link
+                if (styleObj.popup !== false) {
+                    $('<a/>', {
+                        'class': 'rte2-dropdown-edit',
+                        text: 'Edit'
+                    }).on('click', function(event){
+                        event.preventDefault();
+                        self.onClickDoMark(event, mark);
+                        return false;
+                    }).appendTo($div);
+                }
                 
                 $('<a/>', {
                     'class': 'rte2-dropdown-clear',
