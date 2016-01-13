@@ -1146,15 +1146,17 @@ public class Search extends Record {
                 page.writeEnd();
 
                 page.writeStart("div", "class", "searchResult-view");
-                    writeViewHtml(itemWriter, selectedView);
+                    boolean viewWritten = writeViewHtml(itemWriter, selectedView);
                 page.writeEnd();
 
-                page.writeStart("div", "class", "frame searchResult-actions", "name", "searchResultActions");
-                    page.writeStart("a",
-                            "href", page.toolUrl(CmsTool.class, "/searchResultActions",
-                                    "search", ObjectUtils.toJson(getState().getSimpleValues())));
+                if (viewWritten) {
+                    page.writeStart("div", "class", "frame searchResult-actions", "name", "searchResultActions");
+                        page.writeStart("a",
+                                "href", page.toolUrl(CmsTool.class, "/searchResultActions",
+                                        "search", ObjectUtils.toJson(getState().getSimpleValues())));
+                        page.writeEnd();
                     page.writeEnd();
-                page.writeEnd();
+                }
             page.writeEnd();
 
         } else {
@@ -1162,15 +1164,17 @@ public class Search extends Record {
         }
     }
 
-    private void writeViewHtml(SearchResultItem itemWriter, SearchResultView view) throws IOException {
+    private boolean writeViewHtml(SearchResultItem itemWriter, SearchResultView view) throws IOException {
         try {
             view.writeHtml(this, page, itemWriter != null ? itemWriter : new SearchResultItem());
+            return true;
 
         } catch (IllegalArgumentException | Query.NoFieldException error) {
             page.writeStart("div", "class", "message message-error");
             page.writeHtml("Invalid advanced query: ");
             page.writeHtml(error.getMessage());
             page.writeEnd();
+            return false;
         }
     }
 
