@@ -17,8 +17,8 @@ import com.psddev.dari.util.PaginatedResult;
  * Provides an extensible base implementation of a {@link DashboardWidget} displaying a {@link PaginatedResult}.
  *
  * Minimal implementation requires overriding {@link #getQuery(ToolPageContext)} and {@link #getTitle(ToolPageContext)}. For further
- * customization, optionally override {@link #writeFilters(ToolPageContext)}, {@link #writeResults(ToolPageContext, PaginatedResult)}, or
- * {@link #writeResultsItem(ToolPageContext, Record)}.
+ * customization, optionally override {@link #writeFiltersHtml(ToolPageContext)}, {@link #writeResultsHtml(ToolPageContext, PaginatedResult)}, or
+ * {@link #writeResultsItemHtml(ToolPageContext, Record)}.
  *
  * @param <T> type of {@link PaginatedResult} to be rendered.
  */
@@ -65,7 +65,7 @@ public abstract class AbstractPaginatedResultWidget<T extends Record> extends Da
      * @param page Used to write {@link DashboardWidget} HTML.
      * @throws IOException
      */
-    public void writeFilters(ToolPageContext page) throws IOException {
+    public void writeFiltersHtml(ToolPageContext page) throws IOException {
         // Default implementation has no filters
     }
 
@@ -76,19 +76,19 @@ public abstract class AbstractPaginatedResultWidget<T extends Record> extends Da
      * @param result A {@link PaginatedResult} from {@link #getQuery(ToolPageContext)}
      * @throws IOException
      */
-    public void writeResults(ToolPageContext page, PaginatedResult<T> result) throws IOException {
+    public void writeResultsHtml(ToolPageContext page, PaginatedResult<T> result) throws IOException {
 
         page.writeStart("table", "class", "links table-striped pageThumbnails").writeStart("tbody");
 
         for (T record : result.getItems()) {
-            writeResultsItem(page, record);
+            writeResultsItemHtml(page, record);
         }
 
         page.writeEnd().writeEnd();
 
     }
 
-    public void writeEmpty(ToolPageContext page) throws IOException {
+    public void writeEmptyHtml(ToolPageContext page) throws IOException {
         page.writeStart("div", "class", "message message-info");
             page.writeStart("p");
                 page.writeHtml(page.localize(AbstractPaginatedResultWidget.class, "message.noResults"));
@@ -100,10 +100,10 @@ public abstract class AbstractPaginatedResultWidget<T extends Record> extends Da
      * Optionally override to customize appearance of a row in the table.
      *
      * @param page Used to write {@link DashboardWidget} HTML.
-     * @param record A {@link Record} from the items produced by the {@link PaginatedResult} used by {@link #writeResults(ToolPageContext, PaginatedResult)}
+     * @param record A {@link Record} from the items produced by the {@link PaginatedResult} used by {@link #writeResultsHtml(ToolPageContext, PaginatedResult)}
      * @throws IOException
      */
-    public void writeResultsItem(ToolPageContext page, T record) throws IOException {
+    public void writeResultsItemHtml(ToolPageContext page, T record) throws IOException {
 
         page.writeStart("tr");
             page.writeStart("td");
@@ -141,7 +141,7 @@ public abstract class AbstractPaginatedResultWidget<T extends Record> extends Da
                 page.writeStart("form",
                         "method", "get",
                         "action", page.url(null));
-                    writeFilters(page);
+                    writeFiltersHtml(page);
                 page.writeEnd();
             page.writeEnd();
 
@@ -150,9 +150,9 @@ public abstract class AbstractPaginatedResultWidget<T extends Record> extends Da
             writePaginationHtml(page, result, 0);
 
             if (result.hasPages()) {
-                writeResults(page, result);
+                writeResultsHtml(page, result);
             } else {
-                writeEmpty(page);
+                writeEmptyHtml(page);
             }
 
         page.writeEnd();

@@ -21,12 +21,12 @@ public class SelectionsWidget extends AbstractPaginatedResultWidget<SearchResult
     private static final String TOOL_ENTITY_VALUE_PARAMETER = "toolEntity";
 
     @Override
-    String getTitle(ToolPageContext page) throws IOException {
+    public String getTitle(ToolPageContext page) throws IOException {
         return page.localize(SelectionsWidget.class, "title");
     }
 
     @Override
-    Query<SearchResultSelection> getQuery(ToolPageContext page) {
+    public Query<SearchResultSelection> getQuery(ToolPageContext page) {
 
         Query<SearchResultSelection> query = Query.from(SearchResultSelection.class);
 
@@ -48,7 +48,7 @@ public class SelectionsWidget extends AbstractPaginatedResultWidget<SearchResult
     }
 
     @Override
-    public void writeFilters(ToolPageContext page) throws IOException {
+    public void writeFiltersHtml(ToolPageContext page) throws IOException {
         page.writeStart("select",
                 "data-bsp-autosubmit", "",
                 "name", TOOL_ENTITY_TYPE_PARAMETER,
@@ -116,7 +116,7 @@ public class SelectionsWidget extends AbstractPaginatedResultWidget<SearchResult
     }
 
     @Override
-    public void writeResultsItem(ToolPageContext page, SearchResultSelection selection) throws IOException {
+    public void writeResultsItemHtml(ToolPageContext page, SearchResultSelection selection) throws IOException {
 
         if (StringUtils.isBlank(selection.getName())) {
             return;
