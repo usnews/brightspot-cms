@@ -166,7 +166,7 @@ public abstract class AbstractPaginatedResultWidget<T extends Record> extends Da
             if (result.hasPrevious()) {
                 page.writeStart("li", "class", "first");
                     page.writeStart("a", "href", page.url("", OFFSET_PARAMETER, result.getFirstOffset()));
-                        page.writeHtml(page.localize(WorkStreamsWidget.class, "pagination.newest"));
+                        page.writeHtml(page.localize(AbstractPaginatedResultWidget.class, "pagination.newest"));
                     page.writeEnd();
                 page.writeEnd();
 
@@ -188,7 +188,7 @@ public abstract class AbstractPaginatedResultWidget<T extends Record> extends Da
                             page.writeStart("option",
                                     "value", l,
                                     "selected", limit == l ? "selected" : null);
-                                page.writeHtml(page.localize(WorkStreamsWidget.class, ImmutableMap.of("count", l), "option.showCount"));
+                                page.writeHtml(page.localize(AbstractPaginatedResultWidget.class, ImmutableMap.of("count", l), "option.showCount"));
                             page.writeEnd();
                         }
                         page.writeEnd();
@@ -199,7 +199,7 @@ public abstract class AbstractPaginatedResultWidget<T extends Record> extends Da
             if (result.hasNext()) {
                 page.writeStart("li", "class", "next");
                     page.writeStart("a", "href", page.url("", "offset", result.getNextOffset()));
-                        page.writeHtml(page.localize(WorkStreamsWidget.class, ImmutableMap.of("count", limit), "pagination.olderCount"));
+                        page.writeHtml(page.localize(AbstractPaginatedResultWidget.class, ImmutableMap.of("count", limit), "pagination.olderCount"));
                     page.writeEnd();
                 page.writeEnd();
             }
