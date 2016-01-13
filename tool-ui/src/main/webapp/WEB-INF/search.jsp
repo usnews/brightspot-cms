@@ -295,6 +295,28 @@ writer.start("div", "class", "searchForm");
                     writer.start("div", "class", "searchFiltersGlobal");
                         for (ObjectType filter : globalFilters) {
                             String filterId = filter.getId().toString();
+
+                            if (search.getGlobalFilters().containsKey(filterId + "#")) {
+                                writer.start("div", "class", "searchFilter searchFilter-multiple");
+
+                                    for (int i = 0; i < Integer.parseInt(search.getGlobalFilters().get(filterId + "#")); i++) {
+                                        State filterState = State.getInstance(Query.from(Object.class).where("_id = ?", search.getGlobalFilters().get(filterId + i)).first());
+                                        writer.writeStart("div", "class", "searchFilterItem");
+                                        writer.writeElement("input",
+                                                "type", "text",
+                                                "class", "objectId",
+                                                "name", "gf." + filterId,
+                                                "placeholder", "Filter: " + filter.getDisplayName(),
+                                                "data-editable", false,
+                                                "data-label", filterState != null ? filterState.getLabel() : null,
+                                                "data-restorable", false,
+                                                "data-typeIds", filterId,
+                                                "value", filterState != null ? filterState.getId() : null);
+                                        writer.writeEnd();
+                                    }
+                                writer.end();
+
+                            } else {
                             State filterState = State.getInstance(Query.from(Object.class).where("_id = ?", search.getGlobalFilters().get(filterId)).first());
 
                             writer.start("div", "class", "searchFilter");
@@ -311,6 +333,7 @@ writer.start("div", "class", "searchForm");
                                         "value", filterState != null ? filterState.getId() : null);
                                 writer.writeEnd();
                             writer.end();
+                            }
                         }
                     writer.end();
                 }
@@ -356,7 +379,9 @@ writer.start("div", "class", "searchForm");
                         String fieldValue = filterValue != null ? filterValue.get("") : null;
                         String fieldInternalItemType = field.getInternalItemType();
 
-                        writer.start("div", "class", "searchFilter searchFilter-" + fieldInternalItemType);
+                        boolean searchFilterMultiple = filterValue != null && filterValue.containsKey("#");
+
+                        writer.start("div", "class", "searchFilter searchFilter-" + fieldInternalItemType + (searchFilterMultiple ? " searchFilter-multiple" : ""));
                             if (ObjectField.BOOLEAN_TYPE.equals(fieldInternalItemType)) {
                                 writer.writeStart("select", "name", inputName);
                                     writer.writeStart("option", "value", "").writeHtml(displayName).writeEnd();
@@ -456,6 +481,26 @@ writer.start("div", "class", "searchForm");
                                         "name", inputName + ".m",
                                         "value", true,
                                         "checked", filterValue != null && ObjectUtils.to(boolean.class, filterValue.get("m")) ? "checked" : null);
+
+                            } else if (searchFilterMultiple) {
+                                for (int i = 0; i < Integer.parseInt(filterValue.get("#")); i++) {
+                                    State fieldState = State.getInstance(Query.from(Object.class).where("_id = ?", filterValue.get(Integer.toString(i))).first());
+
+                                    wp.writeStart("div", "class", "searchFilterItem");
+                                    wp.writeObjectSelect(field, fieldState,
+                                            "name", inputName,
+                                            "placeholder", displayName,
+                                            "data-dynamic-placeholder", "",
+                                            "data-editable", false,
+                                            "data-restorable", false);
+                                    wp.writeEnd();
+
+                                    writer.writeElement("input",
+                                            "type", "checkbox",
+                                            "name", inputName + ".m",
+                                            "value", true,
+                                            "checked", filterValue != null && ObjectUtils.to(boolean.class, filterValue.get("m")) ? "checked" : null);
+                                }
 
                             } else {
                                 State fieldState = State.getInstance(Query.from(Object.class).where("_id = ?", fieldValue).first());
