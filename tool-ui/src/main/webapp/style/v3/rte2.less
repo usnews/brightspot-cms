@@ -620,3 +620,36 @@ li.CodeMirror-hint-active {
     margin:0 1em;
   }
 }
+
+.rte2-dropdown {
+  z-index:2;
+  position:absolute;
+  background-color:rgba(255, 255, 255, 0.9);
+  padding:0.25em;
+  border:1px solid rgba(0, 0, 0, 0.5);
+  border-radius:2px;
+  top:0;
+  left:0;
+  display:table;
+
+  .rte2-dropdown-item {
+    display:table-row;
+  }
+  
+  .rte2-dropdown-label {
+    padding-right:0.25em;
+    border-right:1px solid #aaa;
+    display:table-cell;
+  }
+  .rte2-dropdown-edit {
+    padding-left:0.25em;
+    padding-right:0.25em;
+    border-right:1px solid #aaa;
+    margin-right:0.25em;
+    display:table-cell;
+  }
+  .rte2-dropdown-clear {
+    display:table-cell;
+    padding-left:0.25em;
+  }
+}

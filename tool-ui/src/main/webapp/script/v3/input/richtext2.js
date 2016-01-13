@@ -101,6 +101,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 
                 // Do not allow links to span multiple lines
                 singleLine: true,
+
+                // Label to use for the dropdown
+                enhancementName: 'Link',
                 
                 onClick: function(event, mark) {
 
