@@ -1939,16 +1939,16 @@ public class ToolPageContext extends WebPageContext {
                 ObjectType type = ObjectType.getInstance(c);
 
                 richTextElement.put("tag", tag.value());
-                if (tag.isVoid()) {
+                if (tag.voidElement()) {
                     richTextElement.put("popup", false);
                 }
 
                 List<String> allowedParents = new ArrayList<>();
-                if (tag.allowedParents().length > 0) {
+                if (tag.allowedContexts().length > 0) {
 
-                    for (String allowedParent : tag.allowedParents()) {
-                        if (RichTextElement.ROOT_CONTEXT.equals(allowedParent) && !allowedParents.contains(RichTextElement.ROOT_CONTEXT)) {
-                            allowedParents.add(0, RichTextElement.ROOT_CONTEXT);
+                    for (String allowedParent : tag.allowedContexts()) {
+                        if (RichTextElement.ROOT_CONTEXT.equals(allowedParent) && !allowedParents.contains(null)) {
+                            allowedParents.add(0, null);
                         } else {
                             String trimmedParent = allowedParent.trim();
                             if (!ObjectUtils.isBlank(trimmedParent)) {

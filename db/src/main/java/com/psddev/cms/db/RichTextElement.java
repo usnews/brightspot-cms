@@ -24,8 +24,8 @@ public abstract class RichTextElement extends Record {
     public @interface Tag {
 
         String value();
-        boolean isVoid() default false;
-        String[] allowedParents() default { };
+        boolean voidElement() default false;
+        String[] allowedContexts() default { };
         String subMenu() default "";
     }
 }
