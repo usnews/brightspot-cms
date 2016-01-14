@@ -46,6 +46,7 @@ import com.ibm.icu.text.MessageFormat;
 import com.psddev.cms.db.PageFilter;
 import com.psddev.cms.db.RichTextElement;
 import com.psddev.cms.tool.file.SvgFileType;
+import com.psddev.cms.tool.page.content.PublishModification;
 import com.psddev.cms.view.PageViewClass;
 import com.psddev.cms.view.ViewCreator;
 import com.psddev.dari.db.Recordable;
@@ -3862,14 +3863,24 @@ public class ToolPageContext extends WebPageContext {
      * @see Content.Static#publish(Object, Site, ToolUser)
      */
     public History publish(Object object) {
-        return updateLockIgnored(Content.Static.publish(object, getSite(), getUser()));
+        ToolUser user = getUser();
+        History history = updateLockIgnored(Content.Static.publish(object, getSite(), user));
+
+        PublishModification.setBroadcast(object, true);
+
+        return history;
     }
 
     /**
      * @see Content.Static#publishDifferences(Object, Map, Site, ToolUser)
      */
     public History publishDifferences(Object object, Map<String, Map<String, Object>> differences) {
-        return updateLockIgnored(Content.Static.publishDifferences(object, differences, getSite(), getUser()));
+        ToolUser user = getUser();
+        History history = updateLockIgnored(Content.Static.publishDifferences(object, differences, getSite(), user));
+
+        PublishModification.setBroadcast(object, true);
+
+        return history;
     }
 
     /**
