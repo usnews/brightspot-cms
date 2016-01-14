@@ -55,8 +55,12 @@
         }
       });
 
-      $container.bind('close.popup', function() {
+      $container.bind('close.popup', function(event) {
 
+        // If a popup has another popup within it, stop the close event in the child from bubbling up to the parent
+        // (closing the child should not also close the parent)
+        event.stopPropagation();
+          
         if ($container.is(':visible') &&
             $container.find('.enhancementForm, .contentForm').find('.inputContainer.state-changed').length > 0 &&
             !confirm('Are you sure you want to close this popup and discard the unsaved changes?')) {
