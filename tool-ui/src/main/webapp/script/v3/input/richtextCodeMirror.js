@@ -4027,8 +4027,9 @@ define([
             $.each(self.enhancementCache, function(i, mark) {
                 self.enhancementRemove(mark);
             });
-            
-            self.codeMirror.setValue('');
+
+            // Kill any remaining marks
+            self.codeMirror.swapDoc(CodeMirror.Doc(''));
         },
 
 

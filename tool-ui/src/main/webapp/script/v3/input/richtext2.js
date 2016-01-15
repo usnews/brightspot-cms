@@ -3199,7 +3199,15 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
             self = this;
 
+            // Check if editor already exists
             if (self.$tableEditDiv) {
+                
+                // Empty the editor
+                self.tableEditRte.rte.empty();
+                
+                // Turn off track changes before we add content to the editor
+                self.tableEditRte.rte.trackSet(false);
+            
                 return;
             }
             
@@ -3232,11 +3240,16 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Set up a nested rich text editor in a popup
             // (but only do this once)
             self.tableEditInit();
-
+            
             value = $el.handsontable('getValue') || '';
-
+            
             self.$tableEditDiv.popup('open');
+
             self.tableEditRte.fromHTML(value);
+
+            // Turn on or off track changes in the table editor, based on the track changes setting in the main editor
+            self.tableEditRte.rte.trackSet( self.rte.trackIsOn() );
+
             self.tableEditRte.focus();
             self.tableEditRte.refresh();
 
@@ -3245,6 +3258,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             $el.handsontable('deselectCell');
             
             self.$tableEditDiv.popup('container').one('closed', function(){
+                var value;
                 value = self.tableEditRte.toHTML();
                 $el.handsontable('setDataAtCell', range[0], range[1], value);
             });
