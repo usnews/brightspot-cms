@@ -736,8 +736,6 @@ function() {
     var $source = $frame.popup('source');
     var $popup = $frame.popup('container');
 
-    scrollTops.pop();
-
     if ($.data($popup[0], 'popup-close-cancelled')) {
       return;
     }
