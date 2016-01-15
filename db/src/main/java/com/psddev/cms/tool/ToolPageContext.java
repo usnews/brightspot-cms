@@ -1092,11 +1092,22 @@ public class ToolPageContext extends WebPageContext {
                 state.setStatus(StateStatus.SAVED);
 
             } else if (objectId != null) {
-                Object draftObject = Query
-                        .fromAll()
-                        .where("id = ?", draftId)
-                        .and("com.psddev.cms.db.Draft/objectId = ?", objectId)
-                        .first();
+                Object draftObject;
+
+                if (draftId != null) {
+                    draftObject = Query
+                            .fromAll()
+                            .where("id = ?", draftId)
+                            .and("com.psddev.cms.db.Draft/objectId = ?", objectId)
+                            .first();
+
+                } else {
+                    draftObject = Query
+                            .fromAll()
+                            .and("com.psddev.cms.db.Draft/objectId = ?", objectId)
+                            .and("com.psddev.cms.db.Draft/newContent = true")
+                            .first();
+                }
 
                 if (draftObject instanceof Draft) {
                     Draft draft = (Draft) draftObject;
@@ -3195,6 +3206,11 @@ public class ToolPageContext extends WebPageContext {
 
                 draft = new Draft();
                 draft.setOwner(getUser());
+
+            } else if (draft.isNewContent()) {
+                publish(object);
+                redirectOnSave("");
+                return true;
             }
 
             draft.update(findOldValuesInForm(state), object);
@@ -3284,6 +3300,7 @@ public class ToolPageContext extends WebPageContext {
         }
 
         State state = State.getInstance(object);
+        boolean newContent = state.isNew() || !state.isVisible();
         Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
         ToolUser user = getUser();
 
@@ -3379,12 +3396,19 @@ public class ToolPageContext extends WebPageContext {
                 if (draft == null || param(boolean.class, "newSchedule")) {
                     draft = new Draft();
                     draft.setOwner(user);
+
+                    if (newContent) {
+                        draft.setNewContent(true);
+                    }
                 }
 
                 draft.update(findOldValuesInForm(state), object);
 
-                if (state.isNew() || contentData.isDraft()) {
+                if (state.isNew()) {
                     contentData.setDraft(true);
+                }
+
+                if (draft.isNewContent()) {
                     publish(state);
                     draft.setDifferences(null);
                 }
