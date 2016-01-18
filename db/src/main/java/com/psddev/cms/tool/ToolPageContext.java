@@ -46,6 +46,7 @@ import com.ibm.icu.text.MessageFormat;
 import com.psddev.cms.db.PageFilter;
 import com.psddev.cms.db.RichTextElement;
 import com.psddev.cms.tool.file.SvgFileType;
+import com.psddev.cms.tool.page.content.PublishModification;
 import com.psddev.cms.view.PageViewClass;
 import com.psddev.cms.view.ViewCreator;
 import com.psddev.dari.db.Recordable;
@@ -2857,14 +2858,19 @@ public class ToolPageContext extends WebPageContext {
         writeSomeFormFields(object, false, null, null);
     }
 
+    public void writeStandardForm(Object object, boolean displayTrashAction) throws IOException, ServletException {
+        writeStandardForm(object, displayTrashAction, false);
+    }
+
     /**
      * Writes a standard form for the given {@code object}.
      *
      * @param object Can't be {@code null}.
      * @param displayTrashAction If {@code null}, displays the trash action
      * instead of the delete action.
+     * @param displayCopyAction If {@code true}, displays the create a copy action
      */
-    public void writeStandardForm(Object object, boolean displayTrashAction) throws IOException, ServletException {
+    public void writeStandardForm(Object object, boolean displayTrashAction, boolean displayCopyAction) throws IOException, ServletException {
         State state = State.getInstance(object);
         ObjectType type = state.getType();
 
@@ -2873,6 +2879,29 @@ public class ToolPageContext extends WebPageContext {
         writeStart("div", "class", "widgetControls");
             includeFromCms("/WEB-INF/objectVariation.jsp", "object", object);
         writeEnd();
+
+        if (displayCopyAction
+                && !State.getInstance(object).isNew()
+                && !(object instanceof com.psddev.dari.db.Singleton)) {
+
+            writeStart("div", "class", "widget-contentCreate");
+                writeStart("div", "class", "action action-create");
+                    writeHtml(h(localize("com.psddev.cms.tool.page.content.Edit", "action.new")));
+                writeEnd();
+                writeStart("ul");
+                    writeStart("li");
+                        writeStart("a", "class", "action action-create", "href", typeUrl(null, type.getId()));
+                            writeHtml(h(localize(state.getType(), "action.newType")));
+                        writeEnd();
+                    writeEnd();
+                    writeStart("li");
+                        writeStart("a", "class", "action action-copy", "href", typeUrl(null, type.getId(), "copyId", state.getId()), "target", "_top");
+                            writeHtml(h(localize(state.getType(), "action.copy")));
+                        writeEnd();
+                    writeEnd();
+                writeEnd();
+            writeEnd();
+        }
 
         includeFromCms("/WEB-INF/objectMessage.jsp", "object", object);
 
@@ -3525,7 +3554,8 @@ public class ToolPageContext extends WebPageContext {
             state.save();
             redirectOnSave("",
                     "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
-                    "id", state.getId());
+                    "id", state.getId(),
+                    "copyId", null);
             return true;
 
         } catch (Exception error) {
@@ -3862,14 +3892,24 @@ public class ToolPageContext extends WebPageContext {
      * @see Content.Static#publish(Object, Site, ToolUser)
      */
     public History publish(Object object) {
-        return updateLockIgnored(Content.Static.publish(object, getSite(), getUser()));
+        ToolUser user = getUser();
+        History history = updateLockIgnored(Content.Static.publish(object, getSite(), user));
+
+        PublishModification.setBroadcast(object, true);
+
+        return history;
     }
 
     /**
      * @see Content.Static#publishDifferences(Object, Map, Site, ToolUser)
      */
     public History publishDifferences(Object object, Map<String, Map<String, Object>> differences) {
-        return updateLockIgnored(Content.Static.publishDifferences(object, differences, getSite(), getUser()));
+        ToolUser user = getUser();
+        History history = updateLockIgnored(Content.Static.publishDifferences(object, differences, getSite(), user));
+
+        PublishModification.setBroadcast(object, true);
+
+        return history;
     }
 
     /**
