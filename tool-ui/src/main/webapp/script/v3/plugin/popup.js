@@ -66,7 +66,9 @@
         // code relying on popup close events bubbling up to the top.
         if (event.popupClosed) { return; }
         
-        if ($container.is(':visible') &&
+        if (this === event.target &&
+            !$(this).is('[data-popup-source-class~="imageEditor-hotSpotOverlay"]') &&
+            $container.is(':visible') &&
             $container.find('.enhancementForm, .contentForm').find('.inputContainer.state-changed').length > 0 &&
             !confirm('Are you sure you want to close this popup and discard the unsaved changes?')) {
           $.data($container[0], 'popup-close-cancelled', true);
@@ -76,6 +78,10 @@
         $.removeData($container[0], 'popup-close-cancelled');
           
         var $original = $(this);
+
+        // Set a flag to indicate this event has already closed a popup,
+        // so we can avoid closing a parent popup in case popups are nested.
+        event.popupClosed = true;
 
         // Prevent infinite looping for nested popups
         if ($original.hasClass('popup-show')) {
