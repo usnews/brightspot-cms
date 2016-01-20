@@ -2896,19 +2896,8 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 wordWrap:true,
                 outsideClickDeselects:false,
                 editor:false,
-                afterSelectionEnd: function(){
-
-                    // Workaround - after a row or column is added a cell is selected.
-                    // Do not pop up the editor in that case.
-                    if (self.tableCancelEdit) {
-                        self.tableCancelEdit = false;
-                        return;
-                    }
-                    
-                    // Use a timeout to prevent the popup from being closed due to the click event
-                    setTimeout(function(){
-                        self.tableEditSelection($placeholder);
-                    }, 10);
+                afterSelectionEnd: function(r, c, r2, c2){
+                    self.tableShowContextMenu($placeholder, r, c);
                 },
                 afterCreateRow: function() {
                     // Workaround - after a row or column is added a cell is selected.
@@ -2953,6 +2942,34 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Table will not render when it is not visible,
             // so tell it to render now that it has been added to the page
             $placeholder.handsontable('render');
+        },
+
+        
+        /**
+         * Show the context menu for a table cell.
+         * NOTE: this is not an offically supported API for handsontable,
+         * so it could possibly  break with future updates.
+         *
+         * @param {Element} el
+         * The placeholder element where the table was created.
+         * @param {Number} row
+         * @param {Number} col
+         */
+        tableShowContextMenu: function(el, row, col) {
+
+            var h, height, menu, offset, self, $td, width;
+
+            self = this;
+            
+            h = $(el).handsontable('getInstance');
+            if (h) {
+                menu = h.getPlugin('contextMenu');
+                $td = $(h.getCell(row, col));
+                offset = $td.offset();
+                height = $td.height();
+                width = $td.width();
+                menu.open({top:offset.top + height, left:offset.left, width:width, height:height});
+            }
         },
 
         
