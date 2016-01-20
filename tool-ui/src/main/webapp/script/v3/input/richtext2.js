@@ -3218,7 +3218,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          */
         tableEditInit: function() {
             
-            var self;
+            var $controls, self;
 
             self = this;
 
@@ -3236,10 +3236,37 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             
             // Create popup used to display the editor
             self.$tableEditDiv = $('<div>', {'class':'rte2-table-editor'}).appendTo(document.body);
+            
+            $('<h1/>', {
+                'class': 'widget-heading',
+                text: 'Edit Table Cell'
+            }).appendTo(self.$tableEditDiv);
+
             self.$tableEditTextarea = $('<textarea>').appendTo(self.$tableEditDiv);
             self.tableEditRte = Object.create(Rte);
             self.tableEditRte.init(self.$tableEditTextarea);
+
+            $controls = $('<div/>', {'class': 'rte2-table-editor-controls'}).appendTo(self.$tableEditDiv);
+
+            self.$tableEditSave = $('<button/>', {
+                'class': 'rte2-table-editor-save',
+                text: 'Set',
+                click: function(event) {
+                    event.preventDefault();
+                    $(this).popup('close');
+                }
+            }).appendTo($controls);
             
+            self.$tableEditSave = $('<button/>', {
+                'class': 'rte2-table-editor-cancel',
+                text: 'Cancel',
+                click: function(event) {
+                    event.preventDefault();
+                    self.tableEditCancel = true;
+                    $(this).popup('close');
+                }
+            }).appendTo($controls);
+
             self.$tableEditDiv.popup({parent:self.$container}).popup('close');
             
             // Give the popup a name so we can control the width
@@ -3263,6 +3290,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Set up a nested rich text editor in a popup
             // (but only do this once)
             self.tableEditInit();
+
+            // Set a flag so we only update the table cell if user clicks the save button
+            self.tableEditCancel = false;
             
             value = $el.handsontable('getValue') || '';
             
@@ -3279,11 +3309,16 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Due to a bug in handsontable, it steals the arrow keys even when it does not have focus.
             // So until that bug is fixed we must deselect the current cell to allow the editor to get the arrow keys.
             $el.handsontable('deselectCell');
-            
+
             self.$tableEditDiv.popup('container').one('closed', function(){
-                var value;
-                value = self.tableEditRte.toHTML();
-                $el.handsontable('setDataAtCell', range[0], range[1], value);
+
+                 if (self.tableEditCancel) {
+                     self.tableEditCancel = false;
+                 } else {
+                     value = self.tableEditRte.toHTML();
+                     $el.handsontable('setDataAtCell', range[0], range[1], value);
+                 }
+
             });
 
         },
