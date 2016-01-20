@@ -293,14 +293,22 @@
   margin:0 0 0 1em;
   width:400px;
 }
-.rte2-style-track-delete {
+.rte2-style-track-delete, .rte2-table-placeholder del {
   background-color: rgba(255, 0, 0, 0.3);
   color:white;
   text-decoration: line-through;
 }
-.rte2-style-track-display .rte2-style-track-insert {
-  background-color: rgba(125, 255, 125, 0.3);
-  color:black;
+.rte2-table-placeholder del {
+  display:none;
+}
+.rte2-style-track-display {
+  .rte2-style-track-insert, .rte2-table-placeholder ins {
+    background-color: rgba(125, 255, 125, 0.3);
+    color:black;
+  }
+  .rte2-table-placeholder del {
+    display:inline;
+  }
 }
 
 .CodeMirror-hints {
