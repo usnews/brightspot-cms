@@ -918,11 +918,102 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
                 ImageCrop originalCrop = crop;
 
-                if (isPaddedCrop(crop) || isOverlay()) {
+                boolean isPaddedCrop = isPaddedCrop(crop);
+
+                if (isPaddedCrop || isOverlay()) {
 
                     String id = "i" + UUID.randomUUID().toString().replace("-", "");
 
-                    String overlayCss = "#" + id + "{display:inline-block;overflow:hidden;position:relative;width:" + standardImageSize.getWidth() + "px;height:" + standardImageSize.getHeight() + "px;}";
+                    // START LOGIC TO DETERMINE DISPLAY SIZE
+                    // set fields from this standard size if they haven't already been set
+                    Integer width = this.width;
+                    Integer height = this.height;
+
+                    width = width != null && width <= 0 ? null : width;
+                    height = height != null && height <= 0 ? null : height;
+                    Integer originalWidth = null;
+                    Integer originalHeight = null;
+                    if (standardImageSize != null) {
+
+                        Integer standardWidth = standardImageSize.getWidth();
+                        Integer standardHeight = standardImageSize.getHeight();
+                        if (standardWidth <= 0) {
+                            standardWidth = null;
+                        }
+                        if (standardHeight <= 0) {
+                            standardHeight = null;
+                        }
+
+                        Double standardAspectRatio = null;
+                        if (standardWidth != null && standardHeight != null) {
+                            standardAspectRatio = (double) standardWidth / (double) standardHeight;
+                        }
+
+                        // if only one of either width or height is set then calculate
+                        // the other dimension based on the standardImageSize aspect
+                        // ratio rather than blindly taking the other standardImageSize
+                        // dimension.
+                        if (standardAspectRatio != null && (width != null || height != null)) {
+
+                            if (width != null && height == null) {
+                                height = (int) (width / standardAspectRatio);
+
+                            } else if (width == null && height != null) {
+                                width = (int) (height * standardAspectRatio);
+                            }
+
+                        } else {
+                            // get the standard image dimensions
+                            if (width == null) {
+                                width = standardWidth;
+                            }
+                            if (height == null) {
+                                height = standardHeight;
+                            }
+                        }
+
+                        // get the crop and resize options
+                        if (cropOption == null) {
+                            cropOption = standardImageSize.getCropOption();
+                        }
+                        if (resizeOption == null) {
+                            resizeOption = standardImageSize.getResizeOption();
+                        }
+
+                        // get a potentially smaller image from the StorageItem. This improves
+                        // resize performance on large images.
+                        StorageItem alternateItem = findStorageItemForSize(item, width, height);
+                        if (alternateItem != item) {
+                            item = alternateItem;
+                            originalHeight = findDimension(item, "height");
+                            originalWidth = findDimension(item, "width");
+                        }
+
+                        // get the crop coordinates
+
+                        if (originalWidth != null && originalHeight != null) {
+
+                            if (isPaddedCrop) {
+                                crop = getPaddedCrop(crop);
+                            }
+
+                            // Handles standard image size with height or width of 0
+                            if (height == null && width != null) {
+                                height = (int) (width / (originalCrop.getWidth() / originalCrop.getHeight()));
+                            } else if (width == null && height != null) {
+                                width = (int) (height * (originalCrop.getWidth() / originalCrop.getHeight()));
+                            }
+
+                            if (isPaddedCrop && height != null && width != null) {
+                                height = (int) ((double) height * crop.getHeight() / originalCrop.getHeight());
+                                width = (int) ((double) width * crop.getWidth() / originalCrop.getWidth());
+                            }
+
+                        }
+                    }
+                    // END LOGIC TO DETERMINE DISPLAY SIZE
+
+                    String overlayCss = "#" + id + "{display:inline-block;overflow:hidden;position:relative;width:" + width + "px;height:" + height + "px;}";
 
                     if (isPaddedCrop(crop)) {
 
@@ -1159,8 +1250,23 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                                 cropWidth = (int) (crop.getWidth() * originalWidth);
                                 cropHeight = (int) (crop.getHeight() * originalHeight);
 
-                                height = (int) ((double) height * crop.getHeight() / originalCrop.getHeight());
-                                width = (int) ((double) width * crop.getWidth() / originalCrop.getWidth());
+                                // Handles standard image size with height or width of 0
+                                if (height == null && width != null) {
+                                    height = (int) (width / (originalCrop.getWidth() / originalCrop.getHeight()));
+                                } else if (width == null && height != null) {
+                                    width = (int) (height * (originalCrop.getWidth() / originalCrop.getHeight()));
+                                }
+
+                                if (isPaddedCrop && height != null && width != null) {
+                                    height = (int) ((double) height * crop.getHeight() / originalCrop.getHeight());
+                                    width = (int) ((double) width * crop.getWidth() / originalCrop.getWidth());
+                                } else {
+
+                                    // This accounts for rounding error in crop width or height
+                                    if (standardAspectRatio != null) {
+                                        cropHeight = (int) Math.round(cropWidth / standardAspectRatio);
+                                    }
+                                }
 
                             } else {
                                 crop = getFocusCrop(item, standardImageSize);
