@@ -4233,7 +4233,9 @@ define([
             self.inlineCleanup();
 
             // Clean up any "raw html" areas so they do not allow styles inside
-            self.rawCleanup();
+            // Removing this for now as it causes performance problems when there are many raw marks.
+            // However, that means user might be able to mark up raw areas and produce invalid HTML.
+            // self.rawCleanup();
             
             doc = self.codeMirror.getDoc();
 
