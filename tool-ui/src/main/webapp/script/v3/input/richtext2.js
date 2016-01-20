@@ -3251,7 +3251,8 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self.$tableEditSave = $('<button/>', {
                 'class': 'rte2-table-editor-save',
                 text: 'Set',
-                click: function() {
+                click: function(event) {
+                    event.preventDefault();
                     $(this).popup('close');
                 }
             }).appendTo($controls);
@@ -3259,7 +3260,8 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self.$tableEditSave = $('<button/>', {
                 'class': 'rte2-table-editor-cancel',
                 text: 'Cancel',
-                click: function() {
+                click: function(event) {
+                    event.preventDefault();
                     self.tableEditCancel = true;
                     $(this).popup('close');
                 }
