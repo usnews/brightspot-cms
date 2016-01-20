@@ -2235,7 +2235,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
         enhancementMove: function(el, direction) {
 
-            var $el, mark, self, topNew, topOriginal, topWindow;
+            var $el, doScroll, mark, self, $popup, topNew, topOriginal, topWindow;
 
             self = this;
 
@@ -2256,9 +2256,15 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
                 // Adjust the scroll position of the window so the enhancement stays in the same position relative to the mouse.
                 // This is to let the user repeatedly click the Up/Down button to move the enhancement multiple lines.
-                topWindow = $(window).scrollTop();
-                $(window).scrollTop(topWindow + topNew - topOriginal);
-
+                // But only if we are not in a popup
+                $popup = $el.popup('container');
+                if ($popup.length && $popup.css('position') === 'fixed') {
+                    doScroll = false;
+                }
+                if (doScroll !== false) {
+                    topWindow = $(window).scrollTop();
+                    $(window).scrollTop(topWindow + topNew - topOriginal);
+                }
             }
         },
 
