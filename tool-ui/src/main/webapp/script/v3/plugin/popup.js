@@ -244,7 +244,9 @@
     if ($targetPopup.length > 0) {
       var $targetPopupContent = $targetPopup.find('> .content');
 
-      if ($targetPopupContent.length === 0 || !$.contains($targetPopupContent[0], target)) {
+      // Close the popup if we couldn't find the "content" div within it,
+      // Or if the clicked target is outside the content div.
+      if ($targetPopupContent.length === 0 || $target.closest($targetPopupContent).length === 0) {
         $targetPopup.popup('close');
       }
 
