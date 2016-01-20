@@ -2861,7 +2861,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Initialize the table.
             $placeholder.handsontable({
                 'data': data,
-                minCols:2,
+                minCols:1,
                 minRows:1,
                 stretchH: 'all',
                 contextMenu: {
