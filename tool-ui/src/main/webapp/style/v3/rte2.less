@@ -615,6 +615,12 @@ li.CodeMirror-hint-active {
   
   // Within the table do not let users click link or button elements
   a, button { pointer-events:none; }
+
+  .rte-comment {
+    &:extend(.rte2-style-comment);
+    &:extend(.rte2-style-comment-start all);
+    &:extend(.rte2-style-comment-end);
+  }
 }
 
 // Div that is used as a paste clipboard
