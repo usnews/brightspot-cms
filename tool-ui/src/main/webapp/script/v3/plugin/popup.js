@@ -56,6 +56,16 @@
       });
 
       $container.bind('close.popup', function(event) {
+
+        // In the case of nested popups, the close event from the child popup
+        // might propagate up to the parent popup, in which case we do not
+        // want to close the parent popup.
+        // Check for a flag that will be added to the event to indicate a child
+        // popup was already closed.
+        // Note: we can't just stop event propagation because there is other
+        // code relying on popup close events bubbling up to the top.
+        if (event.popupClosed) { return; }
+        
         if (this === event.target &&
             !$(this).is('[data-popup-source-class~="imageEditor-hotSpotOverlay"]') &&
             $container.is(':visible') &&
@@ -69,9 +79,17 @@
           
         var $original = $(this);
 
+        // Set a flag to indicate this event has already closed a popup,
+        // so we can avoid closing a parent popup in case popups are nested.
+        event.popupClosed = true;
+
         // Prevent infinite looping for nested popups
         if ($original.hasClass('popup-show')) {
 
+          // Set a flag to indicate this event has already closed a popup,
+          // so we can avoid closing a parent popup in case popups are nested.
+          event.popupClosed = true;
+          
           $original.removeClass('popup-show');
           $original.trigger('closed');  
           $('.popup').each(function() {
@@ -226,7 +244,9 @@
     if ($targetPopup.length > 0) {
       var $targetPopupContent = $targetPopup.find('> .content');
 
-      if ($targetPopupContent.length === 0 || !$.contains($targetPopupContent[0], target)) {
+      // Close the popup if we couldn't find the "content" div within it,
+      // Or if the clicked target is outside the content div.
+      if ($targetPopupContent.length === 0 || $target.closest($targetPopupContent).length === 0) {
         $targetPopup.popup('close');
       }
 
