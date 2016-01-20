@@ -56,7 +56,7 @@
       });
 
       $container.bind('close.popup', function(event) {
-        
+
         // In the case of nested popups, the close event from the child popup
         // might propagate up to the parent popup, in which case we do not
         // want to close the parent popup.
@@ -86,6 +86,10 @@
         // Prevent infinite looping for nested popups
         if ($original.hasClass('popup-show')) {
 
+          // Set a flag to indicate this event has already closed a popup,
+          // so we can avoid closing a parent popup in case popups are nested.
+          event.popupClosed = true;
+          
           $original.removeClass('popup-show');
           $original.trigger('closed');  
           $('.popup').each(function() {

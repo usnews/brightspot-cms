@@ -1513,7 +1513,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                     return false;
                 }
             }).appendTo(document.body)
-                .popup() // turn it into a popup
+                .popup({parent:self.$container}) // turn it into a popup
                 .popup('close') // but initially close the popup
                 .popup('container').on('close', function() {
                     // If the popup is canceled with Esc or otherwise,
@@ -3240,7 +3240,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self.tableEditRte = Object.create(Rte);
             self.tableEditRte.init(self.$tableEditTextarea);
             
-            self.$tableEditDiv.popup().popup('close');
+            self.$tableEditDiv.popup({parent:self.$container}).popup('close');
             
             // Give the popup a name so we can control the width
             self.$tableEditDiv.popup('container').attr('name', 'rte2-frame-table-editor');
