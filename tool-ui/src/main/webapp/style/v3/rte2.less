@@ -36,7 +36,8 @@
       padding:0.5em;
       background-color: fade(white, 93%);
       border:1px solid @color-separator;
-
+      z-index:1;
+      
       li {
         display:block;
       }
@@ -296,14 +297,22 @@
   margin:0 0 0 1em;
   width:400px;
 }
-.rte2-style-track-delete {
+.rte2-style-track-delete, .rte2-table-placeholder del {
   background-color: rgba(255, 0, 0, 0.3);
   color:white;
   text-decoration: line-through;
 }
-.rte2-style-track-display .rte2-style-track-insert {
-  background-color: rgba(125, 255, 125, 0.3);
-  color:black;
+.rte2-table-placeholder del {
+  display:none;
+}
+.rte2-style-track-display {
+  .rte2-style-track-insert, .rte2-table-placeholder ins {
+    background-color: rgba(125, 255, 125, 0.3);
+    color:black;
+  }
+  .rte2-table-placeholder del {
+    display:inline;
+  }
 }
 
 .CodeMirror-hints {
@@ -592,15 +601,27 @@ li.CodeMirror-hint-active {
 .popup[name=rte2-frame-enhancement-inline] {
   max-width:1000px;
   width:70%;
+
 }
 
 .popup[name=rte2-frame-table-editor] {
+  
   max-width:1000px;
   width: 60%;
   margin-left:-40%;
+  
+  .closeButton {
+    display:none;
+  }
+  
 }
 
 .rte2-table-editor {
+}
+.rte2-table-editor-save {
+  margin-right: 0.5em;
+}
+.rte2-table-editor-controls {
   margin-top:1em;
 }
 
@@ -610,6 +631,12 @@ li.CodeMirror-hint-active {
   
   // Within the table do not let users click link or button elements
   a, button { pointer-events:none; }
+
+  .rte-comment {
+    &:extend(.rte2-style-comment);
+    &:extend(.rte2-style-comment-start all);
+    &:extend(.rte2-style-comment-end);
+  }
 }
 
 // Div that is used as a paste clipboard

@@ -9,7 +9,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Map;
 
-@RichTextElement.Embedded
 public abstract class RichTextElement extends Record {
 
     public static final String ROOT_CONTEXT = "rte.root.context";

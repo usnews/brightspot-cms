@@ -1559,7 +1559,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                     return false;
                 }
             }).appendTo(document.body)
-                .popup() // turn it into a popup
+                .popup({parent:self.$container}) // turn it into a popup
                 .popup('close') // but initially close the popup
                 .popup('container').on('close', function() {
                     // If the popup is canceled with Esc or otherwise,
@@ -2281,7 +2281,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
         enhancementMove: function(el, direction) {
 
-            var $el, mark, self, topNew, topOriginal, topWindow;
+            var $el, doScroll, mark, self, $popup, topNew, topOriginal, topWindow;
 
             self = this;
 
@@ -2302,9 +2302,15 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
                 // Adjust the scroll position of the window so the enhancement stays in the same position relative to the mouse.
                 // This is to let the user repeatedly click the Up/Down button to move the enhancement multiple lines.
-                topWindow = $(window).scrollTop();
-                $(window).scrollTop(topWindow + topNew - topOriginal);
-
+                // But only if we are not in a popup
+                $popup = $el.popup('container');
+                if ($popup.length && $popup.css('position') === 'fixed') {
+                    doScroll = false;
+                }
+                if (doScroll !== false) {
+                    topWindow = $(window).scrollTop();
+                    $(window).scrollTop(topWindow + topNew - topOriginal);
+                }
             }
         },
 
@@ -2910,7 +2916,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Initialize the table.
             $placeholder.handsontable({
                 'data': data,
-                minCols:2,
+                minCols:1,
                 minRows:1,
                 stretchH: 'all',
                 contextMenu: {
@@ -2939,19 +2945,8 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 wordWrap:true,
                 outsideClickDeselects:false,
                 editor:false,
-                afterSelectionEnd: function(){
-
-                    // Workaround - after a row or column is added a cell is selected.
-                    // Do not pop up the editor in that case.
-                    if (self.tableCancelEdit) {
-                        self.tableCancelEdit = false;
-                        return;
-                    }
-                    
-                    // Use a timeout to prevent the popup from being closed due to the click event
-                    setTimeout(function(){
-                        self.tableEditSelection($placeholder);
-                    }, 10);
+                afterSelectionEnd: function(r, c, r2, c2){
+                    self.tableShowContextMenu($placeholder, r, c);
                 },
                 afterCreateRow: function() {
                     // Workaround - after a row or column is added a cell is selected.
@@ -2996,6 +2991,34 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Table will not render when it is not visible,
             // so tell it to render now that it has been added to the page
             $placeholder.handsontable('render');
+        },
+
+        
+        /**
+         * Show the context menu for a table cell.
+         * NOTE: this is not an offically supported API for handsontable,
+         * so it could possibly  break with future updates.
+         *
+         * @param {Element} el
+         * The placeholder element where the table was created.
+         * @param {Number} row
+         * @param {Number} col
+         */
+        tableShowContextMenu: function(el, row, col) {
+
+            var h, height, menu, offset, self, $td, width;
+
+            self = this;
+            
+            h = $(el).handsontable('getInstance');
+            if (h) {
+                menu = h.getPlugin('contextMenu');
+                $td = $(h.getCell(row, col));
+                offset = $td.offset();
+                height = $td.height();
+                width = $td.width();
+                menu.open({top:offset.top + height, left:offset.left, width:width, height:height});
+            }
         },
 
         
@@ -3244,21 +3267,56 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          */
         tableEditInit: function() {
             
-            var self;
+            var $controls, self;
 
             self = this;
 
+            // Check if editor already exists
             if (self.$tableEditDiv) {
+                
+                // Empty the editor
+                self.tableEditRte.rte.empty();
+                
+                // Turn off track changes before we add content to the editor
+                self.tableEditRte.rte.trackSet(false);
+            
                 return;
             }
             
             // Create popup used to display the editor
             self.$tableEditDiv = $('<div>', {'class':'rte2-table-editor'}).appendTo(document.body);
+            
+            $('<h1/>', {
+                'class': 'widget-heading',
+                text: 'Edit Table Cell'
+            }).appendTo(self.$tableEditDiv);
+
             self.$tableEditTextarea = $('<textarea>').appendTo(self.$tableEditDiv);
             self.tableEditRte = Object.create(Rte);
             self.tableEditRte.init(self.$tableEditTextarea);
+
+            $controls = $('<div/>', {'class': 'rte2-table-editor-controls'}).appendTo(self.$tableEditDiv);
+
+            self.$tableEditSave = $('<button/>', {
+                'class': 'rte2-table-editor-save',
+                text: 'Set',
+                click: function(event) {
+                    event.preventDefault();
+                    $(this).popup('close');
+                }
+            }).appendTo($controls);
             
-            self.$tableEditDiv.popup().popup('close');
+            self.$tableEditSave = $('<button/>', {
+                'class': 'rte2-table-editor-cancel',
+                text: 'Cancel',
+                click: function(event) {
+                    event.preventDefault();
+                    self.tableEditCancel = true;
+                    $(this).popup('close');
+                }
+            }).appendTo($controls);
+
+            self.$tableEditDiv.popup({parent:self.$container}).popup('close');
             
             // Give the popup a name so we can control the width
             self.$tableEditDiv.popup('container').attr('name', 'rte2-frame-table-editor');
@@ -3282,20 +3340,34 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // (but only do this once)
             self.tableEditInit();
 
+            // Set a flag so we only update the table cell if user clicks the save button
+            self.tableEditCancel = false;
+            
             value = $el.handsontable('getValue') || '';
-
+            
             self.$tableEditDiv.popup('open');
+
             self.tableEditRte.fromHTML(value);
+
+            // Turn on or off track changes in the table editor, based on the track changes setting in the main editor
+            self.tableEditRte.rte.trackSet( self.rte.trackIsOn() );
+
             self.tableEditRte.focus();
             self.tableEditRte.refresh();
 
             // Due to a bug in handsontable, it steals the arrow keys even when it does not have focus.
             // So until that bug is fixed we must deselect the current cell to allow the editor to get the arrow keys.
             $el.handsontable('deselectCell');
-            
+
             self.$tableEditDiv.popup('container').one('closed', function(){
-                value = self.tableEditRte.toHTML();
-                $el.handsontable('setDataAtCell', range[0], range[1], value);
+
+                 if (self.tableEditCancel) {
+                     self.tableEditCancel = false;
+                 } else {
+                     value = self.tableEditRte.toHTML();
+                     $el.handsontable('setDataAtCell', range[0], range[1], value);
+                 }
+
             });
 
         },
@@ -3387,7 +3459,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self = this;
 
             self.$container.on('rteChange', $.debounce(2000, function(){
-                self.previewUpdate();
+                if ($('.contentPreview').is(':visible')) {
+                    self.previewUpdate();
+                }
             }));
         },
 

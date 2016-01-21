@@ -484,7 +484,7 @@ public class PageFilter extends AbstractFilter {
             }
 
             if (isRedirect && redirectPath != null) {
-                String rp = StringUtils.removeEnd(redirectPath.getPath(), "*");
+                String rp = StringUtils.removeEnd(StringUtils.removeEnd(redirectPath.getPath(), "*"), "*");
 
                 JspUtils.redirectPermanently(request, response, site != null
                         ? site.getPrimaryUrl() + rp
