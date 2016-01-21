@@ -1772,11 +1772,11 @@ private static void renderWidgets(ToolPageContext wp, Object object, String posi
 
 private enum Device {
 
+    DESKTOP("Desktop", 1280),
     TABLET_LANDSCAPE("Tablet - Landscape", 1024),
     TABLET_PORTRAIT("Tablet - Portrait", 768),
     MOBILE_LANDSCAPE("Mobile - Landscape", 480),
-    MOBILE_PORTRAIT("Mobile - Portrait", 320),
-    DESKTOP("Desktop", 1280);
+    MOBILE_PORTRAIT("Mobile - Portrait", 320);
 
     public final String label;
     public final int width;
