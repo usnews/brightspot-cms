@@ -77,12 +77,12 @@
           
         var $original = $(this);
 
+        // Set a flag to indicate this event has already closed a popup,
+        // so we can avoid closing a parent popup in case popups are nested.
+        event.popupClosed = true;
+
         // Prevent infinite looping for nested popups
         if ($original.hasClass('popup-show')) {
-
-          // Set a flag to indicate this event has already closed a popup,
-          // so we can avoid closing a parent popup in case popups are nested.
-          event.popupClosed = true;
 
           $original.removeClass('popup-show');
           $('.popup').each(function() {
