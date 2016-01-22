@@ -74,20 +74,28 @@
         }
 
         $.removeData($container[0], 'popup-close-cancelled');
+          
         var $original = $(this);
-        
+
         // Set a flag to indicate this event has already closed a popup,
         // so we can avoid closing a parent popup in case popups are nested.
         event.popupClosed = true;
-        
-        $original.removeClass('popup-show');
-        $('.popup').each(function() {
-          var $popup = $(this);
-          var $source = $popup.popup('source');
-          if ($source && $.contains($original[0], $source[0])) {
-            $popup.popup('close');
-          }
-        });
+
+        // Prevent infinite looping for nested popups
+        if ($original.hasClass('popup-show')) {
+
+          $original.removeClass('popup-show');
+          $('.popup').each(function() {
+            var $popup = $(this);
+            var $source = $popup.popup('source');
+
+            // If the popup we are closing ($original) contains the link that opened a different popup,
+            // then also close that different popup
+            if ($source && $.contains($original[0], $source[0])) {
+              $popup.popup('close');
+            }
+          });
+        }
       });
 
       $closeButton.bind('click.popup', function() {
