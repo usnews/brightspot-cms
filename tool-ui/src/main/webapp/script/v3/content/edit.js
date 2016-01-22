@@ -71,7 +71,6 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
     var oldValues = $('input[name="' + newValuesId + '/oldValues"]').val();
 
     if (oldValues) {
-      var contentId = data.contentId;
       var userId = data.userId;
       var userName = data.userName;
 
@@ -93,7 +92,7 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
             compare(oldValueId, oldValue, newValue);
 
           } else if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
-            var $container = $('[data-rtc-content-id="' + contentId + '"] .objectInputs[data-id="' + objectId + '"] > .inputContainer[data-field-name="' + fieldName + '"]');
+            var $container = $('[data-rtc-content-id="' + newValuesId + '"] .objectInputs[data-id="' + objectId + '"] > .inputContainer[data-field-name="' + fieldName + '"]');
             var $form = $container.closest('form');
 
             if ($form.length > 0 && !$.data($form[0], 'content-edit-submit')) {
@@ -167,5 +166,20 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
     $form.on('submit', function() {
       $.data($form[0], 'content-edit-submit', true);
     })
+
+    // Tab navigation from textarea to RTE.
+    $(document).on('keydown', '.contentForm :text, .contentForm textarea', function (event) {
+      if (event.which === 9) {
+        var $container = $(this).closest('.inputContainer');
+        var rte2 = $container.next('.inputContainer').find('> .inputSmall > .rte2-wrapper').data('rte2');
+
+        if (rte2) {
+          rte2.rte.focus();
+          return false;
+        }
+      }
+
+      return true;
+    });
   });
 });

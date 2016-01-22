@@ -22,6 +22,7 @@ com.psddev.cms.db.WorkflowState,
 com.psddev.cms.db.WorkflowTransition,
 com.psddev.cms.db.WorkStream,
 com.psddev.cms.tool.CmsTool,
+com.psddev.cms.tool.ContentEditWidgetDisplay,
 com.psddev.cms.tool.ToolPageContext,
 com.psddev.cms.tool.Widget,
 
@@ -44,8 +45,8 @@ java.util.Map,
 java.util.Set,
 java.util.UUID,
 
-org.joda.time.DateTime
-, com.google.common.collect.ImmutableMap" %><%
+org.joda.time.DateTime,
+com.google.common.collect.ImmutableMap" %><%
 
 // --- Logic ---
 
@@ -56,7 +57,14 @@ if (wp.requireUser()) {
 
 Object selected = wp.findOrReserve();
 if (selected == null) {
-    wp.redirect("/", "reason", "no-object");
+    wp.writeHeader();
+    wp.writeStart("div", "class", "message message-warning");
+    wp.writeHtml(wp.localize(
+            "com.psddev.cms.tool.page.content.Edit",
+            ImmutableMap.of("queryString", request.getQueryString()),
+            "message.missing"));
+    wp.writeEnd();
+    wp.writeFooter();
     return;
 }
 
@@ -65,7 +73,18 @@ Site site = wp.getSite();
 
 if (selected != null) {
     if (!(site == null || Site.Static.isObjectAccessible(site, selected))) {
-        wp.redirect("/", "reason", "not-accessible");
+        wp.writeHeader();
+        wp.writeStart("div", "class", "message message-warning");
+        wp.writeHtml(wp.localize(
+                "com.psddev.cms.tool.page.content.Edit",
+                ImmutableMap.of(
+                        "typeLabel", wp.getTypeLabel(selected),
+                        "objectLabel", wp.getObjectLabel(selected),
+                        "siteName", site.getName()
+                ),
+                "message.notAccessible"));
+        wp.writeEnd();
+        wp.writeFooter();
         return;
     }
 }
@@ -114,7 +133,7 @@ Map<String, Object> editingOldValues = Draft.findOldValues(editing);
 WorkStream workStream = Query.from(WorkStream.class).where("_id = ?", wp.param(UUID.class, "workStreamId")).first();
 
 if (workStream != null) {
-    
+
     Draft draft = wp.getOverlaidDraft(editing);
     Object workstreamObject = (draft != null) ? draft : editing;
 
@@ -240,8 +259,17 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                             wp.writeHtml("New");
 
                         } else {
-                            if (draft != null) {
+                            if (draft != null && !draft.isNewContent()) {
                                 wp.writeObjectLabel(ObjectType.getInstance(Draft.class));
+
+                                String draftName = draft.getName();
+
+                                if (!ObjectUtils.isBlank(draftName)) {
+                                    wp.writeHtml(" (");
+                                    wp.writeHtml(draftName);
+                                    wp.writeHtml(")");
+                                }
+
                                 wp.writeHtml(" for");
 
                                 if (!visible) {
@@ -389,7 +417,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                         }
                     wp.writeEnd();
 
-                } else if (history != null || draft != null) {
+                } else if (history != null || (draft != null && !draft.isNewContent())) {
                     State original = State.getInstance(Query.
                             from(Object.class).
                             where("_id = ?", editing).
@@ -562,7 +590,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                     wp.writeEnd();
                 }
 
-                boolean isWritable = wp.hasPermission("type/" + editingState.getTypeId() + "/write");
+                boolean isWritable = wp.hasPermission("type/" + editingState.getTypeId() + "/write") && !editingState.getType().as(ToolUi.class).isReadOnly();
                 boolean isDraft = !editingState.isNew() && (contentData.isDraft() || draft != null);
                 boolean isHistory = history != null;
                 boolean isTrash = contentData.isTrash();
@@ -578,8 +606,16 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
 
                         wp.writeStart("div", "class", "message message-warning");
                             wp.writeStart("p");
-                                if (draft != null) {
+                                if (draft != null && !draft.isNewContent()) {
                                     wp.writeObjectLabel(ObjectType.getInstance(Draft.class));
+
+                                    String draftName = draft.getName();
+
+                                    if (!ObjectUtils.isBlank(draftName)) {
+                                        wp.writeHtml(" (");
+                                        wp.writeHtml(draftName);
+                                        wp.writeHtml(")");
+                                    }
 
                                 } else {
                                     wp.writeHtml("Initial Draft");
@@ -616,7 +652,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                             }
 
                             wp.writeStart("div", "class", "actions");
-                                if (draft != null) {
+                                if (draft != null && !draft.isNewContent()) {
                                     wp.writeStart("a",
                                             "class", "icon icon-action-edit",
                                             "href", wp.url("", "draftId", null));
@@ -809,7 +845,14 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                                     wp.writeEnd();
                                                 }
 
-                                                if (draft == null) {
+                                                if (draft == null
+                                                        && (wp.hasPermission("type/" + editingState.getTypeId() + "/workflow.saveAllowed." + currentState)
+                                                        || workflow.getTransitionsTo(currentState)
+                                                                .keySet()
+                                                                .stream()
+                                                                .filter(name -> wp.hasPermission("type/" + editingState.getTypeId() + "/" + name))
+                                                                .findFirst()
+                                                                .isPresent())) {
                                                     wp.writeStart("div", "class", "actions");
                                                         wp.writeStart("button",
                                                                 "class", "link icon icon-action-save",
@@ -845,7 +888,14 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                                 wp.writeFormFields(newLog);
                                             wp.writeEnd();
 
-                                            if (!visible && draft != null) {
+                                            if (!visible
+                                                    && draft != null
+                                                    && workflow.getTransitionsTo(editingState.as(Workflow.Data.class).getCurrentState())
+                                                            .keySet()
+                                                            .stream()
+                                                            .filter(name -> wp.hasPermission("type/" + editingState.getTypeId() + "/" + name))
+                                                            .findFirst()
+                                                            .isPresent()) {
                                                 wp.writeStart("button",
                                                         "name", "action-merge",
                                                         "value", "true");
@@ -930,7 +980,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                         "value", "true");
                                     ObjectType type = editingState.getType();
                                     if (type != null) {
-                                        wp.writeHtml(ObjectUtils.firstNonBlank(type.as(ToolUi.class).getPublishButtonText(), "Publish"));
+                                        wp.writeHtml(ObjectUtils.firstNonBlank(type.as(ToolUi.class).getPublishButtonText(), wp.localize(type, "action.publish")));
                                     } else {
                                         wp.writeHtml(wp.localize(type, "action.publish"));
                                     }
@@ -963,7 +1013,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                     "value", "true");
 
                                 if (editingState.isNew()) {
-                                    wp.writeHtml("Save Initial Draft");
+                                    wp.writeHtml(wp.localize(editingState.getType(), "action.save.initialDraft"));
 
                                 } else {
                                     wp.writeHtml(wp.localize(Draft.class, "action.newType"));
@@ -1683,30 +1733,36 @@ private static void renderWidgets(ToolPageContext wp, Object object, String posi
         wp.write("\">");
 
         for (Widget widget : widgets) {
-            if (wp.hasPermission(widget.getPermissionId())) {
+            if (!wp.hasPermission(widget.getPermissionId())) {
+                continue;
+            }
 
-                wp.write("<input type=\"hidden\" name=\"");
-                wp.write(wp.h(state.getId()));
-                wp.write("/_widget\" value=\"");
-                wp.write(wp.h(widget.getInternalName()));
-                wp.write("\">");
+            if (object instanceof ContentEditWidgetDisplay
+                    && !((ContentEditWidgetDisplay) object).shouldDisplayContentEditWidget(widget.getInternalName())) {
+                continue;
+            }
 
-                String displayHtml;
+            wp.write("<input type=\"hidden\" name=\"");
+            wp.write(wp.h(state.getId()));
+            wp.write("/_widget\" value=\"");
+            wp.write(wp.h(widget.getInternalName()));
+            wp.write("\">");
 
-                try {
-                    displayHtml = widget.createDisplayHtml(wp, object);
+            String displayHtml;
 
-                } catch (Exception ex) {
-                    StringWriter sw = new StringWriter();
-                    HtmlWriter hw = new HtmlWriter(sw);
-                    hw.putAllStandardDefaults();
-                    hw.start("pre", "class", "message message-error").object(ex).end();
-                    displayHtml = sw.toString();
-                }
+            try {
+                displayHtml = widget.createDisplayHtml(wp, object);
 
-                if (!ObjectUtils.isBlank(displayHtml)) {
-                    wp.write(displayHtml);
-                }
+            } catch (Exception ex) {
+                StringWriter sw = new StringWriter();
+                HtmlWriter hw = new HtmlWriter(sw);
+                hw.putAllStandardDefaults();
+                hw.start("pre", "class", "message message-error").object(ex).end();
+                displayHtml = sw.toString();
+            }
+
+            if (!ObjectUtils.isBlank(displayHtml)) {
+                wp.write(displayHtml);
             }
         }
         wp.write("</div>");

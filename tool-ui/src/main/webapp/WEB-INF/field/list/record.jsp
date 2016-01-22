@@ -48,6 +48,13 @@ String fieldName = field.getInternalName();
 List<Object> fieldValue = (List<Object>) state.getValue(fieldName);
 if (fieldValue == null) {
     fieldValue = new ArrayList<Object>();
+
+} else {
+    for (Iterator<Object> i = fieldValue.iterator(); i.hasNext();) {
+        if (i.next() == null) {
+            i.remove();
+        }
+    }
 }
 
 final List<ObjectType> validTypes = field.as(ToolUi.class).findDisplayTypes();
@@ -588,8 +595,10 @@ if (!isValueExternal) {
                 State itemState = State.getInstance(item);
                 ObjectType itemType = itemState.getType();
                 Date itemPublishDate = itemState.as(Content.ObjectModification.class).getPublishDate();
+                boolean expanded = itemType.getFields().stream().anyMatch(f -> f.as(ToolUi.class).isExpanded());
 
                 wp.writeStart("li",
+                        "class", expanded ? "expanded" : null,
                         "data-sortable-item-type", itemType.getId(),
                         "data-type", wp.getObjectLabel(itemType),
                         "data-label", wp.getObjectLabel(item),
@@ -598,7 +607,7 @@ if (!isValueExternal) {
                         // so if that field is changed the front-end knows that the thumbnail should also be updated
                         "data-preview", wp.getPreviewThumbnailUrl(item),
                         "data-preview-field", itemType.getPreviewField()
-                        
+
                         );
                     wp.writeElement("input",
                             "type", "hidden",
@@ -615,7 +624,7 @@ if (!isValueExternal) {
                             "name", publishDateName,
                             "value", itemPublishDate != null ? itemPublishDate.getTime() : null);
 
-                    if (!itemState.hasAnyErrors()) {
+                    if (!expanded && !itemState.hasAnyErrors()) {
                         wp.writeElement("input",
                                 "type", "hidden",
                                 "name", dataName,
@@ -626,6 +635,11 @@ if (!isValueExternal) {
                                         "id", itemState.getId()));
 
                     } else {
+                        wp.writeElement("input",
+                                "type", "hidden",
+                                "name", dataName,
+                                "value", "");
+
                         wp.writeFormFields(item);
                     }
                 wp.writeEnd();
@@ -659,10 +673,13 @@ if (!isValueExternal) {
 
             typeIdsQuery.setLength(typeIdsQuery.length() - 1);
 
+            String uploadFilesPath = wp.getCmsTool().isEnableFrontEndUploader()
+                    ? "/content/upload"
+                    : "/content/uploadFiles";
+
             wp.writeStart("a",
                     "class", "action-upload",
-                    "href", wp.url(
-                            "/content/uploadFiles?" + typeIdsQuery,
+                    "href", wp.url(uploadFilesPath + "?" + typeIdsQuery,
                             "containerId", containerObjectId,
                             "context", UploadFiles.Context.FIELD),
                     "target", "uploadFiles");

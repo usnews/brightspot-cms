@@ -6,9 +6,10 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
       var $options = $(select).find('option');
 
       if ($options.length > 0) {
+        var $select = $(select);
         var hasSelected = false;
 
-        $(select).find('option').each(function() {
+        $select.find('option').each(function() {
           if (this.defaultSelected) {
             hasSelected = true;
             return false;
@@ -16,7 +17,10 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
         });
 
         if (!hasSelected) {
+          var selectValue = $select.val();
+
           $options.eq(0).prop('defaultSelected', true);
+          $select.val(selectValue);
         }
       }
     }

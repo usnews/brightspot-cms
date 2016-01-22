@@ -1,13 +1,15 @@
 <%@ page session="false" import="
 
+com.psddev.cms.db.Directory,
+com.psddev.cms.db.Site,
 com.psddev.cms.db.ToolRole,
 com.psddev.cms.db.ToolUser,
+com.psddev.cms.tool.Search,
 com.psddev.cms.tool.ToolPageContext,
 
+com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
-com.psddev.dari.db.State,
-
-java.util.UUID
+com.psddev.dari.db.State
 " %><%
 
 // --- Logic ---
@@ -29,6 +31,19 @@ if (wp.tryStandardUpdate(selected)) {
     return;
 }
 
+Object copy = Query.findById(Object.class, wp.uuidParam("copyId"));
+
+if (copy != null) {
+    State copiedState = State.getInstance(selected);
+    copiedState.setValues(State.getInstance(copy).getSimpleValues());
+    copiedState.setId(null);
+    copiedState.as(Directory.ObjectModification.class).clearPaths();
+    for (Site consumer : copiedState.as(Site.ObjectModification.class).getConsumers()) {
+        copiedState.as(Directory.ObjectModification.class).clearSitePaths(consumer);
+    }
+    copiedState.as(Site.ObjectModification.class).setOwner(wp.getSite());
+}
+
 // --- Presentation ---
 
 %><% wp.include("/WEB-INF/header.jsp"); %>
@@ -40,6 +55,16 @@ if (wp.tryStandardUpdate(selected)) {
             <h1 class="icon icon-object-toolUser">
                 <%= wp.h(wp.localize("com.psddev.cms.tool.page.admin.Users", "title.users"))%>
             </h1>
+
+            <div class="widget-controls">
+                <ul class="piped">
+                    <li><a class="icon icon-action-search icon-only" href="<%= wp.cmsUrl(
+                            "/searchAdvancedFull",
+                            Search.TYPES_PARAMETER, ObjectType.getInstance(ToolUser.class).getId(),
+                            Search.LIMIT_PARAMETER, 50)
+                            %>">Search</a></li>
+                </ul>
+            </div>
 
             <ul class="links">
                 <li class="new<%= selected.getClass() == ToolUser.class && selectedState.isNew() ? " selected" : "" %>">
@@ -90,7 +115,7 @@ if (wp.tryStandardUpdate(selected)) {
     <div class="main">
 
         <div class="widget">
-            <% wp.writeStandardForm(selected, false); %>
+            <% wp.writeStandardForm(selected, false, true); %>
         </div>
 
     </div>

@@ -11,13 +11,17 @@ import java.util.stream.Stream;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import com.psddev.dari.db.Database;
 import com.psddev.dari.db.DatabaseEnvironment;
+import com.psddev.dari.db.DistributedLock;
+import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.UuidUtils;
 
 /** Unpublished object or unsaved changes to an existing object. */
 @Draft.DisplayName("Content Update")
@@ -25,6 +29,7 @@ import com.psddev.dari.util.ObjectUtils;
 public class Draft extends Content {
 
     private static final String OLD_VALUES_EXTRA = "cms.draft.oldValues";
+    private static final Object REMOVED = new Object();
 
     @Indexed
     private DraftStatus status;
@@ -47,6 +52,9 @@ public class Draft extends Content {
 
     @Deprecated
     private Map<String, Object> objectChanges;
+
+    @Indexed
+    private boolean newContent;
 
     private Map<String, Map<String, Object>> differences;
 
@@ -154,6 +162,12 @@ public class Draft extends Content {
             String id = ObjectUtils.to(String.class, map.get(State.ID_KEY));
 
             if (id != null) {
+                if (valuesById.containsKey(id)) {
+                    id = UuidUtils.createSequentialUuid().toString();
+
+                    map.put(State.ID_KEY, id);
+                }
+
                 valuesById.put(id, new CompactMap<>(map));
             }
 
@@ -257,6 +271,10 @@ public class Draft extends Content {
                     entry.setValue(mergeValue(environment, oldIdMaps, differences, entry.getValue()));
                 }
 
+                if (newIdMap.get(State.ID_KEY) == null) {
+                    return REMOVED;
+                }
+
             } else {
                 valueMap.forEach((k, v) -> newIdMap.put(k, mergeValue(environment, oldIdMaps, differences, v)));
             }
@@ -267,6 +285,7 @@ public class Draft extends Content {
             return ((List<Object>) value)
                     .stream()
                     .map(item -> mergeValue(environment, oldIdMaps, differences, item))
+                    .filter(item -> item != REMOVED)
                     .collect(Collectors.toList());
         }
 
@@ -377,6 +396,14 @@ public class Draft extends Content {
         this.objectChanges = values;
     }
 
+    public boolean isNewContent() {
+        return newContent;
+    }
+
+    public void setNewContent(boolean newContent) {
+        this.newContent = newContent;
+    }
+
     /**
      * @return Never {@code null}.
      */
@@ -475,13 +502,48 @@ public class Draft extends Content {
         Preconditions.checkNotNull(newObject);
 
         State newState = State.getInstance(newObject);
+        UUID newId = newState.getId();
 
         setObjectType(newState.getType());
-        setObjectId(newState.getId());
+        setObjectId(newId);
         setDifferences(findDifferences(
                 newState.getDatabase().getEnvironment(),
                 oldValues,
                 newState.getSimpleValues()));
+
+        State newStateCopy = State.getInstance(Query.fromAll()
+                .where("_id = ?", newId)
+                .noCache()
+                .first());
+
+        if (newStateCopy == null) {
+            setName("#1");
+            newState.as(NameData.class).setIndex(1);
+
+        } else {
+            DistributedLock lock = DistributedLock.Static.getInstance(
+                    Database.Static.getDefault(),
+                    getClass().getName() + "/" + newId);
+
+            lock.lock();
+
+            try {
+                NameData nameData = newStateCopy.as(NameData.class);
+
+                Integer index = nameData.getIndex();
+                index = index != null ? index + 1 : 1;
+
+                if (ObjectUtils.isBlank(getName())) {
+                    setName("#" + index);
+                }
+
+                nameData.setIndex(index);
+                nameData.save();
+
+            } finally {
+                lock.unlock();
+            }
+        }
     }
 
     /**
@@ -513,6 +575,20 @@ public class Draft extends Content {
 
         } else {
             return super.getLabel();
+        }
+    }
+
+    @FieldInternalNamePrefix("cms.draft.name.")
+    public static class NameData extends Modification<Object> {
+
+        private Integer index;
+
+        public Integer getIndex() {
+            return index;
+        }
+
+        public void setIndex(Integer index) {
+            this.index = index;
         }
     }
 }

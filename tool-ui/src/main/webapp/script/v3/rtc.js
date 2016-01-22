@@ -1,4 +1,17 @@
 define([ 'jquery', 'bsp-utils', 'atmosphere' ], function($, bsp_utils, atmosphere) {
+  if (DISABLE_RTC) {
+    return {
+      restore: function () {
+      },
+
+      receive: function () {
+      },
+
+      execute: function () {
+      }
+    };
+  }
+
   var request = {
     url: '/_rtc',
     contentType: 'application/json',

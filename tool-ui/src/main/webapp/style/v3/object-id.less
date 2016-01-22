@@ -13,9 +13,12 @@
     width: 70%;
   }
 
-  [data-dynamic-predicate]:not([data-dynamic-predicate = '']):not(.state-loaded) + & {
-    opacity: 0.5;
-    pointer-events: none;
+  .objectInputs [data-dynamic-predicate]:not([data-dynamic-predicate = '']):not(.state-loaded) + & {
+
+    div:not(.content-edit-bulk) > form & {
+      opacity: 0.5;
+      pointer-events: none;
+    }
   }
 }
 

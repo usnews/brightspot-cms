@@ -30,6 +30,7 @@ require([
 
   'bsp-autoexpand',
   'bsp-autosubmit',
+  'bsp-uploader',
   'bsp-utils',
   'jquery.mousewheel',
   'velocity',
@@ -38,12 +39,15 @@ require([
   'v3/input/change',
   'input/code',
   'input/color',
+  'v3/input/file',
   'input/focus',
   'input/grid',
   'v3/input/image',
+  'v3/input/image2',
   'input/location',
   'v3/input/object',
   'input/query',
+  'v3/input/read-only',
   'input/region',
   'v3/input/richtext',
   'v3/input/richtext2',
@@ -53,7 +57,6 @@ require([
   'jquery.calendar',
   'v3/jquery.dropdown',
   'jquery.editableplaceholder',
-  'evaporate',
   'v3/plugin/popup',
   'v3/plugin/fixed-scrollable',
   'v3/jquery.frame',
@@ -67,7 +70,6 @@ require([
   'jquery.tabbed',
   'v3/taxonomy',
   'jquery.toggleable',
-  'v3/upload',
   'nv.d3',
 
   'v3/dashboard',
@@ -79,14 +81,15 @@ require([
   'content/layout-element',
   'v3/content/state',
   'v3/csrf',
-  'v3/search-result-check-all',
+  'v3/search-filters',
+  'v3/search-result-check',
   'v3/tabs' ],
 
 function() {
   var $ = arguments[0];
   var bsp_autoExpand = arguments[2];
   var bsp_autoSubmit = arguments[3];
-  var bsp_utils = arguments[4];
+  var bsp_utils = arguments[5];
   var win = window;
   var undef;
   var $win = $(win),
@@ -336,8 +339,8 @@ function() {
         var $input, $container, html, $html, text;
 
         $input = rte.$el;
-        $container = $input.closest('.inputContainer');
-        
+        $container = $input.closest('.rte2-wrapper').find('> .rte2-toolbar');
+
         html = rte.toHTML();
         $html = $(new DOMParser().parseFromString(html, "text/html").body);
         $html.find('del,.rte-comment').remove();
@@ -478,6 +481,11 @@ function() {
           };
 
           replaceFileInput();
+
+          //re-initialize uploader plugin, if necessary (not necessary for uploadFile-legacy servlet)
+          if ($dropLink.attr('href').indexOf('uploadFiles') === -1) {
+            $fileInput.attr('data-bsp-uploader', ' ');
+          }
         });
 
         $dropZone.append($dropLink);
@@ -621,12 +629,17 @@ function() {
     var $frame = $(event.target);
     var $parent = $frame.popup('source').closest('.popup, .toolContent');
 
+    // Since the edit popup might contain other popups within it,
+    // only run this code when the edit popup is opened
+    // (not when the internal popups are opened)
+    if (!$frame.is('.popup[data-popup-source-class~="objectId-edit"]')) {
+      return;
+    }
+    
     $frame.popup('container').removeClass('popup-objectId-edit-hide');
     $parent.addClass('popup-objectId-edit popup-objectId-edit-loading');
     $win.resize();
   });
-
-  var scrollTops = [ ];
 
   $doc.on('frame-load', '.popup[data-popup-source-class~="objectId-edit"] > .content > .frame', function(event) {
     var $frame = $(event.target);
@@ -656,7 +669,7 @@ function() {
     // Move the frame into view.
     var scrollTop = $win.scrollTop();
 
-    scrollTops.push(scrollTop);
+    $.data($frame[0], 'popup-content-edit-scrollTop', scrollTop);
 
     scrollTop += $('.toolHeader').outerHeight(true);
 
@@ -711,9 +724,15 @@ function() {
   });
 
   $doc.on('close', '.popup[data-popup-source-class~="objectId-edit"]', function(event) {
-    scrollTops.pop();
-
     var $frame = $(event.target);
+
+    // Since the edit popup might contain other popups within it,
+    // only run this code when the edit popup is opened
+    // (not when the internal popups are opened)
+    if (!$frame.is('.popup[data-popup-source-class~="objectId-edit"]')) {
+      return;
+    }
+
     var $source = $frame.popup('source');
     var $popup = $frame.popup('container');
 
@@ -761,6 +780,12 @@ function() {
   });
 
   $win.on('mousewheel', function(event, delta, deltaX, deltaY) {
+    var scrollTops = [ ];
+
+    $doc.find('.popup[data-popup-source-class~="objectId-edit"] > .content > .frame').each(function () {
+      scrollTops.push($.data(this, 'popup-content-edit-scrollTop'));
+    });
+
     if (scrollTops.length === 0) {
       return;
     }

@@ -17,6 +17,7 @@ com.psddev.dari.db.State,
 com.psddev.dari.util.ObjectUtils,
 
 java.util.Date,
+java.util.Iterator,
 java.util.List,
 
 org.joda.time.DateTime
@@ -35,6 +36,14 @@ if (wp.getOverlaidDraft(object) == null) {
             .sortDescending("cms.content.updateDate")
             .selectAll();
 
+    for (Iterator<Object> i = contentUpdates.iterator(); i.hasNext();) {
+        Draft contentUpdate = (Draft) i.next();
+
+        if (contentUpdate.isNewContent()) {
+            i.remove();
+        }
+    }
+
     if (!contentUpdates.isEmpty()) {
         wp.writeStart("div", "class", "message message-info");
         wp.writeStart("p");
@@ -46,9 +55,16 @@ if (wp.getOverlaidDraft(object) == null) {
         for (Object contentUpdateObject : contentUpdates) {
             if (contentUpdateObject instanceof Draft) {
                 Draft contentUpdate = (Draft) contentUpdateObject;
+                String contentUpdateName = contentUpdate.getName();
 
                 wp.writeStart("li");
                 wp.writeStart("a", "href", wp.objectUrl(null, contentUpdate));
+
+                if (!ObjectUtils.isBlank(contentUpdateName)) {
+                    wp.writeHtml(contentUpdateName);
+                    wp.writeHtml(" - ");
+                }
+
                 wp.writeHtml(wp.formatUserDateTime(contentUpdate.as(Content.ObjectModification.class).getUpdateDate()));
                 wp.writeHtml(" by ");
                 wp.writeObjectLabel(contentUpdate.getUpdateUser());
@@ -77,7 +93,7 @@ if (deleted != null) {
 }
 
 Draft draft = wp.getOverlaidDraft(object);
-Content.ObjectModification contentData = draft != null
+Content.ObjectModification contentData = draft != null && !draft.isNewContent()
         ? draft.as(Content.ObjectModification.class)
         : state.as(Content.ObjectModification.class);
 
