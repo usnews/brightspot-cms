@@ -34,8 +34,11 @@ public class AudioFileType implements FileContentType {
         page.write(page.h(fieldValue.getPath()));
         page.writeEnd();
         page.writeStart("audio",
-                "style", "display:block;",
-                "src", fieldValue.getPublicUrl());
+                "style", "display: block",
+                "controls", "controls");
+        page.writeTag("source",
+                "src", fieldValue.getPublicUrl(),
+                "type", fieldValue.getContentType());
         page.writeEnd();
     }
 }
