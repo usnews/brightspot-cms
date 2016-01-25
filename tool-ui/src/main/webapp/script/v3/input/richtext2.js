@@ -3576,7 +3576,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 });
             } else {
                 Rte.toolbarConfig.push({
-                    className: 'rte2-toolbar-noicon',
+                    className: 'rte2-toolbar-noicon rte2-toolbar-' + styleName,
                     style: styleName,
                     text: rtElement.displayName
                 });
