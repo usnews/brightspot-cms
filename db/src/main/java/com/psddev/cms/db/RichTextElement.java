@@ -23,7 +23,6 @@ public abstract class RichTextElement extends Record {
     public @interface Tag {
 
         String value();
-        boolean editForm() default true;
         String[] allowedContexts() default { };
         String menu() default "";
     }

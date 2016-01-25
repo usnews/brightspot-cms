@@ -1951,7 +1951,10 @@ public class ToolPageContext extends WebPageContext {
                 ObjectType type = ObjectType.getInstance(c);
 
                 richTextElement.put("tag", tag.value());
-                richTextElement.put("popup", tag.editForm());
+                richTextElement.put("popup", type.getFields().stream()
+                        .filter(f -> !f.as(ToolUi.class).isHidden())
+                        .findFirst()
+                        .isPresent());
 
                 List<String> allowedParents = new ArrayList<>();
                 if (tag.allowedContexts().length > 0) {
