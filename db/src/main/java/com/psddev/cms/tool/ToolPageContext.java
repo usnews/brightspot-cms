@@ -1971,9 +1971,9 @@ public class ToolPageContext extends WebPageContext {
                     richTextElement.put("context", allowedParents);
                 }
 
-                String subMenu = tag.subMenu().trim();
-                if (!subMenu.isEmpty()) {
-                    richTextElement.put("submenu", subMenu);
+                String menu = tag.menu().trim();
+                if (!menu.isEmpty()) {
+                    richTextElement.put("submenu", menu);
                 }
                 richTextElement.put("styleName", type.getInternalName().replace(".", "-"));
                 richTextElement.put("typeId", type.getId().toString());

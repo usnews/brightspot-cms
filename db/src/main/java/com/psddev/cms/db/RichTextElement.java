@@ -25,6 +25,6 @@ public abstract class RichTextElement extends Record {
         String value();
         boolean editForm() default true;
         String[] allowedContexts() default { };
-        String subMenu() default "";
+        String menu() default "";
     }
 }
