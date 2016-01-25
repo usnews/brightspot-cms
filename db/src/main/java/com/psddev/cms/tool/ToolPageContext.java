@@ -1953,8 +1953,6 @@ public class ToolPageContext extends WebPageContext {
                 richTextElement.put("tag", tag.value());
                 richTextElement.put("popup", tag.editForm());
 
-                richTextElement.put("void", tag.voidElement());
-
                 List<String> allowedParents = new ArrayList<>();
                 if (tag.allowedContexts().length > 0) {
 
