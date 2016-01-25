@@ -1956,25 +1956,19 @@ public class ToolPageContext extends WebPageContext {
                         .findFirst()
                         .isPresent());
 
-                List<String> allowedParents = new ArrayList<>();
+                List<String> context = new ArrayList<>();
 
-                if (tag.allowedContexts().length > 0) {
-                    for (String allowedParent : tag.allowedContexts()) {
-                        if (RichTextElement.ROOT_CONTEXT.equals(allowedParent) && !allowedParents.contains(null)) {
-                            allowedParents.add(0, null);
-
-                        } else {
-                            String trimmedParent = allowedParent.trim();
-
-                            if (!ObjectUtils.isBlank(trimmedParent)) {
-                                allowedParents.add(trimmedParent);
-                            }
-                        }
-                    }
+                if (tag.root()) {
+                    context.add(null);
                 }
 
-                if (allowedParents.size() > 0) {
-                    richTextElement.put("context", allowedParents);
+                Stream.of(tag.parents())
+                        .map(String::trim)
+                        .filter(p -> !ObjectUtils.isBlank(p))
+                        .forEach(p -> context.add(p));
+
+                if (!context.isEmpty()) {
+                    richTextElement.put("context", context);
                 }
 
                 String menu = tag.menu().trim();

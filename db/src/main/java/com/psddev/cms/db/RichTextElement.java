@@ -11,8 +11,6 @@ import java.util.Map;
 
 public abstract class RichTextElement extends Record {
 
-    public static final String ROOT_CONTEXT = "rte.root.context";
-
     public abstract void fromAttributes(Map<String, String> attributes);
 
     public abstract Map<String, String> toAttributes();
@@ -23,7 +21,8 @@ public abstract class RichTextElement extends Record {
     public @interface Tag {
 
         String value();
-        String[] allowedContexts() default { };
+        boolean root() default true;
+        String[] parents() default { };
         String menu() default "";
     }
 }
