@@ -1957,27 +1957,32 @@ public class ToolPageContext extends WebPageContext {
                         .isPresent());
 
                 List<String> allowedParents = new ArrayList<>();
-                if (tag.allowedContexts().length > 0) {
 
+                if (tag.allowedContexts().length > 0) {
                     for (String allowedParent : tag.allowedContexts()) {
                         if (RichTextElement.ROOT_CONTEXT.equals(allowedParent) && !allowedParents.contains(null)) {
                             allowedParents.add(0, null);
+
                         } else {
                             String trimmedParent = allowedParent.trim();
+
                             if (!ObjectUtils.isBlank(trimmedParent)) {
                                 allowedParents.add(trimmedParent);
                             }
                         }
                     }
                 }
+
                 if (allowedParents.size() > 0) {
                     richTextElement.put("context", allowedParents);
                 }
 
                 String menu = tag.menu().trim();
+
                 if (!menu.isEmpty()) {
                     richTextElement.put("submenu", menu);
                 }
+
                 richTextElement.put("styleName", type.getInternalName().replace(".", "-"));
                 richTextElement.put("typeId", type.getId().toString());
                 richTextElement.put("displayName", type.getDisplayName());
