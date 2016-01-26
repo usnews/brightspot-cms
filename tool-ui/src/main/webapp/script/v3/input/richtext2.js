@@ -3558,6 +3558,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 element: tag,
                 elementAttrAny: true,
                 singleLine: true,
+                "void": Boolean(rtElement.void),
                 popup: rtElement.popup === false ? false : true,
                 context: rtElement.context
             };
