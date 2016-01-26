@@ -25,14 +25,20 @@ if (selected instanceof ToolUser) {
     selectedUser = (ToolUser) selected;
 }
 
-Query<ToolUser> query = Query.from(ToolUser.class).where("name != missing").sortAscending("name");
+Query<ToolUser> query = Query.from(ToolUser.class).where("name isnt missing").and("cms.content.trashed = true || cms.content.trashed is missing").sortAscending("cms.content.trashed");
+Query<ToolUser> queryArchivedUsers = Query.from(ToolUser.class).where("name isnt missing").and("cms.content.trashed = true");
 String queryString = wp.param("query");
+String queryArchivedUsersString = wp.param("queryArchivedUsers");
 if (!ObjectUtils.isBlank(queryString)) {
     query.where("name ^=[c] ? or email ^=[c] ?", queryString, queryString);
+}
+if (!ObjectUtils.isBlank(queryArchivedUsersString)) {
+    queryArchivedUsers.where("name ^=[c] ? or email ^=[c] ?", queryArchivedUsersString, queryArchivedUsersString);
 }
 
 long offset = wp.longParam("offset", 0L);
 PaginatedResult<ToolUser> users = query.select(offset, wp.intParam("limit", 10));
+List<ToolUser> archivedUsers = queryArchivedUsers.selectAll();
 
 // --- Presentation ---
 
@@ -57,7 +63,8 @@ PaginatedResult<ToolUser> users = query.select(offset, wp.intParam("limit", 10))
             <li<%= user.equals(selectedUser) ? " class=\"selected\"" : "" %>>
                 <a href="<%= wp.objectUrl("/admin/users.jsp", user,
                         "query", queryString,
-                        "offset", offset) %>" target="_top"><%= wp.objectLabel(user) %></a>
+                        "offset", offset) %>" target="_top"><%= wp.objectLabel(user) %>
+                        <%= archivedUsers.contains(user) ? " (Archived)" : "" %></a>
             </li>
         <% } %>
     </ul>
