@@ -245,6 +245,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
             data-o-id="<%= State.getInstance(selected).getId() %>"
             data-o-label="<%= wp.h(State.getInstance(selected).getLabel()) %>"
             data-o-preview="<%= wp.h(wp.getPreviewThumbnailUrl(selected)) %>"
+            data-object-id="<%= State.getInstance(editing).getId() %>"
             data-content-locked-out="<%= lockedOut && !editAnyway %>"
             data-content-id="<%= State.getInstance(editing).getId() %>">
 
@@ -304,7 +305,10 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                         }
 
                         wp.write(": " );
-                        wp.write(wp.getObjectLabelOrDefault(editing, "<em>" + wp.localize(null, "label.untitled") + "</em>"));
+
+                        wp.writeStart("span", "data-dynamic-html", "${toolPageContext.createObjectLabelHtml(content)}");
+                            wp.write(wp.createObjectLabelHtml(editing));
+                        wp.writeEnd();
                     wp.writeEnd();
 
                     if (selected instanceof Page &&
