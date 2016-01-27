@@ -1,5 +1,6 @@
 <%@ page session="false" import="
 
+com.psddev.cms.db.Content,
 com.psddev.cms.db.ToolRole,
 com.psddev.cms.db.ToolUser,
 com.psddev.cms.tool.ToolPageContext,
@@ -25,20 +26,14 @@ if (selected instanceof ToolUser) {
     selectedUser = (ToolUser) selected;
 }
 
-Query<ToolUser> query = Query.from(ToolUser.class).where("name isnt missing").and("cms.content.trashed = true || cms.content.trashed is missing").sortAscending("cms.content.trashed");
-Query<ToolUser> queryArchivedUsers = Query.from(ToolUser.class).where("name isnt missing").and("cms.content.trashed = true");
+Query<ToolUser> query = Query.from(ToolUser.class).where("name isnt missing").and("cms.content.trashed = true || cms.content.trashed is missing").sortAscending("cms.content.trashed").sortAscending("name");
 String queryString = wp.param("query");
-String queryArchivedUsersString = wp.param("queryArchivedUsers");
 if (!ObjectUtils.isBlank(queryString)) {
     query.where("name ^=[c] ? or email ^=[c] ?", queryString, queryString);
-}
-if (!ObjectUtils.isBlank(queryArchivedUsersString)) {
-    queryArchivedUsers.where("name ^=[c] ? or email ^=[c] ?", queryArchivedUsersString, queryArchivedUsersString);
 }
 
 long offset = wp.longParam("offset", 0L);
 PaginatedResult<ToolUser> users = query.select(offset, wp.intParam("limit", 10));
-List<ToolUser> archivedUsers = queryArchivedUsers.selectAll();
 
 // --- Presentation ---
 
@@ -63,8 +58,9 @@ List<ToolUser> archivedUsers = queryArchivedUsers.selectAll();
             <li<%= user.equals(selectedUser) ? " class=\"selected\"" : "" %>>
                 <a href="<%= wp.objectUrl("/admin/users.jsp", user,
                         "query", queryString,
-                        "offset", offset) %>" target="_top"><%= wp.objectLabel(user) %>
-                        <%= archivedUsers.contains(user) ? " (Archived)" : "" %></a>
+                        "offset", offset) %>" target="_top">
+                        <%= user.as(Content.ObjectModification.class).isTrash() ? wp.createObjectLabelHtml(user) : wp.objectLabel(user) %>
+                </a>
             </li>
         <% } %>
     </ul>
