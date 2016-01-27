@@ -5,25 +5,25 @@ import com.psddev.dari.db.State;
 /**
  * Interface for displaying {@link com.psddev.cms.db.Content} edit form as read-only.
  */
-public interface ContentConditionallyEditable {
+public interface ContentEditable {
 
     /**
      * Returns {@code true} if {@link com.psddev.cms.db.Content}
-     * edit form should be displayed as read-only.
+     * edit form should be editable.
      */
-    public boolean isReadOnly();
+    public boolean shouldContentBeEditable();
 
     /**
      * Returns {@code true} if the given Object
-     * should be displayed as read-only
+     * should be editable.
      * @param object Can't be {@code null}
      */
-    public static boolean isReadOnly(Object object) {
+    public static boolean shouldContentBeEditable(Object object) {
         if (object instanceof State) {
             object = ((State) object).getOriginalObject();
         }
 
-        return object instanceof ContentConditionallyEditable
-                && ((ContentConditionallyEditable) object).isReadOnly();
+        return !(object instanceof ContentEditable)
+                || ((ContentEditable) object).shouldContentBeEditable();
     }
 }
