@@ -329,7 +329,6 @@ public class UploadFiles extends PageServlet {
 
         List<ObjectType> types = new ArrayList<ObjectType>(typesSet);
         Collections.sort(types, new ObjectFieldComparator("name", false));
-        Uploader uploader = Uploader.getUploader(Optional.empty());
 
         page.writeStart("h1");
             page.writeHtml(page.localize(UploadFiles.class, "title"));
@@ -369,12 +368,8 @@ public class UploadFiles extends PageServlet {
                     page.writeEnd();
                 page.writeEnd();
                 page.writeStart("div", "class", "inputSmall");
-                    if (uploader != null) {
-                        uploader.writeHtml(page, Optional.empty());
-                    }
                     page.writeElement("input",
                             "id", page.getId(),
-                            "class", uploader != null ? uploader.getClassIdentifier() : null,
                             "type", "file",
                             "name", "file",
                             "multiple", "multiple");

@@ -7,6 +7,7 @@ com.psddev.cms.db.ToolRole,
 com.psddev.cms.db.ToolUi,
 com.psddev.cms.db.ToolUser,
 com.psddev.cms.db.Workflow,
+com.psddev.cms.db.WorkflowState,
 com.psddev.cms.db.WorkflowTransition,
 com.psddev.cms.tool.Area,
 com.psddev.cms.tool.Plugin,
@@ -37,7 +38,8 @@ java.util.TreeSet,
 java.util.stream.Stream
 " %>
 <%@ page import="com.psddev.dari.util.StringUtils" %>
-<%@ page import="com.psddev.dari.db.DatabaseEnvironment" %><%
+<%@ page import="com.psddev.dari.db.DatabaseEnvironment" %>
+<%@ page import="com.google.common.collect.ImmutableMap" %><%
 
 // --- Logic ---
 
@@ -204,6 +206,35 @@ wp.writeStart("div", "class", "inputSmall permissions");
         }
     }
 
+    wp.writeStart("div", "class", "permissionsSection");
+        writeParent(wp, permissions, "UI", "ui");
+
+        wp.writeStart("ul");
+            for (Map.Entry<String, String> entry : new ImmutableMap.Builder<String, String>()
+                        .put("contentLock", "Content Unlock")
+                        .build()
+                        .entrySet()) {
+
+                String permissionId = "ui/" + entry.getKey();
+
+                wp.writeStart("li");
+                    wp.writeElement("input",
+                            "type", "checkbox",
+                            "id", wp.createId(),
+                            "name", wp.getRequest().getAttribute("inputName"),
+                            "value", permissionId,
+                            "checked", permissions.contains(permissionId) ? "checked" : null);
+
+                    wp.writeHtml(" ");
+
+                    wp.writeStart("label", "for", wp.getId());
+                        wp.writeHtml(entry.getValue());
+                    wp.writeEnd();
+                wp.writeEnd();
+            }
+        wp.writeEnd();
+    wp.writeEnd();
+
     if (!tabNames.isEmpty()) {
         wp.writeStart("div", "class", "permissionsSection");
             writeParent(wp, permissions, "Tabs", "tab");
@@ -340,7 +371,13 @@ wp.writeStart("div", "class", "inputSmall permissions");
                                     String transitionDisplay = entry2.getValue().getDisplayName();
 
                                     wp.writeStart("li");
-                                        writeChild(wp, permissions, "Workflow: " + transitionDisplay, typePermissionId + "/" + transition);
+                                        writeChild(wp, permissions, "Workflow Transition: " + transitionDisplay, typePermissionId + "/" + transition);
+                                    wp.writeEnd();
+                                }
+
+                                for (WorkflowState workflowState : workflow.getStates()) {
+                                    wp.writeStart("li");
+                                        writeChild(wp, permissions, "Workflow Save Allowed: " + workflowState.getDisplayName(), typePermissionId + "/workflow.saveAllowed." + workflowState.getName());
                                     wp.writeEnd();
                                 }
                             }

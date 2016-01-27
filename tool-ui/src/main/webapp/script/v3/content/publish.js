@@ -126,6 +126,7 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
               });
 
               $form.find('.state-changed').removeClass('state-changed');
+              $form.find('.toBeRemoved').remove();
 
               $form.removeAttr('target');
               $frame.remove();

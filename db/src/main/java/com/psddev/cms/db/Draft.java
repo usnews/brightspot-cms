@@ -21,6 +21,7 @@ import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.UuidUtils;
 
 /** Unpublished object or unsaved changes to an existing object. */
 @Draft.DisplayName("Content Update")
@@ -28,6 +29,7 @@ import com.psddev.dari.util.ObjectUtils;
 public class Draft extends Content {
 
     private static final String OLD_VALUES_EXTRA = "cms.draft.oldValues";
+    private static final Object REMOVED = new Object();
 
     @Indexed
     private DraftStatus status;
@@ -50,6 +52,9 @@ public class Draft extends Content {
 
     @Deprecated
     private Map<String, Object> objectChanges;
+
+    @Indexed
+    private boolean newContent;
 
     private Map<String, Map<String, Object>> differences;
 
@@ -157,6 +162,12 @@ public class Draft extends Content {
             String id = ObjectUtils.to(String.class, map.get(State.ID_KEY));
 
             if (id != null) {
+                if (valuesById.containsKey(id)) {
+                    id = UuidUtils.createSequentialUuid().toString();
+
+                    map.put(State.ID_KEY, id);
+                }
+
                 valuesById.put(id, new CompactMap<>(map));
             }
 
@@ -260,6 +271,10 @@ public class Draft extends Content {
                     entry.setValue(mergeValue(environment, oldIdMaps, differences, entry.getValue()));
                 }
 
+                if (newIdMap.get(State.ID_KEY) == null) {
+                    return REMOVED;
+                }
+
             } else {
                 valueMap.forEach((k, v) -> newIdMap.put(k, mergeValue(environment, oldIdMaps, differences, v)));
             }
@@ -270,6 +285,7 @@ public class Draft extends Content {
             return ((List<Object>) value)
                     .stream()
                     .map(item -> mergeValue(environment, oldIdMaps, differences, item))
+                    .filter(item -> item != REMOVED)
                     .collect(Collectors.toList());
         }
 
@@ -378,6 +394,14 @@ public class Draft extends Content {
     @Deprecated
     public void setObjectChanges(Map<String, Object> values) {
         this.objectChanges = values;
+    }
+
+    public boolean isNewContent() {
+        return newContent;
+    }
+
+    public void setNewContent(boolean newContent) {
+        this.newContent = newContent;
     }
 
     /**

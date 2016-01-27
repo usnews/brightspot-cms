@@ -4,13 +4,16 @@
   position: relative;
   vertical-align: top;
 
-  // Give a higher z-index than the rich text editor.
-  z-index: 3;
+  .rte2-wrapper > & {
 
-  // When hovering the toolbar, give it a higher z-index than other toolbars
-  // below so that the submenu will be on top of other toolbars.
-  &:hover {
-    z-index: 4;
+    // Give a higher z-index than the rich text editor.
+    z-index: 3;
+
+    // When hovering the toolbar, give it a higher z-index than other toolbars
+    // below so that the submenu will be on top of other toolbars.
+    &:hover {
+      z-index: 4;
+    }
   }
 
   &.rte2-toolbar-fixed {
@@ -33,7 +36,8 @@
       padding:0.5em;
       background-color: fade(white, 93%);
       border:1px solid @color-separator;
-
+      z-index:1;
+      
       li {
         display:block;
       }
@@ -49,13 +53,19 @@
         display:block;
       }
     }
+
+  }
+
+  // To leave room for the word count, make sure there is space after the last toolbar item
+  > li:last-of-type {
+      margin-right: 7em;
   }
   
   a, span, .rte2-toolbar-separator {
     color: @color-placeholder;
     cursor: pointer;
     display: inline-block;
-    font-size: 80%;
+    font-size: floor(@fontSize-default * 0.8);
     height: 20px;
     line-height: 20px;
     margin: 0 5px 0 0;
@@ -87,6 +97,7 @@
     &:not(.active):hover {
       box-shadow: 0 1px 2px fade(black, 20%);
       color: @color-text;
+      text-decoration: none;
     }
   }
 
@@ -113,6 +124,8 @@
   .rte2-toolbar-enhancement { width:auto; padding-left:0.5em; padding-right:0.5em; }
   .rte2-toolbar-marker { width:auto; padding-left:0.5em; padding-right:0.5em; }
 
+  .rte2-toolbar-enhancement-inline { width:auto; padding-left:0.5em; padding-right:0.5em; }
+
   .rte2-toolbar-track-changes { width:auto; padding-left:0.5em; padding-right:0.5em; }
   .rte2-toolbar-track-changes-accept { .icon; .icon-ok; }
   .rte2-toolbar-track-changes-reject { .icon; .icon-remove; }
@@ -133,6 +146,8 @@
   .rte2-toolbar-removeCompletely { .icon; .icon-remove; color: @color-remove; }
 
   .rte2-toolbar-custom { width:auto; padding: 0 0.5em; }
+  
+  .rte2-toolbar-noicon { width:auto; padding: 0 0.5em; }
 
   .rte2-toolbar-submenu > span {
     .icon;
@@ -168,12 +183,22 @@
   .rte2-enhancement-toolbar-size { width:auto; }
 }
 
-.rte2-enhancement.toBeRemoved {
+.rte2-enhancement.toBeRemoved, .rte2-table.toBeRemoved {
   .rte2-enhancement-toolbar-remove { display:none; }
   .rte2-enhancement-toolbar-restore { display:inline-block; }
   .rte2-enhancement-toolbar-remove-completely { display:inline-block; }
 }
-
+.rte2-table {
+  box-sizing: border-box;
+  padding: .5em 5px;
+  position: relative;
+  .background-striped(@color-heading);
+}
+.rte2-table-placeholder {
+  overflow:hidden;
+  height:auto;
+  width:100%;
+}
 .rte2-style-html {
   font-family: @fontFamily-code;
   background-color:fade(black, 10%);
@@ -215,10 +240,27 @@
 .rte2-style-align-right {
   text-align:right;
 }
+.rte2-style-spelling {
+  border-bottom:1px dotted red;
+}
+@rte2-style-comment-border: 1px solid rgba(0, 0, 0, 0.3);
 .rte2-style-comment {
   font-style:italic;
-  outline:1px solid #333;
-  padding:0.1em;
+  border-top: @rte2-style-comment-border;
+  border-bottom:@rte2-style-comment-border;
+  background-color: rgba(0,0,0,0.1);
+}
+.rte2-style-comment-start {
+  padding-left:0.1em;
+  border-left: @rte2-style-comment-border;
+
+  .icon;
+  .icon-comment-alt;
+
+}
+.rte2-style-comment-end {
+  padding-right:0.1em;
+  border-right:  @rte2-style-comment-border;
 }
 .rte2-style-collapsed {
   font-style:italic;
@@ -227,7 +269,12 @@
   padding:0.1em 0.5em;
   background-color:#ddd;
 }
-.rte2-style-enhancement {
+.rte2-style-enhancement-inline {
+  padding:0;
+  background-color:rgba(180, 180, 180, 0.3);
+  outline:1px solid rgba(100, 100, 100, 0.5);
+}
+.rte2-style-enhancement, .rte2-style-table {
   display:inline-block;
   padding:2em;
   background-color:#ddd;
@@ -246,17 +293,22 @@
   margin:0 0 0 1em;
   width:400px;
 }
-.rte2-style-track-delete {
+.rte2-style-track-delete, .rte2-table-placeholder del {
   background-color: rgba(255, 0, 0, 0.3);
   color:white;
   text-decoration: line-through;
 }
-.rte2-style-track-display .rte2-style-track-insert {
-  background-color: rgba(125, 255, 125, 0.3);
-  color:black;
+.rte2-table-placeholder del {
+  display:none;
 }
-.rte2-style-spelling {
-  border-bottom:1px dotted red;
+.rte2-style-track-display {
+  .rte2-style-track-insert, .rte2-table-placeholder ins {
+    background-color: rgba(125, 255, 125, 0.3);
+    color:black;
+  }
+  .rte2-table-placeholder del {
+    display:inline;
+  }
 }
 
 .CodeMirror-hints {
@@ -327,9 +379,21 @@ li.CodeMirror-hint-active {
   font-family: monospace;
 }
 
-
 .CodeMirror-dialog button {
   font-size: 70%;
+}
+
+// For enhancements, let the enhancement toolbar overflow the codemirror widget,
+// and reset the z-index because it was causing problems with the submenu hover
+.rte2-codemirror {
+  .CodeMirror,
+  .CodeMirror-scroll {
+    overflow: visible !important;
+  }
+  .CodeMirror-linewidget {
+    overflow: visible;
+    z-index: inherit;
+  }
 }
 
 .rte2-wrapper {
@@ -368,7 +432,7 @@ li.CodeMirror-hint-active {
     width: 100%;
     z-index: 49;
 
-    .rte2-toolbar {
+    > .rte2-toolbar {
       background: white;
       border-bottom: 1px solid @color-separator;
       left: 0 !important;
@@ -376,6 +440,12 @@ li.CodeMirror-hint-active {
       padding-right: 5px;
       right: 0 !important;
       width: auto !important;
+    }
+
+    .rte2-toolbar {
+      a, span, .rte2-toolbar-separator {
+        font-size: 12px;
+      }
     }
 
     .CodeMirror {
@@ -428,31 +498,33 @@ li.CodeMirror-hint-active {
   }
 
   .rte2-enhancement {
-  
-    .background-striped(@color-heading);
     box-sizing: border-box;
-    padding: 4px;
+    padding: 0 5px (@lineHeight-default + 5px) 5px;
+    position: relative;
+
+    &:before {
+      .background-striped(@color-heading);
+      bottom: @lineHeight-default;
+      content: '';
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
 
     .rte2-enhancement-label {
- 
+      overflow: hidden;
       position:relative;
     }
     
     figure {
+      float: left;
       height: 153px;
     }
 
     img {
       max-height: 100%;
       max-width: 100%;
-    }
-
-    a {
-      color: @color-placeholder;
-
-      &:hover {
-        background-color: fade(white, 93%);
-      }
     }
 
     .rte2-enhancement-size {
@@ -462,6 +534,22 @@ li.CodeMirror-hint-active {
       width:auto;
       background-color: fade(white, 85%);
       padding:0.25em;
+    }
+
+    &.toBeRemoved {
+      .background-striped(lighten(@color-remove, 10%));
+    }
+
+    &,
+    &.toBeRemoved {
+      a {
+        color: @color-placeholder;
+
+        &:hover {
+          background-color: fade(white, 93%);
+          text-decoration: none;
+        }
+      }
     }
   }
 }
@@ -506,9 +594,89 @@ li.CodeMirror-hint-active {
   float: right;
 }
 
+.popup[name=rte2-frame-enhancement-inline] {
+  max-width:1000px;
+  width:70%;
+
+}
+
+.popup[name=rte2-frame-table-editor] {
+  
+  max-width:1000px;
+  width: 60%;
+  margin-left:-40%;
+  
+  .closeButton {
+    display:none;
+  }
+  
+}
+
+.rte2-table-editor {
+}
+.rte2-table-editor-save {
+  margin-right: 0.5em;
+}
+.rte2-table-editor-controls {
+  margin-top:1em;
+}
+
+.rte2-table-placeholder {
+  u { text-decoration:underline; }
+  strike { text-decoration:line-through;}
+  
+  // Within the table do not let users click link or button elements
+  a, button { pointer-events:none; }
+
+  .rte-comment {
+    &:extend(.rte2-style-comment);
+    &:extend(.rte2-style-comment-start all);
+    &:extend(.rte2-style-comment-end);
+  }
+}
+
 // Div that is used as a paste clipboard
 // Note this cannot be hidden because it needs to get focus
 .rte2-clipboard {
   max-height:1px;
   overflow:hidden;
+}
+
+.rte2-onclick-selector {
+  ul {
+    margin:0 1em;
+  }
+}
+
+.rte2-dropdown {
+  z-index:2;
+  position:absolute;
+  background-color:rgba(255, 255, 255, 0.9);
+  padding:0.25em;
+  border:1px solid rgba(0, 0, 0, 0.5);
+  border-radius:2px;
+  top:0;
+  left:0;
+  display:table;
+
+  .rte2-dropdown-item {
+    display:table-row;
+  }
+  
+  .rte2-dropdown-label {
+    padding-right:0.25em;
+    border-right:1px solid #aaa;
+    display:table-cell;
+  }
+  .rte2-dropdown-edit {
+    padding-left:0.25em;
+    padding-right:0.25em;
+    border-right:1px solid #aaa;
+    margin-right:0.25em;
+    display:table-cell;
+  }
+  .rte2-dropdown-clear {
+    display:table-cell;
+    padding-left:0.25em;
+  }
 }

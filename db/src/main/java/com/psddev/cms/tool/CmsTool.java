@@ -167,7 +167,13 @@ public class CmsTool extends Tool {
     private boolean enableCrossDomainInlineEditing;
 
     @ToolUi.Tab("Debug")
+    private boolean enablePaddedCrop;
+
+    @ToolUi.Tab("Debug")
     private boolean disableCodeMirrorRichTextEditor;
+
+    @ToolUi.Tab("Debug")
+    private boolean disableRtc;
 
     @Embedded
     public static class CommonTime extends Record {
@@ -754,12 +760,28 @@ public class CmsTool extends Tool {
         this.enableCrossDomainInlineEditing = enableCrossDomainInlineEditing;
     }
 
+    public boolean isEnablePaddedCrop() {
+        return enablePaddedCrop;
+    }
+
+    public void setEnablePaddedCrop(boolean enablePaddedCrop) {
+        this.enablePaddedCrop = enablePaddedCrop;
+    }
+
     public boolean isDisableCodeMirrorRichTextEditor() {
         return disableCodeMirrorRichTextEditor;
     }
 
     public void setDisableCodeMirrorRichTextEditor(boolean disableCodeMirrorRichTextEditor) {
         this.disableCodeMirrorRichTextEditor = disableCodeMirrorRichTextEditor;
+    }
+
+    public boolean isDisableRtc() {
+        return disableRtc;
+    }
+
+    public void setDisableRtc(boolean disableRtc) {
+        this.disableRtc = disableRtc;
     }
 
     /** Returns the preview URL. */
