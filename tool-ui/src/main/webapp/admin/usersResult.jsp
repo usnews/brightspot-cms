@@ -1,6 +1,5 @@
 <%@ page session="false" import="
 
-com.psddev.cms.db.Content,
 com.psddev.cms.db.ToolRole,
 com.psddev.cms.db.ToolUser,
 com.psddev.cms.tool.ToolPageContext,
@@ -58,9 +57,7 @@ PaginatedResult<ToolUser> users = query.select(offset, wp.intParam("limit", 10))
             <li<%= user.equals(selectedUser) ? " class=\"selected\"" : "" %>>
                 <a href="<%= wp.objectUrl("/admin/users.jsp", user,
                         "query", queryString,
-                        "offset", offset) %>" target="_top">
-                        <%= user.as(Content.ObjectModification.class).isTrash() ? wp.createObjectLabelHtml(user) : wp.objectLabel(user) %>
-                </a>
+                        "offset", offset) %>" target="_top"><%= wp.createObjectLabelHtml(user) %></a>
             </li>
         <% } %>
     </ul>
