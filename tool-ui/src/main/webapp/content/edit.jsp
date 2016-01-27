@@ -35,6 +35,7 @@ com.psddev.dari.util.HtmlWriter,
 com.psddev.dari.util.JspUtils,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.StringUtils,
+com.psddev.cms.tool.ContentEditable,
 
 java.io.StringWriter,
 java.util.ArrayList,
@@ -594,7 +595,9 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                     wp.writeEnd();
                 }
 
-                boolean isWritable = wp.hasPermission("type/" + editingState.getTypeId() + "/write") && !editingState.getType().as(ToolUi.class).isReadOnly();
+                boolean isWritable = wp.hasPermission("type/" + editingState.getTypeId() + "/write")
+                        && !editingState.getType().as(ToolUi.class).isReadOnly()
+                        && ContentEditable.shouldContentBeEditable(editing);
                 boolean isDraft = !editingState.isNew() && (contentData.isDraft() || draft != null);
                 boolean isHistory = history != null;
                 boolean isTrash = contentData.isTrash();
