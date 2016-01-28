@@ -193,7 +193,7 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>${project.build.directory}/generated-sources/styleguide</source>
+                                <source>\${project.build.directory}/generated-sources/styleguide</source>
                             </sources>
                         </configuration>
                     </execution>
