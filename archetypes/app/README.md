@@ -11,7 +11,7 @@ Create a project using the Maven archetype:
         -DarchetypeVersion=3.1-SNAPSHOT \
         -DgroupId=com.example \
         -DartifactId=demo
-        
+
 Change into the newly created project directory:
 
     cd demo
@@ -27,7 +27,7 @@ Prepare the project:
 Build and run the project:
 
     mvn -P run clean package cargo:run
-    
+
 (Optional) Run Brightspot Styleguide:
 
     target/bin/styleguide
@@ -47,7 +47,7 @@ Create a project using the archetype:
 Change into the newly created project directory:
 
     cd demo
-    
+
 Prepare the project:
 
     npm install
@@ -55,7 +55,7 @@ Prepare the project:
 (Optional) Install Brightspot Base and any other libraries:
 
     npm run grunt -- install-library --endpoint perfectsense/brightspot-base#master
-    
+
 Build the project:
 
     npm run grunt
