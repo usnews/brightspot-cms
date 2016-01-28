@@ -1522,29 +1522,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
         
         /*==================================================
-         * Context
-         *==================================================*/
-        
-        /**
-         * @param {String} element
-         * Element name that should be used as the root context.
-         */
-        contextSetRoot: function(element) {
-            self.contextRoot = element || null;
-        },
-
-        /**
-         * @returns {String} element
-         * Element name that is used as the root context.
-         */
-        contextGetRoot: function() {
-            var self;
-            self = this;
-            return self.contextRoot;
-        },
-
-        
-        /*==================================================
          * LINKS
          *==================================================*/
 
