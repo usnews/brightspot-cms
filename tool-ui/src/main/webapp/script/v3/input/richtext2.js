@@ -399,6 +399,18 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
 
         /**
+         * Element name to use as the root context when determining if certain styles
+         * are allowed to be used at the cursor position.
+         * Defaults to null.
+         *
+         * @example
+         * // Only allow the use of styles that are allowed inside the 'heading' element.
+         * rte.contextRoot = 'heading';
+         */
+        contextRoot: null,
+
+        
+        /**
          * Initialize the rich text editor.
          *
          * @param {element|selector|jQuery object} element
@@ -1354,16 +1366,24 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                             styleObj = self.styles[styleName] || {};
                             if (styleObj.element) {
                                 allRoot = false;
-                                activeElements[styleObj.element] = styleValue;
+                                activeElements[styleObj.element] = true;
                             }
                         });
+
+                        // If a different root context was specified, add that to the list of active elements.
+                        // For example, if the rte is meant to edit the content inside a '<mycontent>' element,
+                        // then contextRoot would be 'mycontent', and only those elements allowed in that element
+                        // would be allowed.
+                        if (self.contextRoot) {
+                            activeElements[self.contextRoot] = true;
+                        }
                         
                         // Loop through all the elements listed as a required context for this style
                         $.each(styleObj.context, function (i, contextElement) {
 
                             // If null is specified as a context, then the style can appear in the "root" context.
                             // If the entire range is plain text then we'll consider this "root"
-                            if (contextElement === null && allRoot) {
+                            if (contextElement === null && self.contextRoot === null && allRoot) {
                                 validContext = true;
                                 return false;
                             }
@@ -1500,7 +1520,30 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             }
         },
 
+        
+        /*==================================================
+         * Context
+         *==================================================*/
+        
+        /**
+         * @param {String} element
+         * Element name that should be used as the root context.
+         */
+        contextSetRoot: function(element) {
+            self.contextRoot = element || null;
+        },
 
+        /**
+         * @returns {String} element
+         * Element name that is used as the root context.
+         */
+        contextGetRoot: function() {
+            var self;
+            self = this;
+            return self.contextRoot;
+        },
+
+        
         /*==================================================
          * LINKS
          *==================================================*/
