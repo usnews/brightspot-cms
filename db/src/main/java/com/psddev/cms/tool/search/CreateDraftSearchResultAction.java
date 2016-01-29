@@ -27,6 +27,11 @@ import com.psddev.dari.util.UrlBuilder;
 public class CreateDraftSearchResultAction implements SearchResultAction {
 
     @Override
+    public int getPosition() {
+        return -1;
+    }
+
+    @Override
     public void writeHtml(
             ToolPageContext page,
             Search search,
