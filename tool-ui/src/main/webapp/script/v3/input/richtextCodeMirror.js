@@ -1,12 +1,13 @@
 define([
     'jquery',
+    'bsp-utils',
     'v3/spellcheck',
     'codemirror/lib/codemirror',
     'codemirror/addon/hint/show-hint',
     'codemirror/addon/dialog/dialog',
     'codemirror/addon/search/searchcursor',
     'codemirror/addon/search/search'
-], function($, spellcheckAPI, CodeMirror) {
+], function($, bsp_utils, spellcheckAPI, CodeMirror) {
     
     var CodeMirrorRte;
 
@@ -284,6 +285,10 @@ define([
             self.trackInit();
             self.spellcheckInit();
             self.modeInit();
+
+            $(window).resize(bsp_utils.throttle(500, function () {
+                self.refresh();
+            }));
         },
 
         
