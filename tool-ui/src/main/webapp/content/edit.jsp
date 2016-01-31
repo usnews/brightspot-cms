@@ -1221,7 +1221,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
 
     <script type="text/javascript">
         (function($, win, undef) {
-            var PEEK_WIDTH = 100,
+            var PEEK_WIDTH = 99,
                     $win = $(win),
                     doc = win.document,
                     $doc = $(doc),
