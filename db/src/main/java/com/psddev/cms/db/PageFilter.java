@@ -1214,7 +1214,6 @@ public class PageFilter extends AbstractFilter {
 
         String output = null;
 
-
         if (viewModel != null) {
 
             // 5. Find the ViewRenderer for the ViewModel
