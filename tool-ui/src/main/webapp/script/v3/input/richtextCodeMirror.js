@@ -1478,12 +1478,16 @@ define([
          */
         inlineSplitMarkAcrossLines: function(mark) {
 
-            var editor, to, lineNumber, pos, self, from;
+            var editor, to, lineNumber, pos, self, singleLine, styleObj, from;
 
             self = this;
             editor = self.codeMirror;
 
             mark = mark.marker ? mark.marker : mark;
+
+            // Get the style object for this mark so we can determine if this should be treated as a "singleLine" mark
+            styleObj = self.classes[mark.className] || {};
+            singleLine = Boolean(styleObj.singleLine);
             
             // Get the start and end positions for this mark
             pos = mark.find();
@@ -1515,6 +1519,11 @@ define([
 
                     // Copy any additional attributes that were attached to the old mark
                     newMark.attributes = mark.attributes;
+
+                    // Don't create other marks if this is a singleLine mark
+                    if (singleLine) {
+                        break;
+                    }
                 }
 
                 // Remove the old mark that went across multiple lines
