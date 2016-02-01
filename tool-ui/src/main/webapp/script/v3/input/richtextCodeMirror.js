@@ -3596,23 +3596,11 @@ define([
          */
         caseToLower: function(range) {
             
-            var html, node, self;
+            var self;
 
             self = this;
-
-            range = range || self.getRange();
-
-            // Get the HTML for the range
-            html = self.toHTML(range);
-
-            // Convert the text nodes to lower case
-            node = self.htmlToLowerCase(html);
             
-            // Save it back to the range as lower case text
-            self.fromHTML(node, range, true);
-
-            // Reset the selection range since it will be wiped out
-            self.setSelection(range);
+            self.caseChange(range, 'toLowerCase');
         },
 
         
@@ -3626,19 +3614,63 @@ define([
 
             self = this;
 
+            self.caseChange(range, 'toUpperCase');
+        },
+
+        /**
+         * Change to upper or lower case.
+         *
+         * @param {Object} [range=current range]
+         *
+         * @param {String} [direction=toUpperCase]
+         * Can be 'toLowerCase', or 'toUpperCase'. Default is 'toUpperCase'
+         * 
+         */
+        caseChange: function(range, direction) {
+            
+            var chEnd, chStart, editor, html, line, lineRange, lineText, node, self;
+            
+            self = this;
+            editor = self.codeMirror;
+            
             range = range || self.getRange();
+            direction = (direction === 'toLowerCase') ? 'toLowerCase' : 'toUpperCase';
 
-            // Get the HTML for the range
-            html = self.toHTML(range);
+            // Loop through each line.
+            // We need to change case one line at a time because of limitations in CodeMirror
+            // (it wipes out line classes if we replace the text all at once)
+            // So this will ensure things like enhancements and tables don't get wiped
+            // out or duplicated, but other styles remain intact.
+            for (line = range.from.line; line <= range.to.line; line++) {
 
-            // Convert the text nodes to upper case
-            node = self.htmlToUpperCase(html);
+                lineText = editor.getLine(line) || '';
+                
+                // How many characters in the current line?
+                chMax = lineText.length;
+                
+                chStart = (line === range.from.line) ? range.from.ch : 0;
+                chEnd = (line === range.to.line) ? range.to.ch: chMax;
+
+                lineRange = {from:{line:line, ch:chStart}, to:{line:line, ch:chEnd}};
+                
+                // Get the HTML for the range
+                html = self.toHTML(lineRange);
+
+                // Convert the text nodes to lower case
+                if (direction === 'toLowerCase') {
+                    node = self.htmlToLowerCase(html);
+                } else {
+                    node = self.htmlToUpperCase(html);
+                }
             
-            // Save it back to the range as lower case text
-            self.fromHTML(node, range, true);
-            
+                // Save it back to the range as lower case text
+                self.fromHTML(node, lineRange, true);
+            }
+
             // Reset the selection range since it will be wiped out
             self.setSelection(range);
+            
+            return;
         },
 
         
@@ -4122,10 +4154,11 @@ define([
                 return html;
             }
 
-            var blockElementsToClose, blockActive, doc, enhancementsByLine, html, self;
+            var blockElementsToClose, blockActive, doc, enhancementsByLine, html, rangeWasSpecified, self;
 
             self = this;
 
+            rangeWasSpecified = Boolean(range);
             range = range || self.getRangeAll();
             
             // Before beginning make sure all the marks are cleaned up and simplified.
@@ -4148,22 +4181,31 @@ define([
             blockElementsToClose = [];
 
             // Go through all enhancements and figure out which line number they are on
+            //
+            // But do not include enhancements if a range was specified and it's a single line
+            // (this is a hack to handle changing case of the text, we need to convert each
+            // individual line to HTML and copy it back in to the line, to avoid duplicating
+            // enhancements).
+            
             enhancementsByLine = {};
-            $.each(self.enhancementCache, function(i, mark) {
-
-                var lineNo;
-
-                lineNo = self.enhancementGetLineNumber(mark);
+            if (!(rangeWasSpecified && range.from.line === range.to.line)) {
                 
-                if (lineNo !== undefined) {
+                $.each(self.enhancementCache, function(i, mark) {
+
+                    var lineNo;
+
+                    lineNo = self.enhancementGetLineNumber(mark);
+                
+                    if (lineNo !== undefined) {
                     
-                    // Create an array to hold the enhancements for this line, then add the current enhancement
-                    enhancementsByLine[lineNo] = enhancementsByLine[lineNo] || [];
+                        // Create an array to hold the enhancements for this line, then add the current enhancement
+                        enhancementsByLine[lineNo] = enhancementsByLine[lineNo] || [];
                 
-                    enhancementsByLine[lineNo].push(mark);
-                }
-            });
-
+                        enhancementsByLine[lineNo].push(mark);
+                    }
+                });
+            }
+            
             // Start the HTML!
             html = '';
             
