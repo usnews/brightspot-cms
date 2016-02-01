@@ -2972,9 +2972,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                  
             });
 
-            // Problem with "null" appearing in new rows, might be fixed soon with this issue
-            // https://github.com/handsontable/handsontable/issues/2816
-            
             // Add the div to the editor
             mark = self.rte.enhancementAdd($div[0], line, {
                 block:true,
