@@ -67,6 +67,10 @@ define([
          * A list of styles that should be cleared if the style is selected.
          * Use this to make mutually-exclusive styles.
          *
+         * Boolean [void]
+         * Set this to true if the element is a "void" element, meaning it cannot
+         * contain any text or other elements within it.
+         *
          * Boolean [internal]
          * Set this to true if the style is used internally (for track changes).
          * When internal is true, then the style will not be removed by the RemoveStyle functions
@@ -610,23 +614,33 @@ define([
                 addToHistory: true
             }, options);
 
-            
             // Check for special case if no range is defined, we should still let the user
             // select a style to make the style active. Then typing more characters should
             // appear in that style.
             isEmpty = (range.from.line === range.to.line) && (range.from.ch === range.to.ch);
             if (isEmpty) {
-
                 markOptions.addToHistory = false;
                 markOptions.clearWhenEmpty = false;
                 markOptions.inclusiveLeft = true;
-                mark = editor.markText(range.from, range.to, markOptions);
-                
-            } else {
-                
-                mark = editor.markText(range.from, range.to, markOptions);
-                self.inlineSplitMarkAcrossLines(mark);
             }
+            
+            if (styleObj.void) {
+                
+                markOptions.addToHistory = true;
+                markOptions.readOnly = true;
+                markOptions.inclusiveLeft = false;
+                markOptions.inclusiveRight = false;
+                
+                // Add a space to represent the empty element because CodeMirror needs
+                // a character to display for the user to display the mark.
+                editor.replaceRange(' ', {line:range.from.line, ch:range.from.ch});
+                
+                range.to.line = range.from.line;
+                range.to.ch = range.from.ch + 1;
+            }
+
+            mark = editor.markText(range.from, range.to, markOptions);
+            self.inlineSplitMarkAcrossLines(mark);
 
             // If this is a set of mutually exclusive styles, clear the other styles
             if (styleObj.clear) {
@@ -2276,7 +2290,7 @@ define([
             marks = $.map(marks, function(mark, i) {
                 var styleObj;
                 styleObj = self.classes[mark.className];
-                if (styleObj && styleObj.onClick) {
+                if (styleObj && (styleObj.onClick || styleObj.void)) {
                     // Keep in the array
                     return mark;
                 } else {
@@ -2337,8 +2351,23 @@ define([
                     'class': 'rte2-dropdown-clear',
                     text: 'Clear'
                 }).on('click', function(event){
+
+                    var pos;
+                    
                     event.preventDefault();
+
+                    // For void element, delete the text in the mark
+                    if (styleObj.void) {
+                        if (mark.find) {
+                            pos = mark.find();
+                            // Delete below after the mark is cleared
+                        }
+                    }
+                    
                     mark.clear();
+                    if (pos) {
+                        self.codeMirror.replaceRange('', {line:pos.from.line, ch:pos.from.ch}, {line:pos.to.line, ch:pos.to.ch});
+                    }
                     self.focus();
                     self.dropdownCheckCursor();
                     self.triggerChange();
@@ -3742,13 +3771,16 @@ define([
          */
         getRange: function(){
 
-            var self;
+            var from, self, to;
 
             self = this;
 
+            from = self.codeMirror.getCursor('from');
+            to = self.codeMirror.getCursor('to');
+            
             return {
-                from: self.codeMirror.getCursor('from'),
-                to: self.codeMirror.getCursor('to')
+                from: {line:from.line, ch:from.ch},
+                to: {line:to.line, ch:to.ch}
             };
         },
         
@@ -4129,7 +4161,7 @@ define([
             // Loop through the content one line at a time
             doc.eachLine(function(line) {
 
-                var annotationStart, annotationEnd, blockOnThisLine, charNum, charInRange, htmlStartOfLine, htmlEndOfLine, inlineActive, inlineActiveIndex, inlineActiveIndexLast, inlineElementsToClose, lineNo, lineInRange, outputChar, raw, rawLastChar;
+                var annotationStart, annotationEnd, blockOnThisLine, charNum, charInRange, htmlStartOfLine, htmlEndOfLine, inlineActive, inlineActiveIndex, inlineActiveIndexLast, inlineElementsToClose, isVoid, lineNo, lineInRange, outputChar, raw, rawLastChar;
 
                 lineNo = line.lineNo();
                 
@@ -4372,6 +4404,11 @@ define([
                             if (styleObj.raw) {
                                 raw = false;
                             }
+                            
+                            // If any of the styles end a void element, clear the void flag
+                            if (styleObj.void) {
+                                isVoid = false;
+                            }
 
                             // Find and delete the last occurrance in inlineActive
                             inlineActiveIndex = -1;
@@ -4450,6 +4487,11 @@ define([
                                 raw = true;
                             }
 
+                            // If any of the styles is "void", set a void flag for later
+                            if (styleObj.void) {
+                                isVoid = true;
+                            }
+                            
                             // Save this element on the list of active elements
                             inlineActive.push(styleObj);
 
@@ -4488,7 +4530,11 @@ define([
                             // We need to remember if the last character is raw html because
                             // if it is we will not insert a <br> element at the end of the line
                             rawLastChar = true;
-                        
+                        } else if (isVoid) {
+
+                            // For void styles, characters within should be ignored
+                            outputChar = '';
+                            
                         } else {
                         
                             outputChar = self.htmlEncode(outputChar);
