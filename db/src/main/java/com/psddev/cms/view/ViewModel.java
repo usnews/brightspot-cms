@@ -36,7 +36,16 @@ public abstract class ViewModel<M> {
         // do nothing by default
     }
 
-    // TODO: Voodoo for handling view models with multiple renderers despite provided view class.
+    /**
+     * Creates a view of type {@code viewClass} that is bound to the given
+     * {@code model}.
+     *
+     * @param viewClass the type of view to create.
+     * @param model the model used to create the view.
+     * @param <T> the model type.
+     * @param <V> the view type.
+     * @return a newly created view.
+     */
     protected final <T, V> V createView(Class<V> viewClass, T model) {
 
         Class<? extends ViewModel<? super T>> viewModelClass = findViewModelClass(viewClass, null, model);
@@ -56,7 +65,15 @@ public abstract class ViewModel<M> {
         return null;
     }
 
-    // TODO: Voodoo for handling view models with multiple renderers.
+    /**
+     * Creates a view that is bound to the given {@code viewType} and
+     * {@code model}.
+     *
+     * @param viewType the view type key bound to the view and model.
+     * @param model the model used to create the view.
+     * @param <T> the model type.
+     * @return a newly created view.
+     */
     protected final <T> Object createView(String viewType, T model) {
 
         Class<? extends ViewModel<? super T>> viewModelClass = findViewModelClass(null, viewType, model);

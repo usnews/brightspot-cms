@@ -1190,7 +1190,6 @@ public class PageFilter extends AbstractFilter {
         try {
             viewModel = viewModelCreator.createViewModel(viewModelClass, object, viewResponse);
 
-            // TODO: not sure if this necessary...
             if (viewModel == null) {
                 LOGGER.warn("Failed to create view model of type ["
                         + viewModelClass.getName()
@@ -1206,7 +1205,7 @@ public class PageFilter extends AbstractFilter {
             if (vr != null) {
                 viewResponse = vr;
             } else {
-                // Hack to make sure errors are always displayed back to the user, even on form post.
+                // FIXME: Hack to make sure errors are always displayed back to the user, even on form post.
                 writer.write("<!-->");
                 throw e;
             }
@@ -1246,7 +1245,7 @@ public class PageFilter extends AbstractFilter {
                         // These will usually be the same, but an implementer could potentially throw a different one
                         viewResponse = vr;
                     } else {
-                        // Hack to make sure errors are always displayed back to the user, even on form post.
+                        // FIXME: Hack to make sure errors are always displayed back to the user, even on form post.
                         writer.write("<!-->");
                         throw e;
                     }
