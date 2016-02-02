@@ -1205,8 +1205,6 @@ public class PageFilter extends AbstractFilter {
             if (vr != null) {
                 viewResponse = vr;
             } else {
-                // FIXME: Hack to make sure errors are always displayed back to the user, even on form post.
-                writer.write("<!-->");
                 throw e;
             }
         }
@@ -1245,8 +1243,6 @@ public class PageFilter extends AbstractFilter {
                         // These will usually be the same, but an implementer could potentially throw a different one
                         viewResponse = vr;
                     } else {
-                        // FIXME: Hack to make sure errors are always displayed back to the user, even on form post.
-                        writer.write("<!-->");
                         throw e;
                     }
                 }
