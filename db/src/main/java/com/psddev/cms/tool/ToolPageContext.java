@@ -1969,10 +1969,19 @@ public class ToolPageContext extends WebPageContext {
 
         List<Map<String, Object>> richTextElements = new ArrayList<>();
 
+        Map<String, Set<String>> groups = new CompactMap<>();
+        Map<String, Set<String>> contextMap = new CompactMap<>();
+
         for (Class<? extends RichTextElement> c : ClassFinder.findConcreteClasses(RichTextElement.class)) {
             RichTextElement.Tag tag = c.getAnnotation(RichTextElement.Tag.class);
 
             if (tag != null) {
+
+                String tagName = tag.value().trim();
+                if (StringUtils.isEmpty(tagName)) {
+                    continue;
+                }
+
                 Map<String, Object> richTextElement = new CompactMap<>();
                 ObjectType type = ObjectType.getInstance(c);
 
@@ -1982,7 +1991,11 @@ public class ToolPageContext extends WebPageContext {
                         .findFirst()
                         .isPresent());
 
-                List<String> context = new ArrayList<>();
+                HashSet<String> context = contextMap.get(tag.value()) != null
+                        ? (HashSet<String>) contextMap.get(tag.value())
+                        : new HashSet<>();
+
+                contextMap.put(tagName, context);
 
                 if (tag.root()) {
                     context.add(null);
@@ -1991,11 +2004,27 @@ public class ToolPageContext extends WebPageContext {
                 Stream.of(tag.parents())
                         .map(String::trim)
                         .filter(p -> !ObjectUtils.isBlank(p))
-                        .forEach(p -> context.add(p));
+                        .forEach(context::add);
 
-                if (!context.isEmpty()) {
-                    richTextElement.put("context", context);
-                }
+                Stream.of(tag.children())
+                        .map(String::trim)
+                        .filter(p -> !ObjectUtils.isBlank(p))
+                        .forEach(p -> {
+                            if (contextMap.get(p) == null) {
+                                contextMap.put(p, new HashSet<>());
+                            }
+                            contextMap.get(p).add(tagName);
+                        });
+
+                Stream.of(tag.groups())
+                        .map(String::trim)
+                        .filter(p -> !ObjectUtils.isBlank(p))
+                        .forEach(p -> {
+                            if (groups.get(p) == null) {
+                                groups.put(p, new HashSet<>());
+                            }
+                            groups.get(p).add(tagName);
+                        });
 
                 String menu = tag.menu().trim();
 
@@ -2007,6 +2036,51 @@ public class ToolPageContext extends WebPageContext {
                 richTextElement.put("typeId", type.getId().toString());
                 richTextElement.put("displayName", type.getDisplayName());
                 richTextElements.add(richTextElement);
+            }
+        }
+
+        // map group contexts back to group members' contexts
+        for (Map.Entry<String, Set<String>> group : groups.entrySet()) {
+
+            if (group.getKey() != null) {
+                for (String tagName : group.getValue()) {
+
+                    Set<String> context = contextMap.get(tagName);
+
+                    if (context == null) {
+
+                        context = new HashSet<>();
+                        contextMap.put(tagName, context);
+                    }
+
+                    context.addAll(contextMap.get(group.getKey()));
+                }
+            }
+        }
+
+        // map groups in contexts to group members
+        for (Map<String, Object> richTextElement : richTextElements) {
+            Set<String> context = contextMap.get(richTextElement.get("tag"));
+
+            Set<String> groupContexts = new HashSet<>();
+
+            Iterator<String> contextIterator = context.iterator();
+            String tagName;
+            while (contextIterator.hasNext()) {
+                tagName = contextIterator.next();
+                if (tagName == null) {
+                    continue;
+                }
+                if (groups.get(tagName) != null) {
+                    groupContexts.addAll(groups.get(tagName));
+                    contextIterator.remove();
+                }
+            }
+
+            context.addAll(groupContexts);
+
+            if (!ObjectUtils.isBlank(context)) {
+                richTextElement.put("context", context);
             }
         }
 

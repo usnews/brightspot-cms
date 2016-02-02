@@ -22,7 +22,11 @@ public abstract class RichTextElement extends Record {
 
         String value();
         boolean root() default true;
+        boolean line() default false;
         String[] parents() default { };
+        String[] children() default { };
+        String[] clear() default { };
+        String[] groups() default { };
         String menu() default "";
     }
 }
