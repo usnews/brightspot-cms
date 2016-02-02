@@ -44,7 +44,6 @@ import javax.servlet.jsp.PageContext;
 
 import com.google.common.base.MoreObjects;
 import com.ibm.icu.text.MessageFormat;
-import com.psddev.cms.db.HasAvailabilityLabel;
 import com.psddev.cms.db.PageFilter;
 import com.psddev.cms.db.RichTextElement;
 import com.psddev.cms.tool.file.SvgFileType;
