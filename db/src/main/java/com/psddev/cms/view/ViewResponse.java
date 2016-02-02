@@ -149,9 +149,9 @@ public class ViewResponse extends RuntimeException {
 
     /**
      * Signals that the response should contain a permanent redirect to the
-     * specified {@code uri}. Calls to this method will usually be followed by
-     * a call to {@link #finish()} signaling that writing to the response is
-     * complete.
+     * specified {@code uri}. Calls to this method will usually be followed
+     * by {@code throw response} to halt execution and signal that writing to
+     * the response is complete.
      *
      * @param uri the uri to redirect to.
      */
@@ -162,9 +162,9 @@ public class ViewResponse extends RuntimeException {
 
     /**
      * Signals that the response should contain a temporary redirect to the
-     * specified {@code uri}. Calls to this method will usually be followed by
-     * a call to {@link #finish()} signaling that writing to the response is
-     * complete.
+     * specified {@code uri}. Calls to this method will usually be followed
+     * by {@code throw response} to halt execution and signal that writing to
+     * the response is complete.
      *
      * @param uri the uri to redirect to.
      */
@@ -185,14 +185,6 @@ public class ViewResponse extends RuntimeException {
      */
     public boolean isRedirectTemporary() {
         return Boolean.FALSE.equals(isRedirectPermanent);
-    }
-
-    /**
-     * Halts execution and signals that processing of the request, and writing
-     * to the response is complete.
-     */
-    public void finish() {
-        throw this;
     }
 
     @Override
