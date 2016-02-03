@@ -3496,6 +3496,7 @@ public class ToolPageContext extends WebPageContext {
                 }
 
                 if (draft.isNewContent()) {
+                    contentData.setDraft(true);
                     publish(state);
                     draft.setDifferences(null);
                 }
