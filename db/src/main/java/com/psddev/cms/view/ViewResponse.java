@@ -192,6 +192,11 @@ public class ViewResponse extends RuntimeException {
         return "Request is finished.";
     }
 
+    @Override
+    public synchronized Throwable fillInStackTrace() {
+        return this;
+    }
+
     /**
      * @deprecated Use {@link #redirectTemporarily(String)} instead.
      */
