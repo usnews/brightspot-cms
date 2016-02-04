@@ -483,6 +483,9 @@ define([
          *
          * @param {Object} [range=current range]
          *
+         * @returns {Object}
+         * The mark for an inline style, or the line data for a block style.
+         *
          * @see inlineSetStyle(), blockSetStyle()
          */
         setStyle: function(style, range) {
@@ -494,7 +497,7 @@ define([
             styleObj = self.styles[style];
             if (styleObj) {
                 if (styleObj.line) {
-                    self.blockSetStyle(style, range);
+                    mark = self.blockSetStyle(style, range);
                 } else {
                     mark = self.inlineSetStyle(style, range);
                 }
@@ -1702,7 +1705,7 @@ define([
          */
         blockSetStyle: function(style, range, options) {
 
-            var className, editor, lineHandle, lineNumber, self, styleObj;
+            var className, editor, lineHandle, lineNumber, mark, self, styleObj;
 
             self = this;
             editor = self.codeMirror;
@@ -1715,15 +1718,29 @@ define([
                 styleObj = style;
             }
             className = styleObj.className;
+
+            // Create a fake "mark" object for the line
+            mark = {
+                
+                // just in case we need to distinguish this is our fake mark...
+                rteLineStyle: true,
+                
+                // other code checks for className on the mark so we'll save it here too
+                className: className 
+            };
+
+            // Save attributes on the mark
+            if (options.attributes) {
+                mark.attributes = options.attributes;
+            }
             
             for (lineNumber = range.from.line; lineNumber <= range.to.line; lineNumber++) {
                 
                 editor.addLineClass(lineNumber, 'text', className);
 
-                // Get the lineMarker object so we can store additional data for the block style
-                if (options.attributes) {
-                    self.blockSetLineData(styleObj.key, lineNumber, {attributes: options.attributes});
-                }
+                // Store the mark data (and attributes) for the block style
+                self.blockSetLineData(styleObj.key, lineNumber, mark);
+                
             }
 
             // If this is a set of mutually exclusive styles, clear the other styles
@@ -1740,6 +1757,9 @@ define([
             if (options.triggerChange !== false) {
                 self.triggerChange();
             }
+
+            //return mark;
+            return self.blockGetLineData(styleObj.key, range.from.line) || {};
         },
 
         
@@ -1792,17 +1812,64 @@ define([
          */
         blockSetLineData: function(styleKey, lineNumber, data) {
             
-            var data, editor, lineHandle, self, styleObj, className;
+            var editor, lineHandle, self, styleObj, className;
             self = this;
             editor = self.codeMirror;
             
             styleObj = self.styles[styleKey] || {};
             className = styleObj.className;
-            
+
             // Get the lineMarker object so we can store additional data for the block style
-            lineHandle = editor.getLineHandle(lineNumber) || {};
-            lineHandle.rteMarks = lineHandle.rteMarks || {};
-            lineHandle.rteMarks[className] = data;
+            lineHandle = editor.getLineHandle(lineNumber);
+
+            if (lineHandle) {
+                
+                lineHandle.rteMarks = lineHandle.rteMarks || {};
+
+                data = $.extend(true, {}, data, {
+                    
+                    // Create a "find" function that will return position for the line.
+                    // This will make the fake block mark more like a normal inline
+                    // mark.
+                    find: function() {
+                        
+                        var lineNumber;
+                        
+                        // Get the current line number for this line handle
+                        
+                        lineNumber = editor.getLineNumber(lineHandle) || 0;
+                        
+                        // Return a position for the line number
+                        return {
+                            from: {line:lineNumber, ch:0},
+                            to:  {line:lineNumber, ch:lineHandle.text.length}
+                        };
+                    },
+
+                    // Create a "clear" function that clears the style from the line
+                    clear: function() {
+                        
+                        var lineNumber;
+                        
+                        // Get the current line number for this line handle
+                        
+                        lineNumber = editor.getLineNumber(lineHandle) || 0;
+
+                        self.blockRemoveStyle(styleKey, {
+                            from: {line:lineNumber, ch:0},
+                            to:  {line:lineNumber, ch:lineHandle.text.length}
+                        });
+                        
+                        // Return a position for the line number
+                        return ;
+                    }
+                });
+
+                // Save the data on the lineHandle so it will follow
+                // the line around, and can be found again by looking
+                // up via the class name of the style.
+                lineHandle.rteMarks[className] = data;
+            }
         },
         
         
@@ -2353,7 +2420,7 @@ define([
          * Get all the marks in the current range that have click events.
          */
         dropdownGetMarks: function() {
-            var editor, marks, range, self;
+            var editor, lineStyles, marks, range, self;
 
             self = this;
             editor = self.codeMirror;
@@ -2363,9 +2430,19 @@ define([
             if (!(range.from.line === range.to.line && range.from.ch === range.to.ch)) {
                 return [];
             }
-            
-            // Find all the marks for the clicked position
-            marks = editor.findMarks(range.from, range.to);
+
+            // Get the line styles and the "fake" marks we created
+            marks = [];
+            lineStyles = self.blockGetStyles();
+            $.each(lineStyles, function(styleKey) {
+                var mark;
+                mark = self.blockGetLineData(styleKey, range.from.line);
+                marks.push(mark);
+            });
+        
+            // Find all the inline marks for the clicked position
+            // (funky javascript to append one array onto the end of another)
+            [].push.apply(marks, editor.findMarks(range.from, range.to));
 
             // Only keep the marks that have onClick configs
             marks = $.map(marks, function(mark, i) {
