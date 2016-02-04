@@ -1693,13 +1693,16 @@ define([
          * Set of key/value pairs to specify options.
          * These options will be passed as mark options when the mark is created.
          *
+         * @param Object [options.attributes]
+         * An object with key/value pairs for the attributes that should be saved for this block style.
+         *
          * @param Object [options.triggerChange=true]
          * Set this to false if you do not want to trigger the rteChange event after setting the style.
          * For example, if you will be making multiple style changes and you will trigger the rteChange event yourself.
          */
         blockSetStyle: function(style, range, options) {
 
-            var className, editor, lineNumber, self, styleObj;
+            var className, editor, lineHandle, lineNumber, self, styleObj;
 
             self = this;
             editor = self.codeMirror;
@@ -1714,7 +1717,13 @@ define([
             className = styleObj.className;
             
             for (lineNumber = range.from.line; lineNumber <= range.to.line; lineNumber++) {
+                
                 editor.addLineClass(lineNumber, 'text', className);
+
+                // Get the lineMarker object so we can store additional data for the block style
+                if (options.attributes) {
+                    self.blockSetLineData(styleObj.key, lineNumber, {attributes: options.attributes});
+                }
             }
 
             // If this is a set of mutually exclusive styles, clear the other styles
@@ -1733,6 +1742,69 @@ define([
             }
         },
 
+        
+        /**
+         * Return the data stored on the line, for a particular style.
+         *
+         * @param {String} className
+         * The className that is used for the style.
+         * For example, the alignLeft style uses classname 'rte2-style-alignLeft'
+         *
+         * @param {Number} lineNumber
+         * Number of the line where data should be retrieved.
+         *
+         * @returns {Object|undefined}
+         * The data stored on the line for a particular style,
+         * or null if data is not stored for that line number.
+         */
+        blockGetLineData: function(styleKey, lineNumber) {
+
+            var data, editor, lineHandle, self, styleObj;
+            self = this;
+            editor = self.codeMirror;
+
+            styleObj = self.styles[styleKey] || {};
+            className = styleObj.className;
+            
+            // Get the lineMarker object so we can store additional data for the block style
+            lineHandle = editor.getLineHandle(lineNumber);
+
+            if (lineHandle && lineHandle.rteMarks) {
+                data = lineHandle.rteMarks[className];
+            }
+
+            return data;
+        },
+
+        
+        /**
+         * Set data on a line, for a particular class name.
+         *
+         * @param {String} className
+         * The className that is used for the style.
+         * For example, the alignLeft style uses classname 'rte2-style-alignLeft'
+         *
+         * @param {Number} lineNumber
+         * Number of the line where data should be stored.
+         *
+         * @param {Object} data
+         * The data to store on the line for a particular class name.
+         */
+        blockSetLineData: function(styleKey, lineNumber, data) {
+            
+            var data, editor, lineHandle, self, styleObj, className;
+            self = this;
+            editor = self.codeMirror;
+            
+            styleObj = self.styles[styleKey] || {};
+            className = styleObj.className;
+            
+            // Get the lineMarker object so we can store additional data for the block style
+            lineHandle = editor.getLineHandle(lineNumber) || {};
+            lineHandle.rteMarks = lineHandle.rteMarks || {};
+            lineHandle.rteMarks[className] = data;
+        },
+        
         
         /**
          * Remove the line class for a range.
@@ -4245,7 +4317,7 @@ define([
                         
                         $.each(line.textClass.split(' '), function() {
                             
-                            var container, styleObj;
+                            var container, lineStyleData, styleObj;
 
                             // From a line style (like "rte2-style-ul"), determine the style name it maps to (like "ul")
                             styleObj = self.classes[this];
@@ -4275,10 +4347,12 @@ define([
                                 }
                             }
 
+                            // Get any attributes that might be defined for this line style
+                            lineStyleData = self.blockGetLineData(styleObj.key, lineNo) || {};
                             
                             // Now determine which element to create for the line.
                             // For example, if it is a list then we would create an 'LI' element.
-                            htmlStartOfLine += openElement(styleObj);
+                            htmlStartOfLine += openElement(styleObj, lineStyleData.attributes);
 
                             // Also push this style onto a stack so when we reach the end of the line we can close the element
                             blockElementsToClose.push(styleObj);
@@ -5146,7 +5220,7 @@ define([
                 }
                 
                 if (styleObj.line) {
-                    self.blockSetStyle(styleObj, annotation, {triggerChange:false});
+                    self.blockSetStyle(styleObj, annotation, {triggerChange:false, attributes:annotation.attributes});
                 } else {
                     self.inlineSetStyle(styleObj, annotation, {addToHistory:false, triggerChange:false, attributes:annotation.attributes});
                 }
