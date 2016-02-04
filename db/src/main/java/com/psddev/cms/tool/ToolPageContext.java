@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -1969,7 +1970,6 @@ public class ToolPageContext extends WebPageContext {
 
         List<Map<String, Object>> richTextElements = new ArrayList<>();
 
-        Map<String, Set<String>> groups = new CompactMap<>();
         Map<String, Set<String>> contextMap = new CompactMap<>();
 
         for (Class<? extends RichTextElement> c : ClassFinder.findConcreteClasses(RichTextElement.class)) {
@@ -2001,29 +2001,20 @@ public class ToolPageContext extends WebPageContext {
                     context.add(null);
                 }
 
-                Stream.of(tag.parents())
+                Stream.<Class<?>>of(tag.children())
+                        .map(ClassFinder::findConcreteClasses)
+                        .flatMap(Collection::stream)
+                        .filter(RichTextElement.class::isAssignableFrom)
+                        .map(b -> b.getAnnotation(RichTextElement.Tag.class))
+                        .filter(Objects::nonNull)
+                        .<String>map(RichTextElement.Tag::value)
                         .map(String::trim)
                         .filter(p -> !ObjectUtils.isBlank(p))
-                        .forEach(context::add);
-
-                Stream.of(tag.children())
-                        .map(String::trim)
-                        .filter(p -> !ObjectUtils.isBlank(p))
-                        .forEach(p -> {
+                        .forEach((String p) -> {
                             if (contextMap.get(p) == null) {
                                 contextMap.put(p, new HashSet<>());
                             }
                             contextMap.get(p).add(tagName);
-                        });
-
-                Stream.of(tag.groups())
-                        .map(String::trim)
-                        .filter(p -> !ObjectUtils.isBlank(p))
-                        .forEach(p -> {
-                            if (groups.get(p) == null) {
-                                groups.put(p, new HashSet<>());
-                            }
-                            groups.get(p).add(tagName);
                         });
 
                 String menu = tag.menu().trim();
@@ -2039,45 +2030,8 @@ public class ToolPageContext extends WebPageContext {
             }
         }
 
-        // map group contexts back to group members' contexts
-        for (Map.Entry<String, Set<String>> group : groups.entrySet()) {
-
-            if (group.getKey() != null) {
-                for (String tagName : group.getValue()) {
-
-                    Set<String> context = contextMap.get(tagName);
-
-                    if (context == null) {
-
-                        context = new HashSet<>();
-                        contextMap.put(tagName, context);
-                    }
-
-                    context.addAll(contextMap.get(group.getKey()));
-                }
-            }
-        }
-
-        // map groups in contexts to group members
         for (Map<String, Object> richTextElement : richTextElements) {
             Set<String> context = contextMap.get(richTextElement.get("tag"));
-
-            Set<String> groupContexts = new HashSet<>();
-
-            Iterator<String> contextIterator = context.iterator();
-            String tagName;
-            while (contextIterator.hasNext()) {
-                tagName = contextIterator.next();
-                if (tagName == null) {
-                    continue;
-                }
-                if (groups.get(tagName) != null) {
-                    groupContexts.addAll(groups.get(tagName));
-                    contextIterator.remove();
-                }
-            }
-
-            context.addAll(groupContexts);
 
             if (!ObjectUtils.isBlank(context)) {
                 richTextElement.put("context", context);
