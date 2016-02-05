@@ -36,7 +36,9 @@ import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.cms.view.AbstractViewCreator;
 import com.psddev.cms.view.JsonViewRenderer;
 import com.psddev.cms.view.PageViewClass;
+import com.psddev.cms.view.ViewBinding;
 import com.psddev.cms.view.ViewCreator;
+import com.psddev.cms.view.ViewMapping;
 import com.psddev.cms.view.ViewModel;
 import com.psddev.cms.view.ViewModelCreator;
 import com.psddev.cms.view.ViewOutput;
@@ -1167,11 +1169,13 @@ public class PageFilter extends AbstractFilter {
             }
 
             if (viewModelClass == null) {
-                LOGGER.warn("Could not find view model for object of type ["
-                        + object.getClass().getName()
-                        + "] and view of type ["
-                        + StringUtils.join(viewTypes, ", or ")
-                        + "]!");
+                if (object.getClass().isAnnotationPresent(ViewBinding.class)) {
+                    LOGGER.warn("Could not find view model for object of type ["
+                            + object.getClass().getName()
+                            + "] and view of type ["
+                            + StringUtils.join(viewTypes, ", or ")
+                            + "]!");
+                }
             }
         }
 
@@ -1341,11 +1345,13 @@ public class PageFilter extends AbstractFilter {
             }
 
             if (viewCreatorClass == null) {
-                LOGGER.warn("Could not find view creator for object of type ["
-                        + object.getClass().getName()
-                        + "] and view of type ["
-                        + StringUtils.join(viewTypes, ", or ")
-                        + "]!");
+                if (object.getClass().isAnnotationPresent(ViewMapping.class)) {
+                    LOGGER.warn("Could not find view creator for object of type ["
+                            + object.getClass().getName()
+                            + "] and view of type ["
+                            + StringUtils.join(viewTypes, ", or ")
+                            + "]!");
+                }
             }
         }
 
