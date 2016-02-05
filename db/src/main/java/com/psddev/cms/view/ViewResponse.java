@@ -63,6 +63,7 @@ public class ViewResponse {
             List<String> values = headers.get(name);
             if (values == null) {
                 values = new ArrayList<>();
+                headers.put(name, values);
             }
             values.add(value);
         }
@@ -83,6 +84,7 @@ public class ViewResponse {
 
             if (values == null) {
                 values = new ArrayList<>();
+                headers.put(name, values);
             } else {
                 values.clear();
             }
