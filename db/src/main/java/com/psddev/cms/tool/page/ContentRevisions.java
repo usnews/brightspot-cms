@@ -110,8 +110,8 @@ public class ContentRevisions extends Widget {
 
         PaginatedResult<History> historiesResult = Query
                 .from(History.class)
-                .where("name = missing and objectId = ?", state.getId())
-                .sortDescending("updateDate")
+                .where("name = missing and getObjectIdUpdateDate ^= ?", state.getId().toString())
+                .sortDescending("getObjectIdUpdateDate")
                 .select(0, 10);
 
         for (History h : historiesResult.getItems()) {
