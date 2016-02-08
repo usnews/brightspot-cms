@@ -67,6 +67,10 @@ define([
          * A list of styles that should be cleared if the style is selected.
          * Use this to make mutually-exclusive styles.
          *
+         * Boolean [void]
+         * Set this to true if the element is a "void" element, meaning it cannot
+         * contain any text or other elements within it.
+         *
          * Boolean [internal]
          * Set this to true if the style is used internally (for track changes).
          * When internal is true, then the style will not be removed by the RemoveStyle functions
@@ -610,23 +614,33 @@ define([
                 addToHistory: true
             }, options);
 
-            
             // Check for special case if no range is defined, we should still let the user
             // select a style to make the style active. Then typing more characters should
             // appear in that style.
             isEmpty = (range.from.line === range.to.line) && (range.from.ch === range.to.ch);
             if (isEmpty) {
-
                 markOptions.addToHistory = false;
                 markOptions.clearWhenEmpty = false;
                 markOptions.inclusiveLeft = true;
-                mark = editor.markText(range.from, range.to, markOptions);
-                
-            } else {
-                
-                mark = editor.markText(range.from, range.to, markOptions);
-                self.inlineSplitMarkAcrossLines(mark);
             }
+            
+            if (styleObj.void) {
+                
+                markOptions.addToHistory = true;
+                markOptions.readOnly = true;
+                markOptions.inclusiveLeft = false;
+                markOptions.inclusiveRight = false;
+                
+                // Add a space to represent the empty element because CodeMirror needs
+                // a character to display for the user to display the mark.
+                editor.replaceRange(' ', {line:range.from.line, ch:range.from.ch});
+                
+                range.to.line = range.from.line;
+                range.to.ch = range.from.ch + 1;
+            }
+
+            mark = editor.markText(range.from, range.to, markOptions);
+            self.inlineSplitMarkAcrossLines(mark);
 
             // If this is a set of mutually exclusive styles, clear the other styles
             if (styleObj.clear) {
@@ -1464,12 +1478,16 @@ define([
          */
         inlineSplitMarkAcrossLines: function(mark) {
 
-            var editor, to, lineNumber, pos, self, from;
+            var editor, to, lineNumber, pos, self, singleLine, styleObj, from;
 
             self = this;
             editor = self.codeMirror;
 
             mark = mark.marker ? mark.marker : mark;
+
+            // Get the style object for this mark so we can determine if this should be treated as a "singleLine" mark
+            styleObj = self.classes[mark.className] || {};
+            singleLine = Boolean(styleObj.singleLine);
             
             // Get the start and end positions for this mark
             pos = mark.find();
@@ -1501,6 +1519,11 @@ define([
 
                     // Copy any additional attributes that were attached to the old mark
                     newMark.attributes = mark.attributes;
+
+                    // Don't create other marks if this is a singleLine mark
+                    if (singleLine) {
+                        break;
+                    }
                 }
 
                 // Remove the old mark that went across multiple lines
@@ -2276,7 +2299,7 @@ define([
             marks = $.map(marks, function(mark, i) {
                 var styleObj;
                 styleObj = self.classes[mark.className];
-                if (styleObj && styleObj.onClick) {
+                if (styleObj && (styleObj.onClick || styleObj.void)) {
                     // Keep in the array
                     return mark;
                 } else {
@@ -2337,8 +2360,23 @@ define([
                     'class': 'rte2-dropdown-clear',
                     text: 'Clear'
                 }).on('click', function(event){
+
+                    var pos;
+                    
                     event.preventDefault();
+
+                    // For void element, delete the text in the mark
+                    if (styleObj.void) {
+                        if (mark.find) {
+                            pos = mark.find();
+                            // Delete below after the mark is cleared
+                        }
+                    }
+                    
                     mark.clear();
+                    if (pos) {
+                        self.codeMirror.replaceRange('', {line:pos.from.line, ch:pos.from.ch}, {line:pos.to.line, ch:pos.to.ch});
+                    }
                     self.focus();
                     self.dropdownCheckCursor();
                     self.triggerChange();
@@ -3558,23 +3596,11 @@ define([
          */
         caseToLower: function(range) {
             
-            var html, node, self;
+            var self;
 
             self = this;
-
-            range = range || self.getRange();
-
-            // Get the HTML for the range
-            html = self.toHTML(range);
-
-            // Convert the text nodes to lower case
-            node = self.htmlToLowerCase(html);
             
-            // Save it back to the range as lower case text
-            self.fromHTML(node, range, true);
-
-            // Reset the selection range since it will be wiped out
-            self.setSelection(range);
+            self.caseChange(range, 'toLowerCase');
         },
 
         
@@ -3588,19 +3614,63 @@ define([
 
             self = this;
 
+            self.caseChange(range, 'toUpperCase');
+        },
+
+        /**
+         * Change to upper or lower case.
+         *
+         * @param {Object} [range=current range]
+         *
+         * @param {String} [direction=toUpperCase]
+         * Can be 'toLowerCase', or 'toUpperCase'. Default is 'toUpperCase'
+         * 
+         */
+        caseChange: function(range, direction) {
+            
+            var chEnd, chStart, editor, html, line, lineRange, lineText, node, self;
+            
+            self = this;
+            editor = self.codeMirror;
+            
             range = range || self.getRange();
+            direction = (direction === 'toLowerCase') ? 'toLowerCase' : 'toUpperCase';
 
-            // Get the HTML for the range
-            html = self.toHTML(range);
+            // Loop through each line.
+            // We need to change case one line at a time because of limitations in CodeMirror
+            // (it wipes out line classes if we replace the text all at once)
+            // So this will ensure things like enhancements and tables don't get wiped
+            // out or duplicated, but other styles remain intact.
+            for (line = range.from.line; line <= range.to.line; line++) {
 
-            // Convert the text nodes to upper case
-            node = self.htmlToUpperCase(html);
+                lineText = editor.getLine(line) || '';
+                
+                // How many characters in the current line?
+                chMax = lineText.length;
+                
+                chStart = (line === range.from.line) ? range.from.ch : 0;
+                chEnd = (line === range.to.line) ? range.to.ch: chMax;
+
+                lineRange = {from:{line:line, ch:chStart}, to:{line:line, ch:chEnd}};
+                
+                // Get the HTML for the range
+                html = self.toHTML(lineRange);
+
+                // Convert the text nodes to lower case
+                if (direction === 'toLowerCase') {
+                    node = self.htmlToLowerCase(html);
+                } else {
+                    node = self.htmlToUpperCase(html);
+                }
             
-            // Save it back to the range as lower case text
-            self.fromHTML(node, range, true);
-            
+                // Save it back to the range as lower case text
+                self.fromHTML(node, lineRange, true);
+            }
+
             // Reset the selection range since it will be wiped out
             self.setSelection(range);
+            
+            return;
         },
 
         
@@ -3742,13 +3812,16 @@ define([
          */
         getRange: function(){
 
-            var self;
+            var from, self, to;
 
             self = this;
 
+            from = self.codeMirror.getCursor('from');
+            to = self.codeMirror.getCursor('to');
+            
             return {
-                from: self.codeMirror.getCursor('from'),
-                to: self.codeMirror.getCursor('to')
+                from: {line:from.line, ch:from.ch},
+                to: {line:to.line, ch:to.ch}
             };
         },
         
@@ -4081,10 +4154,11 @@ define([
                 return html;
             }
 
-            var blockElementsToClose, blockActive, doc, enhancementsByLine, html, self;
+            var blockElementsToClose, blockActive, doc, enhancementsByLine, html, rangeWasSpecified, self;
 
             self = this;
 
+            rangeWasSpecified = Boolean(range);
             range = range || self.getRangeAll();
             
             // Before beginning make sure all the marks are cleaned up and simplified.
@@ -4107,29 +4181,38 @@ define([
             blockElementsToClose = [];
 
             // Go through all enhancements and figure out which line number they are on
+            //
+            // But do not include enhancements if a range was specified and it's a single line
+            // (this is a hack to handle changing case of the text, we need to convert each
+            // individual line to HTML and copy it back in to the line, to avoid duplicating
+            // enhancements).
+            
             enhancementsByLine = {};
-            $.each(self.enhancementCache, function(i, mark) {
-
-                var lineNo;
-
-                lineNo = self.enhancementGetLineNumber(mark);
+            if (!(rangeWasSpecified && range.from.line === range.to.line)) {
                 
-                if (lineNo !== undefined) {
+                $.each(self.enhancementCache, function(i, mark) {
+
+                    var lineNo;
+
+                    lineNo = self.enhancementGetLineNumber(mark);
+                
+                    if (lineNo !== undefined) {
                     
-                    // Create an array to hold the enhancements for this line, then add the current enhancement
-                    enhancementsByLine[lineNo] = enhancementsByLine[lineNo] || [];
+                        // Create an array to hold the enhancements for this line, then add the current enhancement
+                        enhancementsByLine[lineNo] = enhancementsByLine[lineNo] || [];
                 
-                    enhancementsByLine[lineNo].push(mark);
-                }
-            });
-
+                        enhancementsByLine[lineNo].push(mark);
+                    }
+                });
+            }
+            
             // Start the HTML!
             html = '';
             
             // Loop through the content one line at a time
             doc.eachLine(function(line) {
 
-                var annotationStart, annotationEnd, blockOnThisLine, charNum, charInRange, htmlStartOfLine, htmlEndOfLine, inlineActive, inlineActiveIndex, inlineActiveIndexLast, inlineElementsToClose, lineNo, lineInRange, outputChar, raw, rawLastChar;
+                var annotationStart, annotationEnd, blockOnThisLine, charNum, charInRange, htmlStartOfLine, htmlEndOfLine, inlineActive, inlineActiveIndex, inlineActiveIndexLast, inlineElementsToClose, isVoid, lineNo, lineInRange, outputChar, raw, rawLastChar;
 
                 lineNo = line.lineNo();
                 
@@ -4372,6 +4455,11 @@ define([
                             if (styleObj.raw) {
                                 raw = false;
                             }
+                            
+                            // If any of the styles end a void element, clear the void flag
+                            if (styleObj.void) {
+                                isVoid = false;
+                            }
 
                             // Find and delete the last occurrance in inlineActive
                             inlineActiveIndex = -1;
@@ -4450,6 +4538,11 @@ define([
                                 raw = true;
                             }
 
+                            // If any of the styles is "void", set a void flag for later
+                            if (styleObj.void) {
+                                isVoid = true;
+                            }
+                            
                             // Save this element on the list of active elements
                             inlineActive.push(styleObj);
 
@@ -4488,7 +4581,11 @@ define([
                             // We need to remember if the last character is raw html because
                             // if it is we will not insert a <br> element at the end of the line
                             rawLastChar = true;
-                        
+                        } else if (isVoid) {
+
+                            // For void styles, characters within should be ignored
+                            outputChar = '';
+                            
                         } else {
                         
                             outputChar = self.htmlEncode(outputChar);

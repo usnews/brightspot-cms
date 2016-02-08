@@ -772,6 +772,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
 
                         // Workflow actions.
                         if (!isTrash &&
+                                !(draft != null && draft.getSchedule() != null) &&
                                 (editingState.isNew() ||
                                 !editingState.isVisible() ||
                                 draft != null ||

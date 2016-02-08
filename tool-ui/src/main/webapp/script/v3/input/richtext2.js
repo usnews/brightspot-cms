@@ -2972,9 +2972,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                  
             });
 
-            // Problem with "null" appearing in new rows, might be fixed soon with this issue
-            // https://github.com/handsontable/handsontable/issues/2816
-            
             // Add the div to the editor
             mark = self.rte.enhancementAdd($div[0], line, {
                 block:true,
@@ -3547,9 +3544,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
         var richTextElementsSubmenus = {};
         
         $.each(RICH_TEXT_ELEMENTS, function (index, rtElement) {
-            var tag = rtElement.tag;
             var styleName = rtElement.styleName;
             var submenu;
+            var tag = rtElement.tag;
+            var toolbarButton;
 
             Rte.styles[styleName] = {
                 className: 'rte2-style-' + styleName,
@@ -3558,10 +3556,17 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 element: tag,
                 elementAttrAny: true,
                 singleLine: true,
+                "void": Boolean(rtElement.void),
                 popup: rtElement.popup === false ? false : true,
                 context: rtElement.context
             };
 
+            toolbarButton = {
+                className: 'rte2-toolbar-noicon rte2-toolbar-' + styleName,
+                style: styleName,
+                text: rtElement.displayName
+            };
+            
             if (rtElement.submenu) {
                 
                 submenu = richTextElementsSubmenus[rtElement.submenu];
@@ -3569,17 +3574,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                     submenu = [];
                     richTextElementsSubmenus[rtElement.submenu] = submenu;
                 }
-                submenu.push({
-                    className: 'rte2-toolbar-noicon',
-                    style: styleName,
-                    text: rtElement.displayName
-                });
+                submenu.push(toolbarButton);
             } else {
-                Rte.toolbarConfig.push({
-                    className: 'rte2-toolbar-noicon',
-                    style: styleName,
-                    text: rtElement.displayName
-                });
+                Rte.toolbarConfig.push(toolbarButton);
             }
         });
 
