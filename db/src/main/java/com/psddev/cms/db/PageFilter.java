@@ -1124,6 +1124,10 @@ public class PageFilter extends AbstractFilter {
             T object)
             throws IOException, ServletException {
 
+        if (object == null) {
+            return false;
+        }
+
         String selectedViewType = null;
 
         // 1. Find ViewModel class (check the different view types, etc.)
