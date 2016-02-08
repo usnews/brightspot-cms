@@ -3140,6 +3140,14 @@ public class ToolPageContext extends WebPageContext {
         }
     }
 
+    private void redirectOnWorkflow(String url, Object... parameters) throws IOException {
+        if (getUser().isReturnToDashboardOnWorkflow()) {
+            getResponse().sendRedirect(cmsUrl("/"));
+        } else {
+            redirectOnSave(url, parameters);
+        }
+    }
+
     private void redirectOnSave(String url, Object... parameters) throws IOException {
         if (getUser().isReturnToDashboardOnSave()) {
             getResponse().sendRedirect(cmsUrl("/"));
@@ -3817,7 +3825,7 @@ public class ToolPageContext extends WebPageContext {
                 }
             }
 
-            redirectOnSave("", "id", state.getId());
+            redirectOnWorkflow("", "id", state.getId());
             return true;
 
         } catch (Exception error) {
