@@ -577,7 +577,7 @@ define([
             // Loop through all lines in the range
             editor.eachLine(range.from.line, range.to.line + 1, function(line) {
 
-                var charFrom, charTo, isRange;
+                var charFrom, charTo, isRange, marks, rightmostMark, rightmostPos, styleObj;
                 
                 charFrom = (lineNumber === range.from.line) ? range.from.ch : 0;
                 charTo = (lineNumber === range.to.line) ? range.to.ch : line.text.length;
@@ -587,7 +587,8 @@ define([
                 // Loop through each character in the line
                 for (charNumber = charFrom; charNumber <= charTo; charNumber++) {
 
-                    var marks, rightmostMark, rightmostPos, styleObj;
+                    rightmostMark = undefined;
+                    rightmostPos = undefined;
                     
                     // Get all of the marks for this character and get a list of the class names
                     marks = editor.findMarksAt({ line: lineNumber, ch: charNumber });
@@ -597,10 +598,20 @@ define([
                         
                         var isRightmost, markPosition, pos;
                         
-                        if (!mark.className) { return; }
-                        if (!mark.find) { return; }
+                        if (!mark.className) {
+                            return;
+                        }
+                        // Make sure this class maps to an element (and is not an internal mark like for spelling errors)
+                        if (!self.classes[mark.className]) {
+                            return;
+                        }
+                        if (!mark.find) {
+                            return;
+                        }
                         pos = mark.find();
-                        if (!pos) { return; }
+                        if (!pos) {
+                            return;
+                        }
                         
                         // We need to check a couple special cases because CodeMirror still sends us the marks
                         // that are next to the position of the cursor.
