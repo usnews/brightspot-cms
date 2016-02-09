@@ -595,11 +595,33 @@ define([
                     // Find the mark with the rightmost starting character
                     marks.forEach(function(mark){
                         
-                        var isRightmost, pos;
-
+                        var isRightmost, markPosition, pos;
+                        
+                        if (!mark.className) { return; }
                         if (!mark.find) { return; }
                         pos = mark.find();
                         if (!pos) { return; }
+                        
+                        // We need to check a couple special cases because CodeMirror still sends us the marks
+                        // that are next to the position of the cursor.
+                        //
+                        // Marks can have an "inclusiveLeft" and "inclusiveRight" property, which means to extend the mark
+                        // to the left or the right when text is added on that side.
+                        //
+                        // If the mark is defined to the right of the cursor, then we only include the classname if inclusiveLeft is set.
+                        // If the mark is defined to the left of the cursor, then we only include the classname if inclusiveRight is set.
+
+                        if (pos.from.line === lineNumber && pos.from.ch === charNumber && !mark.inclusiveLeft) {
+
+                            // Don't consider this mark if we are on the left side of the range when inclusiveLeft is not set
+                            return;
+                                
+                        } else if (pos.to.line === lineNumber && pos.to.ch === charNumber && !mark.inclusiveRight) {
+                                
+                            // Don't consider this mark if we are on the right side of the range when inclusiveRight is not set
+                            return;
+
+                        }
 
                         if (rightmostMark) {
                             
