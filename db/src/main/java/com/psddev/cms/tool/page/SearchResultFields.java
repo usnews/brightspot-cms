@@ -36,7 +36,6 @@ public class SearchResultFields extends PageServlet {
         Map<String, List<String>> fieldNamesByTypeId = user.getSearchResultFieldsByTypeId();
         String typeId = type != null ? type.getId().toString() : "";
         List<String> fieldNames = fieldNamesByTypeId.get(typeId);
-        String searchResultUrl = page.param(String.class, "searchResultUrl");
 
         if (page.isFormPost()) {
             if (page.param(boolean.class, "custom")) {
