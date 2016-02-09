@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -43,6 +44,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.ibm.icu.text.MessageFormat;
 import com.psddev.cms.db.PageFilter;
 import com.psddev.cms.db.RichTextElement;
@@ -1969,10 +1973,26 @@ public class ToolPageContext extends WebPageContext {
 
         List<Map<String, Object>> richTextElements = new ArrayList<>();
 
+        Map<String, Set<String>> contextMap = new HashMap<>();
+
+        LoadingCache<Class<?>, Set<Class<?>>> concreteClassMap = CacheBuilder.newBuilder()
+                .build(new CacheLoader<Class<?>, Set<Class<?>>>() {
+                    @Override
+                    public Set<Class<?>> load(Class<?> aClass) throws Exception {
+                        return new HashSet<Class<?>>(ClassFinder.findConcreteClasses(aClass));
+                    }
+                });
+
         for (Class<? extends RichTextElement> c : ClassFinder.findConcreteClasses(RichTextElement.class)) {
             RichTextElement.Tag tag = c.getAnnotation(RichTextElement.Tag.class);
 
             if (tag != null) {
+
+                String tagName = tag.value().trim();
+                if (StringUtils.isEmpty(tagName)) {
+                    continue;
+                }
+
                 Map<String, Object> richTextElement = new CompactMap<>();
                 ObjectType type = ObjectType.getInstance(c);
 
@@ -1983,20 +2003,31 @@ public class ToolPageContext extends WebPageContext {
                         .findFirst()
                         .isPresent());
 
-                List<String> context = new ArrayList<>();
+                Set<String> context = contextMap.get(tagName);
+                if (context == null) {
+                    context = new HashSet<>();
+                    contextMap.put(tagName, context);
+                }
 
                 if (tag.root()) {
                     context.add(null);
                 }
 
-                Stream.of(tag.parents())
+                Stream.of(tag.children())
+                        .map(concreteClassMap::getUnchecked)
+                        .flatMap(Collection::stream)
+                        .filter(RichTextElement.class::isAssignableFrom)
+                        .map(b -> b.getAnnotation(RichTextElement.Tag.class))
+                        .filter(Objects::nonNull)
+                        .<String>map(RichTextElement.Tag::value)
                         .map(String::trim)
                         .filter(p -> !ObjectUtils.isBlank(p))
-                        .forEach(p -> context.add(p));
-
-                if (!context.isEmpty()) {
-                    richTextElement.put("context", context);
-                }
+                        .forEach((String p) -> {
+                            if (contextMap.get(p) == null) {
+                                contextMap.put(p, new HashSet<>());
+                            }
+                            contextMap.get(p).add(tagName);
+                        });
 
                 String menu = tag.menu().trim();
 
@@ -2008,6 +2039,14 @@ public class ToolPageContext extends WebPageContext {
                 richTextElement.put("typeId", type.getId().toString());
                 richTextElement.put("displayName", type.getDisplayName());
                 richTextElements.add(richTextElement);
+            }
+        }
+
+        for (Map<String, Object> richTextElement : richTextElements) {
+            Set<String> context = contextMap.get(richTextElement.get("tag"));
+
+            if (!ObjectUtils.isBlank(context)) {
+                richTextElement.put("context", context);
             }
         }
 
