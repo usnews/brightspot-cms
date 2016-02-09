@@ -44,6 +44,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.ibm.icu.text.MessageFormat;
 import com.psddev.cms.db.PageFilter;
 import com.psddev.cms.db.RichTextElement;
@@ -1970,7 +1973,15 @@ public class ToolPageContext extends WebPageContext {
 
         List<Map<String, Object>> richTextElements = new ArrayList<>();
 
-        Map<String, Set<String>> contextMap = new CompactMap<>();
+        Map<String, Set<String>> contextMap = new HashMap<>();
+
+        LoadingCache<Class<?>, Set<Class<?>>> concreteClassMap = CacheBuilder.newBuilder()
+                .build(new CacheLoader<Class<?>, Set<Class<?>>>() {
+                    @Override
+                    public Set<Class<?>> load(Class<?> aClass) throws Exception {
+                        return new HashSet<Class<?>>(ClassFinder.findConcreteClasses(aClass));
+                    }
+                });
 
         for (Class<? extends RichTextElement> c : ClassFinder.findConcreteClasses(RichTextElement.class)) {
             RichTextElement.Tag tag = c.getAnnotation(RichTextElement.Tag.class);
@@ -1992,18 +2003,18 @@ public class ToolPageContext extends WebPageContext {
                         .findFirst()
                         .isPresent());
 
-                HashSet<String> context = contextMap.get(tag.value()) != null
-                        ? (HashSet<String>) contextMap.get(tag.value())
-                        : new HashSet<>();
-
-                contextMap.put(tagName, context);
+                Set<String> context = contextMap.get(tagName);
+                if (context == null) {
+                    context = new HashSet<>();
+                    contextMap.put(tagName, context);
+                }
 
                 if (tag.root()) {
                     context.add(null);
                 }
 
-                Stream.<Class<?>>of(tag.children())
-                        .map(ClassFinder::findConcreteClasses)
+                Stream.of(tag.children())
+                        .map(concreteClassMap::getUnchecked)
                         .flatMap(Collection::stream)
                         .filter(RichTextElement.class::isAssignableFrom)
                         .map(b -> b.getAnnotation(RichTextElement.Tag.class))
