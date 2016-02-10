@@ -3003,7 +3003,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          */
         tableShowContextMenu: function(el, row, col) {
 
-            var h, height, menu, offset, self, $td, width;
+            var h, height, menu, offset, self, $td;
 
             self = this;
             
@@ -3013,8 +3013,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 $td = $(h.getCell(row, col));
                 offset = $td.offset();
                 height = $td.height();
-                width = $td.width();
-                menu.open({top:offset.top + height, left:offset.left, width:width, height:height});
+                menu.open({pageY:offset.top + height, pageX:offset.left});
             }
         },
 
