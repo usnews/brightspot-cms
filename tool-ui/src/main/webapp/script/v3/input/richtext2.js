@@ -2776,7 +2776,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
         inlineEnhancementHandleClick: function(event, mark) {
 
-            var enhancementEditUrl, $div, $divLink, html, self, styleObj;
+            var enhancementEditUrl, $div, $divLink, html, offset, self, styleObj;
 
             self = this;
 
@@ -2814,11 +2814,14 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                     text: '.'
                 })
                 
-            }).appendTo('body').css({
-                'top': event.pageY,
-                'left': event.pageX
-            });
+            }).appendTo('body');
 
+            // Set the position of the popup
+            offset = self.rte.getOffset(range);
+            $div.css({
+                'top': offset.top,
+                'left': offset.left
+            });
             $divLink = $div.find('a');
 
             // Add data to the link with the rte and the mark,

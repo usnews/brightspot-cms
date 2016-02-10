@@ -4001,6 +4001,22 @@ define([
 
         
         /**
+         * For a given range, returns the starting offset in pixels.
+         *
+         * @param {Object} range
+         * @returns {Object}
+         * Offset object {left, right, top, bottom }
+         * Use left,top to represent the point below the first character.
+         */
+        getOffset: function(range) {
+            var self;
+            self = this;
+            range = range || self.getRange();
+            return self.codeMirror.charCoords({line:range.from.line, ch:range.from.ch});
+        },
+
+        
+        /**
          * Given a CodeMirror mark, replace the text within it
          * without destroying the mark.
          * Normally if you were to use the CodeMirror functions to replace a range,
