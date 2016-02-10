@@ -1,4 +1,4 @@
-define(['jquery'], function ($) {
+define(['jquery', 'string'], function ($, S) {
 
   $(document).on('change', '.searchResultFields input[name="fieldNames"]', function() {
     var $input = $(this);
@@ -16,5 +16,23 @@ define(['jquery'], function ($) {
     } else {
       $('.' + hiddenFieldsContainerClass + ' > ul').append($li);
     }
+  });
+
+  $(document).on('input', '.searchResultFields .searchResultFields-filter', function () {
+    var $input = $(this);
+    var $ul = $input.siblings('ul').first();
+
+    var re = new RegExp(S($input.val().replace(/\s/, '').split('').join('(?:.*\\W)?')).latinise().s, 'i');
+
+    $ul.find('label').each(function () {
+      var $item = $(this);
+
+      if (re.test(S($item.attr('data-display-name')).latinise().s)) {
+        $item.show();
+
+      } else {
+        $item.hide();
+      }
+    });
   });
 });

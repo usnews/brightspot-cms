@@ -486,8 +486,14 @@
     margin: 24px 16px 0px 16px;
   }
 
+  .searchResultFields-filter {
+    margin-top: 8px;
+    display: block;
+    width: 100%;
+  }
+
   ul {
-    margin: 12px 0 0 0;
+    margin: 4px 0 0 0;
     overflow-y: auto;
     max-height: 240px;
 
@@ -506,8 +512,22 @@
     background: fade(@color-heading, 45%);
   }
 
-  .searchResultFields-display li {
-    background: mix(@color-focus, white, 10%);
+  .searchResultFields-display {
+
+    li {
+      background: mix(@color-focus, white, 10%);
+    }
+
+    label {
+        .icon;
+        .icon-check;
+
+        &:before {
+          position: absolute;
+          right: 4px;
+          opacity: 0.5;
+        }
+    }
   }
 }
 

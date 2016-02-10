@@ -108,23 +108,32 @@ public class SearchResultFields extends PageServlet {
     }
 
     private void writeFieldItemsHtml(ToolPageContext page, List<Object> fieldObjects, boolean checked) throws IOException {
+
+        if (!checked) {
+            page.writeTag("input",
+                    "type", "text",
+                    "placeholder", "Filter by name",
+                    "class", "searchResultFields-filter");
+        }
+
         page.writeStart("ul");
             for (Object fieldObject : fieldObjects) {
+                String displayName = "";
+                String internalName = "";
+
+                if (fieldObject instanceof ObjectField) {
+                    ObjectField field = (ObjectField) fieldObject;
+                    displayName = field.getDisplayName();
+                    internalName = field.getInternalName();
+                } else if (fieldObject instanceof SearchResultField) {
+                    SearchResultField field = (SearchResultField) fieldObject;
+                    displayName = field.getDisplayName();
+                    internalName = field.getClass().getName();
+                }
+
                 page.writeStart("li");
-                    String displayName = "";
-                    String internalName = "";
 
-                    if (fieldObject instanceof ObjectField) {
-                        ObjectField field = (ObjectField) fieldObject;
-                        displayName = field.getDisplayName();
-                        internalName = field.getInternalName();
-                    } else if (fieldObject instanceof SearchResultField) {
-                        SearchResultField field = (SearchResultField) fieldObject;
-                        displayName = field.getDisplayName();
-                        internalName = field.getClass().getName();
-                    }
-
-                    page.writeStart("label");
+                    page.writeStart("label", "data-display-name", displayName);
                         page.writeTag("input",
                                 "type", "checkbox",
                                 "name", "fieldNames",
@@ -185,7 +194,7 @@ public class SearchResultFields extends PageServlet {
         }
 
         // This field is currently required
-        hiddenFields.removeIf(o -> o instanceof ObjectField && ((ObjectField)o).getInternalName().equals("cms.content.updateDate"));
+        hiddenFields.removeIf(o -> o instanceof ObjectField && ((ObjectField) o).getInternalName().equals("cms.content.updateDate"));
 
         Collections.sort(hiddenFields, (f1, f2) -> {
             String fieldName1 = "";
