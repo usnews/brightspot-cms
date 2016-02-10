@@ -739,10 +739,10 @@ define([
                     
                     // Check if we should remove the class
                     matchesClass = false;
+                    styleObj = self.classes[mark.marker.className] || {};
                     if (className) {
                         matchesClass = Boolean(mark.marker.className === className);
                     } else {
-                        styleObj = self.classes[mark.marker.className] || {};
                         
                         // Do not remove the track changes classes unless specifically named
                         matchesClass = Boolean(options.includeTrack || styleObj.internal !== true);
@@ -874,6 +874,11 @@ define([
                         //        rrr        <-- range
                         //      nn   nn      <-- new marks
                         //        xxx        <-- text to delete (if deleteText is true)
+
+                        // Do not allow inline enhancement styles to be split in the middle
+                        if (styleObj.enhancementType) {
+                            return;
+                        }
                         
                         editor.markText(
                             { line: lineNumber, ch: toCh },
