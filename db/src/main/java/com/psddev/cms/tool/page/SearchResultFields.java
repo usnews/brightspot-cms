@@ -1,13 +1,13 @@
 package com.psddev.cms.tool.page;
 
 import java.io.IOException;
-import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
 
+import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.SearchResultField;
@@ -59,13 +59,15 @@ public class SearchResultFields extends PageServlet {
 
         page.writeStart("div", "class", "widget");
             page.writeStart("h1");
-                //TODO: localize using SearchResultFieldsDefault title
-                if (type != null) {
-                    page.writeObjectLabel(type);
-                    page.writeHtml(' ');
+                if (type == null) {
+                    page.writeHtml(page.localize(SearchResultFields.class, "title"));
+                } else {
+                    page.writeHtml(
+                            page.localize(
+                                    SearchResultFields.class,
+                                    ImmutableMap.of("type", page.getObjectLabel(type)),
+                                    "typeTitle"));
                 }
-
-                page.writeHtml("Fields");
             page.writeEnd();
 
             page.writeStart("form",
