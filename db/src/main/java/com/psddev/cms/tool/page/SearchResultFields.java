@@ -92,7 +92,6 @@ public class SearchResultFields extends PageServlet {
                     page.writeEnd();
 
                     page.writeStart("div", "class", "searchResultFields-display");
-                        //TODO: localize
                         page.writeHtml(page.localize(SearchResultFields.class, "label.selectedFields"));
                         writeFieldItemsHtml(page, fieldsMap.get(true), true);
                     page.writeEnd();
