@@ -1081,7 +1081,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          */
         toolbarHandleClick: function(item, event) {
 
-            var $button, mark, rte, self, styleObj, value;
+            var $button, mark, marks, rte, self, styleObj, value;
 
             self = this;
 
@@ -1209,10 +1209,26 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
                 if (styleObj.onClick) {
 
-                    // Create a new mark then call the onclick function on it
-                    mark = rte.setStyle(item.style);
-                    if (mark) {
-                        styleObj.onClick(event, mark);
+                    // Find all the marks in the current selection that have onclick
+                    marks = self.rte.dropdownGetMarks(true);
+
+                    // Exclude marks that are not for the style we are currently examining
+                    marks = $.map(marks, function(mark){
+                        if (mark.className === styleObj.className) {
+                            return mark;
+                        } else {
+                            return null;
+                        }
+                    });
+
+                    if (marks.length) {
+                        styleObj.onClick(event, marks[0]);
+                    } else {
+                        // Create a new mark then call the onclick function on it
+                        mark = rte.setStyle(item.style);
+                        if (mark) {
+                            styleObj.onClick(event, mark);
+                        }
                     }
 
                 } else {
