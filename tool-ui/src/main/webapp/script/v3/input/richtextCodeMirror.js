@@ -530,6 +530,177 @@ define([
         },
 
         
+        /**
+         * Returns the "context" elements for the current cursor position or range.
+         *
+         * @param {Object} [range]
+         * The range of the selection {from:{line,ch},to:{line:ch}}.
+         * If not specified, uses the current selection.
+         *
+         * @returns {Array}
+         * An array of the context elemsnets that are active within the range.
+         * The value null represents the root context.
+         * For example: [null, 'b']
+         */
+        getContext: function(range) {
+
+            // Step through each character in the range
+            // Get a list of all marks on the character
+            // Pick the mark that has the right-most starting character, add that element to the context list
+            // Return the context list
+
+            // Example: what if you have xxx<B>RRR</B>RRRxxx
+            // Then the context should be considered to be [B,null]
+            //
+            // Example: what if you have xxxRRR<B>RRR</B>RRRxxx
+            // Then the context should be considered to be [null,B]
+            //
+            // Example: what if you have: xxxRRR<B>RRR</B>RR<I>RRR</I>RRRxxx
+            // Then the context should be considered to be [null,B,I]
+            //
+            // Example: what if you have xxxRRR<B>RRR<I>RRR</I>RRR</B>xxx
+            // Then the context should be considered [null,B,I]
+            //
+            // Example: what if you have xxx<B>xxx<I>RRR</I>xxx</B>xxx
+            // Then the context should be considered to be [I]
+            
+            var blockStyles, context, contextArray, contextMarks, contextNull, editor, foundBlockStyle, lineNumber, self;
+
+            self = this;
+            editor = self.codeMirror;
+            range = range || self.getRange();
+            lineNumber = range.from.line;
+
+            // Placeholder for the context elements
+            context = {};
+
+            // Loop through all lines in the range
+            editor.eachLine(range.from.line, range.to.line + 1, function(line) {
+
+                var charFrom, charTo, isRange, marks, rightmostMark, rightmostPos, styleObj;
+                
+                charFrom = (lineNumber === range.from.line) ? range.from.ch : 0;
+                charTo = (lineNumber === range.to.line) ? range.to.ch : line.text.length;
+
+                isRange = Boolean(charFrom !== charTo);
+                
+                // Loop through each character in the line
+                for (charNumber = charFrom; charNumber <= charTo; charNumber++) {
+
+                    rightmostMark = undefined;
+                    rightmostPos = undefined;
+                    
+                    // Get all of the marks for this character and get a list of the class names
+                    marks = editor.findMarksAt({ line: lineNumber, ch: charNumber });
+
+                    // Find the mark with the rightmost starting character
+                    marks.forEach(function(mark){
+                        
+                        var isRightmost, markPosition, pos;
+                        
+                        if (!mark.className) {
+                            return;
+                        }
+                        // Make sure this class maps to an element (and is not an internal mark like for spelling errors)
+                        if (!self.classes[mark.className]) {
+                            return;
+                        }
+                        if (!mark.find) {
+                            return;
+                        }
+                        pos = mark.find();
+                        if (!pos) {
+                            return;
+                        }
+                        
+                        // We need to check a couple special cases because CodeMirror still sends us the marks
+                        // that are next to the position of the cursor.
+                        //
+                        // Marks can have an "inclusiveLeft" and "inclusiveRight" property, which means to extend the mark
+                        // to the left or the right when text is added on that side.
+                        //
+                        // If the mark is defined to the right of the cursor, then we only include the classname if inclusiveLeft is set.
+                        // If the mark is defined to the left of the cursor, then we only include the classname if inclusiveRight is set.
+
+                        if (pos.from.line === lineNumber && pos.from.ch === charNumber && !mark.inclusiveLeft) {
+
+                            // Don't consider this mark if we are on the left side of the range when inclusiveLeft is not set
+                            return;
+                                
+                        } else if (pos.to.line === lineNumber && pos.to.ch === charNumber && !mark.inclusiveRight) {
+                                
+                            // Don't consider this mark if we are on the right side of the range when inclusiveRight is not set
+                            return;
+
+                        }
+
+                        if (rightmostMark) {
+                            
+                            if (pos.from.line > rightmostPos.from.line ||
+                                (pos.from.line === rightmostPos.from.line && pos.from.ch >= rightmostPos.from.ch)) {
+
+                                isRightmost = true;
+                            }
+                            
+                        } else {
+                            isRightmost = true;
+                        }
+
+                        if (isRightmost) {
+                            rightmostMark = mark;
+                            rightmostPos = pos;
+                        }
+
+                    });
+
+                    if (rightmostMark) {
+
+                        styleObj = self.classes[rightmostMark.className];
+                        if (styleObj && styleObj.element) {
+                            context[styleObj.element] = true;
+                        }
+                        
+                    } else {
+
+                        // Use line styles if there are no inline marks
+                        
+                        blockStyles = self.blockGetStyles({from:{line:lineNumber, ch:0}, to:{line:lineNumber, ch:0}});
+                        foundBlockStyle = false;
+                        $.each(blockStyles, function(styleKey) {
+                            var element;
+                            element = self.styles[styleKey].element;
+                            if (element) {
+                                context[element] = true;
+                                foundBlockStyle = true;
+                            }
+                        });
+
+                        // If there is no line style then use a null context
+                        if (!foundBlockStyle) {
+                            contextNull = true;
+                        }
+                    }
+                }
+                
+                lineNumber++;
+            });
+            
+            // Convert context object into an array
+            contextArray = [];
+            $.each(context, function(element) {
+                if (element === 'NULL') {
+                }
+                contextArray.push(element);
+            });
+
+            if (contextNull) {
+                contextArray.push(null);
+            }
+
+            return contextArray;
+        },
+        
+        
         //==================================================
         // INLINE STYLES
         // The following format functions deal with inline styles.
