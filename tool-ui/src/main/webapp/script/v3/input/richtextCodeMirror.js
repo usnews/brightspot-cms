@@ -2455,8 +2455,12 @@ define([
         
         /**
          * Get all the marks in the current range that have click events.
+         *
+         * @param {Boolean} [allowRange=false]
+         * Set to true if you want the marks across a range of characters.
+         * Defaults to false, which means it will only return marks if the selection range is a cursor position.
          */
-        dropdownGetMarks: function() {
+        dropdownGetMarks: function(allowRange) {
             var editor, marks, range, self;
 
             self = this;
@@ -2464,7 +2468,7 @@ define([
             range = self.getRange();
 
             // Do not return marks if a range of characters is selected
-            if (!(range.from.line === range.to.line && range.from.ch === range.to.ch)) {
+            if (allowRange !== true && !(range.from.line === range.to.line && range.from.ch === range.to.ch)) {
                 return [];
             }
             
