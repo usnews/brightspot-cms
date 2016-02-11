@@ -2948,7 +2948,7 @@ define([
          */ 
         trackAcceptRange: function(range) {
             
-            var editor, self;
+            var editor, marks, self;
 
             self = this;
             editor = self.codeMirror;
@@ -2998,12 +2998,18 @@ define([
             
             position = mark.find();
 
-            if (position && mark.className === self.styles.trackDelete.className) {
-                editor.replaceRange('', position.from, position.to, '+brightspotTrackRejectMark');
+            if (position) {
+                if (mark.className === self.styles.trackDelete.className) {
+                    // For a delete mark, remove the content
+                    mark.clear();
+                    editor.replaceRange('', position.from, position.to, '+brightspotTrackAcceptMark');
+                    self.triggerChange();
+                } else if (mark.className === self.styles.trackInsert.className) {
+                    // For an insert mark, leave the content and remove the mark
+                    mark.clear();
+                    self.triggerChange();
+                }
             }
-            
-            mark.clear();
-            self.triggerChange();
         },
 
 
@@ -3019,12 +3025,19 @@ define([
             
             position = mark.find();
 
-            if (position && mark.className === self.styles.trackInsert.className) {
-                editor.replaceRange('', position.from, position.to, '+brightspotTrackRejectMark');
+            if (position) {
+                if (mark.className === self.styles.trackInsert.className) {
+                    // For an insert mark, remove the content
+                    mark.clear();
+                    editor.replaceRange('', position.from, position.to, '+brightspotTrackRejectMark');
+                    self.triggerChange();
+                } else if (mark.className === self.styles.trackDelete.className) {
+                    // For a delete mark, leave the content and remove the mark
+                    mark.clear();
+                    self.triggerChange();
+                }
             }
             
-            mark.clear();
-            self.triggerChange();
         },
 
 
