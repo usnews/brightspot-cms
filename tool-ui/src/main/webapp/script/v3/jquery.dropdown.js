@@ -140,7 +140,7 @@
 
       $label.bind('dropDown-update', function() {
         var newLabel = $.map($original.find('option:selected'), function(option) {
-          return $(option).text();
+          return $(option).attr("data-drop-down-html") || $(option).text();
         }).join(', ');
 
         $label.html(newLabel || dynamicPlaceholderHtml || placeholder || '&nbsp;');
@@ -243,7 +243,7 @@
 
         $item = $('<div/>', {
           'class': plugin.className('listItem'),
-          'html': $option.text() || '&nbsp;'
+          'html': $option.attr("data-drop-down-html") || $option.text() || '&nbsp;'
         });
 
         $check = $('<input/>', {
