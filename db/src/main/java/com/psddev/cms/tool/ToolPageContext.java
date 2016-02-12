@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -42,19 +43,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
 
-import com.google.common.base.MoreObjects;
-import com.ibm.icu.text.MessageFormat;
-import com.psddev.cms.db.PageFilter;
-import com.psddev.cms.db.RichTextElement;
-import com.psddev.cms.tool.file.SvgFileType;
-import com.psddev.cms.tool.page.content.PublishModification;
-import com.psddev.cms.view.PageViewClass;
-import com.psddev.cms.view.ViewCreator;
-import com.psddev.dari.db.Recordable;
-import com.psddev.dari.util.CascadingMap;
-import com.psddev.dari.util.ClassFinder;
-import com.psddev.dari.util.CollectionUtils;
-import com.psddev.dari.util.HtmlWriter;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
@@ -64,7 +52,13 @@ import org.apache.http.util.EntityUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
+
+import com.google.common.base.MoreObjects;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
+import com.ibm.icu.text.MessageFormat;
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.ContentField;
 import com.psddev.cms.db.ContentType;
@@ -73,8 +67,10 @@ import com.psddev.cms.db.History;
 import com.psddev.cms.db.ImageTag;
 import com.psddev.cms.db.LayoutTag;
 import com.psddev.cms.db.Page;
+import com.psddev.cms.db.PageFilter;
 import com.psddev.cms.db.Renderer;
 import com.psddev.cms.db.ResizeOption;
+import com.psddev.cms.db.RichTextElement;
 import com.psddev.cms.db.Schedule;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.StandardImageSize;
@@ -90,6 +86,10 @@ import com.psddev.cms.db.Workflow;
 import com.psddev.cms.db.WorkflowLog;
 import com.psddev.cms.db.WorkflowState;
 import com.psddev.cms.db.WorkflowTransition;
+import com.psddev.cms.tool.file.SvgFileType;
+import com.psddev.cms.tool.page.content.PublishModification;
+import com.psddev.cms.view.PageViewClass;
+import com.psddev.cms.view.ViewCreator;
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.CompoundPredicate;
 import com.psddev.dari.db.Database;
@@ -101,16 +101,21 @@ import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.PredicateParser;
 import com.psddev.dari.db.Query;
+import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.Singleton;
 import com.psddev.dari.db.State;
 import com.psddev.dari.db.StateStatus;
 import com.psddev.dari.db.ValidationException;
+import com.psddev.dari.util.CascadingMap;
+import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.CodeUtils;
+import com.psddev.dari.util.CollectionUtils;
 import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.DebugFilter;
 import com.psddev.dari.util.DependencyResolver;
 import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.HtmlGrid;
+import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ImageEditor;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
@@ -1969,10 +1974,26 @@ public class ToolPageContext extends WebPageContext {
 
         List<Map<String, Object>> richTextElements = new ArrayList<>();
 
+        Map<String, Set<String>> contextMap = new HashMap<>();
+
+        LoadingCache<Class<?>, Set<Class<?>>> concreteClassMap = CacheBuilder.newBuilder()
+                .build(new CacheLoader<Class<?>, Set<Class<?>>>() {
+                    @Override
+                    public Set<Class<?>> load(Class<?> aClass) throws Exception {
+                        return new HashSet<Class<?>>(ClassFinder.findConcreteClasses(aClass));
+                    }
+                });
+
         for (Class<? extends RichTextElement> c : ClassFinder.findConcreteClasses(RichTextElement.class)) {
             RichTextElement.Tag tag = c.getAnnotation(RichTextElement.Tag.class);
 
             if (tag != null) {
+
+                String tagName = tag.value().trim();
+                if (StringUtils.isEmpty(tagName)) {
+                    continue;
+                }
+
                 Map<String, Object> richTextElement = new CompactMap<>();
                 ObjectType type = ObjectType.getInstance(c);
 
@@ -1983,20 +2004,31 @@ public class ToolPageContext extends WebPageContext {
                         .findFirst()
                         .isPresent());
 
-                List<String> context = new ArrayList<>();
+                Set<String> context = contextMap.get(tagName);
+                if (context == null) {
+                    context = new HashSet<>();
+                    contextMap.put(tagName, context);
+                }
 
                 if (tag.root()) {
                     context.add(null);
                 }
 
-                Stream.of(tag.parents())
+                Stream.of(tag.children())
+                        .map(concreteClassMap::getUnchecked)
+                        .flatMap(Collection::stream)
+                        .filter(RichTextElement.class::isAssignableFrom)
+                        .map(b -> b.getAnnotation(RichTextElement.Tag.class))
+                        .filter(Objects::nonNull)
+                        .<String>map(RichTextElement.Tag::value)
                         .map(String::trim)
                         .filter(p -> !ObjectUtils.isBlank(p))
-                        .forEach(p -> context.add(p));
-
-                if (!context.isEmpty()) {
-                    richTextElement.put("context", context);
-                }
+                        .forEach((String p) -> {
+                            if (contextMap.get(p) == null) {
+                                contextMap.put(p, new HashSet<>());
+                            }
+                            contextMap.get(p).add(tagName);
+                        });
 
                 String menu = tag.menu().trim();
 
@@ -2008,6 +2040,14 @@ public class ToolPageContext extends WebPageContext {
                 richTextElement.put("typeId", type.getId().toString());
                 richTextElement.put("displayName", type.getDisplayName());
                 richTextElements.add(richTextElement);
+            }
+        }
+
+        for (Map<String, Object> richTextElement : richTextElements) {
+            Set<String> context = contextMap.get(richTextElement.get("tag"));
+
+            if (!ObjectUtils.isBlank(context)) {
+                richTextElement.put("context", context);
             }
         }
 
@@ -2392,6 +2432,7 @@ public class ToolPageContext extends WebPageContext {
                 for (Object item : items) {
                     State itemState = State.getInstance(item);
                     writeStart("option",
+                            "data-drop-down-html", item instanceof DropDownDisplay ? ((DropDownDisplay) item).createDropDownDisplayHtml() : "",
                             "selected", item.equals(value) ? "selected" : null,
                             "value", itemState.getId());
                         writeObjectLabel(item);
@@ -3140,6 +3181,14 @@ public class ToolPageContext extends WebPageContext {
         }
     }
 
+    private void redirectOnWorkflow(String url, Object... parameters) throws IOException {
+        if (getUser().isReturnToDashboardOnWorkflow()) {
+            getResponse().sendRedirect(cmsUrl("/"));
+        } else {
+            redirectOnSave(url, parameters);
+        }
+    }
+
     private void redirectOnSave(String url, Object... parameters) throws IOException {
         if (getUser().isReturnToDashboardOnSave()) {
             getResponse().sendRedirect(cmsUrl("/"));
@@ -3817,7 +3866,7 @@ public class ToolPageContext extends WebPageContext {
                 }
             }
 
-            redirectOnSave("", "id", state.getId());
+            redirectOnWorkflow("", "id", state.getId());
             return true;
 
         } catch (Exception error) {
