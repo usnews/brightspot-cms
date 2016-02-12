@@ -81,6 +81,7 @@ require([
   'content/layout-element',
   'v3/content/state',
   'v3/csrf',
+  'v3/search-fields',
   'v3/search-filters',
   'v3/search-result-check',
   'v3/tabs' ],
@@ -304,7 +305,7 @@ function() {
 
       // Skip textarea created inside CodeMirror editor
       if ($input.closest('.CodeMirror').length) { return; }
-            
+
       updateWordCount(
           $input.closest('.inputContainer'),
           $input,
@@ -335,7 +336,7 @@ function() {
     // For new rich text editor, special handling for the word count.
     // Note this counts only the text content not the final output which includes extra HTML elements.
     $doc.on('rteChange', $.throttle(1000, function(event, rte) {
-          
+
         var $input, $container, html, $html, text;
 
         $input = rte.$el;
@@ -635,7 +636,7 @@ function() {
     if (!$frame.is('.popup[data-popup-source-class~="objectId-edit"]')) {
       return;
     }
-    
+
     $frame.popup('container').removeClass('popup-objectId-edit-hide');
     $parent.addClass('popup-objectId-edit popup-objectId-edit-loading');
     $win.resize();
