@@ -3,7 +3,6 @@ package com.psddev.cms.tool.page;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -75,16 +74,12 @@ public class SearchResultActions extends PageServlet {
         UUID selectionId = page.param(UUID.class, SELECTION_ID_PARAMETER);
 
         if (ACTION_ADD.equals(action)) {
-
-            // add item(s) to the current selection
-            for (UUID item : page.pageParams(UUID.class, ITEM_ID_PARAMETER, Collections.emptyList())) {
+            for (UUID item : page.params(UUID.class, ITEM_ID_PARAMETER)) {
                 currentSelection.addItem(item);
             }
 
         } else if (ACTION_REMOVE.equals(action)) {
-
-            // remove item(s) from the current selection
-            for (UUID item : page.pageParams(UUID.class, ITEM_ID_PARAMETER, Collections.emptyList())) {
+            for (UUID item : page.params(UUID.class, ITEM_ID_PARAMETER)) {
                 currentSelection.removeItem(item);
             }
 
