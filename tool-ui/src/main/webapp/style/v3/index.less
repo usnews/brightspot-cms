@@ -225,31 +225,29 @@
 .contentForm {
   margin: -10px;
   overflow: hidden;
-  padding: 10px 340px 10px 10px;
+  padding: 10px;
   transition: all @time-fast;
-
-  @media @media-tablet {
-    padding-right: 210px;
-  }
 }
 
 .contentForm-main {
   float: left;
-  width: 100%;
+  width: ~'calc(100% - 330px)';
 
   > .pagination {
     margin-bottom: 15px;
     text-align: left;
   }
+
+  @media @media-tablet {
+    width: ~'calc(100% - 200px)';
+  }
 }
 
 .contentForm-aside {
-  float: left;
-  margin: 0 -330px 0 10px;
+  float: right;
   width: 320px;
 
   @media @media-tablet {
-    margin-right: -200px;
     width: 190px;
   }
 }
@@ -448,6 +446,7 @@
 
 .widget-publishing {
   margin-bottom: 10px;
+  z-index: 1;
 
   [name='workflowComment'] {
     margin-bottom: 5px;
