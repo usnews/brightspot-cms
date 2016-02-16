@@ -115,7 +115,7 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Debug")
     private boolean disableAutomaticallySavingDrafts;
 
-    @ToolUi.Tab("Debug")
+    @ToolUi.Tab("UI")
     private boolean enableFrontEndUploader;
 
     @ToolUi.Tab("Debug")
@@ -168,10 +168,10 @@ public class CmsTool extends Tool {
 
     private boolean enableCrossDomainInlineEditing;
 
-    @ToolUi.Tab("Debug")
+    @ToolUi.Tab("UI")
     private boolean enablePaddedCrop;
 
-    @ToolUi.Tab("Debug")
+    @ToolUi.Tab("RTE")
     private boolean disableCodeMirrorRichTextEditor;
 
     @ToolUi.Tab("Debug")
