@@ -6,6 +6,14 @@
   padding-right: (@-actions-width + (@-actions-padding * 2));
 }
 
+.searchResult-views {
+  margin-bottom: 10px;
+
+  .piped {
+    margin-bottom: 0;
+  }
+}
+
 .searchResult-view {
   overflow: hidden;
   position: relative;
@@ -177,6 +185,20 @@
     left: 50px;
     position: absolute;
     top: 20px;
+  }
+}
+
+.savedSearches {
+  position: absolute;
+  top: 50px;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+
+  .links {
+    max-height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 }
 
@@ -413,6 +435,7 @@
 }
 
 .searchResult-selectionPreview {
+  margin-bottom: 5px;
   overflow: hidden;
 }
 
@@ -429,6 +452,97 @@
 .searchResult-selectionPreview figure img {
   display: block;
   height: 30px;
+}
+
+.searchResultFields {
+
+  .searchResultFields-container {
+    display: flex;
+  }
+
+  input[name="fieldNames"] {
+    display: none;
+    width: 0;
+  }
+
+  label {
+    display: block;
+    position: relative;
+    margin: 4px 0;
+    padding: 8px;
+    width: 100%;
+
+    span {
+      display: block;
+      width: 90%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  //.searchResultFields-default {
+  //  .icon;
+  //  .icon-lock;
+  //
+  //  &:before {
+  //    position: absolute;
+  //    right: 4px;
+  //  }
+  //}
+
+  .searchResultFields-display, .searchResultFields-hide {
+    width: 50%;
+  }
+
+  .searchResultFields-divider {
+    border-right: 1px solid @color-border;
+    margin: 24px 16px 0px 16px;
+  }
+
+  .searchResultFields-filter {
+    margin-top: 8px;
+    display: block;
+    width: 100%;
+  }
+
+  ul {
+    margin: 4px 0 0 0;
+    overflow-y: auto;
+    max-height: 240px;
+
+    &:empty:before {
+      content: "No additional fields selected.";
+      color: @color-border;
+      font-style: italic;
+    }
+  }
+
+  li {
+    list-style-type: none;
+  }
+
+  .searchResultFields-hide li {
+    background: fade(@color-heading, 45%);
+  }
+
+  .searchResultFields-display {
+
+    li {
+      background: mix(@color-focus, white, 10%);
+    }
+
+    label {
+        .icon;
+        .icon-check;
+
+        &:before {
+          position: absolute;
+          right: 4px;
+          opacity: 0.5;
+        }
+    }
+  }
 }
 
 .widget[name="searchAdvancedFull"] {
@@ -488,3 +602,5 @@
     }
   }
 }
+
+

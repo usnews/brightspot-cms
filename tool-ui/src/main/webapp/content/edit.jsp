@@ -508,7 +508,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                     long total = complete + incomplete + skipped;
 
                     wp.writeStart("div",
-                            "class", "block",
+                            "class", "publishing-workflow block",
                             "style", wp.cssString(
                                     "border-bottom", "1px solid #bbb",
                                     "padding-bottom", "5px"));
@@ -772,6 +772,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
 
                         // Workflow actions.
                         if (!isTrash &&
+                                !(draft != null && draft.getSchedule() != null) &&
                                 (editingState.isNew() ||
                                 !editingState.isVisible() ||
                                 draft != null ||
@@ -1221,7 +1222,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
 
     <script type="text/javascript">
         (function($, win, undef) {
-            var PEEK_WIDTH = 160,
+            var PEEK_WIDTH = 99,
                     $win = $(win),
                     doc = win.document,
                     $doc = $(doc),

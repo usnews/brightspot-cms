@@ -1093,7 +1093,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          */
         toolbarHandleClick: function(item, event) {
 
-            var $button, mark, rte, self, styleObj, value;
+            var $button, mark, marks, rte, self, styleObj, value;
 
             self = this;
 
@@ -1221,10 +1221,26 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
                 if (styleObj.onClick) {
 
-                    // Create a new mark then call the onclick function on it
-                    mark = rte.setStyle(item.style);
-                    if (mark) {
-                        styleObj.onClick(event, mark);
+                    // Find all the marks in the current selection that have onclick
+                    marks = self.rte.dropdownGetMarks(true);
+
+                    // Exclude marks that are not for the style we are currently examining
+                    marks = $.map(marks, function(mark){
+                        if (mark.className === styleObj.className) {
+                            return mark;
+                        } else {
+                            return null;
+                        }
+                    });
+
+                    if (marks.length) {
+                        styleObj.onClick(event, marks[0]);
+                    } else {
+                        // Create a new mark then call the onclick function on it
+                        mark = rte.setStyle(item.style);
+                        if (mark) {
+                            styleObj.onClick(event, mark);
+                        }
                     }
 
                 } else {
@@ -1250,7 +1266,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          */
         toolbarUpdate: function() {
 
-            var $links, mode, rte, self, styles;
+            var contextArray, $links, mode, rte, self, styles;
 
             self = this;
             rte = self.rte;
@@ -1273,6 +1289,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Note ALL characters in the range must have the style or it won't be returned
             styles = $.extend({}, rte.inlineGetStyles(), rte.blockGetStyles());
 
+            // Get all the context elements for the currently selected range of characters
+            context = rte.getContext();
+            
             // Go through each link in the toolbar and see if the style is defined
             $links.each(function(){
 
@@ -1354,47 +1373,43 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                     // Special case if the toolbar style should only be displayed in certain contexts
                     styleObj = self.styles[config.style] || {};
                     if (styleObj.context) {
-
-                        validContext = false;
-
-                        // For each of the active styles, determine which elements the styles represent
-                        // so we can check if we are in the context of those elements
-                        activeElements = {};
-                        allRoot = true;
-                        $.each(styles, function(styleName, styleValue) {
-                            var styleObj;
-                            styleObj = self.styles[styleName] || {};
-                            if (styleObj.element) {
-                                allRoot = false;
-                                activeElements[styleObj.element] = true;
-                            }
-                        });
-
-                        // If a different root context was specified, add that to the list of active elements.
-                        // For example, if the rte is meant to edit the content inside a '<mycontent>' element,
-                        // then contextRoot would be 'mycontent', and only those elements allowed in that element
-                        // would be allowed.
-                        if (self.contextRoot) {
-                            activeElements[self.contextRoot] = true;
-                        }
                         
-                        // Loop through all the elements listed as a required context for this style
-                        $.each(styleObj.context, function (i, contextElement) {
+                        // Loop through all the current contexts.
+                        // Note there can be multiple contexts because multiple characters can be
+                        // selected in the range, and each character might be in a different context.
+                        // For example, if the character R represents the selected range:
+                        // aaa<B>RRR</B>RRR<I>RRR</I>aaa
+                        // Then the context would be B, I, and null.
+                        //
+                        // We must check each context that is selected, to determine if
+                        // the style is allowed in that context.
+                        //
+                        // If the style fails for any one of the contexts, then it
+                        // should be invalid, and we should prevent the user from applying the style
+                        // across the range.
 
-                            // If null is specified as a context, then the style can appear in the "root" context.
-                            // If the entire range is plain text then we'll consider this "root"
-                            if (contextElement === null && self.contextRoot === null && allRoot) {
-                                validContext = true;
-                                return false;
+                        // Loop through all the contexts for the selected range
+                        validContext = true;
+                        $.each(context, function(i, contextElement) {
+
+                            // If a different root context was specified, then use that as the root element
+                            // For example, if the rte is meant to edit the content inside a '<mycontent>' element,
+                            // then contextRoot would be 'mycontent', and only those elements allowed in that element
+                            // would be allowed.
+                            if (self.contextRoot && contextElement === null) {
+                                contextElement = self.contextRoot;
                             }
 
-                            // Check if we are completely in contextStyle
-                            if (activeElements[contextElement]) {
-                                validContext = true;
-                                return false; // stop the loop
+                            // Is this contextElement listed among the context allowed by the current style?
+                            if ($.inArray(contextElement, styleObj.context) === -1) {
+                                validContext = false;
+                                return false; // stop looping
                             }
                         });
 
+                        // Set a class on the toolbar button to indicate we are out of context.
+                        // That class will be used to style the button, but also
+                        // to prevent clicking on the button.
                         $link.toggleClass('outOfContext', !validContext);
                     }
                     
@@ -2796,7 +2811,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
         inlineEnhancementHandleClick: function(event, mark) {
 
-            var enhancementEditUrl, $div, $divLink, html, self, styleObj;
+            var enhancementEditUrl, $div, $divLink, html, offset, self, styleObj;
 
             self = this;
 
@@ -2834,11 +2849,14 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                     text: '.'
                 })
                 
-            }).appendTo('body').css({
-                'top': event.pageY,
-                'left': event.pageX
-            });
+            }).appendTo('body');
 
+            // Set the position of the popup
+            offset = self.rte.getOffset(range);
+            $div.css({
+                'top': offset.top,
+                'left': offset.left
+            });
             $divLink = $div.find('a');
 
             // Add data to the link with the rte and the mark,
@@ -2992,9 +3010,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                  
             });
 
-            // Problem with "null" appearing in new rows, might be fixed soon with this issue
-            // https://github.com/handsontable/handsontable/issues/2816
-            
             // Add the div to the editor
             mark = self.rte.enhancementAdd($div[0], line, {
                 block:true,
@@ -3026,7 +3041,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          */
         tableShowContextMenu: function(el, row, col) {
 
-            var h, height, menu, offset, self, $td, width;
+            var h, height, menu, offset, self, $td;
 
             self = this;
             
@@ -3036,8 +3051,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 $td = $(h.getCell(row, col));
                 offset = $td.offset();
                 height = $td.height();
-                width = $td.width();
-                menu.open({top:offset.top + height, left:offset.left, width:width, height:height});
+                menu.open({pageY:offset.top + height, pageX:offset.left});
             }
         },
 
@@ -3567,9 +3581,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
         var richTextElementsSubmenus = {};
         
         $.each(RICH_TEXT_ELEMENTS, function (index, rtElement) {
-            var tag = rtElement.tag;
             var styleName = rtElement.styleName;
             var submenu;
+            var tag = rtElement.tag;
+            var toolbarButton;
 
             Rte.styles[styleName] = {
                 className: 'rte2-style-' + styleName,
@@ -3578,10 +3593,17 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 element: tag,
                 elementAttrAny: true,
                 singleLine: true,
+                "void": Boolean(rtElement.void),
                 popup: rtElement.popup === false ? false : true,
                 context: rtElement.context
             };
 
+            toolbarButton = {
+                className: 'rte2-toolbar-noicon rte2-toolbar-' + styleName,
+                style: styleName,
+                text: rtElement.displayName
+            };
+            
             if (rtElement.submenu) {
                 
                 submenu = richTextElementsSubmenus[rtElement.submenu];
@@ -3589,17 +3611,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                     submenu = [];
                     richTextElementsSubmenus[rtElement.submenu] = submenu;
                 }
-                submenu.push({
-                    className: 'rte2-toolbar-noicon',
-                    style: styleName,
-                    text: rtElement.displayName
-                });
+                submenu.push(toolbarButton);
             } else {
-                Rte.toolbarConfig.push({
-                    className: 'rte2-toolbar-noicon',
-                    style: styleName,
-                    text: rtElement.displayName
-                });
+                Rte.toolbarConfig.push(toolbarButton);
             }
         });
 
