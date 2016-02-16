@@ -1998,6 +1998,7 @@ public class ToolPageContext extends WebPageContext {
                 ObjectType type = ObjectType.getInstance(c);
 
                 richTextElement.put("tag", tag.value());
+                richTextElement.put("line", tag.block());
                 richTextElement.put("void", tag.empty());
                 richTextElement.put("popup", type.getFields().stream()
                         .filter(f -> !f.as(ToolUi.class).isHidden())
