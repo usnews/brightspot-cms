@@ -71,6 +71,7 @@ public class ToolUi extends Modification<Object> {
     private String referenceableViaClassName;
     private Boolean readOnly;
     private boolean richText;
+    private String richTextElementParentTag;
     private boolean secret;
     private Boolean sortable;
     private Set<String> standardImageSizes;
@@ -501,6 +502,14 @@ public class ToolUi extends Modification<Object> {
 
     public void setRichText(boolean richText) {
         this.richText = richText;
+    }
+
+    public String getRichTextElementParentTag() {
+        return richTextElementParentTag;
+    }
+
+    public void setRichTextElementParentTag(String richTextElementParentTag) {
+        this.richTextElementParentTag = richTextElementParentTag;
     }
 
     public boolean isReferenceable() {

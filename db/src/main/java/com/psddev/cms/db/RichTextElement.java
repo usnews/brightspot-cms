@@ -1,5 +1,7 @@
 package com.psddev.cms.db;
 
+import com.psddev.dari.db.ObjectField;
+import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Record;
 
 import java.lang.annotation.Documented;
@@ -25,5 +27,26 @@ public abstract class RichTextElement extends Record {
         boolean root() default false;
         Class<?>[] children() default { };
         String menu() default "";
+    }
+
+    @Documented
+    @ObjectField.AnnotationProcessorClass(ParentProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface Parent {
+
+        Class<? extends RichTextElement> value();
+    }
+
+    private static class ParentProcessor implements ObjectField.AnnotationProcessor<Parent> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, Parent annotation) {
+            Tag tagAnnotation = annotation.value().getAnnotation(Tag.class);
+
+            if (tagAnnotation != null) {
+                field.as(ToolUi.class).setRichTextElementParentTag(tagAnnotation.value());
+            }
+        }
     }
 }
