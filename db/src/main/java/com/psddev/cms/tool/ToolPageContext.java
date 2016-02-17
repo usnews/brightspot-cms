@@ -2242,12 +2242,12 @@ public class ToolPageContext extends WebPageContext {
             types = Database.Static.getDefault().getEnvironment().getTypes();
         }
 
-        List<ObjectType> typesList = ObjectUtils.to(new TypeReference<List<ObjectType>>() { }, types);
+        List<ObjectType> miscTypes = ObjectUtils.to(new TypeReference<List<ObjectType>>() { }, types);
 
         for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypes()) {
             if (Boolean.FALSE.equals(type.as(ToolUi.class).getHidden()) && !type.isConcrete()) {
-                if (typesList.containsAll(type.findConcreteTypes())) {
-                    typesList.add(type);
+                if (miscTypes.containsAll(type.findConcreteTypes())) {
+                    miscTypes.add(type);
                 }
             }
         }
@@ -2255,15 +2255,15 @@ public class ToolPageContext extends WebPageContext {
         Map<String, List<ObjectType>> typeGroups = new LinkedHashMap<String, List<ObjectType>>();
         List<ObjectType> mainTypes = Template.Static.findUsedTypes(getSite());
 
-        mainTypes.retainAll(typesList);
+        mainTypes.retainAll(miscTypes);
 
-        mainTypes.addAll(typesList.stream()
+        mainTypes.addAll(miscTypes.stream()
                 .filter(t -> t.as(ToolUi.class).isMain())
                 .collect(Collectors.toList()));
 
-        typesList.removeAll(mainTypes);
+        miscTypes.removeAll(mainTypes);
         typeGroups.put("Main Content Types", mainTypes);
-        typeGroups.put("Misc Content Types", typesList);
+        typeGroups.put("Misc Content Types", miscTypes);
 
         for (Iterator<List<ObjectType>> i = typeGroups.values().iterator(); i.hasNext();) {
             List<ObjectType> typeGroup = i.next();
