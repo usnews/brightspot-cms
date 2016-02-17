@@ -21,6 +21,7 @@ public abstract class RichTextElement extends Record {
     public @interface Tag {
 
         String value();
+        boolean block() default false;
         boolean empty() default false;
         boolean root() default false;
         Class<?>[] children() default { };
