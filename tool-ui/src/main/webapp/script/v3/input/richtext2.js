@@ -3645,6 +3645,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Make a copy of the object with extend so we don't
             // accidentally change any global default options
             options = $.extend(true, {}, this.option());
+            options.contextRoot = $input.attr('data-rte-context-root');
 
             inline = $input.data('inline');
             if (inline !== undefined) {

@@ -46,6 +46,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 // --- Presentation ---
 
 ToolUi ui = field.as(ToolUi.class);
+String rteParentTag = ui.getRichTextElementParentTag();
 Number suggestedMinimum = ui.getSuggestedMinimum();
 Number suggestedMaximum = ui.getSuggestedMaximum();
 
@@ -55,6 +56,7 @@ wp.writeStart("textarea",
         "data-expandable-class", "code",
         "id", wp.getId(),
         "name", inputName,
+        "data-rte-context-root", rteParentTag,
         "data-suggested-maximum", suggestedMaximum != null ? suggestedMaximum.intValue() : null,
         "data-suggested-minimum", suggestedMinimum != null ? suggestedMinimum.intValue() : null,
         "data-user", wp.getObjectLabel(wp.getUser()),

@@ -7,10 +7,8 @@ com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.Reference,
 com.psddev.dari.db.ReferentialText,
 com.psddev.dari.db.State,
-com.psddev.dari.util.CompactMap,
 com.psddev.dari.util.ObjectUtils,
 
-java.util.Map,
 java.util.Set
 " %><%
 
@@ -104,12 +102,7 @@ if (validValues != null) {
             "value", fieldValue);
 
 } else {
-    Map<String, Object> rteOptions = new CompactMap<>();
     String rteParentTag = ui.getRichTextElementParentTag();
-
-    if (!ObjectUtils.isBlank(rteParentTag)) {
-        rteOptions.put("contextRoot", rteParentTag);
-    }
 
     wp.writeStart("textarea",
             "class", ui.isRichText() ? "richtext" : null,
@@ -120,7 +113,7 @@ if (validValues != null) {
             "data-dynamic-field-name", field.getInternalName(),
             "data-code-type", ui.getCodeType(),
             "data-editable-placeholder", ui.isPlaceholderEditable() ? ui.getPlaceholder() : null,
-            "data-rte2-options", !rteOptions.isEmpty() ? ObjectUtils.toJson(rteOptions) : null,
+            "data-rte-context-root", rteParentTag,
             "data-suggested-maximum", suggestedMaximum != null ? suggestedMaximum.intValue() : null,
             "data-suggested-minimum", suggestedMinimum != null ? suggestedMinimum.intValue() : null,
             "data-inline", true,
