@@ -85,6 +85,7 @@ class ViewMap implements Map<String, Object> {
         try {
             Arrays.stream(Introspector.getBeanInfo(view.getClass()).getPropertyDescriptors())
                     .filter((prop) -> includeClassName || !"class".equals(prop.getName()))
+                    .filter((prop) -> prop.getReadMethod() != null)
                     .forEach(prop -> unresolved.put(prop.getName(), () -> invoke(prop.getReadMethod(), view)));
 
         } catch (IntrospectionException e) {
