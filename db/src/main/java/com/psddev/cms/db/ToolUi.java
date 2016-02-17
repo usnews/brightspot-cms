@@ -1942,16 +1942,4 @@ public class ToolUi extends Modification<Object> {
     public static void setFieldSuggestedMinimum(ObjectField field, Number minimum) {
         field.as(ToolUi.class).setSuggestedMinimum(minimum);
     }
-
-    /** @deprecated Use {@link #isMainContentType()} instead. */
-    @Deprecated
-    public static boolean isMainContentType(ObjectType type) {
-        return type.as(ToolUi.class).isMainContentType();
-    }
-
-    /** @deprecated Use {@link #setMainContentType(boolean)} instead. */
-    @Deprecated
-    public static void setMainContentType(ObjectType type, boolean isMainContentType) {
-        type.as(ToolUi.class).setMainContentType(isMainContentType);
-    }
 }
