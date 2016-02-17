@@ -61,7 +61,7 @@ public class ToolUi extends Modification<Object> {
     private String languageTag;
     private ToolUiLayoutElement layoutField;
     private List<ToolUiLayoutElement> layoutPlaceholders;
-    private Boolean mainContentType;
+    private Boolean main;
     private String noteHtml;
     private String noteRendererClassName;
     private String placeholder;
@@ -631,12 +631,12 @@ public class ToolUi extends Modification<Object> {
         this.defaultSortField = defaultSortField;
     }
 
-    public boolean isMainContentType() {
-        return Boolean.TRUE.equals(mainContentType);
+    public boolean isMain() {
+        return Boolean.TRUE.equals(main);
     }
 
-    public void setMainContentType(boolean mainContentType) {
-        this.mainContentType = mainContentType;
+    public void setMain(boolean main) {
+        this.main = main;
     }
 
     /**
@@ -1228,18 +1228,18 @@ public class ToolUi extends Modification<Object> {
     /** Specifies whether the class will be listed as a main content type */
     @Documented
     @Inherited
-    @ObjectType.AnnotationProcessorClass(MainContentTypeProcessor.class)
+    @ObjectType.AnnotationProcessorClass(MainProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
-    public @interface MainContentType {
+    public @interface Main {
         boolean value() default true;
     }
 
-    private static class MainContentTypeProcessor implements
-            ObjectType.AnnotationProcessor<MainContentType> {
+    private static class MainProcessor implements
+            ObjectType.AnnotationProcessor<Main> {
         @Override
-        public void process(ObjectType objectType, MainContentType annotation) {
-            objectType.as(ToolUi.class).setMainContentType(annotation.value());
+        public void process(ObjectType objectType, Main annotation) {
+            objectType.as(ToolUi.class).setMain(annotation.value());
         }
     }
 

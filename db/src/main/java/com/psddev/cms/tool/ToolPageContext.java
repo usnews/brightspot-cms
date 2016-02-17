@@ -2258,7 +2258,7 @@ public class ToolPageContext extends WebPageContext {
         mainTypes.retainAll(typesList);
 
         mainTypes.addAll(typesList.stream()
-                .filter(t -> t.as(ToolUi.class).isMainContentType())
+                .filter(t -> t.as(ToolUi.class).isMain())
                 .collect(Collectors.toList()));
 
         typesList.removeAll(mainTypes);
