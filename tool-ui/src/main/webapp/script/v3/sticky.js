@@ -17,6 +17,11 @@ define([ 'jquery', 'bsp-utils', 'sticky-kit' ], function($, bsp_utils) {
         parent: '.contentForm',
         offset_top: function () {
           return $('.toolHeader').outerHeight(true) + $element.closest('.contentForm-aside').find('> .widget-publishing').outerHeight(true);
+        },
+        offset_change: function (offset) {
+          $element.css({
+            clip: 'rect(' + (200 - offset) + 'px auto auto auto)'
+          });
         }
       });
     }

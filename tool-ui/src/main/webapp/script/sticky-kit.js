@@ -18,6 +18,7 @@
             opts = {};
         }
         sticky_class = opts.sticky_class, inner_scrolling = opts.inner_scrolling, recalc_every = opts.recalc_every, parent_selector = opts.parent, offset_top = opts.offset_top, manual_spacer = opts.spacer, enable_bottoming = opts.bottoming;
+        var offset_change = opts.offset_change;
         var offset_top_function;
         if (offset_top == null) {
             offset_top = 0;
@@ -187,6 +188,9 @@
                                     elm.css({
                                         top: offset + "px"
                                     });
+                                    if (offset_change) {
+                                        offset_change(offset);
+                                    }
                                 }
                             }
                         }
