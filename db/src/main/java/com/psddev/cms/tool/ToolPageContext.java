@@ -90,6 +90,7 @@ import com.psddev.cms.tool.file.SvgFileType;
 import com.psddev.cms.tool.page.content.PublishModification;
 import com.psddev.cms.view.PageViewClass;
 import com.psddev.cms.view.ViewCreator;
+import com.psddev.cms.view.ViewModel;
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.CompoundPredicate;
 import com.psddev.dari.db.Database;
@@ -626,7 +627,9 @@ public class ToolPageContext extends WebPageContext {
 
                 if ((pageViewClass != null && ViewCreator.findCreatorClass(object, pageViewClass.value(), null, null) != null)
                         || ViewCreator.findCreatorClass(object, null, PageFilter.PAGE_VIEW_TYPE, null) != null
-                        || ViewCreator.findCreatorClass(object, null, PageFilter.PREVIEW_VIEW_TYPE, null) != null) {
+                        || ViewCreator.findCreatorClass(object, null, PageFilter.PREVIEW_VIEW_TYPE, null) != null
+                        || ViewModel.findViewModelClass(null, PageFilter.PAGE_VIEW_TYPE, object) != null
+                        || ViewModel.findViewModelClass(null, PageFilter.PREVIEW_VIEW_TYPE, object) != null) {
                     return true;
                 }
             }
