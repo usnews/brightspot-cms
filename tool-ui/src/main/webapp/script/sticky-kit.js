@@ -18,7 +18,11 @@
             opts = {};
         }
         sticky_class = opts.sticky_class, inner_scrolling = opts.inner_scrolling, recalc_every = opts.recalc_every, parent_selector = opts.parent, offset_top = opts.offset_top, manual_spacer = opts.spacer, enable_bottoming = opts.bottoming;
+        var offset_top_function;
         if (offset_top == null) {
+            offset_top = 0;
+        } else if ($.isFunction(offset_top)) {
+            offset_top_function = offset_top;
             offset_top = 0;
         }
         if (parent_selector == null) {
@@ -75,6 +79,9 @@
 
                 if (detached) {
                     return;
+                }
+                if (offset_top_function) {
+                    offset_top = offset_top_function();
                 }
                 last_scroll_height = doc.height();
                 border_top = parseInt(parent.css("border-top-width"), 10);

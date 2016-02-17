@@ -699,9 +699,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             $('body').toggleClass('rte-fullscreen');
             self.$container.toggleClass('rte-fullscreen');
             
-            // After changing fullscreen status, kick the toolbar in case it was moved due to scrolling
-            self.toolbarHoist();
-
             // Also kick the editor
             self.rte.refresh();
         },
@@ -903,11 +900,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             });
 
             self.toolbarUpdate();
-
-            // Keep the toolbar visible if the window scrolls or resizes
-            $(window).bind('rteHoistToolbar', function() {
-                self.toolbarHoist();
-            });
         },
 
 
@@ -1419,101 +1411,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             var self;
             self = this;
             self.$toolbar.hide();
-        },
-
-        /**
-         * Keep the toolbar in view when the page scrolls or the window is resized.
-         */
-        toolbarHoist: function() {
-
-            var self = this;
-            var $win = $(window);
-            var $header = $('.toolHeader');
-            var headerBottom = 0;
-            var windowTop = $win.scrollTop() + headerBottom;
-            var raf = window.requestAnimationFrame;
-            var $container = self.$container;
-            var $toolbar = self.$toolbar;
-            var containerTop, toolbarHeight, toolbarLeft, toolbarWidth;
-
-            // Do nothing if the editor is not visible
-            if (!$container.is(':visible')) {
-                return;
-            }
-
-            // Determine if we need to adjust below the toolHeader
-            if ($header.is(':visible')) {
-                headerBottom = $header.offset().top + $header.outerHeight() - ($header.css('position') === 'fixed' ? $win.scrollTop() : 0);
-            }
-            
-            $toolbar = self.$toolbar;
-            containerTop = $container.offset().top;
-            toolbarHeight = $toolbar.outerHeight();
-            containerTop -= toolbarHeight;
-
-            // Is the rich text editor completely in view?
-            // Or is the editor so small that moving the toolbar wouldn't be wise?
-            if (($container.outerHeight() < 3 * toolbarHeight) || windowTop < containerTop) {
-
-                if ($toolbar.hasClass('rte2-toolbar-fixed')) {
-                    
-                    // Yes, completely in view. So remove positioning from the toolbar
-                    raf(function() {
-
-                        // Remove extra padding  above the editor because the toolbar will no longer be fixed position
-                        $container.css('padding-top', 0);
-
-                        // Restore toolbar to original styles
-                        $toolbar.removeClass('rte2-toolbar-fixed');
-                        $toolbar.attr('style', self._toolbarOldStyle);
-                        self._toolbarOldStyle = null;
-                    });
-                }
-
-            } else {
-
-                // No the editor is not completely in view.
-
-                // Save the original toolbar style so it can be reapplied later
-                self._toolbarOldStyle = self._toolbarOldStyle || $toolbar.attr('style') || ' ';
-
-                // Add padding to the top of the editor to leave room for the toolbar to be positioned on top
-                raf(function() {
-                    $container.css('padding-top', toolbarHeight);
-                });
-
-                // Is the rich text editor at least partially in view?
-                if (windowTop < containerTop + $container.height()) {
-
-                    // Yes, it is partially in view.
-                    // Set the toolbar position to "fixed" so it stays at the top.
-
-                    toolbarLeft = $toolbar.offset().left;
-                    toolbarWidth = $toolbar.width();
-
-                    raf(function() {
-                        $toolbar.addClass('rte2-toolbar-fixed');
-                        $toolbar.css({
-                            'left': toolbarLeft,
-                            'position': 'fixed',
-                            'top': headerBottom,
-                            'width': toolbarWidth
-                        });
-                    });
-
-
-                } else {
-
-                    // No, the rich text editor is completely out of view
-                    // Move the toolbar out of view.
-                    raf(function() {
-                        $toolbar.css({
-                            'top': -10000,
-                            'position': 'fixed'
-                        });
-                    });
-                }
-            }
         },
 
 
@@ -3647,15 +3544,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
         }
 
     });
-
-
-    // Whenever a resize or scroll event occurs, trigger an event to tell all rich text editors to hoist their toolbars.
-    // For better performance throttle the function so it doesn't run too frequently.
-    // We do this *once* for the page because we don't want each individual rich text editor listening to the
-    // scroll and resize events constantly, instead they can each listen for the throttled rteHoist event.
-    $(window).bind('resize.rte scroll.rte', $.throttle(150, function() {
-        $(window).trigger('rteHoistToolbar');
-    }));
 
 
     return Rte;
