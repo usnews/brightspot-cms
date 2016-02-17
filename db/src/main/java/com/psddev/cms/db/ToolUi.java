@@ -1225,18 +1225,21 @@ public class ToolUi extends Modification<Object> {
         }
     }
 
-    /** Specifies whether the class will be listed as a main content type */
+    /**
+     * Specifies whether the class will be listed as a main content type.
+     */
     @Documented
     @Inherited
     @ObjectType.AnnotationProcessorClass(MainProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
     public @interface Main {
+
         boolean value() default true;
     }
 
-    private static class MainProcessor implements
-            ObjectType.AnnotationProcessor<Main> {
+    private static class MainProcessor implements ObjectType.AnnotationProcessor<Main> {
+
         @Override
         public void process(ObjectType objectType, Main annotation) {
             objectType.as(ToolUi.class).setMain(annotation.value());
