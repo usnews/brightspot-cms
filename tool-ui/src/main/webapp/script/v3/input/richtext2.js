@@ -424,6 +424,12 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 $.extend(true, self, options);
             }
 
+            // If the RTE_INIT global variable is set to a function run it.
+            // This lets individual projects modify the RTE toolbar and styles.
+            if ($.isFunction(window.RTE_INIT)) {
+                window.RTE_INIT.call(self);
+            }
+
             self.$el = $(element);
 
             // Save this object on the element so it can be accessed externally
