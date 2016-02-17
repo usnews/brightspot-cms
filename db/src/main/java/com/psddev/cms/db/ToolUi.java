@@ -632,9 +632,6 @@ public class ToolUi extends Modification<Object> {
     }
 
     public boolean isMainContentType() {
-        if (mainContentType == null) {
-            mainContentType = ObjectUtils.to(Boolean.class, getState().get("cms.ui.isMainContentType"));
-        }
         return mainContentType != null ? mainContentType : false;
     }
 
