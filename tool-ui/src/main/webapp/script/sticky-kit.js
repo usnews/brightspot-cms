@@ -157,7 +157,7 @@
                         fixed = false;
                         offset = offset_top;
                         if (manual_spacer == null) {
-                            if (el_float === "left" || el_float === "right") {
+                            if (el_float === "right") {
                                 elm.insertAfter(spacer);
                             }
                             spacer.detach();
@@ -195,7 +195,7 @@
                         elm.css(css).addClass(sticky_class);
                         if (manual_spacer == null) {
                             elm.after(spacer);
-                            if (el_float === "left" || el_float === "right") {
+                            if (el_float === "right") {
                                 spacer.append(elm);
                             }
                         }
@@ -242,7 +242,7 @@
                 parent.position("position", "");
                 if (fixed) {
                     if (manual_spacer == null) {
-                        if (el_float === "left" || el_float === "right") {
+                        if (el_float === "right") {
                             elm.insertAfter(spacer);
                         }
                         spacer.remove();
