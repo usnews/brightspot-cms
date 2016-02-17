@@ -225,29 +225,31 @@
 .contentForm {
   margin: -10px;
   overflow: hidden;
-  padding: 10px;
+  padding: 10px 340px 10px 10px;
   transition: all @time-fast;
+
+  @media @media-tablet {
+    padding-right: 210px;
+  }
 }
 
 .contentForm-main {
   float: left;
-  width: ~'calc(100% - 330px)';
+  width: 100%;
 
   > .pagination {
     margin-bottom: 15px;
     text-align: left;
   }
-
-  @media @media-tablet {
-    width: ~'calc(100% - 200px)';
-  }
 }
 
 .contentForm-aside {
-  float: right;
+  float: left;
+  margin: 0 -330px 0 10px;
   width: 320px;
 
   @media @media-tablet {
+    margin-right: -200px;
     width: 190px;
   }
 }
