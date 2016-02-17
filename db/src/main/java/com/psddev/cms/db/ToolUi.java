@@ -632,7 +632,7 @@ public class ToolUi extends Modification<Object> {
     }
 
     public boolean isMainContentType() {
-        return mainContentType != null ? mainContentType : false;
+        return Boolean.TRUE.equals(mainContentType);
     }
 
     public void setMainContentType(boolean mainContentType) {
