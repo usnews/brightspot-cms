@@ -73,7 +73,7 @@ require([
   'nv.d3',
 
   'v3/dashboard',
-  'v3/constrainedscroll',
+  'v3/sticky',
   'v3/content/diff',
   'v3/content/edit',
   'content/lock',
