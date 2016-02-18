@@ -347,7 +347,6 @@ public class ToolPageContext extends WebPageContext {
                 if (firstTry) {
                     firstTry = false;
 
-                    System.out.println("invalidate and retry");
                     ObjectTypeResourceBundle.invalidateInstances();
 
                 } else {
