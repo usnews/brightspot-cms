@@ -266,29 +266,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                             wp.writeHtml("New");
 
                         } else {
-                            if (draft != null && !draft.isNewContent()) {
-                                wp.writeObjectLabel(ObjectType.getInstance(Draft.class));
-
-                                String draftName = draft.getName();
-
-                                if (!ObjectUtils.isBlank(draftName)) {
-                                    wp.writeHtml(" (");
-                                    wp.writeHtml(draftName);
-                                    wp.writeHtml(")");
-                                }
-
-                                wp.writeHtml(" for");
-
-                                if (!visible) {
-                                    wp.writeHtml(" Initial Draft of");
-                                }
-
-                            } else if (!visible) {
-                                wp.writeHtml("Initial Draft of");
-
-                            } else {
-                                wp.writeHtml("Edit");
-                            }
+                            wp.writeHtml("Edit");
                         }
 
                         wp.writeHtml(" ");
