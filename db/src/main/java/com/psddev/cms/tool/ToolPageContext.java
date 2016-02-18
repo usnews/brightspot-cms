@@ -2137,7 +2137,6 @@ public class ToolPageContext extends WebPageContext {
                 richTextElement.put("clear", clearStyles);
             }
 
-
             if (!ObjectUtils.isBlank(context)) {
 
                 if (!ObjectUtils.isBlank(clearContext)) {
