@@ -24,7 +24,7 @@
             offset_top = 0;
         } else if ($.isFunction(offset_top)) {
             offset_top_function = offset_top;
-            offset_top = 0;
+            offset_top = offset_top_function();
         }
         if (parent_selector == null) {
             parent_selector = void 0;
@@ -82,7 +82,7 @@
                     return;
                 }
                 if (offset_top_function) {
-                    offset_top = offset_top_function();
+                    offset = offset_top = offset_top_function();
                 }
                 last_scroll_height = doc.height();
                 border_top = parseInt(parent.css("border-top-width"), 10);
@@ -214,9 +214,6 @@
                     }
                 }
                 if (fixed && enable_bottoming) {
-                    if (offset_change) {
-                        offset_change(offset + parent_top - scroll);
-                    }
                     if (will_bottom == null) {
                         will_bottom = scroll + height + offset > parent_height + parent_top;
                     }
