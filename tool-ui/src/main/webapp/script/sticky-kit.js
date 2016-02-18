@@ -214,6 +214,9 @@
                     }
                 }
                 if (fixed && enable_bottoming) {
+                    if (offset_change) {
+                        offset_change(offset + parent_top - scroll);
+                    }
                     if (will_bottom == null) {
                         will_bottom = scroll + height + offset > parent_height + parent_top;
                     }
