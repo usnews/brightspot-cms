@@ -177,6 +177,9 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Debug")
     private boolean disableRtc;
 
+    @ToolUi.Tab("Debug")
+    private boolean disableInvisibleContentPreview;
+
     @Embedded
     public static class CommonTime extends Record {
 
@@ -784,6 +787,14 @@ public class CmsTool extends Tool {
 
     public void setDisableRtc(boolean disableRtc) {
         this.disableRtc = disableRtc;
+    }
+
+    public boolean isDisableInvisibleContentPreview() {
+        return disableInvisibleContentPreview;
+    }
+
+    public void setDisableInvisibleContentPreview(boolean disableInvisibleContentPreview) {
+        this.disableInvisibleContentPreview = disableInvisibleContentPreview;
     }
 
     public String createManualContentLockingNoteText() {
