@@ -27,4 +27,11 @@ public abstract class RichTextElement extends Record {
         Class<?>[] children() default { };
         String menu() default "";
     }
+
+    @Documented
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface Exclusive {
+
+    }
 }
