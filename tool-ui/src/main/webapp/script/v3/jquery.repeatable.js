@@ -373,7 +373,8 @@ The HTML within the repeatable element must conform to these standards:
                         
                         'class': 'addButton',
                         text: addButtonText,
-                        
+                        'data-sortable-item-type': $template.attr('data-sortable-item-type')
+
                         // Save the template on the add button control so when user
                         // clicks it we will know which template to add
                         // 'data-addButtonTemplate': $template
@@ -1503,7 +1504,8 @@ The HTML within the repeatable element must conform to these standards:
                 $editContainer = $item.data('editContainer');
                 if (!$editContainer) {
                     $editContainer = $('<div/>', {
-                        'class': 'itemEdit'
+                        'class': 'itemEdit',
+                        'data-sortable-item-type': $item.attr('data-sortable-item-type')
                     }).on('change', function(event) {
 
                         var imageUrl, $target, targetName, thumbnailName;

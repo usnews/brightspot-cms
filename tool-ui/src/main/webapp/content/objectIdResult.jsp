@@ -89,7 +89,7 @@ String removeId = wp.createId();
                 if ($sourceContainer.length > 0 && $sourceContainer.nextAll('li').length === 0) {
                     fieldName = $source.closest('.inputContainer').attr('data-field-name');
 
-                    $repeatableForm.find('.addButton').eq(-1).trigger('click', [
+                    $repeatableForm.find('.addButton[data-sortable-item-type="' + $sourceContainer.attr('data-sortable-item-type') + '"]').eq(-1).trigger('click', [
                         function () {
                             var added = this;
 
@@ -115,7 +115,7 @@ String removeId = wp.createId();
                     if ($sourceContainer.length > 0 && $sourceContainer.nextAll('.itemEdit').length === 0) {
                         fieldName = $source.closest('.inputContainer').attr('data-field-name');
 
-                        $repeatableForm.find('.addButton').eq(-1).trigger('click', [
+                        $repeatableForm.find('.addButton[data-sortable-item-type="' + $sourceContainer.attr('data-sortable-item-type') + '"]').eq(-1).trigger('click', [
                             function () {
                                 var added = this;
                                 var id = $(added).find('> :hidden[name$=".id"]').val();
