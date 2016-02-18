@@ -527,8 +527,11 @@ public class PageFilter extends AbstractFilter {
                                 && Query.from(Draft.class).where("schedule = ? and objectId = ?", currentSchedule, mainState.getId()).first() != null) {
                             break SCHEDULED;
                         }
+                    }
 
-                    } else {
+                    CmsTool cms = Query.from(CmsTool.class).first();
+
+                    if (cms != null && cms.isDisableInvisibleContentPreview()) {
                         if (Settings.isProduction()) {
                             chain.doFilter(request, response);
                             return;
