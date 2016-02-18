@@ -163,12 +163,26 @@ function() {
   });
 
   // Hide non-essential items in the permissions input.
-  $doc.onCreate('.inputContainer .permissions select', function() {
+  $doc.on('change', '.inputContainer .permissions select', function () {
     var $select = $(this);
 
-    $select.bind('change', $.run(function() {
-      $select.parent().find('> h2, > ul').toggle($select.find(':selected').val() === 'some');
-    }));
+    $select.parent().find('> h2, > ul').toggle($select.find(':selected').val() === 'some');
+  });
+
+  bsp_utils.onDomInsert(document, '.inputContainer .permissions select', {
+    afterInsert: function (selects) {
+      var $hide = $();
+
+      $(selects).each(function () {
+        var $select = $(this);
+
+        if ($select.val() !== 'some') {
+          $hide = $hide.add($select.parent().find('> h2, > ul'));
+        }
+      });
+
+      $hide.hide();
+    }
   });
 
   $doc.onCreate('.searchSuggestionsForm', function() {
