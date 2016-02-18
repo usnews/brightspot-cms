@@ -3281,6 +3281,8 @@ public class ToolPageContext extends WebPageContext {
                     if (schedule != null
                             && ObjectUtils.isBlank(schedule.getName())) {
                         schedule.delete();
+                        state.as(Content.ObjectModification.class).setScheduleDate(null);
+                        state.save();
                     }
                 }
 
