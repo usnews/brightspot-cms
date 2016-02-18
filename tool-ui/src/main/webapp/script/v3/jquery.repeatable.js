@@ -473,7 +473,7 @@ The HTML within the repeatable element must conform to these standards:
                     
                     // Set up some parameters so the label text will dynamically update based on the input field
                     'data-object-id': $item.find('> input[type="hidden"][name$=".id"]').val(),
-                    'data-dynamic-html': '${content.state.getType().label}: ${tool.createObjectLabelHtml(content)}'
+                    'data-dynamic-html': '${content.state.getType().label}: ${toolPageContext.createObjectLabelHtml(content)}'
                     
                 }).on('click', function() {
                     self.itemToggle($item);
@@ -1225,7 +1225,7 @@ The HTML within the repeatable element must conform to these standards:
                     text: labelText,
                     // Set up some parameters so the label text will dynamically update based on the input field
                     'data-object-id': itemId,
-                    'data-dynamic-html': '${tool.createObjectLabelHtml(content)}'
+                    'data-dynamic-html': '${toolPageContext.createObjectLabelHtml(content)}'
                 }).on('click', function(){
                     self.modePreviewEdit($item);
                     return false;
@@ -1303,7 +1303,7 @@ The HTML within the repeatable element must conform to these standards:
 
                     // Set up some parameters so the label text will dynamically update based on the input field
                     'data-object-id': $item.find('> input[type="hidden"][name$=".id"]').val(),
-                    'data-dynamic-html': '${tool.createObjectLabelHtml(content)}'
+                    'data-dynamic-html': '${toolPageContext.createObjectLabelHtml(content)}'
 
                 }).appendTo($carouselTile);
 
