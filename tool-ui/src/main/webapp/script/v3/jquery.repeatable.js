@@ -531,6 +531,7 @@ The HTML within the repeatable element must conform to these standards:
              * A function to call after the new item has been added.
              */
             addItem: function(template, customCallback) {
+
                 var self = this;
                 var $template = $(template);
                 var $addedItem;
@@ -796,6 +797,7 @@ The HTML within the repeatable element must conform to these standards:
              * myRepeatable.itemLoad(element).always(function(){ alert('Item is done loading'); });
              */
             itemLoad: function(item, location) {
+
                 var self = this;
                 var $item = $(item);
                 var $location = location ? $(location) : $item;
@@ -1055,6 +1057,7 @@ The HTML within the repeatable element must conform to these standards:
              * TODO: needs lots of cleanup
              */
             modePreviewInit: function() {
+
                 var self = this;
                 var $container = self.$element;
                 var carousel;
