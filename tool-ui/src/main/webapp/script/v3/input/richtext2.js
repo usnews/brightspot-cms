@@ -3583,7 +3583,8 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 line: Boolean(rtElement.line),
                 "void": Boolean(rtElement.void),
                 popup: rtElement.popup === false ? false : true,
-                context: rtElement.context
+                context: rtElement.context,
+                clear: rtElement.clear
             };
 
             toolbarButton = {
