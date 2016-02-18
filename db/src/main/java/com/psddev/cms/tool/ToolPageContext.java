@@ -1331,6 +1331,50 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /**
+     * Creates a visibility label for the given {@code object}.
+     *
+     * @param object May be {@code null}.
+     */
+    public String createVisibilityLabel(Object object) throws IOException {
+        if (object == null) {
+            return null;
+        }
+
+        Draft draft;
+
+        if (object instanceof Draft) {
+            draft = (Draft) object;
+
+        } else {
+            draft = getOverlaidDraft(object);
+
+            if (draft != null) {
+                object = draft.recreate();
+            }
+        }
+
+        State state = State.getInstance(object);
+
+        if (draft != null) {
+            if (draft.isNewContent()) {
+                Object original = draft.recreate();
+
+                if (original != null) {
+                    return State.getInstance(original).getVisibilityLabel();
+                }
+
+            } else if (draft.getSchedule() != null) {
+                return localize(State.getInstance(object).getType(), "visibility.scheduledUpdate");
+
+            } else {
+                return localize(Draft.class, "displayName");
+            }
+        }
+
+        return State.getInstance(object).getVisibilityLabel();
+    }
+
+    /**
      * Creates a descriptive HTML label for the given {@code object}.
      *
      * @param object May be {@code null}.
@@ -1345,10 +1389,7 @@ public class ToolPageContext extends WebPageContext {
             html.writeEnd();
 
         } else {
-            State state = State.getInstance(object);
-            String visibilityLabel = object instanceof Draft
-                    ? localize(Draft.class, "displayName")
-                    : state.getVisibilityLabel();
+            String visibilityLabel = createVisibilityLabel(object);
 
             if (!ObjectUtils.isBlank(visibilityLabel)) {
                 html.writeStart("span", "class", "visibilityLabel");
@@ -1357,6 +1398,7 @@ public class ToolPageContext extends WebPageContext {
                 html.writeHtml(" ");
             }
 
+            State state = State.getInstance(object);
             String label = state.getLabel();
 
             if (ObjectUtils.to(UUID.class, label) != null) {
@@ -1428,7 +1470,7 @@ public class ToolPageContext extends WebPageContext {
         } else {
             State state = State.getInstance(object);
             ObjectType type = state.getType();
-            String visibilityLabel = state.getVisibilityLabel();
+            String visibilityLabel = createVisibilityLabel(object);
             String label = state.getLabel();
 
             if (!ObjectUtils.isBlank(visibilityLabel)) {
@@ -3291,6 +3333,8 @@ public class ToolPageContext extends WebPageContext {
                     if (schedule != null
                             && ObjectUtils.isBlank(schedule.getName())) {
                         schedule.delete();
+                        state.putAtomically("cms.content.scheduleDate", null);
+                        state.save();
                     }
                 }
 
