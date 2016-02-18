@@ -176,7 +176,7 @@ function() {
       $(selects).each(function () {
         var $select = $(this);
 
-        if ($select.val !== 'some') {
+        if ($select.val() !== 'some') {
           $hide = $hide.add($select.parent().find('> h2, > ul'));
         }
       });
