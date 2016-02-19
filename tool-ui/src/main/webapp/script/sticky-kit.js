@@ -94,7 +94,9 @@
                     fixed = false;
                     bottomed = false;
                     if (manual_spacer == null) {
-                        elm.insertAfter(spacer);
+                        if (el_float === "right") {
+                            elm.insertAfter(spacer);
+                        }
                         spacer.detach();
                     }
                     elm.css({
