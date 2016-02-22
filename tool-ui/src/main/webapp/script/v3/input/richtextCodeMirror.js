@@ -4424,6 +4424,9 @@ define([
 
             keymap = {};
 
+            keymap['Tab'] = false;
+            keymap['Shift-Tab'] = false;
+
             keymap['Shift-Enter'] = function (cm) {
                 // Add a carriage-return symbol and style it as 'newline'
                 // so it won't be confused with any user-inserted carriage return symbols
