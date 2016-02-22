@@ -40,7 +40,7 @@ public abstract class AbstractViewTemplateLoader implements ViewTemplateLoader {
         }
 
         if (resource == null) {
-            LOGGER.warn("Could not load resource: %s", path);
+            LOGGER.warn("Could not load resource [{}]", path);
             return -1;
         }
 
@@ -60,7 +60,7 @@ public abstract class AbstractViewTemplateLoader implements ViewTemplateLoader {
             return uc.getLastModified();
 
         } catch (IOException ex) {
-            LOGGER.warn("Could not get last modified date of: %s", resource);
+            LOGGER.warn("Could not get last modified date of [{}]", resource);
             return -1;
 
         } finally {
