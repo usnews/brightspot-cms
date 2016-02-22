@@ -1440,6 +1440,7 @@ The HTML within the repeatable element must conform to these standards:
 
                     // Show the current edit form
                     $editContainer.show();
+                    $editContainer.trigger('resize');
                 });
             },
 
