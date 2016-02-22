@@ -2019,12 +2019,23 @@ public class ToolPageContext extends WebPageContext {
         List<Map<String, Object>> richTextElements = new ArrayList<>();
 
         Map<String, Set<String>> contextMap = new HashMap<>();
+        Map<String, Set<String>> clearContextMap = new HashMap<>();
+        Map<String, String> tagNameToStyleNameMap = new HashMap<>();
 
         LoadingCache<Class<?>, Set<Class<?>>> concreteClassMap = CacheBuilder.newBuilder()
                 .build(new CacheLoader<Class<?>, Set<Class<?>>>() {
                     @Override
                     public Set<Class<?>> load(Class<?> aClass) throws Exception {
                         return new HashSet<Class<?>>(ClassFinder.findConcreteClasses(aClass));
+                    }
+                });
+
+        LoadingCache<Class<?>, Set<Class<?>>> exclusiveClassMap = CacheBuilder.newBuilder()
+                .build(new CacheLoader<Class<?>, Set<Class<?>>>() {
+                    @Override
+                    public Set<Class<?>> load(Class<?> aClass) throws Exception {
+                        return ClassFinder.findConcreteClasses(aClass).stream()
+                                .collect(Collectors.toSet());
                     }
                 });
 
@@ -2075,13 +2086,35 @@ public class ToolPageContext extends WebPageContext {
                             contextMap.get(p).add(tagName);
                         });
 
+                Set<String> exclusiveTags = Stream.of(c.getInterfaces())
+                        .filter(i -> i.isAnnotationPresent(RichTextElement.Exclusive.class))
+                        .map(exclusiveClassMap::getUnchecked)
+                        .flatMap(Collection::stream)
+                        .filter(RichTextElement.class::isAssignableFrom)
+                        .map(b -> b.getAnnotation(RichTextElement.Tag.class))
+                        .filter(Objects::nonNull)
+                        .map(RichTextElement.Tag::value)
+                        .map(String::trim)
+                        .filter(p -> !ObjectUtils.isBlank(p))
+                        .collect(Collectors.toSet());
+
+                exclusiveTags.remove(tagName);
+
+                if (!exclusiveTags.isEmpty()) {
+
+                    clearContextMap.put(tagName, exclusiveTags);
+                }
+
                 String menu = tag.menu().trim();
 
                 if (!menu.isEmpty()) {
                     richTextElement.put("submenu", menu);
                 }
 
-                richTextElement.put("styleName", type.getInternalName().replace(".", "-"));
+                String styleName = type.getInternalName().replace(".", "-");
+                tagNameToStyleNameMap.put(tagName, styleName);
+
+                richTextElement.put("styleName", styleName);
                 richTextElement.put("typeId", type.getId().toString());
                 richTextElement.put("displayName", type.getDisplayName());
                 richTextElements.add(richTextElement);
@@ -2089,9 +2122,27 @@ public class ToolPageContext extends WebPageContext {
         }
 
         for (Map<String, Object> richTextElement : richTextElements) {
-            Set<String> context = contextMap.get(richTextElement.get("tag"));
+
+            String tagName = (String) richTextElement.get("tag");
+
+            Set<String> context = contextMap.get(tagName);
+            Set<String> clearContext = clearContextMap.get(tagName);
+
+            if (!ObjectUtils.isBlank(clearContext)) {
+
+                Set<String> clearStyles = clearContext.stream()
+                        .map(tagNameToStyleNameMap::get)
+                        .collect(Collectors.toSet());
+
+                richTextElement.put("clear", clearStyles);
+            }
 
             if (!ObjectUtils.isBlank(context)) {
+
+                if (!ObjectUtils.isBlank(clearContext)) {
+                    context.addAll(clearContext);
+                }
+
                 richTextElement.put("context", context);
             }
         }

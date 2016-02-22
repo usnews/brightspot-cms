@@ -2067,7 +2067,12 @@ define([
             range = range || self.getRange();
 
             if (styleKey) {
-                className = self.styles[styleKey].className;
+                if (self.styles[styleKey]) {
+                    className = self.styles[styleKey].className;
+                } else {
+                    // A style key was provided but there is no such style
+                    return;
+                }
             }
 
             for (lineNumber = range.from.line; lineNumber <= range.to.line; lineNumber++) {
