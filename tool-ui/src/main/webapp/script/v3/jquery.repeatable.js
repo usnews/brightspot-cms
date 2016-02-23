@@ -567,8 +567,18 @@ The HTML within the repeatable element must conform to these standards:
                 if (!$repeatableForm.hasClass('repeatableForm-weighted') || !weightFieldName) {
                     return false;
                 }
+                
+                var hue = $repeatableForm.data('lastHue');
+                
+                if (!hue) {
+                    hue = colors.getHue('#38b5dc');
+                } else {
+                    hue = colors.changeHue(hue);
+                }
+                
+                $repeatableForm.data('lastHue', hue);
+                var color = colors.generateFromHue(hue);
 
-                var color = colors.random();
                 var itemId = $item.find('> input[type="hidden"][name$=".id"]').val();
                 var inputName = itemId + '/' + weightFieldName;
                 var weightFieldValue = $item.data('weight-field-value');
