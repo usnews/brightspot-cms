@@ -901,9 +901,11 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             toolbarProcess(self.toolbarConfig, $toolbar);
 
             // Whenever the cursor moves, update the toolbar to show which styles are selected
-            self.$container.on("rteCursorActivity", function() {
-                self.toolbarUpdate();
-            });
+            self.$container.on("rteCursorActivity",
+                               $.debounce(200, function() {
+                                   self.toolbarUpdate();
+                               })
+                              );
 
             self.toolbarUpdate();
         },
