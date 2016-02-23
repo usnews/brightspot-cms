@@ -1822,7 +1822,8 @@ public class ToolPageContext extends WebPageContext {
                                             "class", "icon icon-object-toolUser",
                                             "href", cmsUrl("/misc/settings.jsp"),
                                             "target", "misc");
-                                        writeHtml("Profile");
+                                        writeHtml(localize(ToolUser.class, "action.profile"));
+
                                     writeEnd();
                                 writeEnd();
 
