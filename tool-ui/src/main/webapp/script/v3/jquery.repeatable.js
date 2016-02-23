@@ -619,6 +619,73 @@ The HTML within the repeatable element must conform to these standards:
                 var $itemWeightHandle = $(
                     '<div>', {
                         'class': 'repeatableForm-itemWeightHandle',
+                        'mousedown': function(event) {
+                            $.drag(this, event, function(event, data) {
+                                data.originX = event.clientX;
+                                data.rightElement = $(this).parent();
+                                data.leftElement = data.rightElement.prev();
+                                
+                                data.originalRightWeight = data.rightElement.data('weight');
+                                data.originalLeftWeight = data.leftElement.data('weight');
+                                
+                                data.rightIndex = data.rightElement.index();
+                                data.leftIndex = data.leftElement.index();
+                                
+                                var $listElements = data.rightElement.closest('.repeatableForm').find('ol').children();
+                                
+                                data.rightListItem = $($listElements.get(data.rightIndex));
+                                data.leftListItem = $($listElements.get(data.leftIndex));
+                                
+                                data.rightLabel = data.rightListItem.find('.repeatableLabel-weight');
+                                data.leftLabel = data.leftListItem.find('.repeatableLabel-weight');
+                                
+                                data.rightInput = data.rightLabel.find('input');
+                                data.leftInput = data.leftLabel.find('input');
+                                
+                                data.totalWidth = data.rightElement.outerWidth() + data.leftElement.outerWidth();
+
+                            }, function(event, data) {
+                                
+                                var delta = data.originX - event.clientX;
+                                var deltaDouble = Math.round((delta / data.totalWidth) * 100) / 100;
+                                var deltaPercent = deltaDouble * 100;
+                                
+                                // Only increment/decrement by full percentage point
+                                if (deltaPercent % 2 > 0) {
+                                    return;
+                                }
+                                
+                                // Avoids redundant manipulation
+                                if (delta === data.previousDelta) {
+                                    return;
+                                }
+                                
+                                var newLeftWeightDouble = data.originalLeftWeight - (deltaDouble / 2);
+                                var newRightWeightDouble = data.originalRightWeight + (deltaDouble / 2);
+                                var newLeftWeightPct = Math.round(newLeftWeightDouble * 100);
+                                var newRightWeightPct = Math.round(newRightWeightDouble * 100);
+                                
+                                data.leftElement.css({
+                                    'flex': newLeftWeightPct + '%'
+                                }).data('weight', newLeftWeightDouble);
+                                
+                                data.rightElement.css({
+                                    'flex': newRightWeightPct + '%'
+                                }).data('weight', newRightWeightDouble);
+                                
+                                // Update input and numerical display
+                                data.rightLabel.attr('data-weight', newRightWeightPct + '%');
+                                data.leftLabel.attr('data-weight', newLeftWeightPct + '%');
+                                
+                                data.rightInput.val(newRightWeightDouble);
+                                data.leftInput.val(newLeftWeightDouble);
+                                
+                                data.previousDelta = delta;
+
+                            }, function(event) {
+                                console.log('end');
+                            });
+                        }
                     }
                 );
 
@@ -629,7 +696,7 @@ The HTML within the repeatable element must conform to these standards:
                             'background-color: ' + color + ';' +
                             'flex:' + percentageWeight + '%',
                         'data-target': inputName,
-                        'data-weight': percentageWeight/100
+                        'data-weight': percentageWeight / 100
                     }).prepend(itemWeightsCount > 0 ? $itemWeightHandle : '')
                 );
 
@@ -1788,3 +1855,6 @@ The HTML within the repeatable element must conform to these standards:
     }); // END require
 
 }(jQuery, window));
+
+// Set filename for debugging tools to allow breakpoints even when using a cachebuster
+//# sourceURL=jquery.repeatable.js
