@@ -34,6 +34,8 @@ public class ToolUi extends Modification<Object> {
 
     private Boolean bulkUpload;
     private String codeType;
+    private Boolean collectionItemToggle;
+    private Boolean collectionItemWeight;
     private Boolean colorPicker;
     private String cssClass;
     private Set<String> displayAfter;
@@ -94,6 +96,22 @@ public class ToolUi extends Modification<Object> {
 
     public void setCodeType(String codeType) {
         this.codeType = codeType;
+    }
+
+    public Boolean isCollectionItemToggle() {
+        return Boolean.TRUE.equals(collectionItemToggle);
+    }
+
+    public void setCollectionItemToggle(Boolean collectionItemToggle) {
+        this.collectionItemToggle = collectionItemToggle ? Boolean.TRUE : null;
+    }
+
+    public Boolean isCollectionItemWeight() {
+        return Boolean.TRUE.equals(collectionItemWeight);
+    }
+
+    public void setCollectionItemWeight(Boolean collectionItemWeight) {
+        this.collectionItemWeight = collectionItemWeight ? Boolean.TRUE : null;
     }
 
     public boolean isColorPicker() {
@@ -714,6 +732,38 @@ public class ToolUi extends Modification<Object> {
         @Override
         public void process(ObjectType type, ObjectField field, CodeType annotation) {
             field.as(ToolUi.class).setCodeType(annotation.value());
+        }
+    }
+
+    @Documented
+    @ObjectField.AnnotationProcessorClass(CollectionItemToggleProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface CollectionItemToggle {
+        boolean value() default true;
+    }
+
+    private static class CollectionItemToggleProcessor implements ObjectField.AnnotationProcessor<CollectionItemToggle> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, CollectionItemToggle annotation) {
+            field.as(ToolUi.class).setCollectionItemToggle(annotation.value());
+        }
+    }
+
+    @Documented
+    @ObjectField.AnnotationProcessorClass(CollectionItemWeightProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface CollectionItemWeight {
+        boolean value() default true;
+    }
+
+    private static class CollectionItemWeightProcessor implements ObjectField.AnnotationProcessor<CollectionItemWeight> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, CollectionItemWeight annotation) {
+            field.as(ToolUi.class).setCollectionItemWeight(annotation.value());
         }
     }
 
