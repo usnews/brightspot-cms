@@ -1749,7 +1749,7 @@ public class ToolPageContext extends WebPageContext {
                                             writeStart("a",
                                                     "href", cmsUrl("/profilePanel"),
                                                     "target", "profilePanel");
-                                                writeHtml("Profile");
+                                                writeHtml(localize(ToolUser.class, "action.profile"));
                                             writeEnd();
                                         writeEnd();
 
