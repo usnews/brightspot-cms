@@ -649,7 +649,9 @@ if (!isValueExternal) {
                             "name", publishDateName,
                             "value", itemPublishDate != null ? itemPublishDate.getTime() : null);
 
-                    if (!itemState.hasAnyErrors()) {
+                    if (!itemState.hasAnyErrors()
+                            && StringUtils.isBlank(toggleFieldName)
+                            && StringUtils.isBlank(weightFieldName)) {
                         wp.writeElement("input",
                                 "type", "hidden",
                                 "name", dataName,

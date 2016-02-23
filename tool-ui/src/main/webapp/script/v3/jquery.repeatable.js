@@ -691,9 +691,9 @@ The HTML within the repeatable element must conform to these standards:
                                 data.leftInput.val(newLeftWeightDouble);
                                 
                                 data.previousDelta = delta;
-
+                                
                             }, function(event) {
-                                console.log('end');
+                                // do nothing.
                             });
                         }
                     }
