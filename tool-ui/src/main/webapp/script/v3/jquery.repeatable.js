@@ -67,7 +67,7 @@ The HTML within the repeatable element must conform to these standards:
         }
     };
     
-    require(['v3/input/carousel'], function(carouselUtility) {
+    require(['v3/input/carousel', 'v3/color-utils'], function(carouselUtility, colors) {
 
         // Create the jquery plugin .repeatable() (using plugin2)
         $.plugin2('repeatable', {
@@ -428,6 +428,12 @@ The HTML within the repeatable element must conform to these standards:
                 // to tell the backend that it should be saved, but the checkbox will not actually
                 // be shown to the user, so we hid it here
                 $item.find(':input[name$=".toggle"]').hide();
+                
+                // Add toggle input for item
+                self.initCollectionItemToggle($item);
+
+                // Add weight data to the item
+                self.initCollectionItemWeight($item);
 
                 // Add the remove control to the item
                 self.initItemRemove($item);
@@ -517,6 +523,115 @@ The HTML within the repeatable element must conform to these standards:
                 }).on('click', function(){
                     self.removeItemToggle( $item );
                 }).appendTo($item);
+
+            },
+            
+            /**
+             * Conditionally nitializes the toggle button for an individual item.
+             *
+             * @param {Element|jquery object} item
+             * the item (LI element).
+             */
+            initCollectionItemToggle: function(item) {
+
+                var $item = $(item);
+                var toggleField = $item.data('toggle-field');
+                var toggleFieldValue = $item.data('toggle-field-value');
+
+                if (toggleField) {
+                    // Add the remove button to the item
+                    $('<input/>', {
+                        'class': 'repeatableLabel-toggle',
+                        'type': 'checkbox',
+                        'name': $item.find('> input[type="hidden"][name$=".id"]').val() + '/' + toggleField,
+                        'value': true,
+                        'checked': toggleFieldValue
+                    }).appendTo($item);
+                }
+
+            },
+
+           /**
+             * Conditionally initializes the weighting display for an individual item.
+             *
+             * @param {Element|jquery object} item
+             * the item (LI element).
+             */
+            initCollectionItemWeight: function(item) {
+
+                var $item = $(item);
+                var weightFieldName = $item.data("weight-field");
+                var $repeatableForm = $item.closest('.repeatableForm');
+
+                // Only display field weights if all valid types support collection weights
+                if (!$repeatableForm.hasClass('repeatableForm-weighted') || !weightFieldName) {
+                    return false;
+                }
+
+                var color = colors.random();
+                var itemId = $item.find('> input[type="hidden"][name$=".id"]').val();
+                var inputName = itemId + '/' + weightFieldName;
+                var weightFieldValue = $item.data('weight-field-value');
+                var $itemWeightContainer = $repeatableForm.find('.repeatableForm-itemWeights');
+                var $itemWeights = $itemWeightContainer.find('.repeatableForm-itemWeight');
+                var itemWeightsCount = $itemWeights.size();
+
+                if (weightFieldValue === 'auto') {
+                    // Proportionally calculate new weights
+                    if (itemWeightsCount === 0) {
+                        weightFieldValue = 1;
+                    } else {
+                        weightFieldValue = Math.round((1 / (itemWeightsCount + 1)) * 100) / 100;
+                        
+                        $itemWeights.each(function(i) {
+                            var $itemWeight = $(this);
+                            var newWeight = Math.round(((1 - weightFieldValue) * $itemWeight.data('weight')) * 100) / 100;
+                            $itemWeight.css({ 'flex' :  (newWeight * 100) + '%'});
+                            $itemWeight.data('weight', newWeight);
+                            
+                            var $repeatableWeight = $($itemWeightContainer.next('ol').find('li').get(i)).find('.repeatableLabel-weight');
+                            $repeatableWeight.attr('data-weight', (newWeight * 100) + '%');
+                            $repeatableWeight.find('input').val(newWeight);
+                        });
+                    }
+                    
+                    $item.data('weight-field-value', weightFieldValue);
+                }
+                
+                
+                var percentageWeight = Math.round(weightFieldValue * 100);
+
+                // Add the remove button to the item
+                $('<div>', {
+                    'class': 'repeatableLabel-weight',
+                    'data-weight': percentageWeight + '%'
+                }).append($('<span>', {
+                    'class': 'repeatableLabel-color',
+                    'style': 'background-color: ' + color
+                })).append(
+                    $('<input>', {
+                        'type': 'hidden',
+                        'name': inputName,
+                        'value': weightFieldValue
+                    })
+                ).prependTo($item);
+
+                var $itemWeightHandle = $(
+                    '<div>', {
+                        'class': 'repeatableForm-itemWeightHandle',
+                    }
+                );
+
+                $itemWeightContainer.append(
+                    $('<div>', {
+                        'class': 'repeatableForm-itemWeight',
+                        'style':
+                            'background-color: ' + color + ';' +
+                            'flex:' + percentageWeight + '%',
+                        'data-target': inputName,
+                        'data-weight': percentageWeight/100
+                    }).prepend(itemWeightsCount > 0 ? $itemWeightHandle : '')
+                );
 
             },
 
