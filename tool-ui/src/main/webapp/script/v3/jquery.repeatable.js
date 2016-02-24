@@ -429,6 +429,9 @@ The HTML within the repeatable element must conform to these standards:
                 // be shown to the user, so we hid it here
                 $item.find(':input[name$=".toggle"]').hide();
                 
+                // Add progress visual
+                self.initCollectionItemProgress($item);
+                
                 // Add toggle input for item
                 self.initCollectionItemToggle($item);
 
@@ -527,7 +530,30 @@ The HTML within the repeatable element must conform to these standards:
             },
             
             /**
-             * Conditionally nitializes the toggle button for an individual item.
+             * Conditionally initializes the progress information for an individual item.
+             *
+             * @param {Element|jquery object} item
+             * the item (LI element).
+             */
+            initCollectionItemProgress: function (item) {
+
+                var $item = $(item);
+                var progressFieldValue = $item.attr('data-progress-field-value');
+
+                if (progressFieldValue) {
+
+                    $('<div>', {
+                        'class' : 'repeatableLabel-progress'
+                    }).append($('<div>', {
+                        'class' : 'repeatableLabel-progressFill',
+                        'style' : 'width: ' + progressFieldValue + '%',
+                    })).appendTo($item);
+                }
+
+            },
+            
+            /**
+             * Conditionally initializes the toggle button for an individual item.
              *
              * @param {Element|jquery object} item
              * the item (LI element).
@@ -554,7 +580,7 @@ The HTML within the repeatable element must conform to these standards:
                     input.after($('<label>', {
                        'for': id + '-toggle',
                        'class': 'repeatableLabel-toggleLabel' 
-                    }))
+                    }));
                     
                     input.appendTo($item);
                 }

@@ -556,6 +556,7 @@ if (!isValueExternal) {
     Set<ObjectType> bulkUploadTypes = new HashSet<ObjectType>();
     Map<ObjectType, String> weightedTypesandFieldsMap = new CompactMap<ObjectType, String>();
     Map<ObjectType, String> toggleTypesAndFieldsMap = new CompactMap<ObjectType, String>();
+    Map<ObjectType, String> progressTypesAndFieldsMap = new CompactMap<ObjectType, String>();
 
     for (ObjectType t : validTypes) {
         for (ObjectField f : t.getFields()) {
@@ -570,6 +571,9 @@ if (!isValueExternal) {
             }
             if (ui.isCollectionItemToggle()) {
                 toggleTypesAndFieldsMap.put(t, f.getInternalName());
+            }
+            if (ui.isCollectionItemProgress()) {
+                progressTypesAndFieldsMap.put(t, f.getInternalName());
             }
         }
     }
@@ -616,6 +620,7 @@ if (!isValueExternal) {
                 State itemState = State.getInstance(item);
                 ObjectType itemType = itemState.getType();
                 Date itemPublishDate = itemState.as(Content.ObjectModification.class).getPublishDate();
+                String progressFieldName = progressTypesAndFieldsMap.get(itemType);
                 String toggleFieldName = toggleTypesAndFieldsMap.get(itemType);
                 String weightFieldName = weightedTypesandFieldsMap.get(itemType);
 
@@ -628,10 +633,11 @@ if (!isValueExternal) {
                         // so if that field is changed the front-end knows that the thumbnail should also be updated
                         "data-preview", wp.getPreviewThumbnailUrl(item),
                         "data-preview-field", itemType.getPreviewField(),
-                        "data-toggle-field", !StringUtils.isBlank(toggleFieldName) ? toggleFieldName : "",
-                        "data-weight-field", !StringUtils.isBlank(weightFieldName) ? weightFieldName : "",
-                        "data-toggle-field-value", !StringUtils.isBlank(toggleFieldName) ? ObjectUtils.to(boolean.class, itemState.get(toggleFieldName)) : "",
-                        "data-weight-field-value", !StringUtils.isBlank(weightFieldName) ? ObjectUtils.to(double.class, itemState.get(weightFieldName)) : ""
+                        "data-toggle-field", !StringUtils.isBlank(toggleFieldName) ? toggleFieldName : null,
+                        "data-weight-field", !StringUtils.isBlank(weightFieldName) ? weightFieldName : null,
+                        "data-progress-field-value", !StringUtils.isBlank(progressFieldName) ? ObjectUtils.to(double.class, itemState.get(progressFieldName)) * 100 : null,
+                        "data-toggle-field-value", !StringUtils.isBlank(toggleFieldName) ? ObjectUtils.to(boolean.class, itemState.get(toggleFieldName)) : null,
+                        "data-weight-field-value", !StringUtils.isBlank(weightFieldName) ? ObjectUtils.to(double.class, itemState.get(weightFieldName)) : null
 
                         );
                     wp.writeElement("input",
@@ -674,6 +680,7 @@ if (!isValueExternal) {
 
             for (ObjectType type : validTypes) {
 
+                String progressFieldName = progressTypesAndFieldsMap.get(type);
                 String toggleFieldName = toggleTypesAndFieldsMap.get(type);
                 String weightFieldName = weightedTypesandFieldsMap.get(type);
 
@@ -685,10 +692,11 @@ if (!isValueExternal) {
                             // Add the name of the preview field so the front end knows
                             // if that field is updated it should update the thumbnail
                             "data-preview-field", type.getPreviewField(),
-                            "data-toggle-field", !StringUtils.isBlank(toggleFieldName) ? toggleFieldName : "",
-                            "data-weight-field", !StringUtils.isBlank(weightFieldName) ? weightFieldName : "",
-                            "data-toggle-field-value", !StringUtils.isBlank(toggleFieldName) ? true : "",
-                            "data-weight-field-value", !StringUtils.isBlank(weightFieldName) ? "auto" : ""
+                            "data-toggle-field", !StringUtils.isBlank(toggleFieldName) ? toggleFieldName : null,
+                            "data-weight-field", !StringUtils.isBlank(weightFieldName) ? weightFieldName : null,
+                            "data-progress-field-value", !StringUtils.isBlank(progressFieldName) ? 0.0 : null,
+                            "data-toggle-field-value", !StringUtils.isBlank(toggleFieldName) ? true : null,
+                            "data-weight-field-value", !StringUtils.isBlank(weightFieldName) ? "auto" : null
                     );
                         wp.writeStart("a",
                                 "href", wp.cmsUrl("/content/repeatableObject.jsp",
