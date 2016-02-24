@@ -614,11 +614,11 @@ The HTML within the repeatable element must conform to these standards:
                             $itemWeight.css({ 'flex' :  newWeightDouble + '1 0%'});
                             $itemWeight.data('weight', newWeightDouble);
                             
-                            var $repeatableWeight = $($itemWeightContainer.next('ol').find('li').get(i)).find('.repeatableLabel-weight');
-                            $repeatableWeight.attr('data-weight', newWeightPercent + '%');
-                            $repeatableWeight.find('input').val(newWeightDouble);
+                            var $repeatableWeightDisplay = $($itemWeightContainer.next('ol').find('li').get(i)).find('.repeatableLabel-weightLabel');
+                            $repeatableWeightDisplay.attr('data-weight-label', newWeightPercent + '%');
+                            $repeatableWeightDisplay.find('input').val(newWeightDouble);
                             
-                            carryover = newWeightPercentUnrounded - newWeightPercent;
+                            carryover += newWeightPercentUnrounded - newWeightPercent;
                         });
                     }
                     
@@ -645,8 +645,8 @@ The HTML within the repeatable element must conform to these standards:
                                 data.rightListItem = $($listElements.get(data.rightIndex));
                                 data.leftListItem = $($listElements.get(data.leftIndex));
                                 
-                                data.rightLabel = data.rightListItem.find('.repeatableLabel-weight');
-                                data.leftLabel = data.leftListItem.find('.repeatableLabel-weight');
+                                data.rightLabel = data.rightListItem.find('.repeatableLabel-weightLabel');
+                                data.leftLabel = data.leftListItem.find('.repeatableLabel-weightLabel');
                                 
                                 data.rightInput = data.rightLabel.find('input');
                                 data.leftInput = data.leftLabel.find('input');
@@ -679,8 +679,8 @@ The HTML within the repeatable element must conform to these standards:
                                 }).data('weight', newRightWeightDouble);
                                 
                                 // Update input and numerical display
-                                data.rightLabel.attr('data-weight', newRightWeightPct + '%');
-                                data.leftLabel.attr('data-weight', newLeftWeightPct + '%');
+                                data.rightLabel.attr('data-weight-label', newRightWeightPct + '%');
+                                data.leftLabel.attr('data-weight-label', newLeftWeightPct + '%');
                                 
                                 data.rightInput.val(newRightWeightDouble);
                                 data.leftInput.val(newLeftWeightDouble);
@@ -696,8 +696,8 @@ The HTML within the repeatable element must conform to these standards:
 
                 // Add the remove button to the item
                 $('<div>', {
-                    'class': 'repeatableLabel-weight',
-                    'data-weight': percentageWeight + '%'
+                    'class': 'repeatableLabel-weightLabel',
+                    'data-weight-label': percentageWeight + '%'
                 }).append($('<span>', {
                     'class': 'repeatableLabel-color',
                     'style': 'background-color: ' + color
