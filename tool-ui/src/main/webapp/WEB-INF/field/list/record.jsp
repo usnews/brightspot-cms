@@ -635,7 +635,7 @@ if (!isValueExternal) {
                         "data-preview-field", itemType.getPreviewField(),
                         "data-toggle-field", !StringUtils.isBlank(toggleFieldName) ? toggleFieldName : null,
                         "data-weight-field", !StringUtils.isBlank(weightFieldName) ? weightFieldName : null,
-                        "data-progress-field-value", !StringUtils.isBlank(progressFieldName) ? ObjectUtils.to(double.class, itemState.get(progressFieldName)) * 100 : null,
+                        "data-progress-field-value", !StringUtils.isBlank(progressFieldName) ? ObjectUtils.to(int.class, ObjectUtils.to(double.class, itemState.get(progressFieldName)) * 100) : null,
                         "data-toggle-field-value", !StringUtils.isBlank(toggleFieldName) ? ObjectUtils.to(boolean.class, itemState.get(toggleFieldName)) : null,
                         "data-weight-field-value", !StringUtils.isBlank(weightFieldName) ? ObjectUtils.to(double.class, itemState.get(weightFieldName)) : null
 

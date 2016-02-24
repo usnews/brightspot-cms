@@ -545,9 +545,16 @@ The HTML within the repeatable element must conform to these standards:
                     $('<div>', {
                         'class' : 'repeatableLabel-progress'
                     }).append($('<div>', {
-                        'class' : 'repeatableLabel-progressFill',
-                        'style' : 'width: ' + progressFieldValue + '%',
+                            'class': 'repeatableLabel-progressBar'
+                        }).append($('<div>', {
+                            'class': 'repeatableLabel-progressFill',
+                            'style': 'width: ' + progressFieldValue + '%'
+                        })
+                    )).prepend($('<div>', {
+                        'class': 'repeatableLabel-progressLabel',
+                        'text': progressFieldValue + '% of Target'
                     })).appendTo($item);
+
                 }
 
             },
