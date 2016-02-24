@@ -1047,4 +1047,44 @@
   position: absolute;
   top: 12px;
   right: 42px;
+  
+  display: none;
+  
+  + .repeatableLabel-toggleLabel {
+    position: absolute;
+    top: 8px;
+    right: 42px;
+      
+    outline: 0;
+    display: block;
+    width: 4em;
+    height: 2em;
+    cursor: pointer;
+    user-select: none;
+    background: @color-border;
+    border-radius: 2em;
+    padding: 2px;
+    transition: all .4s ease;
+     
+    &:after {
+      content: "";  
+      left: 0;
+      border-radius: 50%;
+      background: #fff;
+      transition: all .2s ease;
+      width: 22px;
+      height: 22px;
+      display: block;
+    }
+  }
+  
+  &:checked {
+    + .repeatableLabel-toggleLabel {
+      background: @color-publish;
+      
+      &:after {
+        margin-left: 26px;   
+      }
+    }
+  }
 }

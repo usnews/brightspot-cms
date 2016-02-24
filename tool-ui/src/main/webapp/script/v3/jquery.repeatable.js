@@ -540,13 +540,23 @@ The HTML within the repeatable element must conform to these standards:
 
                 if (toggleField) {
                     // Add the remove button to the item
-                    $('<input/>', {
+                    var id = $item.find('> input[type="hidden"][name$=".id"]').val();
+                    
+                    var input = $('<input/>', {
+                        'id': id + '-toggle',
                         'class': 'repeatableLabel-toggle',
                         'type': 'checkbox',
-                        'name': $item.find('> input[type="hidden"][name$=".id"]').val() + '/' + toggleField,
+                        'name':  + '/' + toggleField,
                         'value': true,
                         'checked': toggleFieldValue
-                    }).appendTo($item);
+                    });
+                    
+                    input.after($('<label>', {
+                       'for': id + '-toggle',
+                       'class': 'repeatableLabel-toggleLabel' 
+                    }))
+                    
+                    input.appendTo($item);
                 }
 
             },
@@ -670,8 +680,8 @@ The HTML within the repeatable element must conform to these standards:
                                     return;
                                 }
                                 
-                                var newLeftWeightDouble = data.originalLeftWeight - (deltaDouble / 2);
-                                var newRightWeightDouble = data.originalRightWeight + (deltaDouble / 2);
+                                var newLeftWeightDouble = Math.max(data.originalLeftWeight - (deltaDouble / 2), 0);
+                                var newRightWeightDouble = Math.max(data.originalRightWeight + (deltaDouble / 2), 0);
                                 var newLeftWeightPct = Math.round(newLeftWeightDouble * 100);
                                 var newRightWeightPct = Math.round(newRightWeightDouble * 100);
                                 
