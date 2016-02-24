@@ -744,6 +744,10 @@ public class ToolUi extends Modification<Object> {
         }
     }
 
+    /**
+     * Specifies whether target field should be displayed using the progress bar and label.
+     * Expected field values are between 0.0 and 1.0.
+     */
     @Documented
     @ObjectField.AnnotationProcessorClass(CollectionItemProgressProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
@@ -760,6 +764,9 @@ public class ToolUi extends Modification<Object> {
         }
     }
 
+    /**
+     * Specifies whether the target field should be displayed using a toggle on the collection item.
+     */
     @Documented
     @ObjectField.AnnotationProcessorClass(CollectionItemToggleProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
@@ -776,6 +783,10 @@ public class ToolUi extends Modification<Object> {
         }
     }
 
+    /**
+     * Specifies whether the target field should be displayed using the weighted collection UI.
+     * Expected field values are between 0.0 and 1.0.
+     */
     @Documented
     @ObjectField.AnnotationProcessorClass(CollectionItemWeightProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
