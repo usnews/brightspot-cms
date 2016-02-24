@@ -3497,10 +3497,15 @@ define([
 
             // Apply the clipboard sanitize rules (if any)
             if (self.clipboardSanitizeRules) {
-                $el.find('p').after('<br/>');
                 $.each(self.clipboardSanitizeRules, function(selector, style) {
-                    $el.find(selector).wrapInner( $('<span>', {'data-rte2-sanitize': style}) );
+                    $el.find(selector).each(function(){
+                        var $match = $(this);
+                        var $replacement = $('<span>', {'data-rte2-sanitize': style});
+                        $replacement.append( $match.contents() );
+                        $match.replaceWith( $replacement );
+                    });
                 });
+                $el.find('[data-rte2-sanitize=linebreak]').after('<br/>');
             }
 
             // Run it through the clipboard sanitize function (if it exists)
@@ -5169,7 +5174,7 @@ define([
                             matchStyleObj = false;
 
                             // If a data-rte2-sanitize attribute is found on the element, then we are getting this
-                            // html as pasted data from another source. Our sanitzie rules have marked this element
+                            // html as pasted data from another source. Our sanitize rules have marked this element
                             // as being a particular style, so we should force that style to be used.
                             matchStyleObj = self.styles[ $(next).attr('data-rte2-sanitize') ];
                             
