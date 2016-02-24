@@ -755,8 +755,19 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
         
         modeSetRich: function() {
             var self = this;
+            var rte = self.rte;
+            var trackIsOn = rte.trackIsOn();
+            
             self.$el.hide();
-            self.rte.fromHTML(self.$el.val());
+
+            // Turn off track changes when converting from plain to rich text
+            // to avoid everything being marked as a change
+            rte.trackSet(false);
+
+            rte.fromHTML(self.$el.val());
+            
+            // Turn track changes back on (if it was on)
+            rte.trackSet(trackIsOn);
         },
 
         

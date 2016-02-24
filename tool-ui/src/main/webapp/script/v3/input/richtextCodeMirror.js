@@ -5526,9 +5526,9 @@ define([
             });
 
             $.each(enhancements, function(i, enhancementObj) {
-                
+
                 // Pass off control to a user-defined function for adding enhancements
-                self.enhancementFromHTML(enhancementObj.$content, enhancementObj.line);
+                self.enhancementFromHTML(enhancementObj.$content, enhancementObj.line + range.from.line);
                 
             });
 
