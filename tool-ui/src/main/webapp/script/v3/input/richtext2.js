@@ -199,11 +199,13 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          * {String} a style name that defines how element should be styled (refer to the "styles" parameter)
          */
         clipboardSanitizeRules: {
-
+            
+            // Note: Google docs encloses the entire document in a 'b' element so we must exclude that one
+            'b[id^=docs-internal-guid]': '',
+            
             // Any <b> or '<strong>' element should be treated as bold even if it has extra attributes
             // Example MSWord:  <b style="mso-bidi-font-weight:normal">
-            // Note: Google docs encloses the entire document in a 'b' element so we must exclude that one
-            'b:not([id^=docs-internal-guid])': 'bold',
+            'b': 'bold',
             'strong': 'bold',
 
             // Any '<i>' or '<em>' element should be treated as italic even if it has extra attributes
@@ -219,8 +221,12 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             'span[style*="text-decoration:underline"]': 'underline',
             'span[style*="vertical-align:super"]': 'superscript',
             'span[style*="vertical-align:sub"]': 'subscript',
-            'li[style*="list-style-type:disc"] > p': 'ul',
-            'li[style*="list-style-type:decimal"] > p': 'ol',
+
+            // Google docs puts paragraph within list items, so eliminate it
+            'li > p': '',
+            
+            'li[style*="list-style-type:disc"]': 'ul',
+            'li[style*="list-style-type:decimal"]': 'ol',
 
             'p[style*="text-align: right"]': 'alignRight',
             'p[style*="text-align: center"]': 'alignCenter',
