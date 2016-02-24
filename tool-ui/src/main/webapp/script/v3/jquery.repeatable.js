@@ -671,7 +671,7 @@ The HTML within the repeatable element must conform to these standards:
                                 var newRightWeightPct = Math.round(newRightWeightDouble * 100);
                                 
                                 data.leftElement.css({
-                                    'flex': newLeftWeightDouble + '1 0%'
+                                    'flex': newLeftWeightDouble + ' 1 0%'
                                 }).data('weight', newLeftWeightDouble);
                                 
                                 data.rightElement.css({
