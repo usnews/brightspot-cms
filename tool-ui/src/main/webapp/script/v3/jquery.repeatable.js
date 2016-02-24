@@ -601,40 +601,29 @@ The HTML within the repeatable element must conform to these standards:
                     if (itemWeightsCount === 0) {
                         weightFieldValue = 1;
                     } else {
+
                         weightFieldValue = Math.round((1 / (itemWeightsCount + 1)) * 100) / 100;
+                        
+                        var carryover = 0;
                         
                         $itemWeights.each(function(i) {
                             var $itemWeight = $(this);
-                            var newWeight = Math.round(((1 - weightFieldValue) * $itemWeight.data('weight')) * 100) / 100;
-                            $itemWeight.css({ 'flex' :  (newWeight * 100) + '%'});
-                            $itemWeight.data('weight', newWeight);
+                            var newWeightPercentUnrounded = ((1 - weightFieldValue) * $itemWeight.data('weight')) * 100 + carryover;
+                            var newWeightPercent = Math.round(newWeightPercentUnrounded); 
+                            var newWeightDouble = newWeightPercent / 100;
+                            $itemWeight.css({ 'flex' :  newWeightDouble + '1 0%'});
+                            $itemWeight.data('weight', newWeightDouble);
                             
                             var $repeatableWeight = $($itemWeightContainer.next('ol').find('li').get(i)).find('.repeatableLabel-weight');
-                            $repeatableWeight.attr('data-weight', (newWeight * 100) + '%');
-                            $repeatableWeight.find('input').val(newWeight);
+                            $repeatableWeight.attr('data-weight', newWeightPercent + '%');
+                            $repeatableWeight.find('input').val(newWeightDouble);
+                            
+                            carryover = newWeightPercentUnrounded - newWeightPercent;
                         });
                     }
                     
                     $item.data('weight-field-value', weightFieldValue);
                 }
-                
-                
-                var percentageWeight = Math.round(weightFieldValue * 100);
-
-                // Add the remove button to the item
-                $('<div>', {
-                    'class': 'repeatableLabel-weight',
-                    'data-weight': percentageWeight + '%'
-                }).append($('<span>', {
-                    'class': 'repeatableLabel-color',
-                    'style': 'background-color: ' + color
-                })).append(
-                    $('<input>', {
-                        'type': 'hidden',
-                        'name': inputName,
-                        'value': weightFieldValue
-                    })
-                ).prependTo($item);
 
                 var $itemWeightHandle = $(
                     '<div>', {
@@ -663,34 +652,30 @@ The HTML within the repeatable element must conform to these standards:
                                 data.leftInput = data.leftLabel.find('input');
                                 
                                 data.totalWidth = data.rightElement.outerWidth() + data.leftElement.outerWidth();
+                                data.totalWeightDouble = data.originalRightWeight + data.originalLeftWeight; 
 
                             }, function(event, data) {
                                 
                                 var delta = data.originX - event.clientX;
-                                var deltaDouble = Math.round((delta / data.totalWidth) * 100) / 100;
-                                var deltaPercent = deltaDouble * 100;
+                                var deltaPercent = Math.round((delta / data.totalWidth) * 100);
+                                var deltaDouble =  deltaPercent / 100;
                                 
                                 // Only increment/decrement by full percentage point
                                 if (deltaPercent % 2 > 0) {
                                     return;
                                 }
                                 
-                                // Avoids redundant manipulation
-                                if (delta === data.previousDelta) {
-                                    return;
-                                }
-                                
                                 var newLeftWeightDouble = Math.max(data.originalLeftWeight - (deltaDouble / 2), 0);
-                                var newRightWeightDouble = Math.max(data.originalRightWeight + (deltaDouble / 2), 0);
+                                var newRightWeightDouble = data.totalWeightDouble - newLeftWeightDouble;
                                 var newLeftWeightPct = Math.round(newLeftWeightDouble * 100);
                                 var newRightWeightPct = Math.round(newRightWeightDouble * 100);
                                 
                                 data.leftElement.css({
-                                    'flex': newLeftWeightPct + '%'
+                                    'flex': newLeftWeightDouble + '1 0%'
                                 }).data('weight', newLeftWeightDouble);
                                 
                                 data.rightElement.css({
-                                    'flex': newRightWeightPct + '%'
+                                    'flex': newRightWeightDouble + ' 1 0% '
                                 }).data('weight', newRightWeightDouble);
                                 
                                 // Update input and numerical display
@@ -700,21 +685,36 @@ The HTML within the repeatable element must conform to these standards:
                                 data.rightInput.val(newRightWeightDouble);
                                 data.leftInput.val(newLeftWeightDouble);
                                 
-                                data.previousDelta = delta;
-                                
                             }, function(event) {
                                 // do nothing.
                             });
                         }
                     }
                 );
+                
+                var percentageWeight = Math.round(weightFieldValue * 100);
+
+                // Add the remove button to the item
+                $('<div>', {
+                    'class': 'repeatableLabel-weight',
+                    'data-weight': percentageWeight + '%'
+                }).append($('<span>', {
+                    'class': 'repeatableLabel-color',
+                    'style': 'background-color: ' + color
+                })).append(
+                    $('<input>', {
+                        'type': 'hidden',
+                        'name': inputName,
+                        'value': weightFieldValue
+                    })
+                ).prependTo($item);
 
                 $itemWeightContainer.append(
                     $('<div>', {
                         'class': 'repeatableForm-itemWeight',
                         'style':
                             'background-color: ' + color + ';' +
-                            'flex:' + percentageWeight + '%',
+                            'flex:' + weightFieldValue + '1 0%',
                         'data-target': inputName,
                         'data-weight': percentageWeight / 100
                     }).prepend(itemWeightsCount > 0 ? $itemWeightHandle : '')
