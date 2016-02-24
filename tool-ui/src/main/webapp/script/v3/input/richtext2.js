@@ -3487,7 +3487,8 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             toolbarButton = {
                 className: 'rte2-toolbar-noicon rte2-toolbar-' + styleName,
                 style: styleName,
-                text: rtElement.displayName
+                text: rtElement.displayName,
+                tooltip: rtElement.tooltipText
             };
             
             if (rtElement.submenu) {

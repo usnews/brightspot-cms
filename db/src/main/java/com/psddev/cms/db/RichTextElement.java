@@ -26,6 +26,7 @@ public abstract class RichTextElement extends Record {
         boolean root() default false;
         Class<?>[] children() default { };
         String menu() default "";
+        String tooltip() default "";
     }
 
     @Documented

@@ -2117,6 +2117,7 @@ public class ToolPageContext extends WebPageContext {
                 richTextElement.put("styleName", styleName);
                 richTextElement.put("typeId", type.getId().toString());
                 richTextElement.put("displayName", type.getDisplayName());
+                richTextElement.put("tooltipText", tag.tooltip());
                 richTextElements.add(richTextElement);
             }
         }
