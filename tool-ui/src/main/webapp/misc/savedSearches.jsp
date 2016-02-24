@@ -1,4 +1,5 @@
 <%@ page session="false" import="
+    com.psddev.dari.util.StringUtils,
     com.psddev.cms.tool.ToolPageContext,
     com.psddev.cms.db.ToolUser,
 
@@ -13,6 +14,12 @@
 
     ToolUser user = wp.getUser();
     Map<String, String> savedSearches = user.getSavedSearches();
+
+    String searchNameToRemove = wp.param(String.class, "remove");
+    if (!StringUtils.isBlank(searchNameToRemove)) {
+        savedSearches.remove(searchNameToRemove);
+        user.save();
+    }
 
     if (savedSearches.isEmpty()) {
         wp.writeStart("div", "class", "message");
@@ -34,6 +41,10 @@
                               "target", "miscSearch");
                             wp.writeHtml(savedSearchName);
                         wp.writeEnd();
+                        wp.writeStart("a",
+                              "class", "savedSearches-remove",
+                              "href", wp.cmsUrl("/misc/savedSearches.jsp", "remove", savedSearchName),
+                              "target", "savedSearches");
                     wp.writeEnd();
             }
         wp.writeEnd();
