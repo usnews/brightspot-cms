@@ -546,7 +546,7 @@ The HTML within the repeatable element must conform to these standards:
                         'id': id + '-toggle',
                         'class': 'repeatableLabel-toggle',
                         'type': 'checkbox',
-                        'name':  + '/' + toggleField,
+                        'name':  id + '/' + toggleField,
                         'value': true,
                         'checked': toggleFieldValue
                     });
