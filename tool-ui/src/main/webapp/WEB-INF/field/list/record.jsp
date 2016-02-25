@@ -595,7 +595,7 @@ if (!isValueExternal) {
                 State itemState = State.getInstance(item);
                 ObjectType itemType = itemState.getType();
                 Date itemPublishDate = itemState.as(Content.ObjectModification.class).getPublishDate();
-                boolean expanded = itemType.getFields().stream().anyMatch(f -> f.as(ToolUi.class).isExpanded());
+                boolean expanded = field.as(ToolUi.class).isExpanded() || itemType.getFields().stream().anyMatch(f -> f.as(ToolUi.class).isExpanded());
 
                 wp.writeStart("li",
                         "class", expanded ? "expanded" : null,
