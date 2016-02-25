@@ -582,6 +582,7 @@ if (!isValueExternal) {
 
     // Only display weights if all valid types have a @ToolUi.CollectionItemWeight annotated field
     boolean displayWeights = weightedTypesandFieldsMap.size() == validTypes.size();
+    boolean displayAlternateListUi = displayWeights || toggleTypesAndFieldsMap.size() > 0 || progressTypesAndFieldsMap.size() > 0;
 
     StringBuilder genericArgumentsString = new StringBuilder();
     List<ObjectType> genericArguments = field.getGenericArguments();
@@ -598,7 +599,8 @@ if (!isValueExternal) {
     wp.writeStart("div",
             "class", "inputLarge repeatableForm"
                     + (displayGrid ? " repeatableForm-previewable" : "")
-                    + (displayWeights ? " repeatableForm-weighted" : ""),
+                    + (displayWeights ? " repeatableForm-weighted" : "")
+                    + (displayAlternateListUi ? " repeatableForm-alt" : ""),
             "foo", "bar",
             "data-generic-arguments", genericArgumentsString);
 

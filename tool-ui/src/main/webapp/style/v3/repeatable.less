@@ -962,13 +962,13 @@
   }    
 }
 
-.repeatableForm-weighted {
+.repeatableForm-alt {
 
   > ol > li {
     > .repeatableLabel {
       background: white;
       border-bottom: 1px solid #ededed;
-      padding: 12px 45px 12px 120px;
+      padding: 12px 45px 12px 45px;
       &:after {
         top: 12px;
       }
@@ -976,7 +976,16 @@
     > .removeButton {
       top: 10px;
     }  
-  }  
+  }   
+}
+
+.repeatableForm-weighted {
+
+  > ol > li {
+    > .repeatableLabel {
+      padding-left: 120px;
+    }
+  }
     
   .repeatableForm-itemWeights {
     width: 100%;
