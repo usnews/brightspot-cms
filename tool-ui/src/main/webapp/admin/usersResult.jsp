@@ -28,7 +28,7 @@ if (selected instanceof ToolUser) {
 Query<ToolUser> query = Query.from(ToolUser.class).where("name isnt missing").and("cms.content.trashed = true || cms.content.trashed is missing").sortAscending("cms.content.trashed").sortAscending("name");
 String queryString = wp.param("query");
 if (!ObjectUtils.isBlank(queryString)) {
-    query.where("name ^=[c] ? or email ^=[c] ?", queryString, queryString);
+    query.where("name contains ? or email contains ?", queryString, queryString);
 }
 
 long offset = wp.longParam("offset", 0L);

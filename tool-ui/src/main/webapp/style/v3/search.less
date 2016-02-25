@@ -199,6 +199,30 @@
     max-height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
+
+    li {
+      position: relative;
+
+      &:hover {
+        .savedSearches-remove {
+          display: block;
+        }
+      }
+    }
+  }
+
+  .savedSearches-remove {
+    .icon;
+    .icon-action-delete;
+
+    display: none;
+    position: absolute;
+    right: 19px;
+    top: 10px;
+
+    &:hover {
+      opacity: 0.8;
+    }
   }
 }
 
