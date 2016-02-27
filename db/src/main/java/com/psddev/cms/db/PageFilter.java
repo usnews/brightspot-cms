@@ -1246,7 +1246,7 @@ public class PageFilter extends AbstractFilter {
             if (renderer != null) {
 
                 try {
-                    ViewOutput result = renderer.render(viewModel, new ServletViewTemplateLoader(request));
+                    ViewOutput result = renderer.render(viewModel, new ServletViewTemplateLoader(request.getServletContext()));
                     output = result.get();
 
                 } catch (RuntimeException e) {
@@ -1435,7 +1435,7 @@ public class PageFilter extends AbstractFilter {
         }
 
         if (renderer != null) {
-            ViewOutput result = renderer.render(view, new ServletViewTemplateLoader(request));
+            ViewOutput result = renderer.render(view, new ServletViewTemplateLoader(request.getServletContext()));
             String output = result.get();
 
             if (output != null) {

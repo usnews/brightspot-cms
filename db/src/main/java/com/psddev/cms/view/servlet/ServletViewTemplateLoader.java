@@ -5,7 +5,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
 
 import com.psddev.cms.view.AbstractViewTemplateLoader;
 import com.psddev.dari.util.CodeUtils;
@@ -18,10 +17,10 @@ public class ServletViewTemplateLoader extends AbstractViewTemplateLoader {
     private ServletContext servletContext;
 
     /**
-     * @param request the current HTTP request.
+     * @param servletContext the servlet HTTP servlet context .
      */
-    public ServletViewTemplateLoader(HttpServletRequest request) {
-        servletContext = request.getServletContext();
+    public ServletViewTemplateLoader(ServletContext servletContext) {
+        this.servletContext = servletContext;
     }
 
     @Override
