@@ -2790,7 +2790,14 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // but first wait for the current click to finish so it doesn't interfere
             // with any popups
             setTimeout(function(){
+                
                 $divLink.click();
+
+                // When the popup is closed put focus back on the editor
+                $(document).one('closed', '[name=rte2-frame-enhancement-inline]', function(){
+                        self.focus();
+                });
+
             }, 100);
 
         },
