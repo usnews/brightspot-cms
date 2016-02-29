@@ -2601,7 +2601,7 @@ define([
             var marks, self;
             self = this;
 
-            if (! self.codeMirror.hasFocus()) {
+            if (self.readOnlyGet() || !self.codeMirror.hasFocus()) {
                 self.dropdownHide();
                 return;
             }
