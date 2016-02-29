@@ -4006,7 +4006,7 @@ define([
                 lineRange = {from:{line:line, ch:chStart}, to:{line:line, ch:chEnd}};
                 
                 // Get the HTML for the range
-                html = self.toHTML(lineRange);
+                html = self.toHTML(lineRange, {enhancements:false});
 
                 // Convert the text nodes to lower case
                 if (direction === 'toLowerCase') {
@@ -4484,8 +4484,16 @@ define([
          * @param {Object} [range=entire document]
          * If this parameter is provided, it is a selection range within the documents.
          * Only the selected characters will be converted to HTML.
+         *
+         * @param {Object} [options]
+         * Set of key/value pairs to specify how the HTML is created.
+         *
+         * @param {Boolean} [options.enhancements=true]
+         * Include enhancements in the HTML. Set this to false if enhancements should be
+         * excluded.
+         *
          */
-        toHTML: function(range) {
+        toHTML: function(range, options) {
 
             /**
              * Create the opening HTML element for a given style object.
@@ -4529,6 +4537,8 @@ define([
 
             self = this;
 
+            options = options || {};
+            
             rangeWasSpecified = Boolean(range);
             range = range || self.getRangeAll();
             
@@ -4676,7 +4686,7 @@ define([
                 });
 
                 // Determine if there are any enhancements on this line
-                if (enhancementsByLine[lineNo]) {
+                if (enhancementsByLine[lineNo] && options.enhancements !== false) {
                     
                     $.each(enhancementsByLine[lineNo], function(i,mark) {
 
