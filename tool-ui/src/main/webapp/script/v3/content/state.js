@@ -67,9 +67,7 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
 
           // If we are looking at a content update, then the current state (for viewing the diff) resides in the form
           // as well. We need to remove that from the form post or it messes up the dynamic values that return.
-          'data': $form.find('[name]').filter(function() {
-            return $(this).closest('.contentDiffCurrent').length === 0;
-          }).serialize() + $dynamicTexts.map(function() {
+          'data': $form.find('[name]').not($form.find('.contentDiffCurrent [name]')).serialize() + $dynamicTexts.map(function() {
             var $element = $(this);
 
             return '&_dti=' + ($element.closest('[data-object-id]').attr('data-object-id') || '') +
