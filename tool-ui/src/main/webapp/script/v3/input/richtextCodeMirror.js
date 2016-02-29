@@ -807,7 +807,7 @@ define([
                 
                 // Add a space to represent the empty element because CodeMirror needs
                 // a character to display for the user to display the mark.
-                editor.replaceRange(' ', {line:range.from.line, ch:range.from.ch});
+                editor.replaceRange(' ', {line:range.from.line, ch:range.from.ch}, '+brightspotInlineSetStyle');
                 
                 range.to.line = range.from.line;
                 range.to.ch = range.from.ch + 1;
@@ -952,7 +952,10 @@ define([
                     }
 
                     // Determine if this mark is outside the selected range
-                    outsideOfSelection = fromCh > to || toCh < from;
+                    outsideOfSelection = fromCh >= to || toCh <= from;
+                    if (fromCh === toCh) {
+                        outsideOfSelection = fromCh > to || toCh < from;
+                    }
                     if (outsideOfSelection) {
                         return;
                     }
@@ -1094,10 +1097,13 @@ define([
                 var position;
 
                 if (deleteText && mark.shouldDeleteText) {
+                    
                     position = mark.find();
-                    if (position) {
-                        editor.replaceRange('', position.from, position.to, '+brightspotFormatRemoveClass');
+                    
+                    if (position && !(position.from.line === position.to.line && position.from.ch === position.to.ch)) {
 
+                        editor.replaceRange('', position.from, position.to, '+brightspotFormatRemoveClass');
+                        
                         // Trigger a change event for the editor
                         if (options.triggerChange !== false) {
                             self.triggerChange();
@@ -1309,7 +1315,7 @@ define([
                             // If the mark is defined to the right of the cursor, then we only include the classname if inclusiveLeft is set.
                             // If the mark is defined to the left of the cursor, then we only include the classname if inclusiveRight is set.
 
-                            isSingleChar = Boolean(charTo - charFrom < 2);
+                            isSingleChar = Boolean(charTo - charFrom < 1);
                             
                             if (isSingleChar && markPosition.from.line === lineNumber && markPosition.from.ch === charNumber && !mark.inclusiveLeft) {
 
@@ -2709,7 +2715,7 @@ define([
                     
                     mark.clear();
                     if (pos) {
-                        self.codeMirror.replaceRange('', {line:pos.from.line, ch:pos.from.ch}, {line:pos.to.line, ch:pos.to.ch});
+                        self.codeMirror.replaceRange('', {line:pos.from.line, ch:pos.from.ch}, {line:pos.to.line, ch:pos.to.ch}, 'brightspotDropdown');
                     }
                     self.focus();
                     self.dropdownCheckCursor();
@@ -2977,14 +2983,14 @@ define([
 
                         // Finally insert the text at the starting point (before the other text in the range that was marked deleted)
                         // Note we add at the front because we're not sure if the end is valid because we might have removed some text
-                        if (changeObj.origin === 'brightspotPaste') {
+                        if (changeObj.origin !== 'paste') {
                             
-                            editor.replaceRange(changeObj.text, changeObj.from, undefined, '+brightspotTrackInsert');
-
                             // TODO: what if the copied region has deleted text?
                             // Currently the entire content that is pasted will be marked as inserted text,
                             // but it could have deleted text within it.
                             // We need to remove that deleted text *after* the new content is pasted in.
+                            editor.replaceRange(changeObj.text, changeObj.from, undefined, '+brightspotTrackInsert');
+                            
                         }
                     }
                     
@@ -3063,6 +3069,11 @@ define([
             if (toNew.line == from.line) {
                 toNew.ch += from.ch;
             }
+
+            // If not actually adding new content, do nothing (to prevent infinite loop in some cases)
+            if (toNew.line === from.line && toNew.ch === from.ch) {
+                return;
+            }
             
             // Use a timeout so the change can be completed before we attempt to remove the deleted text
             setTimeout(function(){
@@ -3090,6 +3101,10 @@ define([
                 return;
             }
 
+            if (range.from.line === range.to.line && range.from.ch === range.to.ch) {
+                return;
+            }
+            
             // Determine if every character in the range is already marked as an insertion.
             // In this case we can just delete the content and don't need to mark it as deleted.
             if (self.inlineGetStyles(range).trackInsert !== true) {
@@ -4386,9 +4401,9 @@ define([
 
             // Replacing the entire mark range will remove the mark so we need
             // to add text at the end of the mark, then remove the original text
-            self.codeMirror.replaceRange(text, pos.to, pos.to);
+            self.codeMirror.replaceRange(text, pos.to, pos.to, 'brightspotReplaceMarkText');
             if (!(pos.from.line === pos.to.line && pos.from.ch === pos.to.ch)) {
-                self.codeMirror.replaceRange('', pos.from, pos.to);
+                self.codeMirror.replaceRange('', pos.from, pos.to, 'brightspotReplaceMarkText');
             }
         },
         
