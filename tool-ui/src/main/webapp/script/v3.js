@@ -108,7 +108,7 @@ function() {
     'restoreButtonText': ''
   });
 
-  bsp_autoExpand.live(document, ':text.expandable, textarea');
+  bsp_autoExpand.live(document, 'input[type="text"].expandable, input:not([type]).expandable, textarea');
   bsp_autoSubmit.live(document, '.autoSubmit');
 
   $doc.calendar('live', ':text.date');

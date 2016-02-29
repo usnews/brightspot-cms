@@ -43,10 +43,10 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
         var questionAt = action.indexOf('?');
         var end = +new Date() + 1000;
         var $dynamicTexts = $form.find(
-            '[data-dynamic-text][data-dynamic-text != ""],' +
-            '[data-dynamic-html][data-dynamic-html != ""],' +
-            '[data-dynamic-placeholder][data-dynamic-placeholder != ""],' +
-            '[data-dynamic-predicate][data-dynamic-predicate != ""]');
+            '[data-dynamic-text]:not([data-dynamic-text=""]),' +
+            '[data-dynamic-html]:not([data-dynamic-html=""]),' +
+            '[data-dynamic-placeholder]:not([data-dynamic-placeholder=""]),' +
+            '[data-dynamic-predicate]:not([data-dynamic-predicate=""])');
 
         $dynamicTexts = $dynamicTexts.filter(function() {
           return $(this).closest('.collapsed').length === 0
@@ -54,7 +54,7 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
         });
 
         if (!idle) {
-          $form.find('[data-dynamic-predicate][data-dynamic-predicate != ""]').each(function () {
+          $form.find('[data-dynamic-predicate]:not([data-dynamic-predicate = ""])').each(function () {
             $(this).removeClass('state-loaded');
           });
         }
