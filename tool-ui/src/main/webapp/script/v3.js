@@ -123,6 +123,12 @@ function() {
     'loadedClassName': 'loaded'
   });
 
+  bsp_utils.onDomInsert(document, '.CodeMirror', {
+    'insert': function(cm) {
+      bsp_utils.addDomInsertBlacklist(cm);
+    }
+  });
+
   bsp_utils.onDomInsert(document, '[data-bsp-autosubmit], .autoSubmit', {
     'insert': function(item) {
       var $form = $(item).closest('form');
