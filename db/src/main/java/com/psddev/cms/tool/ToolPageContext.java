@@ -2751,6 +2751,11 @@ public class ToolPageContext extends WebPageContext {
                         fields.addAll(lasts);
                     }
 
+                    // Do not display fields with @ToolUi.CollectionItemWeight, @ToolUi.CollectionItemToggle, or @ToolUiCollectionItemProgress
+                    fields.removeIf(f -> f.as(ToolUi.class).isCollectionItemToggle()
+                            || f.as(ToolUi.class).isCollectionItemWeight()
+                            || f.as(ToolUi.class).isCollectionItemProgress());
+
                     DependencyResolver<ObjectField> resolver = new DependencyResolver<>();
                     Map<String, ObjectField> fieldByName = fields.stream()
                             .collect(Collectors.toMap(ObjectField::getInternalName, Function.identity()));
