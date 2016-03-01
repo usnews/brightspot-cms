@@ -2584,6 +2584,15 @@ define([
             editor.on('cursorActivity', $.debounce(250, function(instance, event) {
                 self.dropdownCheckCursor();
             }));
+
+            editor.on('focus', function() {
+                self.dropdownCheckCursor();
+            });
+            
+            editor.on('blur', function() {
+                self.dropdownHide();
+            });
+
         },
 
 
@@ -2592,9 +2601,14 @@ define([
             var marks, self;
             self = this;
 
+            if (self.readOnlyGet() || !self.codeMirror.hasFocus()) {
+                self.dropdownHide();
+                return;
+            }
+            
             // Get all the marks from the selected range that have onclick handlers
             marks = self.dropdownGetMarks();
-            
+
             if (marks.length === 0) {
                 self.dropdownHide();
             } else {
