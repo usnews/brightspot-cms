@@ -44,6 +44,7 @@ import com.psddev.cms.view.ViewModelCreator;
 import com.psddev.cms.view.ViewOutput;
 import com.psddev.cms.view.ViewRenderer;
 import com.psddev.cms.view.ViewRequest;
+import com.psddev.cms.view.servlet.ServletViewTemplateLoader;
 import com.psddev.cms.view.servlet.ServletViewModelCreator;
 import com.psddev.cms.view.servlet.ServletViewRequestAnnotationProcessor;
 import com.psddev.cms.view.servlet.ServletViewRequestAnnotationProcessorClass;
@@ -1245,7 +1246,7 @@ public class PageFilter extends AbstractFilter {
             if (renderer != null) {
 
                 try {
-                    ViewOutput result = renderer.render(viewModel);
+                    ViewOutput result = renderer.render(viewModel, new ServletViewTemplateLoader(request.getServletContext()));
                     output = result.get();
 
                 } catch (RuntimeException e) {
@@ -1434,7 +1435,7 @@ public class PageFilter extends AbstractFilter {
         }
 
         if (renderer != null) {
-            ViewOutput result = renderer.render(view);
+            ViewOutput result = renderer.render(view, new ServletViewTemplateLoader(request.getServletContext()));
             String output = result.get();
 
             if (output != null) {
