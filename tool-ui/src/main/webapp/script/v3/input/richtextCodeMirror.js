@@ -2590,7 +2590,11 @@ define([
             });
             
             editor.on('blur', function() {
-                self.dropdownHide();
+                // Hide after a timeout in case user clicked link in the dropdown
+                // which caused a blur event that hid the dropdown
+                setTimeout(function(){
+                    self.dropdownHide();
+                }, 200);
             });
 
         },
@@ -4143,6 +4147,9 @@ define([
             var self;
             self = this;
             self.codeMirror.focus();
+            setTimeout(function(){
+                self.dropdownCheckCursor();
+            }, 200);
         },
 
 
