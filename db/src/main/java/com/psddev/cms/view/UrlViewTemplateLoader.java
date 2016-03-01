@@ -4,75 +4,56 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.JarURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.psddev.dari.util.IoUtils;
 
 /**
  * Skeletal {@link ViewTemplateLoader} implementation that implements
- * {@link #getLastModified(String)} based on the URL returned from
- * {@link #getTemplateUrl(String)} implemented by a sub-class.
+ * {@link #getTemplate(String)} and {@link #getLastModified(String)} based on
+ * the URL returned from {@link #getTemplateUrl(String)} implemented by a
+ * sub-class.
  */
 public abstract class UrlViewTemplateLoader implements ViewTemplateLoader {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(UrlViewTemplateLoader.class);
 
     /**
      * Returns the template located at the named path as a URL.
      *
      * @param path the path to the template.
      * @return the template URL.
-     * @throws MalformedURLException
+     * @throws IOException if a problem occurred fetching the URL for the given path.
      */
-    protected abstract URL getTemplateUrl(String path) throws MalformedURLException;
+    protected abstract URL getTemplateUrl(String path) throws IOException;
 
     @Override
-    public long getLastModified(String path) {
+    public InputStream getTemplate(String path) throws IOException {
+        return getTemplateUrl(path).openConnection().getInputStream();
+    }
 
-        URL resource = null;
+    @Override
+    public long getLastModified(String path) throws IOException {
+
+        URL templateUrl = getTemplateUrl(path);
+
+        URLConnection urlConnection = null;
         try {
-            resource = getTemplateUrl(path);
-        } catch (MalformedURLException e) {
-            // do nothing
-        }
+            urlConnection = templateUrl.openConnection();
 
-        if (resource == null) {
-            LOGGER.warn("Could not load resource [{}]", path);
-            return -1;
-        }
-
-        URLConnection uc = null;
-        try {
-            uc = resource.openConnection();
-
-            if (uc instanceof JarURLConnection) {
-                URL jarURL = ((JarURLConnection) uc).getJarFileURL();
-                if (jarURL.getProtocol().equals("file")) {
-                    uc = null;
+            if (urlConnection instanceof JarURLConnection) {
+                URL jarURL = ((JarURLConnection) urlConnection).getJarFileURL();
+                if ("file".equals(jarURL.getProtocol())) {
+                    urlConnection = null;
                     String file = jarURL.getFile();
                     return new File(file).lastModified();
                 }
             }
 
-            return uc.getLastModified();
-
-        } catch (IOException ex) {
-            LOGGER.warn("Could not get last modified date of [{}]", resource);
-            return -1;
+            return urlConnection.getLastModified();
 
         } finally {
-            try {
-                if (uc != null) {
-                    InputStream is = uc.getInputStream();
-                    if (is != null) {
-                        is.close();
-                    }
-                }
-            } catch (IOException e) {
-                LOGGER.warn("Could not close: %s", resource);
+            if (urlConnection != null) {
+                IoUtils.closeQuietly(urlConnection.getInputStream());
             }
         }
     }

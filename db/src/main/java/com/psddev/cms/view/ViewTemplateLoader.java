@@ -1,5 +1,6 @@
 package com.psddev.cms.view;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -13,8 +14,9 @@ public interface ViewTemplateLoader {
      *
      * @param path the path to the template.
      * @return the template as a stream.
+     * @throws IOException if a problem occurred fetching the template at the given path.
      */
-    InputStream getTemplate(String path);
+    InputStream getTemplate(String path) throws IOException;
 
     /**
      * Returns the last modified timestamp for the template located at the
@@ -22,6 +24,7 @@ public interface ViewTemplateLoader {
      *
      * @param path the path to the template.
      * @return the last modified timestamp.
+     * @throws IOException if a problem occurred reading the last modified timestamp.
      */
-    long getLastModified(String path);
+    long getLastModified(String path) throws IOException;
 }
