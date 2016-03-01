@@ -99,27 +99,27 @@ public class ToolUi extends Modification<Object> {
         this.codeType = codeType;
     }
 
-    public Boolean isCollectionItemProgress() {
+    public boolean isCollectionItemProgress() {
         return Boolean.TRUE.equals(collectionItemProgress);
     }
 
-    public void setCollectionItemProgress(Boolean collectionItemProgress) {
+    public void setCollectionItemProgress(boolean collectionItemProgress) {
         this.collectionItemProgress = collectionItemProgress ? Boolean.TRUE : null;
     }
 
-    public Boolean isCollectionItemToggle() {
+    public boolean isCollectionItemToggle() {
         return Boolean.TRUE.equals(collectionItemToggle);
     }
 
-    public void setCollectionItemToggle(Boolean collectionItemToggle) {
+    public void setCollectionItemToggle(boolean collectionItemToggle) {
         this.collectionItemToggle = collectionItemToggle ? Boolean.TRUE : null;
     }
 
-    public Boolean isCollectionItemWeight() {
+    public boolean isCollectionItemWeight() {
         return Boolean.TRUE.equals(collectionItemWeight);
     }
 
-    public void setCollectionItemWeight(Boolean collectionItemWeight) {
+    public void setCollectionItemWeight(boolean collectionItemWeight) {
         this.collectionItemWeight = collectionItemWeight ? Boolean.TRUE : null;
     }
 
