@@ -3640,7 +3640,7 @@ define([
             text = self.toText() || '';
 
             // Split into words
-            wordsRegexp = self.spellcheckWordCharacters; // new RegExp('[' + self.spellcheckWordCharacters + ']+', 'g');
+            wordsRegexp = self.spellcheckWordCharacters;
             wordsArray = text.match( wordsRegexp );
         
             if (!wordsArray) {
@@ -3663,57 +3663,62 @@ define([
 
                 self.spellcheckClear();
 
-                $.each(wordsArrayUnique, function(i,word) {
+                // Prevent CodeMirror from updating the DOM until we finish
+                self.codeMirror.operation(function() {
                     
-                    var adjacent, range, result, index, indexStart, indexWord, range, split, wordLength;
-
-                    wordLength = word.length;
-                    
-                    // Check if we have replacements for this word
-                    result = results[word];
-                    if ($.isArray(result)) {
+                    $.each(wordsArrayUnique, function(i,word) {
                         
-                        // Find the location of all occurances
-                        indexStart = 0;
-                        while ((index = text.indexOf(word, indexStart)) > -1) {
+                        var adjacent, range, result, index, indexStart, indexWord, range, split, wordLength;
 
-                            // Move the starting point so we can find another occurrance of this word
-                            indexStart = index + wordLength;
+                        wordLength = word.length;
+                        
+                        // Check if we have replacements for this word
+                        result = results[word];
+                        if ($.isArray(result)) {
                             
-                            // Make sure we're at a word boundary on both sides of the word
-                            // so we don't mark a string in the middle of another word
-                            
-                            if (index > 0) {
-                                adjacent = text.substr(index - 1, 1);
-                                if (adjacent.match(wordsRegexp)) {
-                                    continue;
+                            // Find the location of all occurances
+                            indexStart = 0;
+                            while ((index = text.indexOf(word, indexStart)) > -1) {
+
+                                // Move the starting point so we can find another occurrance of this word
+                                indexStart = index + wordLength;
+                                
+                                // Make sure we're at a word boundary on both sides of the word
+                                // so we don't mark a string in the middle of another word
+
+                                if (index > 0) {
+                                    adjacent = text.substr(index - 1, 1);
+                                    if (adjacent.match(wordsRegexp)) {
+                                        continue;
+                                    }
                                 }
-                            }
 
-                            if (index + wordLength < text.length) {
-                                adjacent = text.substr(index + wordLength, 1);
-                                if (adjacent.match(wordsRegexp)) {
-                                    continue;
+                                if (index + wordLength < text.length) {
+                                    adjacent = text.substr(index + wordLength, 1);
+                                    if (adjacent.match(wordsRegexp)) {
+                                        continue;
+                                    }
                                 }
+
+                                // Figure out the line and character for this word
+                                split = text.substring(0, index).split("\n");
+                                line = split.length - 1;
+                                ch = split[line].length;
+
+                                range = {
+                                    from: {line:line, ch:ch},
+                                    to:{line:line, ch:ch + wordLength}
+                                };
+
+                                // Add a mark to indicate this is a misspelling
+                                self.spellcheckMarkText(range, result);
+
                             }
-                            
-                            // Figure out the line and character for this word
-                            split = text.substring(0, index).split("\n");
-                            line = split.length - 1;
-                            ch = split[line].length;
-
-                            range = {
-                                from: {line:line, ch:ch},
-                                to:{line:line, ch:ch + wordLength}
-                            };
-                            
-                            // Add a mark to indicate this is a misspelling
-                            self.spellcheckMarkText(range, result);
-
                         }
-                    }
+                        
+                    }); // $.each()
                     
-                });
+                }); // codeMirror.operation()
                 
             }).fail(function(status){
                 
@@ -3767,12 +3772,16 @@ define([
             self = this;
 
             editor = self.codeMirror;
-            
-            // Loop through all the marks and remove the ones that were marked
-            editor.getAllMarks().forEach(function(mark) {
-                if (mark.className === 'rte2-style-spelling') {
-                    mark.clear();
-                }
+
+            // Do not update the DOM until done with all operations
+            editor.operation(function(){
+                
+                // Loop through all the marks and remove the ones that were marked
+                editor.getAllMarks().forEach(function(mark) {
+                    if (mark.className === 'rte2-style-spelling') {
+                        mark.clear();
+                    }
+                });
             });
         },
 
