@@ -420,6 +420,7 @@ The HTML within the repeatable element must conform to these standards:
                 // Do not collapse "preview" or "object" mode
                 if ($item.find('.message-error').length === 0
                     && $item.find('> .layouts').length === 0
+                    && !$item.hasClass('expanded')
                     && !self.modeIsPreview()
                     && !self.modeIsObject()) {
                     self.itemCollapse($item);
@@ -718,6 +719,10 @@ The HTML within the repeatable element must conform to these standards:
 
                 // Collapse or uncollapse the item
                 $item.toggleClass('collapsed', collapseFlag);
+
+                if (collapseFlag && $item.hasClass('expanded')) {
+                    $item.removeClass('expanded');
+                }
                 
                 // Don't do anything if mode=preview
                 if (self.modeIsPreview()) {
