@@ -14,11 +14,11 @@ import org.slf4j.LoggerFactory;
 /**
  * Skeletal {@link ViewTemplateLoader} implementation that implements
  * {@link #getLastModified(String)} based on the URL returned from
- * {@link #getTemplateAsURL(String)} implemented by a sub-class.
+ * {@link #getTemplateUrl(String)} implemented by a sub-class.
  */
-public abstract class AbstractViewTemplateLoader implements ViewTemplateLoader {
+public abstract class UrlViewTemplateLoader implements ViewTemplateLoader {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractViewTemplateLoader.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UrlViewTemplateLoader.class);
 
     /**
      * Returns the template located at the named path as a URL.
@@ -27,14 +27,14 @@ public abstract class AbstractViewTemplateLoader implements ViewTemplateLoader {
      * @return the template URL.
      * @throws MalformedURLException
      */
-    protected abstract URL getTemplateAsURL(String path) throws MalformedURLException;
+    protected abstract URL getTemplateUrl(String path) throws MalformedURLException;
 
     @Override
     public long getLastModified(String path) {
 
         URL resource = null;
         try {
-            resource = getTemplateAsURL(path);
+            resource = getTemplateUrl(path);
         } catch (MalformedURLException e) {
             // do nothing
         }

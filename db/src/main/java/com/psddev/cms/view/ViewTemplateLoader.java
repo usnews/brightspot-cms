@@ -14,7 +14,7 @@ public interface ViewTemplateLoader {
      * @param path the path to the template.
      * @return the template as a stream.
      */
-    InputStream getTemplateAsStream(String path);
+    InputStream getTemplate(String path);
 
     /**
      * Returns the last modified timestamp for the template located at the
