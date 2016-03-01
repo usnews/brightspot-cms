@@ -39,6 +39,7 @@ require([
   'v3/input/change',
   'input/code',
   'input/color',
+  'v3/color-utils',
   'v3/input/file',
   'input/focus',
   'input/grid',

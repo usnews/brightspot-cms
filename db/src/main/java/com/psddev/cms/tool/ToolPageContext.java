@@ -2982,6 +2982,11 @@ public class ToolPageContext extends WebPageContext {
                     // prevents empty tab from displaying on Singletons
                     fields.removeIf(f -> f.getInternalName().equals("dari.singleton.key"));
 
+                    // Do not display fields with @ToolUi.CollectionItemWeight, @ToolUi.CollectionItemToggle, or @ToolUiCollectionItemProgress
+                    fields.removeIf(f -> f.as(ToolUi.class).isCollectionItemToggle()
+                            || f.as(ToolUi.class).isCollectionItemWeight()
+                            || f.as(ToolUi.class).isCollectionItemProgress());
+
                     DependencyResolver<ObjectField> resolver = new DependencyResolver<>();
                     Map<String, ObjectField> fieldByName = fields.stream()
                             .collect(Collectors.toMap(ObjectField::getInternalName, Function.identity()));
