@@ -151,6 +151,11 @@ public class ImageFileType implements FileContentType {
 
         page.writeStart("div",
                 "class", "imageEditor");
+        if ("true".equals(page.getRequest().getParameter("_popup"))) {
+            page.writeStart("h2");
+                page.writeHtml("For full image editor features, click \"Edit in Full\"");
+            page.writeEnd();
+        } else {
             page.writeStart("div", "class", "imageEditor-aside");
                 page.writeStart("div", "class", "imageEditor-tools");
 
@@ -404,6 +409,7 @@ public class ImageFileType implements FileContentType {
                     page.writeEnd();
                 }
             page.writeEnd();
+        }
 
             page.writeStart("div", "class", "imageEditor-image");
 

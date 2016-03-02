@@ -121,6 +121,7 @@ function($) {
 
       $edit.attr('href', CONTEXT_PATH + 'content/edit.jsp' +
           '?id=' + (value || '') +
+          '&_popup=true' +
           '&' + (((/[&?](variationId=[^&]+)/).exec(window.location.search) || [ ])[1] || ''));
     });
   };
