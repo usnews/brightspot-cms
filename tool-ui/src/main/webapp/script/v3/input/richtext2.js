@@ -3403,28 +3403,28 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self = this;
 
             self.$container.on('rteChange', $.debounce(2000, function(){
-                if ($('.contentPreview').is(':visible')) {
-                    self.previewUpdate();
-                }
+                self.previewUpdate();
             }));
         },
 
         
         /**
          * Update the textarea with the latest content from the rich text editor,
-         * plus trigger an "input" event so the preview will be updated.
+         * plus trigger an "input" event so the preview will be updated, and
+         * a "change" event so the change indicator can be updated.
          */
         previewUpdate: function() {
             
-            var html, self;
+            var html, self, val;
             
             self = this;
 
             html = self.toHTML();
+
+            val = self.$el.val();
             
-            if (html !== self.previewUpdateSaved) {
-                self.previewUpdateSaved = html;
-                self.$el.val(html).trigger('input');
+            if (html !== val) {
+                self.$el.val(html).trigger('input').trigger('change');
             }
         },
 
