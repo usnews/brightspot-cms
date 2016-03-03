@@ -829,7 +829,7 @@ define([
                 
                 // Add a space to represent the empty element because CodeMirror needs
                 // a character to display for the user to display the mark.
-                editor.replaceRange(' ', {line:range.from.line, ch:range.from.ch}, '+brightspotInlineSetStyle');
+                editor.replaceRange(' ', {line:range.from.line, ch:range.from.ch}, null, '+brightspotInlineSetStyle');
                 
                 range.to.line = range.from.line;
                 range.to.ch = range.from.ch + 1;
