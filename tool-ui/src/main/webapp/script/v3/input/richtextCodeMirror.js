@@ -92,6 +92,28 @@ define([
          * A function that handles clicks on the mark. It can read additional information
          * saved on the mark, and modify that information.
          * Note at this time an onClick can be used only for inline styles.
+         *
+         * String [enhancementType]
+         * If this is an "inline enhancement" you can specify the enhancement type here.
+         * Normally this is set only by the Brightspot back-end, and this value is used
+         * to display a popup form that is used to modify the attributes on the element.
+         * For example: "00000152-eb09-d919-abd2-ffcd34530004"
+         * 
+         * Boolean [popup=true]
+         * This value is used only for a style that has an enhancementType.
+         * Set this to false if the style should not popup a form to edit the element.
+         * Defaults to true.
+         *
+         * Boolean [toggle=false]
+         * This value is used only for a style that has an enhancementType.
+         * Set this to true if the style should act as a toggle (the user can click
+         * a toolbar button to toggle the style on the selected characters), for example
+         * a simple style like bold or italic that the user can turn on or off.
+         * By default this is false for enhancementType styles, which means each
+         * time the user clicks the toolbar button for the style, a new mark is inserted.
+         * Note if this is set to true, then you cannot nest an enhancmentType style
+         * inside the same enhancementType style.
+         * Note that styles that do not have enhancementType always allow user to toggle.
          */
         styles: {
 
@@ -1053,7 +1075,7 @@ define([
                         //        xxx        <-- text to delete (if deleteText is true)
 
                         // Do not allow inline enhancement styles to be split in the middle
-                        if (styleObj.enhancementType) {
+                        if (styleObj.enhancementType && !styleObj.toggle) {
                             return;
                         }
                         

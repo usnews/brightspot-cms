@@ -1220,7 +1220,17 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 event.stopPropagation();
                 event.preventDefault();
 
-                self.inlineEnhancementCreate(event, item.style);
+                if (styleObj.toggle) {
+
+                    // Check to see if we need to toggle off
+                    mark = rte.toggleStyle(item.style);
+                    if (mark) {
+                        self.inlineEnhancementHandleClick(event, mark);
+                    }
+                    
+                } else {
+                    self.inlineEnhancementCreate(event, item.style);
+                }
 
             } else if (item.style) {
 
@@ -2686,12 +2696,23 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self = this;
 
             // Add onclick function to each style that is marked for inline enhancements
+            // except for those with popup:false
             $.each(self.rte.styles, function(styleKey, styleObj) {
-                if (styleObj.enhancementType && !styleObj.onClick) {
-                    styleObj.onClick = function(event, mark){
-                        self.inlineEnhancementHandleClick(event, mark);
-                    };
-                }
+
+                // Only modify the inline enhancement styles
+                if (!styleObj.enhancementType) { return; }
+
+                // If the style already has an onclick do not change it
+                if (styleObj.onClick) { return; }
+                
+                // If this style does not have a popup (no need for the "Edit" button)
+                // and it is a toggle (no need for the "Clear" button)
+                // then do not add an onclick handler (so the dropdown will not appear)
+                if (styleObj.popup === false && styleObj.toggle) { return; }
+
+                styleObj.onClick = function(event, mark){
+                    self.inlineEnhancementHandleClick(event, mark);
+                };
             });
         },
 
@@ -3502,12 +3523,18 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 enhancementName: rtElement.displayName,
                 element: tag,
                 elementAttrAny: true,
-                singleLine: true,
+
+                // If the enhancement has a popup form, do not let it span more than one line
+                // or it will be split into multiple elements and the popup will not apply to
+                // all of them
+                singleLine: Boolean(rtElement.popup !== false),
+                
                 line: Boolean(rtElement.line),
                 "void": Boolean(rtElement.void),
                 popup: rtElement.popup === false ? false : true,
                 context: rtElement.context,
-                clear: rtElement.clear
+                clear: rtElement.clear,
+                toggle: rtElement.toggle
             };
 
             toolbarButton = {

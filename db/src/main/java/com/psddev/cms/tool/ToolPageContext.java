@@ -2056,10 +2056,14 @@ public class ToolPageContext extends WebPageContext {
                 richTextElement.put("tag", tag.value());
                 richTextElement.put("line", tag.block());
                 richTextElement.put("void", tag.empty());
-                richTextElement.put("popup", type.getFields().stream()
+
+                boolean hasFields = type.getFields().stream()
                         .filter(f -> !f.as(ToolUi.class).isHidden())
                         .findFirst()
-                        .isPresent());
+                        .isPresent();
+
+                richTextElement.put("popup", hasFields);
+                richTextElement.put("toggle", !hasFields);
 
                 Set<String> context = contextMap.get(tagName);
                 if (context == null) {
