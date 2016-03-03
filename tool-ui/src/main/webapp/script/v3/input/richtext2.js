@@ -199,11 +199,13 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          * {String} a style name that defines how element should be styled (refer to the "styles" parameter)
          */
         clipboardSanitizeRules: {
-
+            
+            // Note: Google docs encloses the entire document in a 'b' element so we must exclude that one
+            'b[id^=docs-internal-guid]': '',
+            
             // Any <b> or '<strong>' element should be treated as bold even if it has extra attributes
             // Example MSWord:  <b style="mso-bidi-font-weight:normal">
-            // Note: Google docs encloses the entire document in a 'b' element so we must exclude that one
-            'b:not([id^=docs-internal-guid])': 'bold',
+            'b': 'bold',
             'strong': 'bold',
 
             // Any '<i>' or '<em>' element should be treated as italic even if it has extra attributes
@@ -219,8 +221,12 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             'span[style*="text-decoration:underline"]': 'underline',
             'span[style*="vertical-align:super"]': 'superscript',
             'span[style*="vertical-align:sub"]': 'subscript',
-            'li[style*="list-style-type:disc"] > p': 'ul',
-            'li[style*="list-style-type:decimal"] > p': 'ol',
+
+            // Google docs puts paragraph within list items, so eliminate it
+            'li > p': '',
+            
+            'li[style*="list-style-type:disc"]': 'ul',
+            'li[style*="list-style-type:decimal"]': 'ol',
 
             'p[style*="text-align: right"]': 'alignRight',
             'p[style*="text-align: center"]': 'alignCenter',
@@ -351,7 +357,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             { separator:true },
             { style: 'comment', text: 'Add Comment', className: 'rte2-toolbar-comment', tooltip: 'Add Comment' },
             { action: 'cleartext', text: 'Remove Comment', className: 'rte2-toolbar-comment-remove', tooltip: 'Remove Comment', cleartextStyle: 'comment' },
-            { action: 'collapse', text: 'Collapse All Comments', className: 'rte2-toolbar-comment-collapse', collapseStyle: 'comment', tooltip: 'Collapse All Comments' },
+            { action: 'collapse', text: 'Toggle comment collapse', className: 'rte2-toolbar-comment-collapse', collapseStyle: 'comment', tooltip: 'Toggle comment collapse' },
 
             { separator:true },
 
@@ -749,8 +755,19 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
         
         modeSetRich: function() {
             var self = this;
+            var rte = self.rte;
+            var trackIsOn = rte.trackIsOn();
+            
             self.$el.hide();
-            self.rte.fromHTML(self.$el.val());
+
+            // Turn off track changes when converting from plain to rich text
+            // to avoid everything being marked as a change
+            rte.trackSet(false);
+
+            rte.fromHTML(self.$el.val());
+            
+            // Turn track changes back on (if it was on)
+            rte.trackSet(trackIsOn);
         },
 
         
@@ -901,9 +918,11 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             toolbarProcess(self.toolbarConfig, $toolbar);
 
             // Whenever the cursor moves, update the toolbar to show which styles are selected
-            self.$container.on("rteCursorActivity", function() {
-                self.toolbarUpdate();
-            });
+            self.$container.on("rteCursorActivity",
+                               $.debounce(200, function() {
+                                   self.toolbarUpdate();
+                               })
+                              );
 
             self.toolbarUpdate();
         },
@@ -1121,7 +1140,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
                 case 'collapse':
                     if (item.collapseStyle) {
-                        rte.inlineToggleCollapse(item.collapseStyle, rte.getRangeAll());
+                        rte.inlineToggleCollapse(item.collapseStyle);
                     }
                     break;
 
@@ -2792,7 +2811,14 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // but first wait for the current click to finish so it doesn't interfere
             // with any popups
             setTimeout(function(){
+                
                 $divLink.click();
+
+                // When the popup is closed put focus back on the editor
+                $(document).one('closed', '[name=rte2-frame-enhancement-inline]', function(){
+                        self.focus();
+                });
+
             }, 100);
 
         },
@@ -3398,28 +3424,28 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self = this;
 
             self.$container.on('rteChange', $.debounce(2000, function(){
-                if ($('.contentPreview').is(':visible')) {
-                    self.previewUpdate();
-                }
+                self.previewUpdate();
             }));
         },
 
         
         /**
          * Update the textarea with the latest content from the rich text editor,
-         * plus trigger an "input" event so the preview will be updated.
+         * plus trigger an "input" event so the preview will be updated, and
+         * a "change" event so the change indicator can be updated.
          */
         previewUpdate: function() {
             
-            var html, self;
+            var html, self, val;
             
             self = this;
 
             html = self.toHTML();
+
+            val = self.$el.val();
             
-            if (html !== self.previewUpdateSaved) {
-                self.previewUpdateSaved = html;
-                self.$el.val(html).trigger('input');
+            if (html !== val) {
+                self.$el.val(html).trigger('input').trigger('change');
             }
         },
 
@@ -3514,7 +3540,8 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             toolbarButton = {
                 className: 'rte2-toolbar-noicon rte2-toolbar-' + styleName,
                 style: styleName,
-                text: rtElement.displayName
+                text: rtElement.displayName,
+                tooltip: rtElement.tooltipText
             };
             
             if (rtElement.submenu) {

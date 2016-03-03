@@ -34,6 +34,9 @@ public class ToolUi extends Modification<Object> {
 
     private Boolean bulkUpload;
     private String codeType;
+    private Boolean collectionItemProgress;
+    private Boolean collectionItemToggle;
+    private Boolean collectionItemWeight;
     private Boolean colorPicker;
     private String cssClass;
     private Boolean defaultSearchResult;
@@ -96,6 +99,30 @@ public class ToolUi extends Modification<Object> {
 
     public void setCodeType(String codeType) {
         this.codeType = codeType;
+    }
+
+    public boolean isCollectionItemProgress() {
+        return Boolean.TRUE.equals(collectionItemProgress);
+    }
+
+    public void setCollectionItemProgress(boolean collectionItemProgress) {
+        this.collectionItemProgress = collectionItemProgress ? Boolean.TRUE : null;
+    }
+
+    public boolean isCollectionItemToggle() {
+        return Boolean.TRUE.equals(collectionItemToggle);
+    }
+
+    public void setCollectionItemToggle(boolean collectionItemToggle) {
+        this.collectionItemToggle = collectionItemToggle ? Boolean.TRUE : null;
+    }
+
+    public boolean isCollectionItemWeight() {
+        return Boolean.TRUE.equals(collectionItemWeight);
+    }
+
+    public void setCollectionItemWeight(boolean collectionItemWeight) {
+        this.collectionItemWeight = collectionItemWeight ? Boolean.TRUE : null;
     }
 
     public boolean isColorPicker() {
@@ -732,6 +759,65 @@ public class ToolUi extends Modification<Object> {
         @Override
         public void process(ObjectType type, ObjectField field, CodeType annotation) {
             field.as(ToolUi.class).setCodeType(annotation.value());
+        }
+    }
+
+    /**
+     * Specifies whether target field should be displayed using the progress bar and label.
+     * Expected field values are between 0.0 and 1.0.
+     */
+    @Documented
+    @ObjectField.AnnotationProcessorClass(CollectionItemProgressProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface CollectionItemProgress {
+        boolean value() default true;
+    }
+
+    private static class CollectionItemProgressProcessor implements ObjectField.AnnotationProcessor<CollectionItemProgress> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, CollectionItemProgress annotation) {
+            field.as(ToolUi.class).setCollectionItemProgress(annotation.value());
+        }
+    }
+
+    /**
+     * Specifies whether the target field should be displayed using a toggle on the collection item.
+     */
+    @Documented
+    @ObjectField.AnnotationProcessorClass(CollectionItemToggleProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface CollectionItemToggle {
+        boolean value() default true;
+    }
+
+    private static class CollectionItemToggleProcessor implements ObjectField.AnnotationProcessor<CollectionItemToggle> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, CollectionItemToggle annotation) {
+            field.as(ToolUi.class).setCollectionItemToggle(annotation.value());
+        }
+    }
+
+    /**
+     * Specifies whether the target field should be displayed using the weighted collection UI.
+     * Expected field values are between 0.0 and 1.0.
+     */
+    @Documented
+    @ObjectField.AnnotationProcessorClass(CollectionItemWeightProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface CollectionItemWeight {
+        boolean value() default true;
+    }
+
+    private static class CollectionItemWeightProcessor implements ObjectField.AnnotationProcessor<CollectionItemWeight> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, CollectionItemWeight annotation) {
+            field.as(ToolUi.class).setCollectionItemWeight(annotation.value());
         }
     }
 

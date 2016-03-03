@@ -554,18 +554,35 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
 
 if (!isValueExternal) {
     Set<ObjectType> bulkUploadTypes = new HashSet<ObjectType>();
+    Map<ObjectType, String> weightedTypesandFieldsMap = new CompactMap<ObjectType, String>();
+    Map<ObjectType, String> toggleTypesAndFieldsMap = new CompactMap<ObjectType, String>();
+    Map<ObjectType, String> progressTypesAndFieldsMap = new CompactMap<ObjectType, String>();
 
     for (ObjectType t : validTypes) {
         for (ObjectField f : t.getFields()) {
-            if (f.as(ToolUi.class).isBulkUpload()) {
+            ToolUi ui = f.as(ToolUi.class);
+            if (ui.isBulkUpload()) {
                 for (ObjectType ft : f.getTypes()) {
                     bulkUploadTypes.add(ft);
                 }
+            }
+            if (ui.isCollectionItemWeight()) {
+                weightedTypesandFieldsMap.put(t, f.getInternalName());
+            }
+            if (ui.isCollectionItemToggle()) {
+                toggleTypesAndFieldsMap.put(t, f.getInternalName());
+            }
+            if (ui.isCollectionItemProgress()) {
+                progressTypesAndFieldsMap.put(t, f.getInternalName());
             }
         }
     }
 
     boolean displayGrid = field.as(ToolUi.class).isDisplayGrid();
+
+    // Only display weights if all valid types have a @ToolUi.CollectionItemWeight annotated field
+    boolean displayWeights = weightedTypesandFieldsMap.size() == validTypes.size();
+    boolean displayAlternateListUi = displayWeights || toggleTypesAndFieldsMap.size() > 0 || progressTypesAndFieldsMap.size() > 0;
 
     StringBuilder genericArgumentsString = new StringBuilder();
     List<ObjectType> genericArguments = field.getGenericArguments();
@@ -580,9 +597,19 @@ if (!isValueExternal) {
     }
 
     wp.writeStart("div",
-            "class", "inputLarge repeatableForm" + (displayGrid ? " repeatableForm-previewable" : ""),
+            "class", "inputLarge repeatableForm"
+                    + (displayGrid ? " repeatableForm-previewable" : "")
+                    + (displayWeights ? " repeatableForm-weighted" : "")
+                    + (displayAlternateListUi ? " repeatableForm-alt" : ""),
             "foo", "bar",
             "data-generic-arguments", genericArgumentsString);
+
+        if (displayWeights) {
+            wp.writeStart("div",
+                    "class", "repeatableForm-itemWeights");
+
+            wp.writeEnd();
+        }
 
         wp.writeStart("ol",
                 "data-sortable-input-name", inputName,
@@ -595,18 +622,26 @@ if (!isValueExternal) {
                 State itemState = State.getInstance(item);
                 ObjectType itemType = itemState.getType();
                 Date itemPublishDate = itemState.as(Content.ObjectModification.class).getPublishDate();
-                boolean expanded = itemType.getFields().stream().anyMatch(f -> f.as(ToolUi.class).isExpanded());
+                boolean expanded = field.as(ToolUi.class).isExpanded() || itemType.getFields().stream().anyMatch(f -> f.as(ToolUi.class).isExpanded());
+                String progressFieldName = progressTypesAndFieldsMap.get(itemType);
+                String toggleFieldName = toggleTypesAndFieldsMap.get(itemType);
+                String weightFieldName = weightedTypesandFieldsMap.get(itemType);
 
                 wp.writeStart("li",
                         "class", expanded ? "expanded" : null,
                         "data-sortable-item-type", itemType.getId(),
                         "data-type", wp.getObjectLabel(itemType),
                         "data-label", wp.getObjectLabel(item),
-                        
+
                         // Add the image url for the preview thumbnail, plus the field name that provided the thumbnail
                         // so if that field is changed the front-end knows that the thumbnail should also be updated
                         "data-preview", wp.getPreviewThumbnailUrl(item),
-                        "data-preview-field", itemType.getPreviewField()
+                        "data-preview-field", itemType.getPreviewField(),
+                        "data-toggle-field", !StringUtils.isBlank(toggleFieldName) ? toggleFieldName : null,
+                        "data-weight-field", !StringUtils.isBlank(weightFieldName) ? weightFieldName : null,
+                        "data-progress-field-value", !StringUtils.isBlank(progressFieldName) ? ObjectUtils.to(int.class, ObjectUtils.to(double.class, itemState.get(progressFieldName)) * 100) : null,
+                        "data-toggle-field-value", !StringUtils.isBlank(toggleFieldName) ? ObjectUtils.to(boolean.class, itemState.get(toggleFieldName)) : null,
+                        "data-weight-field-value", !StringUtils.isBlank(weightFieldName) ? ObjectUtils.to(double.class, itemState.get(weightFieldName)) : null
 
                         );
                     wp.writeElement("input",
@@ -624,7 +659,9 @@ if (!isValueExternal) {
                             "name", publishDateName,
                             "value", itemPublishDate != null ? itemPublishDate.getTime() : null);
 
-                    if (!expanded && !itemState.hasAnyErrors()) {
+                    if (!expanded && !itemState.hasAnyErrors()
+                            && StringUtils.isBlank(toggleFieldName)
+                            && StringUtils.isBlank(weightFieldName)) {
                         wp.writeElement("input",
                                 "type", "hidden",
                                 "name", dataName,
@@ -646,6 +683,11 @@ if (!isValueExternal) {
             }
 
             for (ObjectType type : validTypes) {
+
+                String progressFieldName = progressTypesAndFieldsMap.get(type);
+                String toggleFieldName = toggleTypesAndFieldsMap.get(type);
+                String weightFieldName = weightedTypesandFieldsMap.get(type);
+
                 wp.writeStart("script", "type", "text/template");
                     wp.writeStart("li",
                             "class", displayGrid ? "collapsed" : null,
@@ -653,7 +695,13 @@ if (!isValueExternal) {
                             "data-type", wp.getObjectLabel(type),
                             // Add the name of the preview field so the front end knows
                             // if that field is updated it should update the thumbnail
-                            "data-preview-field", type.getPreviewField());
+                            "data-preview-field", type.getPreviewField(),
+                            "data-toggle-field", !StringUtils.isBlank(toggleFieldName) ? toggleFieldName : null,
+                            "data-weight-field", !StringUtils.isBlank(weightFieldName) ? weightFieldName : null,
+                            "data-progress-field-value", !StringUtils.isBlank(progressFieldName) ? 0.0 : null,
+                            "data-toggle-field-value", !StringUtils.isBlank(toggleFieldName) ? true : null,
+                            "data-weight-field-value", !StringUtils.isBlank(weightFieldName) ? "auto" : null
+                    );
                         wp.writeStart("a",
                                 "href", wp.cmsUrl("/content/repeatableObject.jsp",
                                         "inputName", inputName,

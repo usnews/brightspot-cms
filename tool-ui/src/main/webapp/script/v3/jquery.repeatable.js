@@ -67,7 +67,7 @@ The HTML within the repeatable element must conform to these standards:
         }
     };
     
-    require(['v3/input/carousel'], function(carouselUtility) {
+    require(['v3/input/carousel', 'v3/color-utils'], function(carouselUtility, colors) {
 
         // Create the jquery plugin .repeatable() (using plugin2)
         $.plugin2('repeatable', {
@@ -420,6 +420,7 @@ The HTML within the repeatable element must conform to these standards:
                 // Do not collapse "preview" or "object" mode
                 if ($item.find('.message-error').length === 0
                     && $item.find('> .layouts').length === 0
+                    && !$item.hasClass('expanded')
                     && !self.modeIsPreview()
                     && !self.modeIsObject()) {
                     self.itemCollapse($item);
@@ -429,6 +430,15 @@ The HTML within the repeatable element must conform to these standards:
                 // to tell the backend that it should be saved, but the checkbox will not actually
                 // be shown to the user, so we hid it here
                 $item.find(':input[name$=".toggle"]').hide();
+                
+                // Add progress visual
+                self.initCollectionItemProgress($item);
+                
+                // Add toggle input for item
+                self.initCollectionItemToggle($item);
+
+                // Add weight data to the item
+                self.initCollectionItemWeight($item);
 
                 // Add the remove control to the item
                 self.initItemRemove($item);
@@ -518,6 +528,232 @@ The HTML within the repeatable element must conform to these standards:
                 }).on('click', function(){
                     self.removeItemToggle( $item );
                 }).appendTo($item);
+
+            },
+            
+            /**
+             * Conditionally initializes the progress information for an individual item.
+             *
+             * @param {Element|jquery object} item
+             * the item (LI element).
+             */
+            initCollectionItemProgress: function (item) {
+
+                var $item = $(item);
+                var progressFieldValue = $item.attr('data-progress-field-value');
+
+                if (progressFieldValue) {
+
+                    $('<div>', {
+                        'class' : 'repeatableLabel-progress'
+                    }).append($('<div>', {
+                            'class': 'repeatableLabel-progressBar'
+                        }).append($('<div>', {
+                            'class': 'repeatableLabel-progressFill',
+                            'style': 'width: ' + progressFieldValue + '%'
+                        })
+                    )).prepend($('<div>', {
+                        'class': 'repeatableLabel-progressLabel',
+                        'text': progressFieldValue + '% of Target'
+                    })).appendTo($item);
+
+                }
+
+            },
+            
+            /**
+             * Conditionally initializes the toggle button for an individual item.
+             *
+             * @param {Element|jquery object} item
+             * the item (LI element).
+             */
+            initCollectionItemToggle: function(item) {
+
+                var $item = $(item);
+                var toggleField = $item.data('toggle-field');
+                var toggleFieldValue = $item.data('toggle-field-value');
+
+                if (toggleField) {
+                    // Add the remove button to the item
+                    var id = $item.find('> input[type="hidden"][name$=".id"]').val();
+                    
+                    var input = $('<input/>', {
+                        'id': id + '-toggle',
+                        'class': 'repeatableLabel-toggle',
+                        'type': 'checkbox',
+                        'name':  id + '/' + toggleField,
+                        'value': true,
+                        'checked': toggleFieldValue
+                    });
+                    
+                    input.after($('<label>', {
+                       'for': id + '-toggle',
+                       'class': 'repeatableLabel-toggleLabel' 
+                    }));
+                    
+                    input.appendTo($item);
+                }
+
+            },
+
+           /**
+             * Conditionally initializes the weighting display for an individual item.
+             *
+             * @param {Element|jquery object} item
+             * the item (LI element).
+             */
+            initCollectionItemWeight: function(item) {
+
+                var $item = $(item);
+                var weightFieldName = $item.data("weight-field");
+                var $repeatableForm = $item.closest('.repeatableForm');
+
+                // Only display field weights if all valid types support collection weights
+                if (!$repeatableForm.hasClass('repeatableForm-weighted') || !weightFieldName) {
+                    return false;
+                }
+                
+                var hue = $repeatableForm.data('lastHue');
+                
+                if (!hue) {
+                    hue = colors.getHue('#38b5dc');
+                } else {
+                    hue = colors.changeHue(hue);
+                }
+                
+                $repeatableForm.data('lastHue', hue);
+                var color = colors.generateFromHue(hue);
+
+                var itemId = $item.find('> input[type="hidden"][name$=".id"]').val();
+                var inputName = itemId + '/' + weightFieldName;
+                var weightFieldValue = $item.data('weight-field-value');
+                var $itemWeightContainer = $repeatableForm.find('.repeatableForm-itemWeights');
+                var $itemWeights = $itemWeightContainer.find('.repeatableForm-itemWeight');
+                var itemWeightsCount = $itemWeights.size();
+
+                if (weightFieldValue === 'auto') {
+                    // Proportionally calculate new weights
+                    if (itemWeightsCount === 0) {
+                        weightFieldValue = 1;
+                    } else {
+
+                        weightFieldValue = Math.round((1 / (itemWeightsCount + 1)) * 100) / 100;
+                        
+                        var carryover = 0;
+                        
+                        $itemWeights.each(function(i) {
+                            var $itemWeight = $(this);
+                            var newWeightPercentUnrounded = ((1 - weightFieldValue) * $itemWeight.data('weight')) * 100 + carryover;
+                            var newWeightPercent = Math.round(newWeightPercentUnrounded); 
+                            var newWeightDouble = newWeightPercent / 100;
+                            $itemWeight.css({ 'flex' :  newWeightDouble + '1 0%'});
+                            $itemWeight.data('weight', newWeightDouble);
+                            
+                            var $repeatableWeightDisplay = $($itemWeightContainer.next('ol').find('li').get(i)).find('.repeatableLabel-weightLabel');
+                            $repeatableWeightDisplay.attr('data-weight-label', newWeightPercent + '%');
+                            $repeatableWeightDisplay.find('input').val(newWeightDouble);
+                            
+                            carryover += newWeightPercentUnrounded - newWeightPercent;
+                        });
+                    }
+                    
+                    $item.data('weight-field-value', weightFieldValue);
+                }
+
+                var $itemWeightHandle = $(
+                    '<div>', {
+                        'class': 'repeatableForm-itemWeightHandle',
+                        'mousedown': function(event) {
+                            $.drag(this, event, function(event, data) {
+                                data.originX = event.clientX;
+                                data.rightElement = $(this).parent();
+                                data.leftElement = data.rightElement.prev();
+                                
+                                data.originalRightWeight = data.rightElement.data('weight');
+                                data.originalLeftWeight = data.leftElement.data('weight');
+                                
+                                data.rightIndex = data.rightElement.index();
+                                data.leftIndex = data.leftElement.index();
+                                
+                                var $listElements = data.rightElement.closest('.repeatableForm').find('ol').children();
+                                
+                                data.rightListItem = $($listElements.get(data.rightIndex));
+                                data.leftListItem = $($listElements.get(data.leftIndex));
+                                
+                                data.rightLabel = data.rightListItem.find('.repeatableLabel-weightLabel');
+                                data.leftLabel = data.leftListItem.find('.repeatableLabel-weightLabel');
+                                
+                                data.rightInput = data.rightLabel.find('input');
+                                data.leftInput = data.leftLabel.find('input');
+                                
+                                data.totalWidth = data.rightElement.outerWidth() + data.leftElement.outerWidth();
+                                data.totalWeightDouble = data.originalRightWeight + data.originalLeftWeight; 
+
+                            }, function(event, data) {
+                                
+                                var delta = data.originX - event.clientX;
+                                var deltaPercent = Math.round((delta / data.totalWidth) * 100);
+                                var deltaDouble =  deltaPercent / 100;
+                                
+                                // Only increment/decrement by full percentage point
+                                if (deltaPercent % 2 > 0) {
+                                    return;
+                                }
+                                
+                                var newLeftWeightDouble = Math.max(data.originalLeftWeight - (deltaDouble / 2), 0);
+                                var newRightWeightDouble = data.totalWeightDouble - newLeftWeightDouble;
+                                var newLeftWeightPct = Math.round(newLeftWeightDouble * 100);
+                                var newRightWeightPct = Math.round(newRightWeightDouble * 100);
+                                
+                                data.leftElement.css({
+                                    'flex': newLeftWeightDouble + ' 1 0%'
+                                }).data('weight', newLeftWeightDouble);
+                                
+                                data.rightElement.css({
+                                    'flex': newRightWeightDouble + ' 1 0% '
+                                }).data('weight', newRightWeightDouble);
+                                
+                                // Update input and numerical display
+                                data.rightLabel.attr('data-weight-label', newRightWeightPct + '%');
+                                data.leftLabel.attr('data-weight-label', newLeftWeightPct + '%');
+                                
+                                data.rightInput.val(newRightWeightDouble);
+                                data.leftInput.val(newLeftWeightDouble);
+                                
+                            }, function(event) {
+                                // do nothing.
+                            });
+                        }
+                    }
+                );
+                
+                var percentageWeight = Math.round(weightFieldValue * 100);
+
+                // Add the remove button to the item
+                $('<div>', {
+                    'class': 'repeatableLabel-weightLabel',
+                    'data-weight-label': percentageWeight + '%'
+                }).append($('<span>', {
+                    'class': 'repeatableLabel-color',
+                    'style': 'background-color: ' + color
+                })).append(
+                    $('<input>', {
+                        'type': 'hidden',
+                        'name': inputName,
+                        'value': weightFieldValue
+                    })
+                ).prependTo($item);
+
+                $itemWeightContainer.append(
+                    $('<div>', {
+                        'class': 'repeatableForm-itemWeight',
+                        'style':
+                            'background-color: ' + color + ';' +
+                            'flex:' + weightFieldValue + '1 0%',
+                        'data-target': inputName,
+                        'data-weight': percentageWeight / 100
+                    }).prepend(itemWeightsCount > 0 ? $itemWeightHandle : '')
+                );
 
             },
 
@@ -718,6 +954,10 @@ The HTML within the repeatable element must conform to these standards:
 
                 // Collapse or uncollapse the item
                 $item.toggleClass('collapsed', collapseFlag);
+
+                if (collapseFlag && $item.hasClass('expanded')) {
+                    $item.removeClass('expanded');
+                }
                 
                 // Don't do anything if mode=preview
                 if (self.modeIsPreview()) {
@@ -1683,3 +1923,6 @@ The HTML within the repeatable element must conform to these standards:
     }); // END require
 
 }(jQuery, window));
+
+// Set filename for debugging tools to allow breakpoints even when using a cachebuster
+//# sourceURL=jquery.repeatable.js

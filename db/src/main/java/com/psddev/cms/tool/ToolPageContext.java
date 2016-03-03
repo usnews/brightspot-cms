@@ -1749,7 +1749,7 @@ public class ToolPageContext extends WebPageContext {
                                             writeStart("a",
                                                     "href", cmsUrl("/profilePanel"),
                                                     "target", "profilePanel");
-                                                writeHtml("Profile");
+                                                writeHtml(localize(ToolUser.class, "action.profile"));
                                             writeEnd();
                                         writeEnd();
 
@@ -1822,7 +1822,8 @@ public class ToolPageContext extends WebPageContext {
                                             "class", "icon icon-object-toolUser",
                                             "href", cmsUrl("/misc/settings.jsp"),
                                             "target", "misc");
-                                        writeHtml("Profile");
+                                        writeHtml(localize(ToolUser.class, "action.profile"));
+
                                     writeEnd();
                                 writeEnd();
 
@@ -2121,6 +2122,7 @@ public class ToolPageContext extends WebPageContext {
                 richTextElement.put("styleName", styleName);
                 richTextElement.put("typeId", type.getId().toString());
                 richTextElement.put("displayName", type.getDisplayName());
+                richTextElement.put("tooltipText", tag.tooltip());
                 richTextElements.add(richTextElement);
             }
         }
@@ -2983,6 +2985,11 @@ public class ToolPageContext extends WebPageContext {
 
                     // prevents empty tab from displaying on Singletons
                     fields.removeIf(f -> f.getInternalName().equals("dari.singleton.key"));
+
+                    // Do not display fields with @ToolUi.CollectionItemWeight, @ToolUi.CollectionItemToggle, or @ToolUiCollectionItemProgress
+                    fields.removeIf(f -> f.as(ToolUi.class).isCollectionItemToggle()
+                            || f.as(ToolUi.class).isCollectionItemWeight()
+                            || f.as(ToolUi.class).isCollectionItemProgress());
 
                     DependencyResolver<ObjectField> resolver = new DependencyResolver<>();
                     Map<String, ObjectField> fieldByName = fields.stream()

@@ -829,7 +829,7 @@ define([
                 
                 // Add a space to represent the empty element because CodeMirror needs
                 // a character to display for the user to display the mark.
-                editor.replaceRange(' ', {line:range.from.line, ch:range.from.ch});
+                editor.replaceRange(' ', {line:range.from.line, ch:range.from.ch}, '+brightspotInlineSetStyle');
                 
                 range.to.line = range.from.line;
                 range.to.ch = range.from.ch + 1;
@@ -974,7 +974,10 @@ define([
                     }
 
                     // Determine if this mark is outside the selected range
-                    outsideOfSelection = fromCh > to || toCh < from;
+                    outsideOfSelection = fromCh >= to || toCh <= from;
+                    if (fromCh === toCh) {
+                        outsideOfSelection = fromCh > to || toCh < from;
+                    }
                     if (outsideOfSelection) {
                         return;
                     }
@@ -1116,10 +1119,13 @@ define([
                 var position;
 
                 if (deleteText && mark.shouldDeleteText) {
+                    
                     position = mark.find();
-                    if (position) {
-                        editor.replaceRange('', position.from, position.to, '+brightspotFormatRemoveClass');
+                    
+                    if (position && !(position.from.line === position.to.line && position.from.ch === position.to.ch)) {
 
+                        editor.replaceRange('', position.from, position.to, '+brightspotFormatRemoveClass');
+                        
                         // Trigger a change event for the editor
                         if (options.triggerChange !== false) {
                             self.triggerChange();
@@ -1331,7 +1337,7 @@ define([
                             // If the mark is defined to the right of the cursor, then we only include the classname if inclusiveLeft is set.
                             // If the mark is defined to the left of the cursor, then we only include the classname if inclusiveRight is set.
 
-                            isSingleChar = Boolean(charTo - charFrom < 2);
+                            isSingleChar = Boolean(charTo - charFrom < 1);
                             
                             if (isSingleChar && markPosition.from.line === lineNumber && markPosition.from.ch === charNumber && !mark.inclusiveLeft) {
 
@@ -2275,6 +2281,12 @@ define([
             // CodeMirror doesn't seem to have a way to get a list of enhancements,
             // so we'll have to remember them as we create them.
             self.enhancementCache = {};
+
+            // Check when user presses Return at beginning of a line that contains an enhancement
+            self.codeMirror.on('change', function(cm, changeObj) {
+                self.enhancementNewlineAdjust(changeObj);
+            });
+
         },
         
         
@@ -2393,9 +2405,6 @@ define([
 
             self = this;
             editor = self.codeMirror;
-
-            // Get the options we saved previously so we can create a mark with the same options
-            options = mark.options;
             
             lineMax = editor.lineCount() - 1;
             lineNumber = self.enhancementGetLineNumber(mark) + lineDelta;
@@ -2418,6 +2427,30 @@ define([
                 lineNumber += lineDelta;
             }
 
+            return self.enhancementMoveToLine(mark, lineNumber);
+        },
+
+
+        /**
+         * Move an enhancement block to a specific line.
+         *
+         * @param Object mark
+         * The mark that was returned by the enhancementAdd() function.
+         *
+         * @param Number lineNumber
+         *
+         * @return Object
+         * Returns a new mark that contains the enhancement content.
+         */
+        enhancementMoveToLine: function(mark, lineNumber) {
+            
+            var options, self;
+
+            self = this;
+
+            // Get the options we saved previously so we can create a mark with the same options
+            options = mark.options;
+
             // Depending on the type of mark that was created, the content is stored differently
             content = self.enhancementGetContent(mark);
             $content = $(content).detach();
@@ -2429,7 +2462,46 @@ define([
             return mark;
         },
 
-        
+
+        /**
+         * When a CodeMirror change event occurs, determine if a new line has been added
+         * and if any enhancements on the line need to be adjusted.
+         * Use case: Cursor is at the beginning of a line where an enhancement is attached
+         * (above the line). User presses Return and inserts a new line. The current line
+         * is moved below the new line and moves the enhancement with it. This is not
+         * intuitive since the user expects the new line to be placed below the enhancement.
+         * So in this case we move the enhancement above the new line that was entered.
+         *
+         * @param {Object} changeObj
+         * A change event from CodeMirror.
+         */
+        enhancementNewlineAdjust: function(changeObj) {
+            
+            var lineInfo, lineNumber, self;
+
+            self = this;
+            
+            if (changeObj.from &&
+                changeObj.from.ch === 0 && // change occurred at the first character of the line
+                changeObj.text &&
+                changeObj.text.length > 1 && // change is split into multiple lines
+                changeObj.text[0] === '') { // first character of the change is a new line
+
+                // The original line number
+                lineNumber = changeObj.from.line;
+
+                // The line info for the original line (that was pushed down) so we can get the enhancements
+                lineInfo = self.codeMirror.lineInfo(lineNumber + changeObj.text.length - 1);
+
+                if (lineInfo && lineInfo.widgets) {
+                    $.each(lineInfo.widgets, function(i,mark) {
+                        self.enhancementMoveToLine(mark, lineNumber);
+                    });
+                }
+            }
+        },
+
+
         /**
          * Removes an enhancement.
          *
@@ -2600,6 +2672,19 @@ define([
             editor.on('cursorActivity', $.debounce(250, function(instance, event) {
                 self.dropdownCheckCursor();
             }));
+
+            editor.on('focus', function() {
+                self.dropdownCheckCursor();
+            });
+            
+            editor.on('blur', function() {
+                // Hide after a timeout in case user clicked link in the dropdown
+                // which caused a blur event that hid the dropdown
+                setTimeout(function(){
+                    self.dropdownHide();
+                }, 200);
+            });
+
         },
 
 
@@ -2608,9 +2693,14 @@ define([
             var marks, self;
             self = this;
 
+            if (self.readOnlyGet() || !self.codeMirror.hasFocus()) {
+                self.dropdownHide();
+                return;
+            }
+            
             // Get all the marks from the selected range that have onclick handlers
             marks = self.dropdownGetMarks();
-            
+
             if (marks.length === 0) {
                 self.dropdownHide();
             } else {
@@ -2731,7 +2821,7 @@ define([
                     
                     mark.clear();
                     if (pos) {
-                        self.codeMirror.replaceRange('', {line:pos.from.line, ch:pos.from.ch}, {line:pos.to.line, ch:pos.to.ch});
+                        self.codeMirror.replaceRange('', {line:pos.from.line, ch:pos.from.ch}, {line:pos.to.line, ch:pos.to.ch}, 'brightspotDropdown');
                     }
                     self.focus();
                     self.dropdownCheckCursor();
@@ -2999,14 +3089,14 @@ define([
 
                         // Finally insert the text at the starting point (before the other text in the range that was marked deleted)
                         // Note we add at the front because we're not sure if the end is valid because we might have removed some text
-                        if (changeObj.origin === 'brightspotPaste') {
+                        if (changeObj.origin !== 'paste') {
                             
-                            editor.replaceRange(changeObj.text, changeObj.from, undefined, '+brightspotTrackInsert');
-
                             // TODO: what if the copied region has deleted text?
                             // Currently the entire content that is pasted will be marked as inserted text,
                             // but it could have deleted text within it.
                             // We need to remove that deleted text *after* the new content is pasted in.
+                            editor.replaceRange(changeObj.text, changeObj.from, undefined, '+brightspotTrackInsert');
+                            
                         }
                     }
                     
@@ -3085,6 +3175,11 @@ define([
             if (toNew.line == from.line) {
                 toNew.ch += from.ch;
             }
+
+            // If not actually adding new content, do nothing (to prevent infinite loop in some cases)
+            if (toNew.line === from.line && toNew.ch === from.ch) {
+                return;
+            }
             
             // Use a timeout so the change can be completed before we attempt to remove the deleted text
             setTimeout(function(){
@@ -3112,6 +3207,10 @@ define([
                 return;
             }
 
+            if (range.from.line === range.to.line && range.from.ch === range.to.ch) {
+                return;
+            }
+            
             // Determine if every character in the range is already marked as an insertion.
             // In this case we can just delete the content and don't need to mark it as deleted.
             if (self.inlineGetStyles(range).trackInsert !== true) {
@@ -3519,10 +3618,15 @@ define([
 
             // Apply the clipboard sanitize rules (if any)
             if (self.clipboardSanitizeRules) {
-                $el.find('p').after('<br/>');
                 $.each(self.clipboardSanitizeRules, function(selector, style) {
-                    $el.find(selector).wrapInner( $('<span>', {'data-rte2-sanitize': style}) );
+                    $el.find(selector).each(function(){
+                        var $match = $(this);
+                        var $replacement = $('<span>', {'data-rte2-sanitize': style});
+                        $replacement.append( $match.contents() );
+                        $match.replaceWith( $replacement );
+                    });
                 });
+                $el.find('[data-rte2-sanitize=linebreak]').after('<br/>');
             }
 
             // Run it through the clipboard sanitize function (if it exists)
@@ -3628,7 +3732,7 @@ define([
             text = self.toText() || '';
 
             // Split into words
-            wordsRegexp = self.spellcheckWordCharacters; // new RegExp('[' + self.spellcheckWordCharacters + ']+', 'g');
+            wordsRegexp = self.spellcheckWordCharacters;
             wordsArray = text.match( wordsRegexp );
         
             if (!wordsArray) {
@@ -3651,57 +3755,62 @@ define([
 
                 self.spellcheckClear();
 
-                $.each(wordsArrayUnique, function(i,word) {
+                // Prevent CodeMirror from updating the DOM until we finish
+                self.codeMirror.operation(function() {
                     
-                    var adjacent, range, result, index, indexStart, indexWord, range, split, wordLength;
-
-                    wordLength = word.length;
-                    
-                    // Check if we have replacements for this word
-                    result = results[word];
-                    if ($.isArray(result)) {
+                    $.each(wordsArrayUnique, function(i,word) {
                         
-                        // Find the location of all occurances
-                        indexStart = 0;
-                        while ((index = text.indexOf(word, indexStart)) > -1) {
+                        var adjacent, range, result, index, indexStart, indexWord, range, split, wordLength;
 
-                            // Move the starting point so we can find another occurrance of this word
-                            indexStart = index + wordLength;
+                        wordLength = word.length;
+                        
+                        // Check if we have replacements for this word
+                        result = results[word];
+                        if ($.isArray(result)) {
                             
-                            // Make sure we're at a word boundary on both sides of the word
-                            // so we don't mark a string in the middle of another word
-                            
-                            if (index > 0) {
-                                adjacent = text.substr(index - 1, 1);
-                                if (adjacent.match(wordsRegexp)) {
-                                    continue;
+                            // Find the location of all occurances
+                            indexStart = 0;
+                            while ((index = text.indexOf(word, indexStart)) > -1) {
+
+                                // Move the starting point so we can find another occurrance of this word
+                                indexStart = index + wordLength;
+                                
+                                // Make sure we're at a word boundary on both sides of the word
+                                // so we don't mark a string in the middle of another word
+
+                                if (index > 0) {
+                                    adjacent = text.substr(index - 1, 1);
+                                    if (adjacent.match(wordsRegexp)) {
+                                        continue;
+                                    }
                                 }
-                            }
 
-                            if (index + wordLength < text.length) {
-                                adjacent = text.substr(index + wordLength, 1);
-                                if (adjacent.match(wordsRegexp)) {
-                                    continue;
+                                if (index + wordLength < text.length) {
+                                    adjacent = text.substr(index + wordLength, 1);
+                                    if (adjacent.match(wordsRegexp)) {
+                                        continue;
+                                    }
                                 }
+
+                                // Figure out the line and character for this word
+                                split = text.substring(0, index).split("\n");
+                                line = split.length - 1;
+                                ch = split[line].length;
+
+                                range = {
+                                    from: {line:line, ch:ch},
+                                    to:{line:line, ch:ch + wordLength}
+                                };
+
+                                // Add a mark to indicate this is a misspelling
+                                self.spellcheckMarkText(range, result);
+
                             }
-                            
-                            // Figure out the line and character for this word
-                            split = text.substring(0, index).split("\n");
-                            line = split.length - 1;
-                            ch = split[line].length;
-
-                            range = {
-                                from: {line:line, ch:ch},
-                                to:{line:line, ch:ch + wordLength}
-                            };
-                            
-                            // Add a mark to indicate this is a misspelling
-                            self.spellcheckMarkText(range, result);
-
                         }
-                    }
+                        
+                    }); // $.each()
                     
-                });
+                }); // codeMirror.operation()
                 
             }).fail(function(status){
                 
@@ -3755,12 +3864,16 @@ define([
             self = this;
 
             editor = self.codeMirror;
-            
-            // Loop through all the marks and remove the ones that were marked
-            editor.getAllMarks().forEach(function(mark) {
-                if (mark.className === 'rte2-style-spelling') {
-                    mark.clear();
-                }
+
+            // Do not update the DOM until done with all operations
+            editor.operation(function(){
+                
+                // Loop through all the marks and remove the ones that were marked
+                editor.getAllMarks().forEach(function(mark) {
+                    if (mark.className === 'rte2-style-spelling') {
+                        mark.clear();
+                    }
+                });
             });
         },
 
@@ -4023,7 +4136,7 @@ define([
                 lineRange = {from:{line:line, ch:chStart}, to:{line:line, ch:chEnd}};
                 
                 // Get the HTML for the range
-                html = self.toHTML(lineRange);
+                html = self.toHTML(lineRange, {enhancements:false});
 
                 // Convert the text nodes to lower case
                 if (direction === 'toLowerCase') {
@@ -4122,6 +4235,9 @@ define([
             var self;
             self = this;
             self.codeMirror.focus();
+            setTimeout(function(){
+                self.dropdownCheckCursor();
+            }, 200);
         },
 
 
@@ -4403,9 +4519,9 @@ define([
 
             // Replacing the entire mark range will remove the mark so we need
             // to add text at the end of the mark, then remove the original text
-            self.codeMirror.replaceRange(text, pos.to, pos.to);
+            self.codeMirror.replaceRange(text, pos.to, pos.to, 'brightspotReplaceMarkText');
             if (!(pos.from.line === pos.to.line && pos.from.ch === pos.to.ch)) {
-                self.codeMirror.replaceRange('', pos.from, pos.to);
+                self.codeMirror.replaceRange('', pos.from, pos.to, 'brightspotReplaceMarkText');
             }
         },
         
@@ -4501,8 +4617,16 @@ define([
          * @param {Object} [range=entire document]
          * If this parameter is provided, it is a selection range within the documents.
          * Only the selected characters will be converted to HTML.
+         *
+         * @param {Object} [options]
+         * Set of key/value pairs to specify how the HTML is created.
+         *
+         * @param {Boolean} [options.enhancements=true]
+         * Include enhancements in the HTML. Set this to false if enhancements should be
+         * excluded.
+         *
          */
-        toHTML: function(range) {
+        toHTML: function(range, options) {
 
             /**
              * Create the opening HTML element for a given style object.
@@ -4546,6 +4670,8 @@ define([
 
             self = this;
 
+            options = options || {};
+            
             rangeWasSpecified = Boolean(range);
             range = range || self.getRangeAll();
             
@@ -4693,7 +4819,7 @@ define([
                 });
 
                 // Determine if there are any enhancements on this line
-                if (enhancementsByLine[lineNo]) {
+                if (enhancementsByLine[lineNo] && options.enhancements !== false) {
                     
                     $.each(enhancementsByLine[lineNo], function(i,mark) {
 
@@ -5191,7 +5317,7 @@ define([
                             matchStyleObj = false;
 
                             // If a data-rte2-sanitize attribute is found on the element, then we are getting this
-                            // html as pasted data from another source. Our sanitzie rules have marked this element
+                            // html as pasted data from another source. Our sanitize rules have marked this element
                             // as being a particular style, so we should force that style to be used.
                             matchStyleObj = self.styles[ $(next).attr('data-rte2-sanitize') ];
                             
@@ -5543,9 +5669,9 @@ define([
             });
 
             $.each(enhancements, function(i, enhancementObj) {
-                
+
                 // Pass off control to a user-defined function for adding enhancements
-                self.enhancementFromHTML(enhancementObj.$content, enhancementObj.line);
+                self.enhancementFromHTML(enhancementObj.$content, enhancementObj.line + range.from.line);
                 
             });
 

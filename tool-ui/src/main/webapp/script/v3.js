@@ -39,6 +39,7 @@ require([
   'v3/input/change',
   'input/code',
   'input/color',
+  'v3/color-utils',
   'v3/input/file',
   'input/focus',
   'input/grid',
@@ -108,7 +109,7 @@ function() {
     'restoreButtonText': ''
   });
 
-  bsp_autoExpand.live(document, ':text.expandable, textarea');
+  bsp_autoExpand.live(document, 'input[type="text"].expandable, input:not([type]).expandable, textarea');
   bsp_autoSubmit.live(document, '.autoSubmit');
 
   $doc.calendar('live', ':text.date');
@@ -121,6 +122,12 @@ function() {
     'frameClassName': 'frame',
     'loadingClassName': 'loading',
     'loadedClassName': 'loaded'
+  });
+
+  bsp_utils.onDomInsert(document, '.CodeMirror', {
+    'insert': function(cm) {
+      bsp_utils.addDomInsertBlacklist(cm);
+    }
   });
 
   bsp_utils.onDomInsert(document, '[data-bsp-autosubmit], .autoSubmit', {
