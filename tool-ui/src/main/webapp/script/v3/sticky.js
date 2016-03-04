@@ -42,9 +42,18 @@ define([ 'jquery', 'bsp-utils', 'sticky-kit' ], function($, bsp_utils) {
     insert: function (element) {
       $(element).stick_in_parent({
         offset_top: function () {
-          return $('.toolHeader').outerHeight();
+          var $toolHeader = $('.toolHeader');
+          return $toolHeader.is(':visible') ? $toolHeader.outerHeight() : 0;
         }
       });
+    }
+  });
+
+  bsp_utils.onDomInsert(document, '.rte2-wrapper.rte-fullscreen', {
+    insert: function (wrapper) {
+      $(wrapper).scroll(bsp_utils.throttle(500, function () {
+        $(document.body).trigger("sticky_kit:recalc");
+      }));
     }
   });
 
