@@ -142,6 +142,7 @@ public class ToolUser extends Record implements ToolEntity {
     private boolean disableNavigateAwayAlert;
 
     @ToolUi.Tab("Advanced")
+    @DisplayName("Disable Code Mirror Rich Text Editor?")
     private boolean disableCodeMirrorEditor;
 
     @ToolUi.Note("Force the user to change the password on next log in.")
