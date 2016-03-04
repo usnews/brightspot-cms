@@ -455,13 +455,15 @@ li.CodeMirror-hint-active {
     z-index: 49;
 
     > .rte2-toolbar {
-      background: white;
-      border-bottom: 1px solid @color-separator;
-      left: 0 !important;
-      padding-left: 5px;
-      padding-right: 5px;
-      right: 0 !important;
-      width: auto !important;
+      border-color: @color-separator;
+      border-style: solid;
+      border-width: 0 0 1px 0;
+      padding-top: 5px;
+      margin: 0 -40px;
+
+      &:after {
+        display: none;
+      }
     }
 
     .rte2-toolbar {
