@@ -3443,27 +3443,13 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          * has changed.
          */
         placeholderInit: function() {
-            
-            var interval, self;
+            var self = this;
 
-            self = this;
-
-            // Set the placeholder
             self.placeholderRefresh();
 
-            // Repeat checking the placeholder because it might change due to other plugins
-            // running on the page even after the page has completed loading
-            interval = setInterval(function(){
-
-                // Check if the editor is still on the page
-                if ($.contains(document, self.$el[0])) {
-                    self.placeholderRefresh();
-                } else {
-                    // If the editor has been removed from the DOM, stop running this!
-                    clearInterval(interval);
-                }
-                
-            }, 200);
+            self.$container.on('rteChange', $.throttle(500, function(){
+                self.placeholderRefresh();
+            }));
         },
 
 
@@ -3472,28 +3458,22 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          * if so display it over the rich text editor when the editor is empty.
          */
         placeholderRefresh: function() {
+            var self = this;
+            var placeholder = self.$el.attr('placeholder');
 
-            var attrName, count, placeholder, self;
-            self = this;
+            if (!placeholder) {
+                return;
+            }
 
-            // Get the placeholder attribute from the textarea element
-            placeholder = self.$el.attr('placeholder') || '';
+            var count = self.rte.getCount();
+            var $editor = self.$editor;
+            var ATTR_NAME = 'rte2-placeholder';
 
-            attrName = 'rte2-placeholder';
-            
-            // Is the editor empty?
-            count = self.rte.getCount();
-
-            if (count === 0 && placeholder) {
-
-                // Add a placeholder attribute to the container.
-                // CSS rules will overlay the text on top of the editor.
-                self.$editor.attr(attrName, placeholder);
+            if (count === 0) {
+                $editor.attr(ATTR_NAME, placeholder);
                 
-            } else {
-
-                // Remove the attribute so the text will not be overlayed
-                self.$editor.removeAttr(attrName);
+            } else if ($editor.attr(ATTR_NAME)) {
+                $editor.removeAttr(ATTR_NAME);
             }
         },
 
