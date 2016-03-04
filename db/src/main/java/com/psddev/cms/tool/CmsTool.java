@@ -115,6 +115,9 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Debug")
     private boolean disableAutomaticallySavingDrafts;
 
+    @ToolUi.Tab("Debug")
+    private boolean disableAjaxSaves;
+
     @ToolUi.Tab("UI")
     private boolean enableFrontEndUploader;
 
@@ -629,6 +632,14 @@ public class CmsTool extends Tool {
 
     public void setDisableAutomaticallySavingDrafts(boolean disableAutomaticallySavingDrafts) {
         this.disableAutomaticallySavingDrafts = disableAutomaticallySavingDrafts;
+    }
+
+    public boolean isDisableAjaxSaves() {
+        return disableAjaxSaves;
+    }
+
+    public void setDisableAjaxSaves(boolean disableAjaxSaves) {
+        this.disableAjaxSaves = disableAjaxSaves;
     }
 
     public boolean isEnableFrontEndUploader() {
