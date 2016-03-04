@@ -42,12 +42,8 @@ define([ 'jquery', 'bsp-utils', 'sticky-kit' ], function($, bsp_utils) {
     insert: function (element) {
       $(element).stick_in_parent({
         offset_top: function () {
-          var $h, offset;
-          $h = $('.toolHeader');
-          // The RTE in full text mode hides the toolheader,
-          // so don't use an offest if it is hidden
-          offset = $h.is(':visible') ? $h.outerHeight() : 0;
-          return offset;
+          var $toolHeader = $('.toolHeader');
+          return $toolHeader.is(':visible') ? $toolHeader.outerHeight() : 0;
         }
       });
     }
