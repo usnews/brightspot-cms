@@ -267,6 +267,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          * Placeholder where you want any custom CMS styles to appear in the toolbar.
          * Set this to true.
          *
+         * @property {Boolean} [richTextElements=false]
+         * Placeholder where you want any custom rich text elements to appear in the toolbar.
+         * Set this to true
+         *
          * @property {Boolean} [submenu]
          * Array of submenu items.
          *
@@ -1012,8 +1016,16 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
         },
 
 
+        /**
+         * Determine if any global RICH_TEXT_ELEMENTS have been defined and should
+         * be added to the toolbar.
+         *
+         * @param {jQuery} $toolbar
+         * The main toolbar for the RTE.
+         */
         toolbarInitRichTextElements: function ($toolbar) {
-            if (RICH_TEXT_ELEMENTS.length === 0) {
+            
+            if (!window.RICH_TEXT_ELEMENTS || RICH_TEXT_ELEMENTS.length === 0) {
                 return;
             }
 
@@ -1025,7 +1037,11 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             var submenus = { };
 
             $.each(RICH_TEXT_ELEMENTS, function (index, rtElement) {
+
+                // For this instance of the RTE, was there a custom list
+                // of elements that should be displayed in the toolbar?
                 if (tags && tags.indexOf(rtElement.tag) < 0) {
+                    // Skip this element if it is not listed in the allowed elements
                     return;
                 }
 
@@ -1056,11 +1072,12 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 }
             });
 
-            $.each(submenus, function (text, submenu) {
-                self.toolbarAddSubmenu({
-                    text: text,
-                    submenu: submenu
-                }, $toolbar);
+            $.each(submenus, function (text, submenuItems) {
+                var $submenu;
+                $submenu = self.toolbarAddSubmenu({text: text}, $toolbar);
+                $.each(submenuItems, function(i, item) {
+                    self.toolbarAddButton(item, $submenu);
+                });
             });
         },
 
@@ -3582,7 +3599,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
     };
 
-    if (RICH_TEXT_ELEMENTS.length > 0) {
+    if (window.RICH_TEXT_ELEMENTS && RICH_TEXT_ELEMENTS.length > 0) {
         $.each(RICH_TEXT_ELEMENTS, function (index, rtElement) {
             var styleName = rtElement.styleName;
             var tag = rtElement.tag;
