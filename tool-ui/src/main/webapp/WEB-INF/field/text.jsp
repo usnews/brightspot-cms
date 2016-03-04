@@ -102,7 +102,7 @@ if (validValues != null) {
             "value", fieldValue);
 
 } else {
-    String rteParentTag = ui.getRichTextElementParentTag();
+    Set<String> rteTags = ui.findRichTextElementTags();
 
     wp.writeStart("textarea",
             "class", ui.isRichText() ? "richtext" : null,
@@ -113,7 +113,7 @@ if (validValues != null) {
             "data-dynamic-field-name", field.getInternalName(),
             "data-code-type", ui.getCodeType(),
             "data-editable-placeholder", ui.isPlaceholderEditable() ? ui.getPlaceholder() : null,
-            "data-rte-context-root", rteParentTag,
+            "data-rte-tags", ObjectUtils.isBlank(rteTags) ? null : ObjectUtils.toJson(rteTags),
             "data-suggested-maximum", suggestedMaximum != null ? suggestedMaximum.intValue() : null,
             "data-suggested-minimum", suggestedMinimum != null ? suggestedMinimum.intValue() : null,
             "data-inline", true,

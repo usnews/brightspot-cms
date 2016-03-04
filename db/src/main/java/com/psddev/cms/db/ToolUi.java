@@ -16,7 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import com.psddev.dari.db.Database;
 import com.psddev.dari.db.DatabaseEnvironment;
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectField;
@@ -75,7 +77,8 @@ public class ToolUi extends Modification<Object> {
     private String referenceableViaClassName;
     private Boolean readOnly;
     private boolean richText;
-    private String richTextElementParentTag;
+    private String richTextElementTagName;
+    private Set<String> richTextElementClassNames;
     private boolean secret;
     private Boolean sortable;
     private Set<String> standardImageSizes;
@@ -532,12 +535,33 @@ public class ToolUi extends Modification<Object> {
         this.richText = richText;
     }
 
-    public String getRichTextElementParentTag() {
-        return richTextElementParentTag;
+    public String getRichTextElementTagName() {
+        return richTextElementTagName;
     }
 
-    public void setRichTextElementParentTag(String richTextElementParentTag) {
-        this.richTextElementParentTag = richTextElementParentTag;
+    public void setRichTextElementTagName(String richTextElementTagName) {
+        this.richTextElementTagName = richTextElementTagName;
+    }
+
+    public Set<String> getRichTextElementClassNames() {
+        if (richTextElementClassNames == null) {
+            richTextElementClassNames = new LinkedHashSet<>();
+        }
+        return richTextElementClassNames;
+    }
+
+    public void setRichTextElementClassNames(Set<String> richTextElementClassNames) {
+        this.richTextElementClassNames = richTextElementClassNames;
+    }
+
+    public Set<String> findRichTextElementTags() {
+        Set<String> classNames = getRichTextElementClassNames();
+
+        return Database.Static.getDefault().getEnvironment().getTypes().stream()
+                .filter(t -> !Collections.disjoint(t.getGroups(), classNames))
+                .map(t -> t.as(ToolUi.class).getRichTextElementTagName())
+                .filter(n -> !ObjectUtils.isBlank(n))
+                .collect(Collectors.toSet());
     }
 
     public boolean isReferenceable() {

@@ -9,7 +9,10 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public abstract class RichTextElement extends Record {
 
@@ -18,6 +21,7 @@ public abstract class RichTextElement extends Record {
     public abstract Map<String, String> toAttributes();
 
     @Documented
+    @ObjectType.AnnotationProcessorClass(TagProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
     public @interface Tag {
@@ -31,6 +35,14 @@ public abstract class RichTextElement extends Record {
         String tooltip() default "";
     }
 
+    private static class TagProcessor implements ObjectType.AnnotationProcessor<Tag> {
+
+        @Override
+        public void process(ObjectType type, Tag annotation) {
+            type.as(ToolUi.class).setRichTextElementTagName(annotation.value());
+        }
+    }
+
     @Documented
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
@@ -39,23 +51,22 @@ public abstract class RichTextElement extends Record {
     }
 
     @Documented
-    @ObjectField.AnnotationProcessorClass(ParentProcessor.class)
+    @ObjectField.AnnotationProcessorClass(TagsProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
-    public @interface Parent {
+    public @interface Tags {
 
-        Class<? extends RichTextElement> value();
+        Class<?>[] value();
     }
 
-    private static class ParentProcessor implements ObjectField.AnnotationProcessor<Parent> {
+    private static class TagsProcessor implements ObjectField.AnnotationProcessor<Tags> {
 
         @Override
-        public void process(ObjectType type, ObjectField field, Parent annotation) {
-            Tag tagAnnotation = annotation.value().getAnnotation(Tag.class);
-
-            if (tagAnnotation != null) {
-                field.as(ToolUi.class).setRichTextElementParentTag(tagAnnotation.value());
-            }
+        public void process(ObjectType type, ObjectField field, Tags annotation) {
+            field.as(ToolUi.class).setRichTextElementClassNames(
+                    Stream.of(annotation.value())
+                            .map(Class::getName)
+                            .collect(Collectors.toCollection(LinkedHashSet::new)));
         }
     }
 }
