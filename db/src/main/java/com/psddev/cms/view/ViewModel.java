@@ -188,7 +188,8 @@ public abstract class ViewModel<M> {
 
                 Class<?> declaredModelClass = typeDef.getInferredGenericTypeArgumentClass(ViewModel.class, 0);
 
-                if (declaredModelClass != null && declaredModelClass.isAssignableFrom(modelClass)) {
+                if (declaredModelClass != null && declaredModelClass.isAssignableFrom(modelClass)
+                        && (viewClass == null || viewClass.isAssignableFrom(viewModelClass))) {
 
                     List<Class<? extends ViewModel>> viewModelClasses = modelToViewModelClassMap.get(declaredModelClass);
                     if (viewModelClasses == null) {

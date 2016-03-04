@@ -1,3 +1,5 @@
+define(['string'], function (S) {
+    
 /** Better drop-down list than standard SELECT. */
 (function($, win, undef) {
 
@@ -7,8 +9,6 @@
       $openOriginal,
       $openList;
   
-  require(['string'], function (S) {    
-
   $.plugin2('dropDown', {
     '_defaultOptions': {
       'classPrefix': 'dropDown-'
@@ -451,6 +451,10 @@
     return true;
   });
   
-  });
-
 }(jQuery, window));
+
+    // Return an empty object just for the benefit of the AMD module.
+    // Not expected to be used since we just set up a jquery plugin.
+    return {};
+    
+}); // define()

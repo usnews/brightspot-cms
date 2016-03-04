@@ -43,17 +43,18 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
         var questionAt = action.indexOf('?');
         var end = +new Date() + 1000;
         var $dynamicTexts = $form.find(
-            '[data-dynamic-text][data-dynamic-text != ""],' +
-            '[data-dynamic-html][data-dynamic-html != ""],' +
-            '[data-dynamic-placeholder][data-dynamic-placeholder != ""],' +
-            '[data-dynamic-predicate][data-dynamic-predicate != ""]');
+            '[data-dynamic-text]:not([data-dynamic-text=""]),' +
+            '[data-dynamic-html]:not([data-dynamic-html=""]),' +
+            '[data-dynamic-placeholder]:not([data-dynamic-placeholder=""]),' +
+            '[data-dynamic-predicate]:not([data-dynamic-predicate=""])');
 
         $dynamicTexts = $dynamicTexts.filter(function() {
-          return $(this).closest('.collapsed').length === 0;
+          return $(this).closest('.collapsed').length === 0
+              && $(this).closest('.contentDiffCurrent').length === 0;
         });
 
         if (!idle) {
-          $form.find('[data-dynamic-predicate][data-dynamic-predicate != ""]').each(function () {
+          $form.find('[data-dynamic-predicate]:not([data-dynamic-predicate = ""])').each(function () {
             $(this).removeClass('state-loaded');
           });
         }
@@ -64,7 +65,9 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
           'cache': false,
           'dataType': 'json',
 
-          'data': $form.serialize() + $dynamicTexts.map(function() {
+          // If we are looking at a content update, then the current state (for viewing the diff) resides in the form
+          // as well. We need to remove that from the form post or it messes up the dynamic values that return.
+          'data': $form.find('[name]').not($form.find('.contentDiffCurrent [name]')).serialize() + $dynamicTexts.map(function() {
             var $element = $(this);
 
             return '&_dti=' + ($element.closest('[data-object-id]').attr('data-object-id') || '') +

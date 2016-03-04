@@ -39,6 +39,7 @@ require([
   'v3/input/change',
   'input/code',
   'input/color',
+  'v3/color-utils',
   'v3/input/file',
   'input/focus',
   'input/grid',
@@ -73,7 +74,7 @@ require([
   'nv.d3',
 
   'v3/dashboard',
-  'v3/constrainedscroll',
+  'v3/sticky',
   'v3/content/diff',
   'v3/content/edit',
   'content/lock',
@@ -108,7 +109,7 @@ function() {
     'restoreButtonText': ''
   });
 
-  bsp_autoExpand.live(document, ':text.expandable, textarea');
+  bsp_autoExpand.live(document, 'input[type="text"].expandable, input:not([type]).expandable, textarea');
   bsp_autoSubmit.live(document, '.autoSubmit');
 
   $doc.calendar('live', ':text.date');
@@ -121,6 +122,12 @@ function() {
     'frameClassName': 'frame',
     'loadingClassName': 'loading',
     'loadedClassName': 'loaded'
+  });
+
+  bsp_utils.onDomInsert(document, '.CodeMirror', {
+    'insert': function(cm) {
+      bsp_utils.addDomInsertBlacklist(cm);
+    }
   });
 
   bsp_utils.onDomInsert(document, '[data-bsp-autosubmit], .autoSubmit', {
@@ -163,12 +170,26 @@ function() {
   });
 
   // Hide non-essential items in the permissions input.
-  $doc.onCreate('.inputContainer .permissions select', function() {
+  $doc.on('change', '.inputContainer .permissions select', function () {
     var $select = $(this);
 
-    $select.bind('change', $.run(function() {
-      $select.parent().find('> h2, > ul').toggle($select.find(':selected').val() === 'some');
-    }));
+    $select.parent().find('> h2, > ul').toggle($select.find(':selected').val() === 'some');
+  });
+
+  bsp_utils.onDomInsert(document, '.inputContainer .permissions select', {
+    afterInsert: function (selects) {
+      var $hide = $();
+
+      $(selects).each(function () {
+        var $select = $(this);
+
+        if ($select.val() !== 'some') {
+          $hide = $hide.add($select.parent().find('> h2, > ul'));
+        }
+      });
+
+      $hide.hide();
+    }
   });
 
   $doc.onCreate('.searchSuggestionsForm', function() {
@@ -686,7 +707,7 @@ function() {
 
       $frame.prepend($('<a/>', {
         'class': 'popup-objectId-edit-heading',
-        'text': 'Back to ' + $parent.find('.contentForm-main > .widget > h1').text(),
+        'text': 'Back to ' + $parent.find('.contentForm-main > .widget > h1').clone().find('option:not(:selected)').remove().end().text(),
         'click': function() {
           $frame.popup('close');
           return false;
