@@ -632,6 +632,7 @@ if (!isValueExternal) {
                         "data-sortable-item-type", itemType.getId(),
                         "data-type", wp.getObjectLabel(itemType),
                         "data-label", wp.getObjectLabel(item),
+                        "data-label-html", item != null ? wp.createObjectLabelHtml(item) : null,
 
                         // Add the image url for the preview thumbnail, plus the field name that provided the thumbnail
                         // so if that field is changed the front-end knows that the thumbnail should also be updated
