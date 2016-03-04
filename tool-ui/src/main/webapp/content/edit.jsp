@@ -1443,7 +1443,16 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
             };
 
             <% if (Boolean.TRUE.equals(wp.getUser().getState().get("liveContentPreview"))) { %>
-                showPreview();
+
+                var previewInterval = window.setInterval(function() {
+
+                    var $form = $('#<%=previewFormId%>');
+
+                    if ($form.size() > 0 && $form.find('input[name="_csrf"]').size() > 0) {
+                        window.clearInterval(previewInterval);
+                        showPreview();
+                    }
+                }, 200);
             <% } else { %>
                 appendPreviewAction();
             <% } %>
