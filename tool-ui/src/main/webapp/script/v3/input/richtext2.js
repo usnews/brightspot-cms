@@ -364,6 +364,8 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             { action:'fullscreen', text: 'Fullscreen', className: 'rte2-toolbar-fullscreen', tooltip: 'Toggle Fullscreen Editing' },
             { action:'modeToggle', text: 'HTML', className: 'rte2-toolbar-noicon', tooltip: 'Toggle HTML Mode' },
 
+            { richTextElements:true }
+
             // Example adding buttons to insert special characters or other text:
             // { text: 'Special Characters', submenu: [
             //   { action: 'insert', text:'em-', className: 'rte2-toolbar-insert', tooltip:'Em-dash', value:'—'},
@@ -918,6 +920,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
                         self.toolbarInitCustom($toolbar);
 
+                    } else if (item.richTextElements) {
+
+                        self.toolbarInitRichTextElements($toolbar);
+
                     } else {
 
                         self.toolbarAddButton(item, $toolbar);
@@ -1002,6 +1008,59 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                     // Create a toolbar button to apply the style
                     self.toolbarAddButton(toolbarItem, $submenu);
                 });
+            });
+        },
+
+
+        toolbarInitRichTextElements: function ($toolbar) {
+            if (RICH_TEXT_ELEMENTS.length === 0) {
+                return;
+            }
+
+            var self = this;
+
+            self.toolbarAddSeparator($toolbar);
+
+            var tags = self.richTextElementTags;
+            var submenus = { };
+
+            $.each(RICH_TEXT_ELEMENTS, function (index, rtElement) {
+                if (tags && tags.indexOf(rtElement.tag) < 0) {
+                    return;
+                }
+
+                var styleName = rtElement.styleName;
+                var submenuName = rtElement.submenu;
+                var submenu;
+                var toolbarButton;
+
+                toolbarButton = {
+                    className: 'rte2-toolbar-noicon rte2-toolbar-' + styleName,
+                    style: styleName,
+                    text: rtElement.displayName,
+                    tooltip: rtElement.tooltipText
+                };
+
+                if (submenuName) {
+                    submenu = submenus[submenuName];
+
+                    if (!submenu) {
+                        submenu = [ ];
+                        submenus[submenuName] = submenu;
+                    }
+
+                    submenu.push(toolbarButton);
+
+                } else {
+                    self.toolbarAddButton(toolbarButton, $toolbar);
+                }
+            });
+
+            $.each(submenus, function (text, submenu) {
+                self.toolbarAddSubmenu({
+                    text: text,
+                    submenu: submenu
+                }, $toolbar);
             });
         },
 
@@ -3524,17 +3583,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
     };
 
     if (RICH_TEXT_ELEMENTS.length > 0) {
-        Rte.toolbarConfig.push({
-            separator: true
-        });
-
-        var richTextElementsSubmenus = {};
-        
         $.each(RICH_TEXT_ELEMENTS, function (index, rtElement) {
             var styleName = rtElement.styleName;
-            var submenu;
             var tag = rtElement.tag;
-            var toolbarButton;
 
             Rte.styles[styleName] = {
                 className: 'rte2-style-' + styleName,
@@ -3547,7 +3598,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 // or it will be split into multiple elements and the popup will not apply to
                 // all of them
                 singleLine: Boolean(rtElement.popup !== false),
-                
+
                 line: Boolean(rtElement.line),
                 "void": Boolean(rtElement.void),
                 popup: rtElement.popup === false ? false : true,
@@ -3555,33 +3606,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 clear: rtElement.clear,
                 toggle: rtElement.toggle
             };
-
-            toolbarButton = {
-                className: 'rte2-toolbar-noicon rte2-toolbar-' + styleName,
-                style: styleName,
-                text: rtElement.displayName,
-                tooltip: rtElement.tooltipText
-            };
-            
-            if (rtElement.submenu) {
-                
-                submenu = richTextElementsSubmenus[rtElement.submenu];
-                if (!submenu) {
-                    submenu = [];
-                    richTextElementsSubmenus[rtElement.submenu] = submenu;
-                }
-                submenu.push(toolbarButton);
-            } else {
-                Rte.toolbarConfig.push(toolbarButton);
-            }
-        });
-
-        $.each(richTextElementsSubmenus, function(submenuName, submenuValues) {
-
-            Rte.toolbarConfig.push({
-                text: submenuName,
-                submenu: submenuValues
-            });
         });
     }
 
@@ -3604,7 +3628,12 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Make a copy of the object with extend so we don't
             // accidentally change any global default options
             options = $.extend(true, {}, this.option());
-            options.contextRoot = $input.attr('data-rte-context-root');
+
+            var tags = $input.attr('data-rte-tags');
+
+            if (tags) {
+                options.richTextElementTags = JSON.parse(tags);
+            }
 
             inline = $input.data('inline');
             if (inline !== undefined) {
