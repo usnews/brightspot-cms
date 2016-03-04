@@ -29,6 +29,8 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
     // We only need to load them once.
     var customStylesLoaded = false;
 
+    // Counter used for popup frames
+    var frameTargetCounter = 0;
 
     /**
      * @class
@@ -1404,7 +1406,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
                 // Get the toolbar config object (added to the link when the link was created in toolbarInit()
                 config = $link.data('toolbarConfig');
-
+                if (!config) {
+                    return;
+                }
+                
                 // For toolbar actions we need special logic to determine if the button should be "active"
                 // One exception is for inline enhancements, which are treated as a normal style
                 if (config.action && config.action !== 'enhancementInline') {
@@ -2830,7 +2835,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
         inlineEnhancementHandleClick: function(event, mark) {
 
-            var enhancementEditUrl, $div, $divLink, html, offset, self, styleObj;
+            var enhancementEditUrl, $div, $divLink, frameName, html, offset, offsetContainer, range, self, styleObj;
 
             self = this;
 
@@ -2858,23 +2863,25 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             html = self.rte.toHTML(range);
             
             // Create a link for editing the enhancement and position it at the click event
+            frameName = 'rte2-frame-enhancement-inline-' + frameTargetCounter++;
             $div = $('<div/>', {
                 'class': 'rte2-frame-enhancement-inline',
                 'style': 'position:absolute;top:0;left:0;height:1px;overflow:hidden;',
                 html: $('<a/>', {
-                    target: 'rte2-frame-enhancement-inline',
+                    target: frameName,
                     href: enhancementEditUrl,
                     style: 'width:100%;display:block;',
                     text: '.'
                 })
                 
-            }).appendTo('body');
+            }).appendTo(self.$container);
 
             // Set the position of the popup
             offset = self.rte.getOffset(range);
+            offsetContainer = self.$container.offset();
             $div.css({
-                'top': offset.top,
-                'left': offset.left
+                'top': offset.top - offsetContainer.top,
+                'left': offset.left - offsetContainer.left
             });
             $divLink = $div.find('a');
 
@@ -2910,8 +2917,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 $divLink.click();
 
                 // When the popup is closed put focus back on the editor
-                $(document).one('closed', '[name=rte2-frame-enhancement-inline]', function(){
-                        self.focus();
+                $(document).one('closed', '[name=' + frameName + ']', function(){
+                    self.focus();
+                    $div.remove();
                 });
 
             }, 100);
