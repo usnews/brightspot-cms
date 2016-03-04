@@ -49,6 +49,14 @@ define([ 'jquery', 'bsp-utils', 'sticky-kit' ], function($, bsp_utils) {
     }
   });
 
+  bsp_utils.onDomInsert(document, '.rte2-wrapper.rte-fullscreen', {
+    insert: function (wrapper) {
+      $(wrapper).scroll(bsp_utils.throttle(500, function () {
+        $(document.body).trigger("sticky_kit:recalc");
+      }));
+    }
+  });
+
   $(document).on('tabbed-select', function () {
     $(document.body).trigger("sticky_kit:recalc");
   });
