@@ -148,6 +148,13 @@ if (workStream != null) {
         workStream.stop(wp.getUser());
         wp.redirect("/", "reason", "stop-work-stream");
         return;
+    } else if (workStream.countIncomplete() == 0) {
+        wp.writeHeader();
+            wp.writeStart("div", "class", "message message-success");
+                wp.writeHtml(wp.localize(WorkStream.class, "message.complete"));
+            wp.writeEnd();
+        wp.writeFooter();
+        return;
     }
 
     State.getInstance(workstreamObject).as(WorkStream.Data.class).complete(workStream, wp.getUser());
