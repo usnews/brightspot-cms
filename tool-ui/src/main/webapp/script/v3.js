@@ -116,7 +116,13 @@ function() {
   $doc.dropDown('live', 'select[multiple], select[data-searchable="true"]');
   $doc.editablePlaceholder('live', ':input[data-editable-placeholder]');
 
-  bsp_fixedScrollable.live(document, '.fixedScrollable, .searchResult-list, .popup[name="miscSearch"] .searchFiltersRest');
+  bsp_fixedScrollable.live(document, [
+    '.fixedScrollable',
+    '.searchResult-list',
+    '.popup[name="miscSearch"] .searchFiltersRest',
+    '.popup[data-popup-source-class~="objectId-select"] .searchFiltersRest',
+    '.popup[data-popup-source-class~="objectId-select"] .searchResultList'
+  ].join(','));
 
   $doc.frame({
     'frameClassName': 'frame',
