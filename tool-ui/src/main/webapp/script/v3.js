@@ -625,26 +625,30 @@ function() {
     $(document.body).removeClass('toolSearchOpen');
   });
 
-  $doc.on('open', '.popup[data-popup-source-class~="objectId-select"]', function(event) {
+  $doc.on('open', [
+    '.popup[data-popup-source-class~="objectId-select"]',
+    '.popup[data-popup-source-class~="rte2-enhancement-toolbar-change"]'
+  ].join(','), function(event) {
     var $popup = $(event.target);
+    var isEnhancement = $popup.is('.popup[data-popup-source-class~="rte2-enhancement-toolbar-change"]');
     var $input = $popup.popup('source');
     var $container = $input;
     var fieldsLabel = '';
-    var add;
+    var isAdd;
 
     while (true) {
       $container = $container.parent().closest('.inputContainer');
 
       if ($container.length > 0) {
         fieldsLabel = $container.find('> .inputLabel > label').text() + (fieldsLabel ? ' \u2192 ' + fieldsLabel : '');
-        add = $container.find('> .plugin-repeatable').length > 0;
+        isAdd = $container.find('> .plugin-repeatable').length > 0;
 
       } else {
         break;
       }
     }
 
-    var label = (add ? 'Add to ' : 'Select ') + fieldsLabel;
+    var label = (isEnhancement ? 'Select Enhancement for ' : (isAdd ? 'Add to ' : 'Select ')) + fieldsLabel;
     var objectLabel = $input.closest('.contentForm').attr('data-o-label');
 
     if (objectLabel) {

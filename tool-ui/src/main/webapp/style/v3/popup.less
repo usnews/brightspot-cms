@@ -157,7 +157,8 @@
   }
 }
 
-.popup[data-popup-source-class~='objectId-select'].popup-show {
+.popup[data-popup-source-class~='objectId-select'].popup-show,
+.popup[data-popup-source-class~='rte2-enhancement-toolbar-change'].popup-show {
   bottom: auto !important;
   left: auto !important;
   max-width: 900px !important;
@@ -178,7 +179,8 @@
     }
   }
 
-  ~ .popup[data-popup-source-class~='objectId-select'].popup-show {
+  ~ .popup[data-popup-source-class~='objectId-select'].popup-show,
+  ~ .popup[data-popup-source-class~='rte2-enhancement-toolbar-change'].popup-show {
     left: auto !important;
     right: 60px !important;
     top: (@toolHeader-height + 60px) !important;
@@ -188,7 +190,8 @@
       top: (@toolBroadcast-height + @toolHeader-height + 60px) !important;
     }
 
-    ~ .popup[data-popup-source-class~='objectId-select'].popup-show {
+    ~ .popup[data-popup-source-class~='objectId-select'].popup-show,
+    ~ .popup[data-popup-source-class~='rte2-enhancement-toolbar-change'].popup-show {
       left: auto !important;
       right: 80px !important;
       top: (@toolHeader-height + 80px) !important;
@@ -198,7 +201,8 @@
         top: (@toolBroadcast-height + @toolHeader-height + 80px) !important;
       }
 
-      ~ .popup[data-popup-source-class~='objectId-select'].popup-show {
+      ~ .popup[data-popup-source-class~='objectId-select'].popup-show,
+      ~ .popup[data-popup-source-class~='rte2-enhancement-toolbar-change'].popup-show {
         left: auto !important;
         right: 100px !important;
         top: (@toolHeader-height + 100px) !important;
