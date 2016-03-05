@@ -630,27 +630,33 @@ function() {
     var $input = $popup.popup('source');
     var $container = $input;
     var fieldsLabel = '';
+    var add;
 
     while (true) {
       $container = $container.parent().closest('.inputContainer');
 
       if ($container.length > 0) {
         fieldsLabel = $container.find('> .inputLabel > label').text() + (fieldsLabel ? ' \u2192 ' + fieldsLabel : '');
+        add = $container.find('> .plugin-repeatable').length > 0;
 
       } else {
         break;
       }
     }
 
-    var label = 'Select ' + fieldsLabel;
+    var label = (add ? 'Add to ' : 'Select ') + fieldsLabel;
     var objectLabel = $input.closest('.contentForm').attr('data-o-label');
 
     if (objectLabel) {
-      label += ' for ';
+      label += ' - ';
       label += objectLabel;
     }
 
-    $popup.find('> .content > .frame > h1').text(label);
+    bsp_utils.onDomInsert($popup[0], '> .content > .frame > h1', {
+      insert: function (heading) {
+        $(heading).text(label);
+      }
+    });
   });
 
   $doc.on('open', '.popup[data-popup-source-class~="objectId-edit"]', function(event) {
