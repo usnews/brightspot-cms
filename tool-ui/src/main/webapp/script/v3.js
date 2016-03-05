@@ -628,10 +628,14 @@ function() {
   $doc.on('open', [
     '.popup[data-popup-source-class~="objectId-select"]',
     '.popup[data-popup-source-class~="rte2-enhancement-toolbar-change"]'
+
   ].join(','), function(event) {
     var $popup = $(event.target);
     var isEnhancement = $popup.is('.popup[data-popup-source-class~="rte2-enhancement-toolbar-change"]');
     var $input = $popup.popup('source');
+
+    $input.closest('.withLeftNav').addClass('objectSelectOpen');
+
     var $container = $input;
     var fieldsLabel = '';
     var isAdd;
@@ -661,6 +665,17 @@ function() {
         $(heading).text(label);
       }
     });
+  });
+
+  $doc.on('close', [
+    '.popup[data-popup-source-class~="objectId-select"]',
+    '.popup[data-popup-source-class~="rte2-enhancement-toolbar-change"]'
+
+  ].join(','), function (event) {
+    var $popup = $(event.target);
+    var $input = $popup.popup('source');
+
+    $input.closest('.withLeftNav').removeClass('objectSelectOpen');
   });
 
   $doc.on('open', '.popup[data-popup-source-class~="objectId-edit"]', function(event) {
