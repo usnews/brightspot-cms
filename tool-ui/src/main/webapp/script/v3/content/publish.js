@@ -47,7 +47,7 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
           }
         });
 
-        if ($draftButton.closest('.message').length > 0 && !window.DISABLE_AJAX_SAVES) {
+        if (!window.DISABLE_AJAX_SAVES) {
           var saving = false;
           var toolMessageTimeout;
 

@@ -3344,13 +3344,62 @@ public class ToolPageContext extends WebPageContext {
                     if (schedule != null
                             && ObjectUtils.isBlank(schedule.getName())) {
                         schedule.delete();
-                        state.putAtomically("cms.content.scheduleDate", null);
-                        state.save();
+
+                        if (!draft.isNewContent()) {
+                            state.putAtomically("cms.content.scheduleDate", null);
+                            state.save();
+                        }
+                    }
+
+                    if (draft.isNewContent()) {
+                        state.delete();
                     }
                 }
 
             } else {
                 state.delete();
+            }
+
+            redirectOnSave("");
+            return true;
+
+        } catch (Exception error) {
+            getErrors().add(error);
+            return false;
+        }
+    }
+
+    public boolean tryUnschedule(Object object) {
+        if (!isFormPost()
+                || param(String.class, "action-unschedule") == null) {
+            return false;
+        }
+
+        State state = State.getInstance(object);
+
+        if (!hasPermission("type/" + state.getTypeId() + "/delete")) {
+            throw new IllegalStateException(String.format(
+                    "No permission to delete [%s]!",
+                    state.getType().getLabel()));
+        }
+
+        try {
+            Draft draft = getOverlaidDraft(object);
+
+            if (draft != null) {
+                Schedule schedule = draft.getSchedule();
+
+                if (schedule != null
+                        && ObjectUtils.isBlank(schedule.getName())) {
+                    schedule.delete();
+
+                } else {
+                    draft.setSchedule(null);
+                    draft.save();
+                }
+
+                state.putAtomically("cms.content.scheduleDate", null);
+                state.save();
             }
 
             redirectOnSave("");
