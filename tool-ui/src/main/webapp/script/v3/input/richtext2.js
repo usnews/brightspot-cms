@@ -652,7 +652,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Set up a submit event on the form to copy the value back into the textarea
             if (self.doOnSubmit) {
 
-                self.$el.closest('form').on('submit', function(){p
+                self.$el.closest('form').on('submit', function(){
                     if (self.rte.modeGet() === 'rich' && !self.rte.readOnlyGet()) {
                         self.trackChangesSave();
                         self.$el.val(self.toHTML());
