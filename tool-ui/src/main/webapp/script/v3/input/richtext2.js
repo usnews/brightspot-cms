@@ -2920,6 +2920,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 $(document).one('closed', '[name=' + frameName + ']', function(){
                     self.focus();
                     $div.remove();
+                    self.rte.triggerChange();
                 });
 
             }, 100);
