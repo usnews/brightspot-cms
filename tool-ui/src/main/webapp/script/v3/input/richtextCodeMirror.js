@@ -893,7 +893,7 @@ define([
          */
         inlineRemoveStyle: function(styleKey, range, options) {
 
-            var className, deleteText, editor, lineNumber, self, from, to;
+            var className, deleteText, editor, lineNumber, self, from, to, triggerChange;
 
             self = this;
 
@@ -1126,22 +1126,25 @@ define([
 
                         editor.replaceRange('', position.from, position.to, '+brightspotFormatRemoveClass');
                         
-                        // Trigger a change event for the editor
-                        if (options.triggerChange !== false) {
-                            self.triggerChange();
-                        }
+                        // Trigger a change event for the editor later
+                        triggerChange = true;
                     }
                 }
                 if (mark.shouldRemove) {
                     
                     mark.clear();
                     
-                    // Trigger a change event for the editor
-                    if (options.triggerChange !== false) {
-                        self.triggerChange();
-                    }
+                    // Trigger a change event for the editor later
+                    triggerChange = true;
                 }
             });
+
+            // We hold off on triggering a change event until the end because
+            // it seems to cause problems if we trigger a change in the middle
+            // of examining all the marks
+            if (triggerChange && options.triggerChange !== false) {
+                self.triggerChange();
+            }
 
             // Trigger a cursor activity event so the toolbar can update
             CodeMirror.signal(editor, "cursorActivity");
