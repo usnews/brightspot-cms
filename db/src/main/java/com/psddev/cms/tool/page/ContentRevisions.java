@@ -162,36 +162,39 @@ public class ContentRevisions extends Widget {
                 page.writeEnd();
             }
 
-            if (!drafts.isEmpty()) {
-                page.writeStart("h2");
+            page.writeStart("h2");
+                page.writeHtml("Drafts");
+            page.writeEnd();
+
+            page.writeStart("ul", "class", "links pageThumbnails");
+                page.writeStart("li", "class", "new");
+                    page.writeStart("a",
+                            "href", page.cmsUrl("/content/edit/new-draft", "id", state.getId()),
+                            "target", "content-edit-new-draft");
+                        page.writeHtml(page.localize(Draft.class, "action.newType"));
+                    page.writeEnd();
+                page.writeEnd();
+
+                for (Draft d : drafts) {
+                    String name = d.getName();
+                    Content.ObjectModification dcd = d.as(Content.ObjectModification.class);
+
+                    page.writeStart("li",
+                            "class", d.equals(selected) ? "selected" : null,
+                            "data-preview-url", "/_preview?_cms.db.previewId=" + d.getId());
+                    page.writeStart("a", "href", page.objectUrl(null, d));
                     // TODO: LOCALIZE
-
-                    page.writeObjectLabel(ObjectType.getInstance(Draft.class));
-                    page.writeHtml(" Items");
-                page.writeEnd();
-
-                page.writeStart("ul", "class", "links pageThumbnails");
-                    for (Draft d : drafts) {
-                        String name = d.getName();
-                        Content.ObjectModification dcd = d.as(Content.ObjectModification.class);
-
-                        page.writeStart("li",
-                                "class", d.equals(selected) ? "selected" : null,
-                                "data-preview-url", "/_preview?_cms.db.previewId=" + d.getId());
-                        page.writeStart("a", "href", page.objectUrl(null, d));
-                        // TODO: LOCALIZE
-                                if (!ObjectUtils.isBlank(name)) {
-                                    page.writeHtml(name);
-                                    page.writeHtml(" - ");
-                                }
-                                page.writeHtml(page.formatUserDateTime(dcd.getUpdateDate()));
-                                page.writeHtml(" by ");
-                                page.writeObjectLabel(dcd.getUpdateUser());
-                            page.writeEnd();
+                            if (!ObjectUtils.isBlank(name)) {
+                                page.writeHtml(name);
+                                page.writeHtml(" - ");
+                            }
+                            page.writeHtml(page.formatUserDateTime(dcd.getUpdateDate()));
+                            page.writeHtml(" by ");
+                            page.writeObjectLabel(dcd.getUpdateUser());
                         page.writeEnd();
-                    }
-                page.writeEnd();
-            }
+                    page.writeEnd();
+                }
+            page.writeEnd();
 
             if (!namedHistories.isEmpty()) {
                 page.writeStart("h2");
