@@ -142,8 +142,7 @@ public class ToolUser extends Record implements ToolEntity {
     private boolean disableNavigateAwayAlert;
 
     @ToolUi.Tab("Advanced")
-    @DisplayName("Disable Code Mirror Rich Text Editor?")
-    private boolean disableCodeMirrorEditor;
+    private boolean disableCodeMirrorRichTextEditor;
 
     @ToolUi.Note("Force the user to change the password on next log in.")
     private boolean changePasswordOnLogIn;
@@ -808,12 +807,12 @@ public class ToolUser extends Record implements ToolEntity {
         this.disableNavigateAwayAlert = disableNavigateAwayAlert;
     }
 
-    public boolean isDisableCodeMirrorEditor() {
-        return disableCodeMirrorEditor;
+    public boolean isDisableCodeMirrorRichTextEditor() {
+        return disableCodeMirrorRichTextEditor;
     }
 
-    public void setDisableCodeMirrorEditor(boolean disableCodeMirrorEditor) {
-        this.disableCodeMirrorEditor = disableCodeMirrorEditor;
+    public void setDisableCodeMirrorRichTextEditor(boolean disableCodeMirrorRichTextEditor) {
+        this.disableCodeMirrorRichTextEditor = disableCodeMirrorRichTextEditor;
     }
 
     public boolean isChangePasswordOnLogIn() {

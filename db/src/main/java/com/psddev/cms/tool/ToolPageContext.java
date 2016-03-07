@@ -2166,7 +2166,7 @@ public class ToolPageContext extends WebPageContext {
             write("var ENABLE_PADDED_CROPS = ", getCmsTool().isEnablePaddedCrop(), ';');
             write("var DISABLE_CODE_MIRROR_RICH_TEXT_EDITOR = ",
                     getCmsTool().isDisableCodeMirrorRichTextEditor()
-                            || (getUser() != null && getUser().isDisableCodeMirrorEditor()), ';');
+                            || (getUser() != null && getUser().isDisableCodeMirrorRichTextEditor()), ';');
             write("var DISABLE_RTC = ", getCmsTool().isDisableRtc(), ';');
         writeEnd();
 
