@@ -456,10 +456,10 @@ The HTML within the repeatable element must conform to these standards:
                 var self = this;
                 var $item = $(element);
                 var type = $item.attr('data-type');
-                var label = $item.attr('data-label');
+                var label = $item.attr('data-label-html') || $item.attr('data-label');
                 var $label;
                 var $existingLabel;
-                var labelText;
+                var labelHtml;
 
                 // Do not add a label if  there is no data-type attribute
                 if (!type) {
@@ -473,14 +473,14 @@ The HTML within the repeatable element must conform to these standards:
 
                 // The text for the label will be the data type such as "Slideshow Slide"
                 // And if a data-label attribute was provided append it after a colon such as "Slideshow Slide: My Slide"
-                labelText = type;
+                labelHtml = type;
                 if (label) {
-                    labelText += ': ' + label;
+                    labelHtml += ': ' + label;
                 }
 
                 $label = $('<div/>', {
                     'class': 'repeatableLabel',
-                    text: labelText,
+                    'html': labelHtml,
                     
                     // Set up some parameters so the label text will dynamically update based on the input field
                     'data-object-id': $item.find('> input[type="hidden"][name$=".id"]').val(),

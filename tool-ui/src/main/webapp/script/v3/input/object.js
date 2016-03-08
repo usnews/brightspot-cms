@@ -19,6 +19,7 @@ function($) {
           preview,
           visibility,
           label,
+          labelHtml,
           dynamicPlaceholderText,
           dynamicFieldName,
           placeholder,
@@ -36,12 +37,13 @@ function($) {
       $clear = shadow.$clear;
       preview = $input.attr('data-preview');
       label = $input.attr('data-label');
+      labelHtml = $input.attr('data-label-html');
       visibility = $input.attr('data-visibility');
       value = $input.val();
 
       if (preview) {
         var $caption = $('<figcaption>', {
-          'text': label
+          'html': labelHtml
         });
 
         $select.html($('<figure/>', {
@@ -62,8 +64,8 @@ function($) {
         }
 
       } else {
-        if (label) {
-          $select.text(label);
+        if (labelHtml) {
+          $select.html(labelHtml);
 
           if (visibility) {
             $select.prepend(' ');
@@ -209,6 +211,7 @@ function($) {
           if ($input.val()) {
             if ($input.attr('data-restorable') === 'false') {
               $input.removeAttr('data-label');
+              $input.removeAttr('data-label-html');
               $input.removeAttr('data-preview');
 
             } else {
