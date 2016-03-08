@@ -33,9 +33,9 @@ if (wp.getOverlaidDraft(object) == null) {
     List<Object> contentUpdates = Query
             .fromAll()
             .and("com.psddev.cms.db.Draft/objectId = ?", state.getId())
+            .and("cms.content.updateDate > ?", new DateTime().minusDays(1).getMillis())
             .sortDescending("cms.content.updateDate")
-            .select(0, 5)
-            .getItems();
+            .selectAll();
 
     for (Iterator<Object> i = contentUpdates.iterator(); i.hasNext();) {
         Draft contentUpdate = (Draft) i.next();
@@ -48,8 +48,7 @@ if (wp.getOverlaidDraft(object) == null) {
     if (!contentUpdates.isEmpty()) {
         wp.writeStart("div", "class", "message message-info");
         wp.writeStart("p");
-        wp.writeObjectLabel(ObjectType.getInstance(Draft.class));
-        wp.writeHtml(" Items:");
+        wp.writeHtml("Recent Drafts:");
         wp.writeEnd();
 
         wp.writeStart("ul");
@@ -63,7 +62,7 @@ if (wp.getOverlaidDraft(object) == null) {
 
                 if (!ObjectUtils.isBlank(contentUpdateName)) {
                     wp.writeHtml(contentUpdateName);
-                    wp.writeHtml(" - ");
+                    wp.writeHtml(" last saved ");
                 }
 
                 wp.writeHtml(wp.formatUserDateTime(contentUpdate.as(Content.ObjectModification.class).getUpdateDate()));
