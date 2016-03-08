@@ -438,6 +438,16 @@ define([
             editor.on('cursorActivity', function(instance, event) {
                 self.$el.trigger('rteCursorActivity', [self]);
             });
+
+            editor.on('beforeSelectionChange', function(instance, event) {
+                
+                // If user clicked "Clear" to add text after a mark,
+                // or toggled off part of a style mark, then after the cursor moves,
+                // make the styles inclusive again so a user returning to the mark
+                // can enter more text inside the style.
+                self.inlineMakeInclusive();
+                
+            });
             
             editor.on('changes', $.debounce(200, function(instance, event) {
                 self.triggerChange();
@@ -919,7 +929,7 @@ define([
 
             editor.eachLine(from.line, to.line + 1, function(line) {
 
-                var fromCh, toCh, marks;
+                var fromCh, toCh, marks, newMark;
 
                 // Get the character ranges to search within this line.
                 // If we're not on the first line, start at the beginning of the line.
@@ -1045,12 +1055,13 @@ define([
                         //      nn           <-- new mark
                         //        xxxxx      <-- text to delete (if deleteText is true)
 
-                        editor.markText(
+                        newMark = editor.markText(
                             { line: lineNumber, ch: from },
                             { line: lineNumber, ch: fromCh },
                             markerOptsNotInclusive
                         );
-
+                        self.inlineMakeInclusivePush(newMark);
+                        
                         if (deleteText) {
                             // Create a marker for the text that will be deleted
                             // It should be the part of the marked text that is outside the range
@@ -1085,11 +1096,12 @@ define([
                             markerOpts
                         );
 
-                        editor.markText(
+                        newMark = editor.markText(
                             { line: lineNumber, ch: from },
                             { line: lineNumber, ch: fromCh },
                             markerOptsNotInclusive
                         );
+                        self.inlineMakeInclusivePush(newMark);
                         
                         if (deleteText) {
                             // Create a marker for the text that will be deleted
@@ -1149,6 +1161,62 @@ define([
             // Trigger a cursor activity event so the toolbar can update
             CodeMirror.signal(editor, "cursorActivity");
 
+        },
+
+        
+        /**
+         * For elements that were previously made non-inclusive,
+         * make them inclusive now (after the user changed the selection);
+         *
+         * For example, if the user is on the right of a bold style, then
+         * clicking "clear" will make the bold style non-inclusive, so the user
+         * can type type outside the bold style. However, if the user moves the
+         * cursor, then returns to the right of the bold style, the style should
+         * be inclusive again, so the user can add to the bold text.
+         *
+         * This function shoudl be called every time the selection changes.
+         */
+        inlineMakeInclusive: function() {
+
+            var marks, self;
+
+            self = this;
+
+            // Get an array of the marks that were previously saved
+            // when they were made non-inclusive.
+            marks = self.marksToMakeInclusive || [];
+
+            if (marks.length) {
+                
+                $.each(self.marksToMakeInclusive || [], function() {
+                    var mark = this;
+                    mark.inclusiveRight = true;
+                });
+                
+                self.marksToMakeInclusive = [];
+            }
+        },
+
+        
+        /**
+         * Add a mark to the list of marks that must be made inclusive
+         * after the user moves the selection.
+         * @param {Object] mark
+         */
+        inlineMakeInclusivePush: function(mark) {
+            
+            var self;
+
+            self = this;
+            
+            // Ignore certain styles that are internal only like spelling errors
+            if (!self.classes[mark.className]) {
+                return;
+            }
+            
+            self.marksToMakeInclusive = self.marksToMakeInclusive || [];
+
+            self.marksToMakeInclusive.push(mark);
         },
 
 
