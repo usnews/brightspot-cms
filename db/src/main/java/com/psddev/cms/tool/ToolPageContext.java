@@ -1364,7 +1364,7 @@ public class ToolPageContext extends WebPageContext {
                 }
 
             } else if (draft.getSchedule() != null) {
-                return localize(State.getInstance(object).getType(), "visibility.scheduledUpdate");
+                return localize(State.getInstance(object).getType(), "visibility.scheduledDraft");
 
             } else {
                 return localize(Draft.class, "displayName");
