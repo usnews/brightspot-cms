@@ -107,6 +107,8 @@ $.plugin2('tabbed', {
                 urlMatch = urlMatch[2];
 
                 if (urlMatch) {
+                    urlMatch = decodeURIComponent(urlMatch);                
+                    
                     $tabs.find('> li > a').each(function() {
                         var $tab = $(this);
 
