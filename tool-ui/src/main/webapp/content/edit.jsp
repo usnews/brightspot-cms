@@ -964,17 +964,6 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                     wp.writeStart("ul", "class", "widget-publishingExtra-left");
                         if ((!lockedOut || editAnyway) && isWritable) {
                             if (isDraft) {
-                                if (draft != null && !draft.isNewContent()) {
-                                    wp.writeStart("li");
-                                        wp.writeStart("a",
-                                                "class", "icon icon-action-edit",
-                                                "href", wp.url("", "draftId", null));
-                                            wp.writeHtml("Back to ");
-                                            wp.writeHtml(!visible ? "Initial Draft" : "Live");
-                                        wp.writeEnd();
-                                    wp.writeEnd();
-                                }
-
                                 if (schedule == null) {
                                     wp.writeStart("li");
                                         wp.writeStart("button",
@@ -982,6 +971,17 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                                 "name", "action-draft",
                                                 "value", "true");
                                             wp.writeHtml(wp.localize(editingState.getType(), "action.save.draft"));
+                                        wp.writeEnd();
+                                    wp.writeEnd();
+                                }
+
+                                if (draft != null && !draft.isNewContent()) {
+                                    wp.writeStart("li");
+                                        wp.writeStart("a",
+                                                "class", "icon icon-arrow-left",
+                                                "href", wp.url("", "draftId", null));
+                                            wp.writeHtml("Back to ");
+                                            wp.writeHtml(!visible ? "Initial Draft" : "Live");
                                         wp.writeEnd();
                                     wp.writeEnd();
                                 }
