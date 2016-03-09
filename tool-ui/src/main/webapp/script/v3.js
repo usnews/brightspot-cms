@@ -683,7 +683,6 @@ function() {
 
   $doc.on('open', '.popup[data-popup-source-class~="objectId-edit"]', function(event) {
     var $frame = $(event.target);
-    var $parent = $frame.popup('source').closest('.popup, .toolContent');
 
     // Since the edit popup might contain other popups within it,
     // only run this code when the edit popup is opened
@@ -691,6 +690,8 @@ function() {
     if (!$frame.is('.popup[data-popup-source-class~="objectId-edit"]')) {
       return;
     }
+
+    var $parent = $frame.popup('source').closest('.popup, .toolContent');
 
     $frame.popup('container').removeClass('popup-objectId-edit-hide');
     $parent.addClass('popup-objectId-edit popup-objectId-edit-loading');
