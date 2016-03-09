@@ -726,18 +726,12 @@ public class Search extends Record {
                     query.and("* ~= ?", queryString);
                 }
 
-            } else if (selectedType != null) {
-                for (String field : selectedType.getLabelFields()) {
-                    if (selectedType.getIndex(field) != null) {
-                        query.and(selectedType.getInternalName() + "/" + field + " contains[c] ?", queryString);
-                    }
-                    break;
-                }
-
             } else {
                 Predicate predicate = null;
 
-                for (ObjectType type : validTypes) {
+                Set<ObjectType> predicateTypes = selectedType != null ? Collections.singleton(selectedType) : validTypes;
+
+                for (ObjectType type : predicateTypes) {
                     String prefix = type.getInternalName() + "/";
 
                     for (String field : type.getLabelFields()) {
@@ -747,7 +741,6 @@ public class Search extends Record {
                                     predicate,
                                     PredicateParser.Static.parse(prefix + field + " contains[c] ?", queryString));
                         }
-                        break;
                     }
                 }
 
