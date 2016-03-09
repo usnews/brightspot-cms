@@ -211,6 +211,7 @@ public class SearchResultRenderer {
                 if (level == 1) {
                     page.writeEnd();
                     page.writeEnd();
+                    writeSuggestions();
                 }
 
                 page.writeEnd();
@@ -234,9 +235,13 @@ public class SearchResultRenderer {
                 } else {
                     renderEmpty();
                 }
+
+                writeSuggestions();
             page.writeEnd();
         }
+    }
 
+    private void writeSuggestions() throws IOException {
         if (search.isSuggestions() && ObjectUtils.isBlank(search.getQueryString())) {
             String frameName = page.createId();
 
