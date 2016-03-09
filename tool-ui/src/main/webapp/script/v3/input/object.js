@@ -17,8 +17,6 @@ function($) {
           $edit,
           $clear,
           preview,
-          visibility,
-          label,
           labelHtml,
           dynamicPlaceholderText,
           dynamicFieldName,
@@ -36,9 +34,7 @@ function($) {
       $edit = shadow.$edit;
       $clear = shadow.$clear;
       preview = $input.attr('data-preview');
-      label = $input.attr('data-label');
-      labelHtml = $input.attr('data-label-html');
-      visibility = $input.attr('data-visibility');
+      labelHtml = $input.attr('data-label-html') || $input.attr('data-label');
       value = $input.val();
 
       if (preview) {
@@ -55,25 +51,9 @@ function($) {
           ]
         }));
 
-        if (visibility) {
-          $caption.prepend(' ');
-          $caption.prepend($('<span/>', {
-            'class': 'visibilityLabel',
-            'text': visibility
-          }));
-        }
-
       } else {
         if (labelHtml) {
           $select.html(labelHtml);
-
-          if (visibility) {
-            $select.prepend(' ');
-            $select.prepend($('<span/>', {
-              'class': 'visibilityLabel',
-              'text': visibility
-            }));
-          }
 
         } else {
           dynamicPlaceholderText = $input.attr('data-dynamic-placeholder');
