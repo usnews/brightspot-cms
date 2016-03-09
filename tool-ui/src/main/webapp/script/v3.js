@@ -741,7 +741,7 @@ function() {
 
       $frame.prepend($('<a/>', {
         'class': 'popup-objectId-edit-heading',
-        'text': 'Back to ' + $parent.find('.contentForm-main > .widget > h1').clone().find('option:not(:selected)').remove().end().text(),
+        'text': 'Back to ' + $parent.find('.contentForm-main > .widget > h1, > .withLeftNav > .main > .widget > h1').eq(0).clone().find('option:not(:selected)').remove().end().text(),
         'click': function() {
           $frame.popup('close');
           return false;
