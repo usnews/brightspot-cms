@@ -17,7 +17,6 @@ function($) {
           $edit,
           $clear,
           preview,
-          label,
           labelHtml,
           dynamicPlaceholderText,
           dynamicFieldName,
@@ -35,8 +34,7 @@ function($) {
       $edit = shadow.$edit;
       $clear = shadow.$clear;
       preview = $input.attr('data-preview');
-      label = $input.attr('data-label');
-      labelHtml = $input.attr('data-label-html');
+      labelHtml = $input.attr('data-label-html') || $input.attr('data-label');
       value = $input.val();
 
       if (preview) {
