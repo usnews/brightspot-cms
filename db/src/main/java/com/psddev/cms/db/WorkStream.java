@@ -133,7 +133,7 @@ public class WorkStream extends Record {
     /** Returns the number of remaining items to be worked on. */
     public long countIncomplete() {
         return getQuery().clone()
-                .not("cms.workstream.completeIds ^= ?", getId().toString() + ",")
+                .and("id != ?", Query.from(Object.class).where("cms.workstream.completeIds ^= ?", getId().toString() + ","))
                 .count();
     }
 
@@ -229,7 +229,7 @@ public class WorkStream extends Record {
 
         if (next == null) {
             Query<?> query = getQuery().clone()
-                    .not("cms.workstream.completeIds ^= ?", getId().toString() + ",");
+                    .and("id != ?", Query.from(Object.class).where("cms.workstream.completeIds ^= ?", getId().toString() + ","));
 
             if (siteItemsPredicate != null) {
                 query.and(siteItemsPredicate);
