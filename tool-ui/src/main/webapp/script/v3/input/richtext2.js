@@ -235,11 +235,22 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             
             'p[style*="text-align:right"]': 'alignRight',
             'p[style*="text-align:center"]': 'alignCenter',
+
+            // MSWord 'p' elements should be treated as a new line
+            // Special case if 'p' element contains only whitespace remove the whitespace
+            'p[class^=Mso]': function($el) {
+                var $replacement, t;
+                t = $el.text() || '';
+                if (t.match(/^\s*$/)) {
+                    $el.text('');
+                }
+                $replacement = $('<span>', {'data-rte2-sanitize': 'linebreakSingle'});
+                $replacement.append( $el.contents() );
+                $el.replaceWith( $replacement );
+            },
             
-            // Any 'p' element should be treated as a new line
-            // Note: we also add an extra <br> element after the <p> elements.
+            // Any 'p' element should be treated as a new line with a blank line after
             'p': 'linebreak'
-            
         },
 
 
