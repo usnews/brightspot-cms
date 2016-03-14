@@ -174,7 +174,12 @@ define([
 
             linebreak: {
                 line:true
+            },
+
+            linebreakSingle:{
+                line:true
             }
+            
         }, // styles
 
         
@@ -3691,12 +3696,21 @@ define([
             if (self.clipboardSanitizeRules) {
                 $.each(self.clipboardSanitizeRules, function(selector, style) {
                     $el.find(selector).each(function(){
-                        var $match = $(this);
-                        var $replacement = $('<span>', {'data-rte2-sanitize': style});
-                        $replacement.append( $match.contents() );
-                        $match.replaceWith( $replacement );
+                        var $match, $replacement;
+
+                        $match = $(this);
+                        
+                        if ($.isFunction(style)) {
+                            style($match);
+                        } else {
+                            $replacement = $('<span>', {'data-rte2-sanitize': style});
+                            $replacement.append( $match.contents() );
+                            $match.replaceWith( $replacement );
+                        }
                     });
                 });
+
+                // Anything we replaced with "linebreak" should get an extra blank line after
                 $el.find('[data-rte2-sanitize=linebreak]').after('<br/>');
             }
 
