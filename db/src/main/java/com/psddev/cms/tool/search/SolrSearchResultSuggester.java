@@ -85,7 +85,8 @@ public class SolrSearchResultSuggester implements SearchResultSuggester {
 
             if (score != null && score > 0.7) {
                 if (site != null
-                        && !PredicateParser.Static.evaluate(item, site.itemsPredicate())) {
+                        && !PredicateParser.Static.evaluate(item, site.itemsPredicate())
+                        || !PredicateParser.Static.evaluate(item, field.getPredicate())) {
                     continue;
                 }
 
@@ -113,7 +114,8 @@ public class SolrSearchResultSuggester implements SearchResultSuggester {
 
             if (score > 0.7) {
                 if (site != null
-                        && !PredicateParser.Static.evaluate(item, site.itemsPredicate())) {
+                        && !PredicateParser.Static.evaluate(item, site.itemsPredicate())
+                        || !PredicateParser.Static.evaluate(item, field.getPredicate())) {
                     continue;
                 }
 
